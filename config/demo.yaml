@@ -1,0 +1,378 @@
+# Демо-мир и демо-инструменты «Взаимно» (DEMO_MODE, seed, автоответчик, режим жюри).
+# Источники: концепция §7.3 и §11 (сценарий демо), DECISIONS п. 4, 5, 25; 02-compliance G2, G3, RK2.
+# Всё, что похоже на число или список, живёт здесь — в коде демо-модуля магических чисел нет.
+# Все компании, люди и контакты вымышленные: домены в зоне .example (зарезервирована IANA).
+version: 1
+
+# --- Популяция синтетических кандидатов (backend/eval/population.py — тот же генератор, что у валидации) ----
+population:
+  size: 300                  # сколько кандидатов создаёт seed (префикс популяции из 2000: те же люди, что в eval)
+  seed: 20261005             # MASTER_SEED валидации: демо и `make validate` видят одних и тех же людей
+  email_domain: cand.example.org
+  fsp_share: 0.35            # доля с ФСП в генераторе; привязка — к спортсменам мок-реестра (их 60), поэтому не больше
+  fsp_athlete_min_age: 18    # несовершеннолетних спортсменов реестра кандидатам не выдаём (отдельная политика)
+  answer_seconds_min: 25     # время ответа симулянта на задание, с (реалистичная трасса для детекторов)
+  answer_seconds_max: 90
+  retry_extension: true      # принимать добор вверх, если уровень симулянта на это указывает
+  commit_every: 5            # коммит в БД каждые N кандидатов (прерванный seed продолжается)
+  blind_card_share: 1.0      # доля кандидатов с согласием на слепую карточку (иначе их нет в банке)
+  search_mode_mix:           # режим поиска синтетических кандидатов
+    active: 0.35
+    open: 0.60
+    hidden: 0.05
+  weekly_invite_limit_mix: [3, 5, 5, 5, 10]   # лимит новых приглашений в неделю (выбор по кругу)
+
+# --- Пул одноразовых экземпляров ---------------------------------------------------------------------------
+pool:
+  specs: [backend_python, frontend_js]   # только тестируемые специализации: остальные семейства демо не нужны
+  n_per_family: 200
+  min_free: 50
+  threads: 4
+
+# --- Демо-аккаунты (пароль выводится из VZ_APP_SECRET и ключа: один секрет — один пароль, файл можно восстановить) --
+accounts:
+  domain: demo.example.com
+  credentials_file: var/demo_accounts.md   # относительно каталога backend/; в .gitignore
+  password_prefix: "Vz-"
+  password_length: 10
+  # Кандидатская «Мария» не заводится заранее: по сценарию §11 она регистрируется вживую (код приходит в Mailpit)
+  fresh_registration_email: maria@demo.example.com
+
+# Вымышленный публичный хост ATS: проверка SSRF его пропускает, доставку на него перехватывает демо-приёмник
+company_webhook_host: ats.vzaimno-demo.example
+
+# --- Демо-компании (вымышленные). Первая — «Северный код» из сценария §11 ---------------------------------------
+companies:
+  - key: severny_kod
+    name: ООО «Северный код»
+    domain: severny-kod.example
+    hr_email: hr@severny-kod.example
+    field: Финтех — платёжный шлюз для маркетплейсов
+    city: Москва
+    description: "Делаем платёжный шлюз для маркетплейсов: 40 человек, офис в Москве и гибридный формат. Пишем на Python и PostgreSQL, внедряем Kafka."
+    contact: { email: hr@severny-kod.example, telegram: "@severny_kod_hr" }
+    website: https://severny-kod.example
+    webhook: true            # вебхуки ATS уходят во встроенный приёмник /api/demo/webhook-sink
+  - key: ladozhskie
+    name: ООО «Ладожские системы»
+    domain: ladozhskie.example
+    hr_email: hr@ladozhskie.example
+    field: Логистика — маршрутизация и складской учёт
+    city: Санкт-Петербург
+    description: "Разрабатываем платформу для складов и перевозчиков: маршруты, остатки, трекинг. Команда 25 человек, гибрид в Санкт-Петербурге."
+    contact: { email: hr@ladozhskie.example, phone: "+7 812 000-00-01" }
+  - key: malakhit
+    name: ООО «Малахит Маркет»
+    domain: malakhit.example
+    hr_email: hr@malakhit.example
+    field: Электронная коммерция — маркетплейс
+    city: Екатеринбург
+    description: "Маркетплейс товаров для дома, 120 тысяч заказов в сутки. Ищем разработчиков на витрину и в платформенную команду. Удалённый формат."
+    contact: { email: hr@malakhit.example, telegram: "@malakhit_jobs" }
+  - key: kolokol
+    name: ООО «Колокол Медиа»
+    domain: kolokol-media.example
+    hr_email: hr@kolokol-media.example
+    field: Медиа и игры — онлайн-сервисы
+    city: Москва
+    description: "Стриминговый сервис и мобильные игры. Фронтенд на React и TypeScript, бэкенд на Python. Гибрид, офис у метро."
+    contact: { email: hr@kolokol-media.example }
+  - key: yantar
+    name: ООО «Янтарь Телеком»
+    domain: yantar-telecom.example
+    hr_email: hr@yantar-telecom.example
+    field: Телеком — биллинг и личный кабинет абонента
+    city: Калининград
+    description: "Биллинг и личный кабинет абонента для региональных операторов связи. Команда 60 человек, офис и удалёнка."
+    contact: { email: hr@yantar-telecom.example, phone: "+7 401 000-00-02" }
+  - key: granit
+    name: ООО «Гранит Индустрия»
+    domain: granit-industry.example
+    hr_email: hr@granit-industry.example
+    field: Промышленная автоматизация — сбор и анализ данных с датчиков
+    city: Челябинск
+    description: "Сбор и анализ данных с датчиков на заводах: сервисы приёма данных, дашборды, отчётность. Офис в Челябинске, возможен гибрид."
+    contact: { email: hr@granit-industry.example }
+
+# --- Брифы компаний. text — как пишет человек; вилка обязательна (§3.2 шаг 3) ------------------------------------
+needs:
+  - company: severny_kod
+    key: payments_backend
+    title: Backend Middle в платёжный шлюз
+    text: >-
+      Бэкенд в команду платёжного шлюза. Уверенный Python, FastAPI, PostgreSQL, опыт от 2 лет.
+      Kafka и Docker будут плюсом. Гибрид, Москва. 220–280 тыс. на руки
+    shortlist: 4              # сколько верхних кандидатов закрепить в шортлисте
+    publish_vacancy: true
+  - company: severny_kod
+    key: ui_frontend
+    title: Frontend Junior в личный кабинет
+    text: >-
+      Фронтенд в команду личного кабинета. React, TypeScript, адаптивная вёрстка. Опыт от года.
+      Будет плюсом Jest и Storybook. Гибрид, Москва. 120–170 тыс. на руки
+    shortlist: 2
+    publish_vacancy: false
+  - company: ladozhskie
+    key: logistics_python
+    title: Python-разработчик в платформу маршрутов
+    text: >-
+      Python-разработчик в команду маршрутизации. Нужны Django, PostgreSQL, Celery и Redis, опыт от 3 лет.
+      Docker и Kafka будут плюсом. Гибрид, Санкт-Петербург. 250–320 тыс. на руки
+    shortlist: 3
+    publish_vacancy: true
+  - company: malakhit
+    key: storefront
+    title: Frontend Middle на витрину
+    text: >-
+      Ищем фронтенд-разработчика на витрину маркетплейса. React, TypeScript, Redux, опыт от 2 лет.
+      Next.js будет плюсом. Удалённо. 200–260 тыс. на руки
+    shortlist: 3
+    publish_vacancy: true
+  - company: malakhit
+    key: platform_python
+    title: Backend Senior в платформенную команду
+    text: >-
+      Senior Python-разработчик в платформенную команду. FastAPI, PostgreSQL, Redis, Kafka, опыт от 5 лет.
+      Kubernetes будет плюсом. Удалённо. 340–420 тыс. на руки
+    shortlist: 2
+    publish_vacancy: false
+  - company: kolokol
+    key: web_player
+    title: Frontend Junior в веб-плеер
+    text: >-
+      Фронтенд в команду веб-плеера. JavaScript, React, CSS, опыт от года. TypeScript и Jest будут плюсом.
+      Гибрид, Москва. 110–160 тыс. на руки
+    shortlist: 2
+    publish_vacancy: true
+  - company: yantar
+    key: billing_backend
+    title: Backend Middle в биллинг
+    text: >-
+      Backend-разработчик на Python в биллинг. Django, PostgreSQL, SQL, опыт от 2 лет.
+      Docker и Redis будут плюсом. Офис, Калининград. 180–240 тыс. на руки
+    shortlist: 2
+    publish_vacancy: true
+  - company: granit
+    key: sensors_backend
+    title: Python-разработчик в сервис приёма данных
+    text: >-
+      Python-разработчик в сервис приёма данных с датчиков. FastAPI, PostgreSQL, Docker, опыт от 2 лет.
+      Kafka и Redis будут плюсом. Офис, Челябинск. 160–220 тыс. на руки
+    shortlist: 2
+    publish_vacancy: false
+
+# --- Приглашения, которые seed доводит до каждого статуса (кандидаты — из шортлиста брифа) ---------------------
+# at_days_ago — когда отправлено (часы демо-времени); дальше ответ кандидата/работодателя и сдвиг часов.
+invitation_plan:
+  - { company: severny_kod, need: payments_backend, status: countered, note: "Ждёт ответа работодателя на «Да, если…»" }
+  - { company: severny_kod, need: payments_backend, status: accepted,  note: "Взаимное «да», контакты раскрыты" }
+  - { company: severny_kod, need: payments_backend, status: sent,      note: "Отправлено, кандидат ещё не открывал" }
+  - { company: severny_kod, need: ui_frontend,      status: viewed,    note: "Открыто, ответа нет" }
+  - { company: ladozhskie,  need: logistics_python, status: declined,  reason: stack }
+  - { company: ladozhskie,  need: logistics_python, status: accepted_hired, note: "Взаимное «да» → найм" }
+  - { company: malakhit,    need: storefront,       status: counter_declined }
+  - { company: malakhit,    need: storefront,       status: withdrawn }
+  - { company: malakhit,    need: platform_python,  status: expired }
+  - { company: kolokol,     need: web_player,       status: declined,  reason: salary }
+  - { company: kolokol,     need: web_player,       status: consent_revoked }
+  - { company: yantar,      need: billing_backend,  status: accepted,  note: "Контакты раскрыты, ждём «Связались»" }
+invitation_hours_ago:
+  early: 336       # приглашения, которые должны успеть истечь или закрыться (14 дней назад)
+  middle: 96
+  late: 3          # «живые» (sent, viewed, countered) — свежие, срок ответа не истёк
+  step_hours: 6    # шаг между событиями одной истории
+
+# --- Отклики на вакансии (кандидаты без приглашений) ------------------------------------------------------------
+applications_plan:
+  - { vacancy: payments_backend, who: ilya, status: interested, note: "Илья откликается сам: контакты раскрыты по отклику" }
+  - { vacancy: logistics_python, status: submitted }
+  - { vacancy: logistics_python, status: rejected, reason: skills_missing }
+  - { vacancy: storefront,       status: viewed }
+  - { vacancy: storefront,       status: withdrawn }
+  - { vacancy: web_player,       status: no_response }
+  - { vacancy: billing_backend,  status: interested }
+
+# --- Задачи ---------------------------------------------------------------------------------------------------
+tasks:
+  platform_titles:           # тренировочные задачи платформы (по модулю теста), к ним привязываются результаты популяции
+    python_core: Парсер логов
+    sql: Отчёт по заказам на SQL
+    http_api: Идемпотентность платежей
+    algo: Пересечение интервалов
+    git_linux: Разбор конфликта слияния
+    js_core: Дебаунс поиска
+    react: Форма с валидацией
+    html_css: Адаптивная карточка товара
+  platform_time_limit_min: 10
+  employer:
+    - company: severny_kod
+      kind: approach
+      specialization: backend_python
+      grade: middle
+      title: Спроектируйте идемпотентный платёж
+      prompt: >-
+        Опишите, как вы сделаете идемпотентным запрос на создание платежа: что станет ключом, где вы его
+        храните, как ведёт себя повтор и что происходит при частичном сбое между записью и ответом клиенту.
+      time_limit_min: 12
+      tags: [python, postgresql]
+    - company: severny_kod
+      kind: catalog
+      specialization: backend_python
+      grade: middle
+      title: Задача на SQL от «Северного кода»
+      module: sql
+      tags: [sql, postgresql]
+    - company: malakhit
+      kind: catalog
+      specialization: frontend_js
+      grade: middle
+      title: Задача на React от «Малахит Маркет»
+      module: react
+      tags: [react]
+  platform_assignments_per_candidate_max: 3
+
+# --- Вебхук-приёмник ATS ---------------------------------------------------------------------------------------
+webhook_sink:
+  path: /api/demo/webhook-sink
+  keep: 20                   # последние N событий
+  response_body: ok
+
+# --- Автоответчик синтетических кандидатов (G2, DECISIONS 4) ----------------------------------------------------
+autoresponder:
+  enabled: true
+  tick_interval_s: 5
+  delay_min_s: 30            # ответ через 30–90 с после отправки
+  delay_max_s: 90
+  counter_ratio_max: 1.2     # «Да, если»: to < min ≤ 1.2·to
+  counter_comment: Готов(а) обсуждать, если условия по зарплате будут от указанной суммы.
+  batch_limit: 200           # приглашений за один проход
+  build_fence_days: 1        # на время сборки сценария граница «после сборки» уходит вперёд: заготовки с прошлыми датами не трогаем
+  # Причина «Нет» из персоны (выбор по номеру кандидата: детерминированно, без глобального random)
+  decline_reasons: [stack, other_process, not_looking, company, format, salary, stack, other_process]
+  decline_comment: ""        # комментарий не пишем: контакты и ссылки до раскрытия запрещены
+  review_note: Синтетический кандидат (демо)
+
+# --- «Режим жюри» (RK2): подсвечиваем верный ответ, сессия помечается demo_assisted и исключается из метрик --------
+jury_mode:
+  default: false
+  hint_requires_flag: true   # подсказка доступна только пока режим включён
+
+# --- Часы -------------------------------------------------------------------------------------------------------
+clock:
+  presets:                   # кнопки «+1 день / +3 дня»
+    plus_1d: { label: "+1 день", days: 1 }
+    plus_3d: { label: "+3 дня", days: 3 }
+
+# --- Служебные аккаунты ------------------------------------------------------------------------------------------
+staff:
+  jury:       { key: jury,       role: methodist, email: jury@demo.example.com,      title: "Жюри (лаборатория, только просмотр)" }
+  methodist:  { key: methodist,  role: methodist, email: metodist@demo.example.com,  title: "Методист" }
+  admin:      { key: admin,      role: admin,     email: admin@demo.example.com,     title: "Администратор (импорт жюри, /api/admin)" }
+
+# --- Персоны по сценарию §11 и ступенчатые кандидаты ---------------------------------------------------------------
+personas:
+  anna:
+    email: anna@demo.example.com
+    full_name: Анна Байтова
+    spec: backend_python
+    grade: middle
+    theta: 0.4                # скрытый уровень: уверенный Middle («542 · 94%»), тест на 12-м задании
+    fsp_sub: 54ac9bcc-d3ac-4244-a71b-656ddbaa7a8f   # призёр всероссийских (демо-реестр ФСП)
+    salary_min: 270000
+    formats: [hybrid, remote]
+    city: Москва
+    industries: [fintech]
+    experience_months: 54
+    declared_skills: [python, fastapi, postgresql, kafka, docker]
+    session_answered: 11      # «сессия, начатая утром, на 12-м задании»
+    session_pending_p_low: 0.70   # после 11-го ответа P(пройдёт) лежит в этом окне: два верных ответа → стоп «пройдено»
+    session_pending_p_high: 0.89
+    session_theta_search_seeds: 25
+  ilya:
+    email: ilya@demo.example.com
+    full_name: Илья Стеков
+    spec: backend_python
+    grade: middle
+    theta: 0.8
+    salary_min: 230000
+    formats: [hybrid, remote]
+    city: Москва
+    industries: [fintech, ecommerce]
+    experience_months: 40
+    declared_skills: [python, django, postgresql, docker]
+    # «Не хватает подтверждённого SQL»: модуль sql занижен, тег «заявлено» без подтверждения
+    weak_modules: { sql: -1.8 }     # модуль SQL заметно ниже общего уровня
+    ensure_unconfirmed_skill: sql
+    unconfirmed_theta_max: -0.1     # оценка уровня по SQL не выше (Middle = 0): навык «не подтверждён» для брифа Middle
+    session_tries: 12
+  maria_contact:             # контакты и профиль, которые Мария подтвердит сама при регистрации
+    full_name: Мария Лямбдина
+
+staged:                      # ступенчатые аккаунты кандидата (G2, RK2): где «застрять» нельзя
+  - { key: registered, email: stage1-registered@demo.example.com, full_name: Пётр Регистров, stage: registered,
+      title: "Только зарегистрирован: впереди опрос" }
+  - { key: survey,     email: stage2-survey@demo.example.com,     full_name: Ольга Опросова,  stage: survey,
+      title: "Опрос пройден: впереди выбор грейда и тест" }
+  - { key: midtest,    email: stage3-midtest@demo.example.com,    full_name: Глеб Середин,    stage: midtest, answered: 7,
+      title: "Середина теста: 7 заданий позади" }
+  - { key: category,   email: stage4-category@demo.example.com,   full_name: Вера Категориева, stage: category, theta: 0.7, grade: middle,
+      title: "С категорией: Backend · Middle подтверждён" }
+staged_defaults:
+  spec: backend_python
+  claimed_grade: middle
+  keep_alive: [midtest]      # сессия «на середине» не должна оборваться за 30 минут — её освежает демо-цикл
+
+# --- Фамилии и имена (вымышленные: IT-термины; реальных сочетаний ФИО нет) -------------------------------------------
+names:
+  surnames_m: [Байтов, Хэшев, Кэшев, Стеков, Пулов, Тредов, Лямбдин, Дедлайнов, Коммитов, Мержев, Дебагов, Релизов, Фреймов, Сокетов, Парсеров, Индексов, Шардов, Брокеров, Токенов, Рантаймов, Бэкапов, Деплоев, Линтеров, Паддингов, Кластеров, Рутинов, Тайпингов, Сервисов, Паттернов, Адаптеров]
+  surnames_f: [Байтова, Хэшева, Кэшева, Стекова, Пулова, Тредова, Лямбдина, Дедлайнова, Коммитова, Мержева, Дебагова, Релизова, Фреймова, Сокетова, Парсерова, Индексова, Шардова, Брокерова, Токенова, Рантаймова, Бэкапова, Деплоева, Линтерова, Паддингова, Кластерова, Рутинова, Тайпингова, Сервисова, Паттернова, Адаптерова]
+  first_m: [Иван, Дмитрий, Алексей, Сергей, Андрей, Михаил, Николай, Артём, Кирилл, Максим, Егор, Роман, Тимур, Павел, Владимир, Фёдор, Георгий, Лев, Матвей, Станислав]
+  first_f: [Мария, Елена, Наталья, Ольга, Татьяна, Дарья, Ксения, Полина, Софья, Алиса, Варвара, Ирина, Евгения, Юлия, Любовь, Вероника, Милана, Кира, Злата, Людмила]
+  telegram_prefix: demo_
+  phone_prefix: "+7 900 000-"
+  employers:                 # сотрудники отдела кадров демо-компаний — без ФИО, только роль
+    role: Рекрутёр
+
+# --- Админ-инструменты жюри (G3, DECISIONS 5) -----------------------------------------------------------------------
+admin:
+  import:
+    max_pairs: 20000         # строк в одном файле импорта
+    max_bytes: 20000000      # размер тела запроса
+  rank:
+    default_top: 20
+    max_top: 200
+  pairs:
+    ks: [5, 10]              # P@5, P@10
+    ndcg_k: 10
+    relevant_from: 2         # rel ≥ 2 — релевантен (концепция §7.1)
+    bootstrap: { n: 1000, seed: 20261005, alpha: 0.05 }
+    min_briefs_for_ci: 2
+  unconfirmed_group_label: Категория по опросу, не подтверждена
+  validation_json: eval/out/validation.json   # относительно каталога backend/
+
+# --- Как синтетический кандидат «проходит опрос» (ответы согласованы с его истинной специализацией) --------------------
+survey:
+  actions:                   # действие → частота за 12 месяцев (коды из config/testing.yaml → survey)
+    backend_python: { server_api: regularly, sql_db: regularly, queues_cache: sometimes, ci_cd: sometimes }
+    frontend_js: { ui_layout: regularly, spa_components: regularly, browser_debug: regularly, ci_cd: sometimes }
+  technology_by_skill:       # навык справочника → технология опроса (серые чипы «заявлено», в оценку не входят)
+    python: python
+    django: django_fastapi
+    fastapi: django_fastapi
+    drf: django_fastapi
+    flask: django_fastapi
+    javascript: javascript
+    typescript: typescript
+    react: react
+    vue: vue_angular
+    html: html_css
+    css: html_css
+    nodejs: nodejs
+    postgresql: postgresql
+    docker: docker
+    kubernetes: kubernetes
+    git: linux_git
+    linux: linux_git
+    pytest: test_frameworks
+    jest: test_frameworks
+  recency: now

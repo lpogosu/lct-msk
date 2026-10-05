@@ -13,10 +13,8 @@ from app.main import create_app
 
 CYRILLIC = re.compile(r"[а-яё]", re.IGNORECASE)
 STANDARD = {"400", "401", "403", "404", "409", "422", "429"}
-STUB_SECTIONS = {
-    "/api/admin": "Администрирование",
-    "/api/demo": "Демо-режим",
-}
+# Разделы-заглушки (501): все реализованы — «Администрирование» и «Демо-режим» заменены настоящими роутерами
+STUB_SECTIONS: dict[str, str] = {}
 
 
 @pytest.fixture(scope="module")
