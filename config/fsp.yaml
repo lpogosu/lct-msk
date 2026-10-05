@@ -1,0 +1,131 @@
+# Данные ФСП: справочник дисциплин, веса VSS, матрицы релевантности, полосы мест для обобщения.
+# Формулы — research/brief.md §5.4, концепция §6.3, DECISIONS.md п.2 (Q_min).
+# Все веса — [вывод], калибруются вместе с экспертами ФСП. В коде (app/fsp/vss.py) чисел нет.
+version: 1
+
+# Дисциплины спортивного программирования, коды ВРВС (бриф §2.1).
+disciplines:
+  - code: "1010011811Я"
+    short: algo
+    name: программирование алгоритмическое
+    label: алгоритмическое
+    scoring_kind: tasks_time
+  - code: "1010021811Я"
+    short: product
+    name: программирование продуктовое
+    label: продуктовое
+    scoring_kind: criteria_points
+  - code: "1010031811Я"
+    short: bas
+    name: программирование беспилотных авиационных систем
+    label: БАС
+    scoring_kind: points_time
+  - code: "1010041811Я"
+    short: robotics
+    name: программирование робототехники
+    label: робототехника
+    scoring_kind: rounds_points
+  - code: "1010051811Я"
+    short: infosec
+    name: программирование систем информационной безопасности
+    label: ИБ
+    scoring_kind: points_time
+
+vss:
+  # L — уровень. Правила проверяются по порядку, срабатывает первое совпадение.
+  level_rules:
+    - { level: international, weight: 1.0 }
+    - { level: all_russian, stage: [qualifier], weight: 0.45 }            # отбор КР (и любой всероссийский отбор)
+    - { level: all_russian, status: [championship, first], weight: 0.9 }  # ЧР / ПР
+    - { level: all_russian, status: [cup], weight: 0.8 }                  # финал КР
+    - { level: all_russian, weight: 0.65 }                                # другие всероссийские из ЕКП
+    - { level: interregional, weight: 0.45 }
+    - { level: regional, weight: 0.3 }
+    - { level: municipal, weight: 0.15 }                                  # муниципальные / вузовские
+
+  # Q — место с поправкой на размер поля.
+  # q = 1 − (place−1)/max(N−1, 1); F(N) = min(1, ln(1+N)/ln(field_size_ref));
+  # Q = max(q_min, min(1, q^exponent · F(N) + bonus)); при сыром балле q' = (1−w)·q + w·score/max_score.
+  place:
+    exponent: 1.5
+    field_size_ref: 51
+    podium_bonus: { 1: 0.15, 2: 0.10, 3: 0.05 }
+    raw_score_weight: 0.5
+    q_min: 0.1            # DECISIONS п.2: подтверждённое участие без призового места
+
+  # Ro — роль в результате.
+  role_weights:
+    personal: 1.0
+    captain: 0.9
+    participant: 0.85
+    reserve: 0.4
+
+  # T — свежесть 2^(−Δмес/half_life); полураспад 24 мес = срок действия разряда.
+  freshness_half_life_months: 24
+  days_per_month: 30.4375
+
+  # V — источник.
+  source_weights:
+    fsp_api: 1.0
+    fsp_mock: 1.0         # демо-реестр стоит на месте API ФСП
+    diploma: 0.5
+
+  # A_d = Σ топ-N p_(i) · decay^(i−1)
+  aggregation:
+    top_n: 5
+    decay: 0.6
+
+  # Rk — разряд; × 1, если действует, иначе × свежесть от valid_until.
+  rank_weights:
+    MSMK: 1.0
+    MS: 0.9
+    KMS: 0.7
+    I: 0.5
+    II: 0.35
+    III: 0.25
+    I_y: 0.1
+    II_y: 0.1
+    III_y: 0.1
+
+  # VSS_d = 100 · (1 − exp(−(A_d + rank_factor·Rk) / scale))
+  rank_factor: 0.5
+  scale: 0.6
+  rank_only_cap: 50       # разряд без результатов в реестре → VSS_d ≤ 50 и пометка в UI
+
+# K: v_k ⊇ skill_evidence_factor · m(d,k) · VSS_d/100 (концепция §4.2).
+skill_evidence_factor: 0.8
+
+# m(d, s): дисциплина → специализация (коды из taxonomy.yaml). F = max_d m(d, s)·VSS_d/100.
+spec_relevance:
+  algo:     { backend_python: 0.8, backend_go: 0.8, backend_java: 0.8, data_ml: 0.8, fullstack: 0.6,
+              frontend_js: 0.4, mobile: 0.5, infosec: 0.5, devops: 0.4, qa: 0.4 }
+  product:  { fullstack: 0.9, backend_python: 0.8, backend_go: 0.8, backend_java: 0.8, frontend_js: 0.8,
+              mobile: 0.7, data_ml: 0.5, qa: 0.5, devops: 0.5, infosec: 0.3 }
+  bas:      { data_ml: 0.6, backend_python: 0.3, backend_go: 0.2, backend_java: 0.2, fullstack: 0.2,
+              frontend_js: 0.1, mobile: 0.3, devops: 0.3, qa: 0.2, infosec: 0.2 }
+  robotics: { data_ml: 0.6, backend_python: 0.3, backend_go: 0.3, backend_java: 0.2, fullstack: 0.2,
+              frontend_js: 0.1, mobile: 0.3, devops: 0.3, qa: 0.2, infosec: 0.2 }
+  infosec:  { infosec: 0.9, devops: 0.7, backend_python: 0.5, backend_go: 0.5, backend_java: 0.5,
+              fullstack: 0.4, frontend_js: 0.3, qa: 0.4, mobile: 0.3, data_ml: 0.3 }
+
+# m(d, k): дисциплина → модуль теста (коды модулей из taxonomy.yaml). Навык брифа → модули — в подборе.
+module_relevance:
+  algo:     { algo: 1.0, python_core: 0.5, js_core: 0.3, sql: 0.2, git_linux: 0.2, http_api: 0.1,
+              react: 0.0, html_css: 0.0 }
+  product:  { http_api: 0.8, sql: 0.6, python_core: 0.6, js_core: 0.6, react: 0.6, git_linux: 0.6,
+              html_css: 0.5, algo: 0.3 }
+  bas:      { python_core: 0.4, algo: 0.4, git_linux: 0.3, sql: 0.0, http_api: 0.0, js_core: 0.0,
+              react: 0.0, html_css: 0.0 }
+  robotics: { python_core: 0.4, algo: 0.4, git_linux: 0.4, sql: 0.0, http_api: 0.1, js_core: 0.0,
+              react: 0.0, html_css: 0.0 }
+  infosec:  { git_linux: 0.7, http_api: 0.6, sql: 0.5, python_core: 0.4, algo: 0.3, js_core: 0.3,
+              html_css: 0.2, react: 0.1 }
+
+# Обобщение места до раскрытия (концепция §4.5, §6.2): пара «ЕКП + точное место» выдаёт человека.
+# Первая подходящая полоса; место берётся худшее из диапазона; share = место / N.
+place_bands:
+  - { max_place: 3, label: топ-3 }
+  - { max_place: 10, label: топ-10 }
+  - { max_share: 0.10, label: топ-10% }
+  - { max_share: 0.25, label: топ-25% }
+  - { max_share: 0.50, label: топ-50% }

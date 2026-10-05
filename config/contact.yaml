@@ -1,0 +1,368 @@
+# Правила механики контакта «Взаимно».
+# Источники: концепция §4.3 (состояния и правила), §4.5 (кто что видит), §8.1 (антифейк);
+# spec-contact §2.3–2.4, §3.7; поправки DECISIONS.md п. 6–9.
+# Все числа, сроки, квоты и подписи для пользователя живут здесь — в коде их нет.
+version: 1
+
+# Москва: UTC+3 без перехода на летнее время. Нужна для «недели» кандидата и рабочих дней.
+timezone_offset_hours: 3
+
+# --- Вилка ------------------------------------------------------------------------------------
+salary:
+  currency: RUB
+  period: month
+  min_from: 30000
+  step: 1000
+  soft_max_ratio: 1.6     # to/from > 1.6 → мягкое предупреждение (DECISIONS 6)
+  hard_max_ratio: 2.0     # to/from > 2.0 → блокировка (DECISIONS 6)
+  types:
+    net: на руки
+    gross: до НДФЛ
+
+# --- Содержимое приглашения -------------------------------------------------------------------
+invitation:
+  title_max_len: 120
+  description_min_len: 50
+  description_max_len: 3000
+  why_you_max_items: 3
+  contact_methods:
+    email: Email
+    telegram: Telegram
+    phone: Телефон
+  formats:
+    office: Офис
+    hybrid: Гибрид
+    remote: Удалённо
+
+# --- Сроки ответа кандидата -------------------------------------------------------------------
+response:
+  windows_days: [3, 5, 7]
+  default_days: 5
+  reminders:
+    after_sent_hours: 48        # первое напоминание через 48 ч после отправки
+    before_deadline_hours: 24   # второе — за 24 ч до конца срока
+
+# --- «Да, если…» --------------------------------------------------------------------------------
+counter_offer:
+  max_rounds: 1
+  max_conditions: 2
+  comment_max_len: 300
+  salary_max_ratio_to: 1.3      # from ≤ X ≤ 1.3·to
+  salary_step: 5000
+  auto_disclose_default: true   # галочка «раскрыть контакты, если примут» стоит по умолчанию
+  conditions:
+    salary_from: Зарплата от
+    format: Формат работы
+    start_date: Дата выхода
+
+# --- Обязательства работодателя ---------------------------------------------------------------
+employer:
+  counter_response_days: 3           # ответ на встречное
+  first_contact_business_days: 3     # первый контакт после «да»
+  outcome_check_after_days: 10       # вопрос кандидату «условия совпали?»
+  contact_reminder_before_hours: 24
+
+business_days:
+  weekend: [5, 6]          # datetime.weekday(): суббота, воскресенье
+  holidays:                # производственный календарь РФ (дополняется)
+    - "2026-11-04"
+    - "2026-12-31"
+    - "2027-01-01"
+    - "2027-01-04"
+    - "2027-01-05"
+    - "2027-01-06"
+    - "2027-01-07"
+    - "2027-01-08"
+
+# --- Причины (подписи для обеих сторон) --------------------------------------------------------
+reasons:
+  decline:                       # «Нет» кандидата — причина обязательна
+    salary: Зарплата
+    stack: Стек
+    format: Формат работы
+    company: Компания или домен
+    not_looking: Сейчас не ищу
+    other_process: Уже в другом процессе
+    other: Другое
+  decline_suggest_counter: [salary]   # при этих причинах предлагаем «Да, если…»
+  withdraw:                      # отзыв работодателем — причина обязательна
+    position_closed: Позиция закрыта
+    chose_other: Выбрали другого кандидата
+    sent_by_mistake: Отправлено по ошибке
+    other: Другое
+  counter_decline:               # отказ на встречное — причина обязательна
+    salary: Не можем предложить такую зарплату
+    format: Не подходит формат работы
+    start_date: Не подходит дата выхода
+    other: Другое
+  outcome:                       # итог после «да»
+    hired: Найм
+    not_matched: Не сложилось
+  not_matched:                   # причина «не сложилось» обязательна
+    skills_missing: Не хватило навыков из брифа
+    position_closed: Позиция закрыта
+    chose_other: Выбрали другого кандидата
+  outcome_check:                 # ответ кандидата через 10 дней
+    match: Условия совпали
+    lower_salary: Зарплата ниже
+    no_vacancy: Вакансии нет
+    other: Другое
+  application_reject:            # отказ по отклику — причина обязательна
+    skills_missing: Не хватило навыков из вакансии
+    salary: Зарплатные ожидания выше вилки
+    position_closed: Позиция закрыта
+    chose_other: Выбрали другого кандидата
+    other: Другое
+
+# --- Подписи статусов: одинаковы у обеих сторон -------------------------------------------------
+status_labels:
+  invitation:
+    sent: Отправлено
+    viewed: Просмотрено
+    countered: Встречное условие
+    accepted: Принято — контакт открыт
+    declined: Отклонено
+    counter_declined: Не сошлись по условиям
+    expired: Истекло
+    withdrawn: Отозвано
+    closed: Завершено
+    consent_revoked: Согласие отозвано
+  application:
+    submitted: Отправлен
+    viewed: Просмотрен
+    interested: Есть интерес
+    rejected: Отказ
+    withdrawn: Отозван
+    no_response: Нет ответа
+  stages:
+    interview: Собеседование
+
+# --- Квоты работодателя -------------------------------------------------------------------------
+quotas:
+  active_per_need: 20          # активных (ждут ответа) на один бриф
+  new_per_owner: 60            # новых за скользящее окно на домен (или аккаунт — для личной почты)
+  window_days: 7
+  batch_max: 10
+  rate_limit_per_minute: 30    # для HTTP-слоя
+  reduced_factor: 0.5          # квота ×0.5 при низкой надёжности или расхождениях условий
+  low_reliability:
+    r_below: 0.6
+    min_events: 10
+    label: низкая надёжность   # причина снижения квоты в предупреждении работодателю
+  personal_email_label: личный email
+  # DECISIONS 8: для личных доменов квота на аккаунт, иначе на домен
+  personal_email_domains:
+    - gmail.com
+    - googlemail.com
+    - mail.ru
+    - yandex.ru
+    - yandex.com
+    - ya.ru
+    - bk.ru
+    - list.ru
+    - inbox.ru
+    - internet.ru
+    - icloud.com
+    - me.com
+    - outlook.com
+    - hotmail.com
+    - live.com
+    - rambler.ru
+
+# --- Лимит кандидата ----------------------------------------------------------------------------
+candidate_limits:
+  weekly_options: [3, 5, 10, null]   # null = без ограничения
+  default_weekly: 5
+
+# --- Пара компания—кандидат ------------------------------------------------------------------
+pair:
+  one_active_per_pair: true
+  pause_days:                  # пауза перед повторным приглашением после финального статуса
+    declined: 30
+    counter_declined: 30
+    expired: 14
+  salary_exception_factor: 1.15     # после отказа «зарплата» можно раньше, если новый from ≥ 1.15·прошлый to
+  salary_exception_reasons: [salary]
+
+# --- Соответствие брифу ---------------------------------------------------------------------
+matching:
+  weak_score_below: 40         # предупреждение, не блокировка
+
+# --- Несовершеннолетние ---------------------------------------------------------------------
+minors:
+  hidden_below_age: 16              # не видны работодателям
+  internship_only_below_age: 18     # 16–17 — только брифы с флагом «стажировка»
+
+# --- Надёжность работодателя (spec-contact §3.7) ---------------------------------------------
+reliability:
+  prior_mean: 0.8
+  prior_strength: 5
+  min_events_for_value: 5
+  low_data_label: мало данных
+  discrepancy:
+    window_days: 90
+    min_distinct_candidates: 2
+    kinds: [terms_lower_salary, terms_no_vacancy]
+    badge: есть расхождения условий
+  good:
+    application_answered: ответ на отклик в срок
+    contacted_in_time: связались после принятия в срок
+    outcome_reported: итог с причиной
+    terms_matched: условия совпали
+  bad:
+    application_no_response: отклик без ответа
+    contact_overdue: не связались в срок
+    contact_disputed: кандидат сообщил «со мной не связались»
+    withdrawn_after_accept: отзыв после принятия
+    terms_lower_salary: зарплата ниже, чем в приглашении
+    terms_no_vacancy: вакансии не оказалось
+    counter_unanswered: встречное условие без ответа
+
+# --- Отклик на вакансию (доп.) ------------------------------------------------------------------
+application:
+  response_days: 7
+
+# --- Антифейк: стоп-слова → плашка «Требует осторожности» (концепция §8.1) -----------------------
+# Шаблоны — регулярные выражения по тексту в нижнем регистре, «ё» заменена на «е».
+antifraud:
+  label: Требует осторожности
+  rules:
+    # Шаблоны намеренно узкие: «оплата обучения» и «страховые взносы» — обычные льготы в честных
+    # вакансиях, «паспорт в день выхода» — оформление. Ловим просьбу заплатить или прислать документы.
+    - code: prepayment
+      reason: Просят внести оплату или залог — честный работодатель не берёт денег с кандидата
+      patterns:
+        - 'предоплат'
+        - 'внесит[еь]'
+        - 'внести\s+(?:оплат|залог|взнос|депозит|плат[её]ж|деньги|сумм)'
+        - 'оплат\w*\s+за\s+(?:обучени|стажировк|курс|оформлени|материал|доступ)'
+        - '(?:оплатите|заплатите)\s+(?:\S+\s+){0,2}?(?:обучени|стажировк|курс|оформлени|материал|взнос|доступ)'
+        - '(?:нужно|необходимо|надо|следует)\s+(?:\S+\s+)?(?:оплатить|заплатить)\b'
+        - 'платн\w*\s+(?:обучени|курс)'
+        - 'стоимость\s+(?:обучения|курса|стажировки)'
+        - 'вступительн\w*\s+взнос'
+        - '(?<!страховые\s)(?<!страховых\s)взнос\w*\s+(?:в\s+размере|за\s+(?:обучени|участи|оформлени|доступ))'
+        - 'залог\s+(?:в\s+размере|за)'
+        - 'перевед(?:ите|и)\s+(?:деньги|сумму|оплату|\d)'
+    - code: documents
+      reason: Просят паспорт, СНИЛС или данные карты до собеседования
+      patterns:
+        - '(?:пришл|присыл|отправ|скин|сфотограф|загруз|прикреп|предостав|укаж|сообщ|напиш)\w*\s+(?:\S+\s+){0,3}?(?:паспорт|снилс)'
+        - '(?:скан|фото|копи)\w*\s+(?:\S+\s+){0,2}?(?:паспорт|снилс)'
+        - 'паспортн\w*\s+данн'
+        - '(?:данные|номер|серию)\s+(?:и\s+номер\s+)?(?:вашего\s+)?(?:паспорт|снилс)'
+        - '(?:номер|данные|реквизиты)\s+(?:вашей\s+)?(?:банковской\s+)?карт[ыу]?\b'
+        - '\bcvv\b|\bcvc\b'
+        - 'код\w*\s+из\s+смс'
+    - code: contacts_in_text
+      reason: Контакты указаны в тексте описания, а не в поле «способ связи»
+      patterns:
+        - '[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}'
+        - '(?:\+7|\b8)[\s\-(]*\d{3}[\s\-)]*\d{3}[\s\-]*\d{2}[\s\-]*\d{2}\b'
+        - '(?<![\w.@])@[a-z][a-z0-9_]{4,31}\b'
+        - '\b(?:t\.me|telegram\.me|wa\.me|vk\.me)/'
+        - 'пиши\w*\s+(?:мне\s+|нам\s+)?(?:в|на)\s+(?:телеграм\w*|telegram|tg|тг|whatsapp|ватсап|вотсап|личку|лс)'
+        - 'звони\w*\s+по\s+(?:номеру|телефону)'
+    - code: short_link
+      reason: Короткая ссылка скрывает настоящий адрес
+      patterns: []          # строится из short_link_domains
+  short_link_domains:
+    - bit.ly
+    - clck.ru
+    - goo.gl
+    - tinyurl.com
+    - t.co
+    - cutt.ly
+    - is.gd
+    - vk.cc
+    - ow.ly
+    - rb.gy
+    - shorturl.at
+    - tiny.cc
+    - u.to
+    - qps.ru
+    - surl.li
+
+# --- Псевдоним «К-4821» = HMAC(secret, company‖candidate) -------------------------------------
+pseudonym:
+  prefix: "К-"
+  digits: 4
+  max_collision_attempts: 50
+
+# --- Раскрытие контактов (152-ФЗ: отдельное согласие на конкретную компанию) --------------------
+disclosure:
+  consent_text_version: contact-consent-v1
+  default_fields: [full_name, email, phone, telegram, photo_url, resume, current_employer, university]
+  # Хотя бы один канал связи обязателен: иначе «контакт открыт», а связаться нечем — и срок
+  # «связаться за 3 рабочих дня» превратился бы в гарантированный штраф работодателю.
+  contact_fields:
+    email: email
+    phone: телефон
+    telegram: Telegram
+
+# --- Кто что видит (концепция §4.5) ----------------------------------------------------------
+# Правила: show — как есть; hide — скрыто до раскрытия; never — никогда; if_allowed — только если
+# кандидат разрешил поле в ContactDisclosure; test_band / fsp_public / salary_signal — обобщение.
+# Поля профиля, которых нет в матрице, не попадают ни в одну проекцию (белый список).
+visibility:
+  fields:
+    category:         { blind: show,          disclosed: show }
+    grade_history:    { blind: show,          disclosed: show }
+    test_date:        { blind: show,          disclosed: show }
+    skills:           { blind: show,          disclosed: show }
+    declared_skills:  { blind: show,          disclosed: show }
+    tasks:            { blind: show,          disclosed: show }
+    freshness:        { blind: show,          disclosed: show }
+    industries:       { blind: show,          disclosed: show }
+    formats:          { blind: show,          disclosed: show }
+    search_mode:      { blind: show,          disclosed: show }
+    has_fsp:          { blind: show,          disclosed: show }
+    test:             { blind: test_band,     disclosed: show }
+    fsp:              { blind: fsp_public,    disclosed: show }
+    salary_min:       { blind: salary_signal, disclosed: salary_signal }
+    region:           { blind: show,          disclosed: show }
+    city:             { blind: hide,          disclosed: show }
+    full_name:        { blind: hide,          disclosed: if_allowed }
+    photo_url:        { blind: hide,          disclosed: if_allowed }
+    email:            { blind: hide,          disclosed: if_allowed }
+    phone:            { blind: hide,          disclosed: if_allowed }
+    telegram:         { blind: hide,          disclosed: if_allowed }
+    resume:           { blind: hide,          disclosed: if_allowed }
+    current_employer: { blind: hide,          disclosed: if_allowed }
+    university:       { blind: hide,          disclosed: if_allowed }
+    candidate_id:     { blind: never,         disclosed: never }
+    salary_visibility: { blind: never,        disclosed: never }
+    birth_year:       { blind: never,         disclosed: never }
+    birth_date:       { blind: never,         disclosed: never }
+    age:              { blind: never,         disclosed: never }
+    gender:           { blind: never,         disclosed: never }
+  # ПДн и квазиидентификаторы: в слепой проекции их не может быть ни на каком уровне вложенности.
+  # Вторая строка — синонимы из моделей БД и резюме (contact_email, education, fsp_id…): защита в глубину,
+  # если слой API передаст в профиль «сырые» имена полей.
+  pii_fields: [full_name, photo_url, email, phone, telegram, resume, current_employer, university,
+               city, candidate_id, birth_year, birth_date, age, gender, ekp, team, protocol_url, place,
+               first_name, last_name, middle_name, patronymic, contact_email, education, resume_text,
+               resume_fields, resume_file_sha256, user_id, fsp_id, snils, inn, passport, address,
+               photo, avatar_url, is_minor, guardian_consent]
+  # Возраст и пол — «никогда» в обеих проекциях (§4.5); конфиг, который это нарушает, не загружается.
+  never_fields: [age, gender, birth_year, birth_date, is_minor]
+  test_public_keys: [interval]
+  test_bands:
+    - { min_percentile: 0.90, label: топ-10% }
+    - { min_percentile: 0.75, label: топ-25% }
+    - { min_percentile: 0.50, label: топ-50% }
+  test_band_default: категория подтверждена
+  fsp_public_keys: [discipline, level, year, role]
+  fsp_place_bands:
+    - { max_place: 3, label: топ-3 }
+    - { max_place: 10, label: топ-10 }
+  fsp_place_default: участник
+  salary_signal:
+    within: в вилке ✓
+    above: выше вилки
+
+# --- DEMO_MODE: сдвиг часов ------------------------------------------------------------------
+demo:
+  advance_presets:
+    - { label: "+1 день", days: 1 }
+    - { label: "+3 дня", days: 3 }

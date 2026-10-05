@@ -1,0 +1,620 @@
+# Словари подбора: навыки (граф «навык → модули теста»), роли, софт-скиллы, форматы, города,
+# маркеры must/nice, маркеры грейда, сигналы специализации.
+# Используется парсером брифа (app/matching/brief_parser.py), резюме и экраном «Как мы проверим».
+# Концепция §3.1.1, §4.2 (разбор брифа), §5.5 (граф навык → модули); spec-contact §3.1.
+#
+# Правила записи алиасов:
+#  - всё в нижнем регистре, «ё» пишем как «е» (нормализация одинаковая для текста и словаря);
+#  - кириллический алиас длиной ≥ 4 ловит словоформы: после него допускается окончание из ≤ 3 букв
+#    («питон» → «питоне», «постгрес» → «постгресом»); короткие и рискованные алиасы — точные;
+#  - алиасы уникальны внутри словаря навыков (проверяется тестом).
+# modules — коды модулей из taxonomy.yaml; навык без модулей обязан иметь untestable: true
+# (серый список «тестом не проверяется — проверьте на интервью»).
+# spec — веса навыка для специализаций в разборе брифа (score_s += w); если не задан — берётся из категории.
+version: 1
+
+untestable_reasons:
+  infra: Инфраструктура и эксплуатация тестом не проверяются — проверьте на интервью
+  language: Язык или платформа вне тестируемых направлений — проверьте на интервью
+  tech: Технология не покрыта модулями теста — проверьте на интервью
+  data_ml: Data/ML пока не тестируется — проверьте на интервью
+  mobile: Мобильная разработка пока не тестируется — проверьте на интервью
+  qa: Инструменты QA тестом не проверяются — проверьте на интервью
+  security: Информационная безопасность пока не тестируется — проверьте на интервью
+  arch: Архитектурные навыки тестом не измеряются — обсудите на интервью
+  process: Процессы и методологии тестом не измеряются — обсудите на интервью
+  design: Дизайн-инструменты тестом не проверяются — посмотрите портфолио
+  spoken: Иностранный язык тестом не проверяется — проверьте на интервью
+
+# Категории навыков: веса специализаций по умолчанию и причина «не проверяется».
+categories:
+  lang_python: { name: Python, spec: { backend_python: 3.0, data_ml: 2.0, fullstack: 1.0 } }
+  python_web: { name: Веб-фреймворки Python, spec: { backend_python: 3.0, fullstack: 1.2 } }
+  python_lib: { name: Библиотеки Python, spec: { backend_python: 1.5, data_ml: 1.0, fullstack: 0.5 } }
+  data_ml: { name: Data Science и ML, spec: { data_ml: 3.0, backend_python: 0.3 }, untestable_reason: data_ml }
+  data_eng: { name: Инженерия данных, spec: { data_ml: 2.0, backend_python: 0.3, backend_java: 0.3 }, untestable_reason: data_ml }
+  bi: { name: BI и аналитика, spec: { data_ml: 1.5 }, untestable_reason: data_ml }
+  lang_js: { name: JavaScript и TypeScript, spec: { frontend_js: 2.5, fullstack: 1.5 } }
+  frontend: { name: Фронтенд-фреймворки, spec: { frontend_js: 3.0, fullstack: 1.2 } }
+  js_tooling: { name: Инструменты JS, spec: { frontend_js: 1.5, fullstack: 0.8 } }
+  markup: { name: Вёрстка, spec: { frontend_js: 2.0, fullstack: 0.8 } }
+  node: { name: Node.js, spec: { fullstack: 2.0, frontend_js: 0.8, backend_python: 0.3, backend_go: 0.3, backend_java: 0.3 } }
+  sql: { name: SQL и реляционные БД, spec: { backend_python: 1.0, backend_go: 1.0, backend_java: 1.0, fullstack: 0.7, data_ml: 0.5 } }
+  nosql: { name: NoSQL, spec: { backend_python: 0.6, backend_go: 0.6, backend_java: 0.6, fullstack: 0.4, data_ml: 0.3 }, untestable_reason: tech }
+  api: { name: HTTP и API, spec: { backend_python: 0.8, backend_go: 0.8, backend_java: 0.8, fullstack: 0.7, frontend_js: 0.3 } }
+  broker: { name: Очереди и брокеры, spec: { backend_java: 0.8, backend_go: 0.7, backend_python: 0.6, devops: 0.4, data_ml: 0.3 }, untestable_reason: infra }
+  devops: { name: DevOps, spec: { devops: 2.5, backend_python: 0.3, backend_go: 0.3, backend_java: 0.3 }, untestable_reason: infra }
+  cloud: { name: Облака, spec: { devops: 2.0 }, untestable_reason: infra }
+  monitoring: { name: Мониторинг, spec: { devops: 2.0 }, untestable_reason: infra }
+  os_vcs: { name: Git и Linux, spec: { devops: 0.8, backend_python: 0.3, backend_go: 0.3, backend_java: 0.3 } }
+  cs: { name: Алгоритмы и основы, spec: {} }
+  arch: { name: Архитектура, spec: { backend_python: 0.4, backend_go: 0.4, backend_java: 0.4 }, untestable_reason: arch }
+  lang_go: { name: Go, spec: { backend_go: 3.5, devops: 0.4 }, untestable_reason: language }
+  lang_jvm: { name: Java и JVM, spec: { backend_java: 3.5, mobile: 0.5 }, untestable_reason: language }
+  lang_dotnet: { name: .NET, spec: { backend_python: 0.5, backend_go: 0.5, backend_java: 0.5 }, untestable_reason: language }
+  lang_other: { name: Другие языки, spec: { backend_python: 0.5, backend_go: 0.5, backend_java: 0.5 }, untestable_reason: language }
+  mobile: { name: Мобильная разработка, spec: { mobile: 3.5 }, untestable_reason: mobile }
+  qa: { name: Тестирование, spec: { qa: 3.0 }, untestable_reason: qa }
+  security: { name: Безопасность, spec: { infosec: 3.5, devops: 0.3 }, untestable_reason: security }
+  process: { name: Процессы, spec: {}, untestable_reason: process }
+  design: { name: Дизайн, spec: { frontend_js: 0.5 }, untestable_reason: design }
+  embedded: { name: Встраиваемые системы, spec: { data_ml: 0.3 }, untestable_reason: language }
+  gamedev: { name: Геймдев, spec: {}, untestable_reason: language }
+  blockchain: { name: Блокчейн, spec: {}, untestable_reason: tech }
+  spoken: { name: Иностранные языки, spec: {}, untestable_reason: spoken }
+
+skills:
+  # ---------------------------------------------------------------- Python
+  python: { name: Python, cat: lang_python, modules: [python_core], aliases: [python, python3, питон, пайтон, py, cpython] }
+  asyncio: { name: asyncio, cat: python_lib, modules: [python_core], aliases: [asyncio, async/await, асинхронный python, асинхронное программирование] }
+  aiohttp: { name: aiohttp, cat: python_web, modules: [python_core, http_api], aliases: [aiohttp] }
+  django: { name: Django, cat: python_web, modules: [python_core, sql, http_api], aliases: [django, джанго, джанга] }
+  drf: { name: Django REST Framework, cat: python_web, modules: [python_core, http_api], aliases: [drf, django rest framework, django rest] }
+  fastapi: { name: FastAPI, cat: python_web, modules: [python_core, http_api], aliases: [fastapi, fast api, фастапи, фаст апи] }
+  flask: { name: Flask, cat: python_web, modules: [python_core, http_api], aliases: [flask, фласк] }
+  tornado: { name: Tornado, cat: python_web, modules: [python_core, http_api], aliases: [tornado] }
+  starlette: { name: Starlette, cat: python_web, modules: [python_core, http_api], aliases: [starlette] }
+  sanic: { name: Sanic, cat: python_web, modules: [python_core, http_api], aliases: [sanic, litestar] }
+  sqlalchemy: { name: SQLAlchemy, cat: python_lib, modules: [python_core, sql], aliases: [sqlalchemy, sql alchemy, алхимия, алхимией] }
+  alembic: { name: Alembic, cat: python_lib, modules: [python_core, sql], aliases: [alembic] }
+  psycopg: { name: psycopg, cat: python_lib, modules: [python_core, sql], aliases: [psycopg, psycopg2, psycopg3] }
+  asyncpg: { name: asyncpg, cat: python_lib, modules: [python_core, sql], aliases: [asyncpg] }
+  pydantic: { name: Pydantic, cat: python_lib, modules: [python_core], aliases: [pydantic, пидантик] }
+  marshmallow: { name: marshmallow, cat: python_lib, modules: [python_core], aliases: [marshmallow] }
+  celery: { name: Celery, cat: python_lib, modules: [python_core], aliases: [celery, селери, сельдерей] }
+  pytest: { name: pytest, cat: python_lib, modules: [python_core], aliases: [pytest] }
+  unittest: { name: unittest, cat: python_lib, modules: [python_core], aliases: [unittest] }
+  mypy: { name: Типизация Python, cat: python_lib, modules: [python_core], aliases: [mypy, type hints, тайпхинты, аннотации типов] }
+  python_linters: { name: Линтеры Python, cat: python_lib, modules: [python_core], aliases: [flake8, pylint, ruff, isort] }
+  poetry: { name: Poetry, cat: python_lib, modules: [python_core], aliases: [poetry, pipenv, virtualenv, venv] }
+  httpx: { name: httpx, cat: python_lib, modules: [python_core, http_api], aliases: [httpx, python requests] }
+  uvicorn: { name: Uvicorn и Gunicorn, cat: python_web, modules: [python_core, http_api], aliases: [uvicorn, gunicorn, uwsgi, asgi, wsgi] }
+  aiogram: { name: aiogram, cat: python_lib, modules: [python_core, http_api], aliases: [aiogram, айограм, pytelegrambotapi, python-telegram-bot] }
+  scrapy: { name: Scrapy, cat: python_lib, modules: [python_core, http_api], aliases: [scrapy, скрапи] }
+  beautifulsoup: { name: BeautifulSoup, cat: python_lib, modules: [python_core], aliases: [beautifulsoup, beautiful soup, bs4] }
+  pyqt: { name: PyQt, cat: python_lib, modules: [python_core], aliases: [pyqt, pyside, tkinter] }
+  cython: { name: Cython, cat: python_lib, modules: [python_core], aliases: [cython] }
+  python_internals: { name: Внутреннее устройство Python, cat: python_lib, modules: [python_core], aliases: [gil, декораторы, контекстные менеджеры, list comprehension, генераторы python, дескрипторы, метаклассы] }
+  pandas: { name: pandas, cat: python_lib, modules: [python_core], spec: { data_ml: 2.0, backend_python: 0.5 }, aliases: [pandas, пандас] }
+  numpy: { name: NumPy, cat: python_lib, modules: [python_core], spec: { data_ml: 2.0, backend_python: 0.3 }, aliases: [numpy, нампай] }
+  scipy: { name: SciPy, cat: python_lib, modules: [python_core], spec: { data_ml: 2.0 }, aliases: [scipy] }
+  polars: { name: Polars, cat: python_lib, modules: [python_core], spec: { data_ml: 2.0 }, aliases: [polars] }
+  jupyter: { name: Jupyter, cat: python_lib, modules: [python_core], spec: { data_ml: 2.0 }, aliases: [jupyter, юпитер, jupyter notebook, ipython] }
+  matplotlib: { name: matplotlib, cat: python_lib, modules: [python_core], spec: { data_ml: 2.0 }, aliases: [matplotlib, seaborn, plotly] }
+  streamlit: { name: Streamlit, cat: python_lib, modules: [python_core], spec: { data_ml: 1.5 }, aliases: [streamlit, gradio] }
+
+  # ---------------------------------------------------------------- Data Science / ML (не тестируется)
+  scikit_learn: { name: scikit-learn, cat: data_ml, untestable: true, aliases: [scikit-learn, sklearn, scikit learn, склерн] }
+  pytorch: { name: PyTorch, cat: data_ml, untestable: true, aliases: [pytorch, torch, пайторч] }
+  tensorflow: { name: TensorFlow, cat: data_ml, untestable: true, aliases: [tensorflow, тензорфлоу] }
+  keras: { name: Keras, cat: data_ml, untestable: true, aliases: [keras] }
+  gradient_boosting: { name: Градиентный бустинг, cat: data_ml, untestable: true, aliases: [xgboost, lightgbm, catboost, градиентный бустинг, gradient boosting] }
+  transformers: { name: Hugging Face Transformers, cat: data_ml, untestable: true, aliases: [transformers, hugging face, huggingface, bert] }
+  opencv: { name: OpenCV, cat: data_ml, untestable: true, aliases: [opencv, cv2] }
+  nltk: { name: NLTK и spaCy, cat: data_ml, untestable: true, aliases: [nltk, spacy] }
+  langchain: { name: LangChain, cat: data_ml, untestable: true, aliases: [langchain, llamaindex] }
+  llm: { name: LLM, cat: data_ml, untestable: true, aliases: [llm, большие языковые модели, языковые модели, промпт-инжиниринг, prompt engineering] }
+  machine_learning: { name: Машинное обучение, cat: data_ml, untestable: true, aliases: [machine learning, машинное обучение, машинного обучения, ml] }
+  deep_learning: { name: Глубокое обучение, cat: data_ml, untestable: true, aliases: [deep learning, глубокое обучение, нейронные сети, нейросети, нейросетей] }
+  nlp: { name: NLP, cat: data_ml, untestable: true, aliases: [nlp, обработка естественного языка] }
+  computer_vision: { name: Компьютерное зрение, cat: data_ml, untestable: true, aliases: [computer vision, компьютерное зрение, компьютерного зрения, yolo] }
+  mlops: { name: MLOps, cat: data_ml, untestable: true, aliases: [mlops, mlflow, kubeflow, dvc] }
+  statistics: { name: Статистика, cat: data_ml, untestable: true, aliases: [статистика, статистики, математическая статистика, теория вероятностей, statistics] }
+  ab_testing: { name: A/B-тестирование, cat: data_ml, untestable: true, aliases: [a/b-тесты, a/b тесты, a/b-тестирование, a/b тестирование, ab-тесты, ab тесты] }
+  recsys: { name: Рекомендательные системы, cat: data_ml, untestable: true, aliases: [рекомендательные системы, рекомендательных систем, recsys] }
+  time_series: { name: Временные ряды, cat: data_ml, untestable: true, aliases: [временные ряды, временных рядов, time series] }
+  data_analysis: { name: Анализ данных, cat: data_ml, untestable: true, aliases: [анализ данных, data analysis, eda] }
+  # ---------------------------------------------------------------- Инженерия данных и BI
+  airflow: { name: Apache Airflow, cat: data_eng, untestable: true, aliases: [airflow, эирфлоу] }
+  spark: { name: Apache Spark, cat: data_eng, untestable: true, aliases: [spark, pyspark, спарк] }
+  hadoop: { name: Hadoop, cat: data_eng, untestable: true, aliases: [hadoop, hdfs, хадуп] }
+  hive: { name: Hive, cat: data_eng, modules: [sql], aliases: [hive, hiveql] }
+  flink: { name: Apache Flink, cat: data_eng, untestable: true, aliases: [flink] }
+  nifi: { name: Apache NiFi, cat: data_eng, untestable: true, aliases: [nifi] }
+  dbt: { name: dbt, cat: data_eng, modules: [sql], aliases: [dbt] }
+  etl: { name: ETL, cat: data_eng, modules: [sql], aliases: [etl, elt, etl-процессы] }
+  dwh: { name: Хранилища данных (DWH), cat: data_eng, modules: [sql], aliases: [dwh, хранилище данных, хранилища данных, data warehouse, olap] }
+  power_bi: { name: Power BI, cat: bi, untestable: true, aliases: [power bi, powerbi] }
+  tableau: { name: Tableau, cat: bi, untestable: true, aliases: [tableau] }
+  superset: { name: Apache Superset, cat: bi, untestable: true, aliases: [superset, metabase, redash] }
+  datalens: { name: DataLens, cat: bi, untestable: true, aliases: [datalens, даталенс] }
+  excel: { name: Excel, cat: bi, untestable: true, aliases: [excel, эксель, google sheets, гугл-таблицы] }
+
+  # ---------------------------------------------------------------- JavaScript / TypeScript
+  javascript: { name: JavaScript, cat: lang_js, modules: [js_core], aliases: [javascript, js, джаваскрипт, яваскрипт, ecmascript, es6, es2015, vanilla js] }
+  typescript: { name: TypeScript, cat: lang_js, modules: [js_core], aliases: [typescript, ts, тайпскрипт, тайпскрипте] }
+  nodejs: { name: Node.js, cat: node, modules: [js_core, http_api], aliases: [node.js, nodejs, node js, node, нода, ноде, нодой, ноджс] }
+  express: { name: Express, cat: node, modules: [js_core, http_api], aliases: [express, express.js, expressjs] }
+  nestjs: { name: NestJS, cat: node, modules: [js_core, http_api], aliases: [nestjs, nest.js, nest js, нест] }
+  fastify: { name: Fastify, cat: node, modules: [js_core, http_api], aliases: [fastify, koa] }
+  deno: { name: Deno и Bun, cat: node, modules: [js_core], aliases: [deno, bun] }
+  react: { name: React, cat: frontend, modules: [react, js_core], aliases: [react, react.js, reactjs, react js, реакт, риакт, реактом] }
+  redux: { name: Redux, cat: frontend, modules: [react, js_core], aliases: [redux, редакс, redux toolkit, rtk query] }
+  redux_saga: { name: redux-saga, cat: frontend, modules: [react, js_core], aliases: [redux-saga, redux saga, redux-thunk] }
+  mobx: { name: MobX, cat: frontend, modules: [react, js_core], aliases: [mobx, мобикс] }
+  zustand: { name: Zustand, cat: frontend, modules: [react, js_core], aliases: [zustand, jotai, recoil] }
+  effector: { name: Effector, cat: frontend, modules: [react, js_core], aliases: [effector, эффектор] }
+  nextjs: { name: Next.js, cat: frontend, modules: [react, js_core, http_api], aliases: [next.js, nextjs, next js, некст, некстом] }
+  react_query: { name: TanStack Query, cat: frontend, modules: [react, http_api], aliases: [react query, react-query, tanstack query, swr] }
+  react_router: { name: React Router, cat: frontend, modules: [react], aliases: [react router, react-router] }
+  react_hook_form: { name: React Hook Form, cat: frontend, modules: [react], aliases: [react hook form, react-hook-form, formik] }
+  react_hooks: { name: React Hooks, cat: frontend, modules: [react], aliases: [react hooks, хуки, хуков, useeffect, usestate] }
+  react_testing_library: { name: Testing Library, cat: frontend, modules: [react], aliases: [react testing library, testing library, testing-library, enzyme] }
+  storybook: { name: Storybook, cat: frontend, modules: [react], aliases: [storybook, сторибук] }
+  vue: { name: Vue, cat: frontend, modules: [js_core], aliases: [vue, vue.js, vuejs, vue js, vue3, vue 3, вью, вьюшка] }
+  pinia: { name: Pinia и Vuex, cat: frontend, modules: [js_core], aliases: [pinia, vuex] }
+  nuxt: { name: Nuxt, cat: frontend, modules: [js_core], aliases: [nuxt, nuxt.js, nuxtjs] }
+  angular: { name: Angular, cat: frontend, modules: [js_core], aliases: [angular, angularjs, ангуляр] }
+  rxjs: { name: RxJS, cat: frontend, modules: [js_core], aliases: [rxjs, ngrx] }
+  svelte: { name: Svelte, cat: frontend, modules: [js_core], aliases: [svelte, sveltekit, solidjs] }
+  jquery: { name: jQuery, cat: frontend, modules: [js_core, html_css], aliases: [jquery, джквери] }
+  webpack: { name: Webpack, cat: js_tooling, modules: [js_core], aliases: [webpack, вебпак, вебпаком] }
+  vite: { name: Vite, cat: js_tooling, modules: [js_core], aliases: [vite, rollup, esbuild, parcel] }
+  babel: { name: Babel, cat: js_tooling, modules: [js_core], aliases: [babel, swc] }
+  js_linters: { name: ESLint и Prettier, cat: js_tooling, modules: [js_core], aliases: [eslint, prettier, stylelint] }
+  npm: { name: npm, cat: js_tooling, modules: [js_core], aliases: [npm, yarn, pnpm] }
+  jest: { name: Jest, cat: js_tooling, modules: [js_core], aliases: [jest, vitest, mocha, jasmine] }
+  lodash: { name: Lodash, cat: js_tooling, modules: [js_core], aliases: [lodash, underscore.js, ramda] }
+  axios: { name: Axios, cat: js_tooling, modules: [js_core, http_api], aliases: [axios, аксиос] }
+  graphql: { name: GraphQL, cat: api, modules: [http_api], spec: { frontend_js: 0.8, fullstack: 0.8, backend_python: 0.5, backend_go: 0.5, backend_java: 0.5 }, aliases: [graphql, графкуэль] }
+  apollo: { name: Apollo, cat: frontend, modules: [http_api, react], aliases: [apollo, apollo client] }
+  websocket: { name: WebSocket, cat: api, modules: [http_api], aliases: [websocket, websockets, web socket, вебсокет, вебсокеты, веб-сокет, веб-сокеты] }
+  socket_io: { name: Socket.IO, cat: node, modules: [js_core, http_api], aliases: [socket.io, socketio] }
+  ajax: { name: AJAX и Fetch, cat: lang_js, modules: [js_core, http_api], aliases: [ajax, fetch api, xmlhttprequest] }
+  dom: { name: DOM API, cat: lang_js, modules: [js_core, html_css], aliases: [dom, dom api, browser api, браузерные api] }
+  event_loop: { name: Event loop, cat: lang_js, modules: [js_core], aliases: [event loop, эвент луп, ивент луп, цикл событий, промисы, promises] }
+  pwa: { name: PWA, cat: frontend, modules: [js_core, html_css], aliases: [pwa, service worker, service workers, web workers] }
+  ssr: { name: SSR, cat: frontend, modules: [react, http_api], aliases: [ssr, server side rendering, server-side rendering, серверный рендеринг, ssg] }
+  spa: { name: SPA, cat: frontend, modules: [js_core], aliases: [spa, single page application] }
+  microfrontends: { name: Микрофронтенды, cat: frontend, modules: [js_core], aliases: [микрофронтенд, микрофронтенды, микрофронтендов, microfrontends, micro-frontends, module federation] }
+  electron: { name: Electron, cat: frontend, modules: [js_core], aliases: [electron, tauri] }
+  threejs: { name: Three.js и WebGL, cat: frontend, modules: [js_core], aliases: [three.js, threejs, webgl, webgpu] }
+  d3: { name: D3.js, cat: frontend, modules: [js_core], aliases: [d3, d3.js, chart.js, echarts, highcharts] }
+  canvas: { name: Canvas, cat: frontend, modules: [js_core, html_css], aliases: [canvas, svg] }
+  prisma: { name: Prisma, cat: node, modules: [js_core, sql], aliases: [prisma, typeorm, sequelize, knex, drizzle] }
+  mongoose: { name: Mongoose, cat: node, untestable: true, aliases: [mongoose] }
+  webrtc: { name: WebRTC, cat: frontend, modules: [js_core, http_api], aliases: [webrtc] }
+  # ---------------------------------------------------------------- Вёрстка
+  html: { name: HTML, cat: markup, modules: [html_css], aliases: [html, html5, хтмл, семантическая верстка] }
+  css: { name: CSS, cat: markup, modules: [html_css], aliases: [css, css3, цсс] }
+  sass: { name: Sass/SCSS, cat: markup, modules: [html_css], aliases: [sass, scss, сасс, less css, stylus] }
+  tailwind: { name: Tailwind CSS, cat: markup, modules: [html_css], aliases: [tailwind, tailwindcss, тейлвинд] }
+  bootstrap: { name: Bootstrap, cat: markup, modules: [html_css], aliases: [bootstrap, бутстрап] }
+  styled_components: { name: CSS-in-JS, cat: markup, modules: [html_css, react], aliases: [styled-components, styled components, css-in-js, emotion, css modules] }
+  bem: { name: БЭМ, cat: markup, modules: [html_css], aliases: [бэм, bem] }
+  flexbox: { name: Flexbox и Grid, cat: markup, modules: [html_css], aliases: [flexbox, флексбокс, css grid, grid layout, флексы] }
+  responsive: { name: Адаптивная вёрстка, cat: markup, modules: [html_css], aliases: [адаптивная верстка, адаптивной верстки, адаптивную верстку, адаптив, responsive, responsive design, кроссбраузерная верстка, кроссбраузерность, mobile first] }
+  layout: { name: Вёрстка, cat: markup, modules: [html_css], aliases: [верстка, верстки, верстку, версткой, верстать] }
+  accessibility: { name: Доступность (a11y), cat: markup, modules: [html_css], aliases: [a11y, accessibility, wcag, aria] }
+  pixel_perfect: { name: Pixel perfect, cat: markup, modules: [html_css], aliases: [pixel perfect, pixel-perfect, пиксель-перфект] }
+  postcss: { name: PostCSS, cat: markup, modules: [html_css], aliases: [postcss, autoprefixer] }
+  material_ui: { name: Material UI, cat: markup, modules: [react, html_css], aliases: [material ui, material-ui, mui] }
+  ant_design: { name: Ant Design, cat: markup, modules: [react, html_css], aliases: [ant design, antd, chakra ui, shadcn, shadcn/ui] }
+  seo: { name: SEO, cat: markup, modules: [html_css], aliases: [seo, сео] }
+
+  # ---------------------------------------------------------------- SQL и реляционные БД
+  sql: { name: SQL, cat: sql, modules: [sql], aliases: [sql, эскуэль, скуль, sql-запросы, sql-запросов] }
+  postgresql: { name: PostgreSQL, cat: sql, modules: [sql], aliases: [postgresql, postgres, postgre, pgsql, psql, постгрес, постгресс, постгре, постгря, постгрю, постгрей, постгресql] }
+  mysql: { name: MySQL, cat: sql, modules: [sql], aliases: [mysql, мускул, май эскуэль, mariadb, percona] }
+  sqlite: { name: SQLite, cat: sql, modules: [sql], aliases: [sqlite, sqlite3] }
+  oracle: { name: Oracle Database, cat: sql, modules: [sql], aliases: [oracle, оракл, pl/sql, plsql] }
+  mssql: { name: Microsoft SQL Server, cat: sql, modules: [sql], aliases: [ms sql, mssql, sql server, t-sql, tsql] }
+  clickhouse: { name: ClickHouse, cat: sql, modules: [sql], spec: { data_ml: 1.0, backend_python: 0.8, backend_go: 0.8, backend_java: 0.8 }, aliases: [clickhouse, кликхаус, клик хаус] }
+  greenplum: { name: Greenplum, cat: sql, modules: [sql], spec: { data_ml: 1.0, backend_java: 0.5, backend_python: 0.5 }, aliases: [greenplum, гринплам, vertica, snowflake] }
+  db_design: { name: Проектирование БД, cat: sql, modules: [sql], aliases: [проектирование бд, проектирование баз данных, проектирования баз данных, проектирование схем, нормализация бд, нормальные формы, database design, er-диаграммы] }
+  query_optimization: { name: Оптимизация запросов, cat: sql, modules: [sql, algo], aliases: [оптимизация запросов, оптимизации запросов, оптимизацию запросов, оптимизация sql, query optimization, explain analyze, план запроса] }
+  sql_indexes: { name: Индексы, cat: sql, modules: [sql], aliases: [индексы, индексов, индексирование, b-tree] }
+  transactions: { name: Транзакции, cat: sql, modules: [sql], aliases: [транзакции, транзакций, транзакциями, acid, уровни изоляции, mvcc] }
+  window_functions: { name: Оконные функции, cat: sql, modules: [sql], aliases: [оконные функции, оконных функций, window functions, cte] }
+  stored_procedures: { name: Хранимые процедуры, cat: sql, modules: [sql], aliases: [хранимые процедуры, хранимых процедур, stored procedures, plpgsql, pl/pgsql, триггеры] }
+  orm: { name: ORM, cat: sql, modules: [sql], aliases: [orm] }
+  replication: { name: Репликация и шардирование, cat: sql, modules: [sql], aliases: [репликация, репликации, шардирование, шардирования, партиционирование, sharding, replication] }
+  db_migrations: { name: Миграции БД, cat: sql, modules: [sql], aliases: [миграции бд, миграции базы данных, миграциями, flyway, liquibase] }
+  # ---------------------------------------------------------------- NoSQL (не тестируется)
+  redis: { name: Redis, cat: nosql, untestable: true, aliases: [redis, редис, редиска, valkey] }
+  mongodb: { name: MongoDB, cat: nosql, untestable: true, aliases: [mongodb, mongo, монго, монгу, монге, монгой, монгодб] }
+  elasticsearch: { name: Elasticsearch, cat: nosql, untestable: true, aliases: [elasticsearch, elastic, эластик, эластиком, opensearch] }
+  cassandra: { name: Cassandra, cat: nosql, untestable: true, aliases: [cassandra, кассандра, scylladb, scylla] }
+  dynamodb: { name: DynamoDB, cat: nosql, untestable: true, aliases: [dynamodb] }
+  neo4j: { name: Neo4j, cat: nosql, untestable: true, aliases: [neo4j, графовые бд, графовые базы данных] }
+  memcached: { name: Memcached, cat: nosql, untestable: true, aliases: [memcached, мемкеш] }
+  tarantool: { name: Tarantool, cat: nosql, untestable: true, aliases: [tarantool, тарантул] }
+  influxdb: { name: InfluxDB, cat: nosql, untestable: true, aliases: [influxdb, timescaledb, victoria metrics] }
+  nosql: { name: NoSQL, cat: nosql, untestable: true, aliases: [nosql, no-sql, нереляционные бд, нереляционные базы данных] }
+
+  # ---------------------------------------------------------------- HTTP, API, сети
+  rest: { name: REST API, cat: api, modules: [http_api], aliases: [rest, rest api, restful, рест, rest-api] }
+  http: { name: HTTP, cat: api, modules: [http_api], aliases: [http, https, http/2, http2, хттп] }
+  api_design: { name: Проектирование API, cat: api, modules: [http_api], aliases: [api, апи, openapi, swagger, сваггер, проектирование api] }
+  grpc: { name: gRPC, cat: api, modules: [http_api], aliases: [grpc, protobuf, protocol buffers, протобаф] }
+  soap: { name: SOAP, cat: api, modules: [http_api], aliases: [soap, wsdl, xml] }
+  json: { name: JSON, cat: api, modules: [http_api], aliases: [json, json schema] }
+  oauth: { name: OAuth и JWT, cat: api, modules: [http_api], aliases: [oauth, oauth2, oauth 2.0, openid connect, oidc, jwt, sso] }
+  tcp_ip: { name: TCP/IP и сети, cat: api, modules: [http_api], aliases: [tcp/ip, tcp, udp, сетевые протоколы, модель osi, osi, сети tcp/ip] }
+  dns: { name: DNS, cat: api, modules: [http_api], aliases: [dns] }
+  tls: { name: TLS/SSL, cat: api, modules: [http_api], aliases: [tls, ssl, https-сертификаты, mtls] }
+  microservices: { name: Микросервисы, cat: api, modules: [http_api], aliases: [микросервисы, микросервисов, микросервисная архитектура, микросервисной архитектуры, микросервисами, microservices] }
+  caching: { name: Кэширование, cat: api, modules: [http_api], aliases: [кэширование, кеширование, кэширования, кеширования, caching, кэш, кеш] }
+  idempotency: { name: Идемпотентность, cat: api, modules: [http_api], aliases: [идемпотентность, идемпотентности, idempotency] }
+  webhooks: { name: Вебхуки, cat: api, modules: [http_api], aliases: [вебхук, вебхуки, webhook, webhooks] }
+  telegram_bots: { name: Telegram-боты, cat: api, modules: [http_api], aliases: [telegram bot api, телеграм-бот, телеграм-боты, телеграм бот, telegram-бот, telegram-боты, телеграм-ботов] }
+  integrations: { name: Интеграции со сторонними API, cat: api, modules: [http_api], aliases: [интеграции, интеграций, интеграция с api, платежные шлюзы, эквайринг] }
+
+  # ---------------------------------------------------------------- Алгоритмы и основы
+  algorithms: { name: Алгоритмы, cat: cs, modules: [algo], aliases: [алгоритмы, алгоритмов, алгоритмами, algorithms, алгосы, алгоритмические задачи, leetcode, литкод] }
+  data_structures: { name: Структуры данных, cat: cs, modules: [algo], aliases: [структуры данных, структур данных, data structures] }
+  complexity: { name: Сложность алгоритмов, cat: cs, modules: [algo], aliases: [big o, big-o, о-большое, асимптотика, асимптотической сложности, сложность алгоритмов, временная сложность] }
+  competitive_programming: { name: Олимпиадное программирование, cat: cs, modules: [algo], aliases: [спортивное программирование, олимпиадное программирование, олимпиадное программирования, codeforces, кодфорсес, icpc, acm] }
+  math: { name: Математика, cat: cs, modules: [algo], aliases: [математика, математики, линейная алгебра, дискретная математика, матан] }
+  # «графы» алиасом не берём: основа «граф» + окончание ловила «гибкий график», «графа», «графику».
+  graphs: { name: Графы, cat: cs, modules: [algo], aliases: [алгоритмы на графах, теория графов, графов, графах, графами, графовые алгоритмы, обход графа, graph algorithms] }
+  dynamic_programming: { name: Динамическое программирование, cat: cs, modules: [algo], aliases: [динамическое программирование, динамического программирования, dynamic programming] }
+  hash_tables: { name: Хеш-таблицы, cat: cs, modules: [algo], aliases: [хеш-таблицы, хэш-таблицы, хеш-таблиц, hash table, hash tables, хеширование] }
+  oop: { name: ООП, cat: cs, modules: [python_core, js_core], aliases: [ооп, oop, объектно-ориентированное программирование, объектно-ориентированного программирования] }
+  functional_programming: { name: Функциональное программирование, cat: cs, modules: [python_core, js_core], aliases: [функциональное программирование, функционального программирования, functional programming] }
+  regex: { name: Регулярные выражения, cat: cs, modules: [python_core, js_core], aliases: [регулярные выражения, регулярных выражений, регулярки, regex, regexp] }
+  concurrency: { name: Многопоточность и конкурентность, cat: cs, modules: [python_core], aliases: [многопоточность, многопоточности, многопоточное программирование, конкурентность, multithreading, concurrency, multiprocessing, параллельное программирование] }
+  # ---------------------------------------------------------------- Архитектура (не тестируется)
+  design_patterns: { name: Паттерны проектирования, cat: arch, untestable: true, aliases: [паттерны проектирования, паттернов проектирования, паттерны, design patterns, gof] }
+  solid: { name: SOLID, cat: arch, untestable: true, aliases: [solid, yagni] }
+  ddd: { name: DDD, cat: arch, untestable: true, aliases: [ddd, domain-driven design, domain driven design] }
+  clean_architecture: { name: Чистая архитектура, cat: arch, untestable: true, aliases: [чистая архитектура, чистой архитектуры, clean architecture, гексагональная архитектура, hexagonal architecture] }
+  system_design: { name: System Design, cat: arch, untestable: true, aliases: [system design, системный дизайн, проектирование систем, архитектура систем, проектирование архитектуры] }
+  highload: { name: Highload, cat: arch, untestable: true, aliases: [highload, хайлоад, высоконагруженные системы, высоконагруженных систем, высокие нагрузки, высоких нагрузок] }
+  event_driven: { name: Event-driven, cat: arch, untestable: true, aliases: [event-driven, event driven, событийно-ориентированная архитектура, eda-архитектура, saga, transactional outbox, outbox] }
+  cqrs: { name: CQRS и Event Sourcing, cat: arch, untestable: true, aliases: [cqrs, event sourcing] }
+  distributed_systems: { name: Распределённые системы, cat: arch, untestable: true, aliases: [распределенные системы, распределенных систем, distributed systems, cap-теорема, консенсус] }
+
+  # ---------------------------------------------------------------- Git и Linux
+  git: { name: Git, cat: os_vcs, modules: [git_linux], aliases: [git, гит, гитом, git flow, gitflow, системы контроля версий, vcs] }
+  github: { name: GitHub, cat: os_vcs, modules: [git_linux], aliases: [github, гитхаб] }
+  gitlab: { name: GitLab, cat: os_vcs, modules: [git_linux], aliases: [gitlab, гитлаб, bitbucket] }
+  linux: { name: Linux, cat: os_vcs, modules: [git_linux], aliases: [linux, линукс, unix, юникс, ubuntu, убунту, debian, centos, rhel, astra linux, астра линукс, alt linux, "*nix"] }
+  bash: { name: Bash, cat: os_vcs, modules: [git_linux], aliases: [bash, баш, shell, shell-скрипты, shell-скриптов, zsh, sh] }
+  ssh: { name: SSH, cat: os_vcs, modules: [git_linux], aliases: [ssh] }
+  cron: { name: cron, cat: os_vcs, modules: [git_linux], aliases: [cron, крон, crontab] }
+  systemd: { name: systemd, cat: os_vcs, modules: [git_linux], aliases: [systemd, systemctl, journalctl] }
+  unix_tools: { name: Утилиты Unix, cat: os_vcs, modules: [git_linux], aliases: [awk, sed, grep, утилиты командной строки, командная строка, командной строки, cli] }
+  vim: { name: Vim, cat: os_vcs, modules: [git_linux], aliases: [vim, neovim, tmux] }
+  makefile: { name: Make, cat: os_vcs, modules: [git_linux], aliases: [makefile, cmake] }
+
+  # ---------------------------------------------------------------- DevOps (не тестируется)
+  docker: { name: Docker, cat: devops, untestable: true, aliases: [docker, докер, докером, докере, dockerfile, docker-compose, docker compose, контейнеризация, контейнеризации, контейнеры, контейнеров, podman] }
+  kubernetes: { name: Kubernetes, cat: devops, untestable: true, aliases: [kubernetes, k8s, k3s, кубернетес, кубернетис, кубер, кубера, кубере, кубы, кубах] }
+  helm: { name: Helm, cat: devops, untestable: true, aliases: [helm, хелм, kustomize] }
+  openshift: { name: OpenShift, cat: devops, untestable: true, aliases: [openshift, docker swarm, nomad] }
+  terraform: { name: Terraform, cat: devops, untestable: true, aliases: [terraform, терраформ, pulumi, iac, infrastructure as code] }
+  ansible: { name: Ansible, cat: devops, untestable: true, aliases: [ansible, ансибл, saltstack] }
+  puppet: { name: Puppet, cat: devops, untestable: true, aliases: [puppet] }
+  vagrant: { name: Vagrant, cat: devops, untestable: true, aliases: [vagrant, packer] }
+  ci_cd: { name: CI/CD, cat: devops, untestable: true, aliases: [ci/cd, ci cd, ci, cicd, continuous integration, непрерывная интеграция, пайплайны, пайплайнов, pipelines] }
+  jenkins: { name: Jenkins, cat: devops, untestable: true, aliases: [jenkins, дженкинс] }
+  gitlab_ci: { name: GitLab CI, cat: devops, untestable: true, aliases: [gitlab ci, gitlab-ci, gitlab ci/cd] }
+  github_actions: { name: GitHub Actions, cat: devops, untestable: true, aliases: [github actions] }
+  teamcity: { name: TeamCity, cat: devops, untestable: true, aliases: [teamcity, тимсити] }
+  argocd: { name: Argo CD, cat: devops, untestable: true, aliases: [argocd, argo cd, gitops] }
+  nginx: { name: Nginx, cat: devops, untestable: true, aliases: [nginx, нгинкс, энджинкс, энжинкс, traefik, caddy] }
+  haproxy: { name: HAProxy, cat: devops, untestable: true, aliases: [haproxy, балансировка нагрузки, балансировщик нагрузки, load balancing, load balancer] }
+  consul: { name: Consul, cat: devops, untestable: true, aliases: [consul, etcd, zookeeper] }
+  vault: { name: Vault, cat: devops, untestable: true, aliases: [vault, hashicorp vault] }
+  istio: { name: Istio и service mesh, cat: devops, untestable: true, aliases: [istio, envoy, service mesh, linkerd] }
+  virtualization: { name: Виртуализация, cat: devops, untestable: true, aliases: [vmware, proxmox, kvm, виртуализация, виртуализации, hyper-v] }
+  openstack: { name: OpenStack, cat: devops, untestable: true, aliases: [openstack] }
+  ceph: { name: Ceph, cat: devops, untestable: true, aliases: [ceph, glusterfs] }
+  keycloak: { name: Keycloak, cat: devops, untestable: true, aliases: [keycloak, кейклок] }
+  ldap: { name: LDAP и Active Directory, cat: devops, untestable: true, aliases: [ldap, active directory, freeipa] }
+  windows_server: { name: Windows Server, cat: devops, untestable: true, aliases: [windows server, powershell, iis] }
+  networking_ops: { name: Сетевое администрирование, cat: devops, untestable: true, aliases: [iptables, vpn, wireguard, openvpn, маршрутизация, vlan] }
+  # ---------------------------------------------------------------- Мониторинг
+  prometheus: { name: Prometheus, cat: monitoring, untestable: true, aliases: [prometheus, прометеус, прометей, alertmanager] }
+  grafana: { name: Grafana, cat: monitoring, untestable: true, aliases: [grafana, графана, графане] }
+  zabbix: { name: Zabbix, cat: monitoring, untestable: true, aliases: [zabbix, заббикс] }
+  elk: { name: ELK, cat: monitoring, untestable: true, aliases: [elk, elk stack, kibana, logstash, кибана, loki, fluentd] }
+  sentry: { name: Sentry, cat: monitoring, untestable: true, aliases: [sentry] }
+  tracing: { name: Трейсинг, cat: monitoring, untestable: true, aliases: [jaeger, opentelemetry, otel, трейсинг, distributed tracing] }
+  victoriametrics: { name: VictoriaMetrics, cat: monitoring, untestable: true, aliases: [victoriametrics] }
+  observability: { name: Мониторинг и логирование, cat: monitoring, untestable: true, aliases: [мониторинг, мониторинга, observability, логирование, логирования, алертинг] }
+  # ---------------------------------------------------------------- Облака
+  aws: { name: AWS, cat: cloud, untestable: true, aliases: [aws, amazon web services, ec2, aws lambda] }
+  gcp: { name: Google Cloud, cat: cloud, untestable: true, aliases: [gcp, google cloud, bigquery] }
+  azure: { name: Azure, cat: cloud, untestable: true, aliases: [azure, ажур] }
+  yandex_cloud: { name: Yandex Cloud, cat: cloud, untestable: true, aliases: [yandex cloud, яндекс облако, яндекс.облако, яндекс клауд] }
+  vk_cloud: { name: VK Cloud, cat: cloud, untestable: true, aliases: [vk cloud, cloud.ru, selectel, селектел] }
+  s3: { name: S3-хранилища, cat: cloud, untestable: true, aliases: [s3, minio, объектное хранилище] }
+  cdn: { name: CDN, cat: cloud, untestable: true, aliases: [cdn, cloudflare] }
+  # ---------------------------------------------------------------- Очереди и брокеры
+  kafka: { name: Kafka, cat: broker, untestable: true, aliases: [kafka, кафка, кафку, кафке, кафкой, кафки, apache kafka, kafka streams] }
+  rabbitmq: { name: RabbitMQ, cat: broker, untestable: true, aliases: [rabbitmq, rabbit, рэббит, реббит, рэбит, кролик, кроликом] }
+  nats: { name: NATS, cat: broker, untestable: true, aliases: [nats] }
+  activemq: { name: ActiveMQ, cat: broker, untestable: true, aliases: [activemq, artemis, ibm mq] }
+  zeromq: { name: ZeroMQ, cat: broker, untestable: true, aliases: [zeromq, zmq] }
+  message_queues: { name: Очереди сообщений, cat: broker, untestable: true, aliases: [очереди сообщений, очередей сообщений, брокеры сообщений, брокеров сообщений, брокер сообщений, message queue, message broker, pub/sub] }
+
+  # ---------------------------------------------------------------- Go
+  go: { name: Go, cat: lang_go, untestable: true, aliases: [go, golang, голанг, голанге, гошка] }
+  gin: { name: Gin, cat: lang_go, untestable: true, spec: { backend_go: 2.5 }, aliases: [gin, echo framework, fiber, chi router] }
+  gorm: { name: GORM, cat: lang_go, untestable: true, spec: { backend_go: 2.0 }, aliases: [gorm, sqlx, pgx] }
+  goroutines: { name: Горутины и каналы, cat: lang_go, untestable: true, spec: { backend_go: 2.5 }, aliases: [горутины, горутин, горутинами, goroutines, goroutine, каналы go] }
+  # ---------------------------------------------------------------- Java и JVM
+  java: { name: Java, cat: lang_jvm, untestable: true, aliases: [java, джава, джаве, джавой, java 17, java 21, java se] }
+  kotlin: { name: Kotlin, cat: lang_jvm, untestable: true, spec: { backend_java: 2.5, mobile: 2.0 }, aliases: [kotlin, котлин] }
+  scala: { name: Scala, cat: lang_jvm, untestable: true, aliases: [scala, akka] }
+  groovy: { name: Groovy, cat: lang_jvm, untestable: true, spec: { backend_java: 1.5 }, aliases: [groovy] }
+  spring: { name: Spring, cat: lang_jvm, untestable: true, spec: { backend_java: 3.0 }, aliases: [spring, спринг, spring framework, spring mvc, spring cloud, spring security] }
+  spring_boot: { name: Spring Boot, cat: lang_jvm, untestable: true, spec: { backend_java: 3.0 }, aliases: [spring boot, спринг бут, springboot] }
+  hibernate: { name: Hibernate, cat: lang_jvm, untestable: true, spec: { backend_java: 2.5 }, aliases: [hibernate, хибернейт, jpa, spring data] }
+  maven: { name: Maven и Gradle, cat: lang_jvm, untestable: true, spec: { backend_java: 2.0, mobile: 0.5 }, aliases: [maven, мавен, gradle, градл] }
+  junit: { name: JUnit, cat: lang_jvm, untestable: true, spec: { backend_java: 2.0 }, aliases: [junit, mockito, testcontainers] }
+  micronaut: { name: Micronaut и Quarkus, cat: lang_jvm, untestable: true, spec: { backend_java: 2.5 }, aliases: [micronaut, quarkus] }
+  jvm: { name: JVM, cat: lang_jvm, untestable: true, spec: { backend_java: 2.0 }, aliases: [jvm, сборщик мусора java] }
+  # ---------------------------------------------------------------- .NET
+  csharp: { name: C#, cat: lang_dotnet, untestable: true, aliases: ["c#", csharp, си шарп, сишарп, шарп, шарпе] }
+  dotnet: { name: .NET, cat: lang_dotnet, untestable: true, aliases: [".net", dotnet, дотнет, ".net core", ".net 8", "asp.net", "asp.net core"] }
+  entity_framework: { name: Entity Framework, cat: lang_dotnet, untestable: true, aliases: [entity framework, ef core] }
+  # ---------------------------------------------------------------- Другие языки
+  php: { name: PHP, cat: lang_other, untestable: true, aliases: [php, пхп, php 8] }
+  laravel: { name: Laravel, cat: lang_other, untestable: true, aliases: [laravel, ларавел, ларавель] }
+  symfony: { name: Symfony, cat: lang_other, untestable: true, aliases: [symfony, симфони, yii, yii2] }
+  wordpress: { name: WordPress, cat: lang_other, untestable: true, aliases: [wordpress, вордпресс] }
+  bitrix: { name: 1С-Битрикс, cat: lang_other, untestable: true, aliases: [bitrix, битрикс, 1с-битрикс, 1c-bitrix, битрикс24] }
+  ruby: { name: Ruby, cat: lang_other, untestable: true, aliases: [ruby, руби] }
+  rails: { name: Ruby on Rails, cat: lang_other, untestable: true, aliases: [ruby on rails, rails, ror, рельсы] }
+  rust: { name: Rust, cat: lang_other, untestable: true, aliases: [rust, раст, tokio] }
+  cpp: { name: C++, cat: lang_other, untestable: true, aliases: ["c++", cpp, "с++", си плюс плюс, "c++17", "c++20", stl, qt] }
+  c_lang: { name: C, cat: lang_other, untestable: true, aliases: [язык c, язык си, ansi c, "c/c++", "си/си++"] }
+  elixir: { name: Elixir и Erlang, cat: lang_other, untestable: true, aliases: [elixir, erlang, phoenix framework] }
+  haskell: { name: Haskell, cat: lang_other, untestable: true, aliases: [haskell, хаскель, ocaml, "f#"] }
+  perl: { name: Perl, cat: lang_other, untestable: true, aliases: [perl, перл] }
+  r_lang: { name: R, cat: data_ml, untestable: true, aliases: [язык r, r language, rstudio] }
+  matlab: { name: MATLAB, cat: data_ml, untestable: true, aliases: [matlab, матлаб, simulink] }
+  onec: { name: 1С, cat: lang_other, untestable: true, spec: {}, aliases: [1с, 1c, "1с:предприятие", "1с: предприятие", 1с-разработка, 1с программист] }
+  assembler: { name: Ассемблер, cat: embedded, untestable: true, aliases: [ассемблер, assembler, asm] }
+  lua: { name: Lua, cat: lang_other, untestable: true, aliases: [lua] }
+  # ---------------------------------------------------------------- Мобильная разработка
+  swift: { name: Swift, cat: mobile, untestable: true, aliases: [swift, свифт] }
+  objective_c: { name: Objective-C, cat: mobile, untestable: true, aliases: [objective-c, objective c, objc] }
+  swiftui: { name: SwiftUI, cat: mobile, untestable: true, aliases: [swiftui, uikit, combine] }
+  ios: { name: iOS, cat: mobile, untestable: true, aliases: [ios, айос, xcode] }
+  android: { name: Android, cat: mobile, untestable: true, aliases: [android, андроид, android sdk, android studio] }
+  jetpack_compose: { name: Jetpack Compose, cat: mobile, untestable: true, aliases: [jetpack compose, jetpack, compose multiplatform, kmp] }
+  flutter: { name: Flutter, cat: mobile, untestable: true, aliases: [flutter, флаттер, флаттере] }
+  dart: { name: Dart, cat: mobile, untestable: true, aliases: [dart, дарт] }
+  react_native: { name: React Native, cat: mobile, modules: [react, js_core], spec: { mobile: 3.0, frontend_js: 1.0 }, aliases: [react native, react-native, реакт нейтив, expo] }
+  firebase: { name: Firebase, cat: mobile, untestable: true, spec: { mobile: 1.5 }, aliases: [firebase, файрбейс, push-уведомления] }
+  # ---------------------------------------------------------------- QA
+  manual_testing: { name: Ручное тестирование, cat: qa, untestable: true, aliases: [ручное тестирование, ручного тестирования, тест-кейсы, тест-кейсов, тест-дизайн, чек-листы, баг-репорты, test cases, test design] }
+  test_automation: { name: Автоматизация тестирования, cat: qa, untestable: true, aliases: [автотесты, автотестов, автотестами, автоматизация тестирования, автоматизации тестирования, test automation] }
+  selenium: { name: Selenium, cat: qa, untestable: true, aliases: [selenium, селениум, selenide, webdriver] }
+  cypress: { name: Cypress, cat: qa, untestable: true, aliases: [cypress] }
+  playwright: { name: Playwright, cat: qa, untestable: true, aliases: [playwright, puppeteer] }
+  postman: { name: Postman, cat: qa, untestable: true, aliases: [postman, постман, insomnia] }
+  jmeter: { name: JMeter, cat: qa, untestable: true, aliases: [jmeter, джиметр, gatling, k6] }
+  locust: { name: Locust, cat: qa, untestable: true, aliases: [locust] }
+  allure: { name: Allure, cat: qa, untestable: true, aliases: [allure, testrail, testit, test it, zephyr] }
+  unit_testing: { name: Модульные тесты, cat: qa, untestable: true, spec: { qa: 1.0 }, aliases: [юнит-тесты, юнит-тестов, юнит тесты, unit-тесты, unit-тестов, unit tests, unit testing, модульное тестирование, модульные тесты, покрытие тестами] }
+  load_testing: { name: Нагрузочное тестирование, cat: qa, untestable: true, aliases: [нагрузочное тестирование, нагрузочного тестирования, load testing, performance testing] }
+  tdd: { name: TDD/BDD, cat: qa, untestable: true, spec: { qa: 1.0 }, aliases: [tdd, bdd, cucumber, gherkin] }
+  api_testing: { name: Тестирование API, cat: qa, modules: [http_api], aliases: [тестирование api, тестирования api, api testing, api-тесты, api-тестов] }
+  integration_testing: { name: Интеграционное тестирование, cat: qa, untestable: true, aliases: [интеграционное тестирование, интеграционные тесты, интеграционных тестов, e2e, e2e-тесты, end-to-end] }
+  # ---------------------------------------------------------------- Безопасность
+  owasp: { name: OWASP, cat: security, untestable: true, aliases: [owasp, owasp top 10, xss, csrf, sql-инъекции, sql injection] }
+  pentest: { name: Пентест, cat: security, untestable: true, aliases: [пентест, пентеста, pentest, penetration testing, тестирование на проникновение, red team] }
+  siem: { name: SIEM, cat: security, untestable: true, aliases: [siem, soc, ids/ips, ids, ips, maxpatrol] }
+  burp: { name: Burp Suite, cat: security, untestable: true, aliases: [burp, burp suite, owasp zap, metasploit] }
+  wireshark: { name: Wireshark, cat: security, untestable: true, aliases: [wireshark, tcpdump, nmap] }
+  cryptography: { name: Криптография, cat: security, untestable: true, aliases: [криптография, криптографии, cryptography, шифрование, pki, гост-криптография] }
+  kali: { name: Kali Linux, cat: security, untestable: true, aliases: [kali, kali linux] }
+  reverse_engineering: { name: Реверс-инжиниринг, cat: security, untestable: true, aliases: [реверс-инжиниринг, reverse engineering, реверс, ida pro, ghidra] }
+  appsec: { name: Безопасная разработка, cat: security, untestable: true, aliases: [appsec, devsecops, sast, dast, безопасная разработка, secure coding, sdl] }
+  # ---------------------------------------------------------------- Процессы
+  agile: { name: Agile, cat: process, untestable: true, aliases: [agile, аджайл, эджайл] }
+  scrum: { name: Scrum, cat: process, untestable: true, aliases: [scrum, скрам, скрамом] }
+  kanban: { name: Kanban, cat: process, untestable: true, aliases: [kanban, канбан] }
+  jira: { name: Jira, cat: process, untestable: true, aliases: [jira, джира, джире, youtrack, yandex tracker, яндекс трекер] }
+  confluence: { name: Confluence, cat: process, untestable: true, aliases: [confluence, конфлюенс, notion] }
+  code_review: { name: Код-ревью, cat: process, untestable: true, aliases: [code review, код-ревью, код ревью, ревью кода, code-review, ревьюить] }
+  tech_docs: { name: Техническая документация, cat: process, untestable: true, aliases: [техническая документация, технической документации, документирование кода, adr] }
+  english: { name: Английский язык, cat: spoken, untestable: true, aliases: [английский, английского, английским, english, английский язык, upper-intermediate, intermediate] }
+  # ---------------------------------------------------------------- Встраиваемые, геймдев, блокчейн, дизайн
+  embedded: { name: Встраиваемые системы, cat: embedded, untestable: true, aliases: [embedded, встраиваемые системы, встраиваемых систем, микроконтроллеры, микроконтроллеров, stm32, arduino, ардуино, rtos] }
+  ros: { name: ROS, cat: embedded, untestable: true, spec: { data_ml: 0.8 }, aliases: [ros, ros2] }
+  fpga: { name: FPGA, cat: embedded, untestable: true, aliases: [fpga, плис, verilog, vhdl] }
+  unity: { name: Unity, cat: gamedev, untestable: true, aliases: [unity, юнити, unity3d] }
+  unreal: { name: Unreal Engine, cat: gamedev, untestable: true, aliases: [unreal engine, unreal, анрил, godot] }
+  blockchain: { name: Блокчейн, cat: blockchain, untestable: true, aliases: [blockchain, блокчейн, web3, смарт-контракты, smart contracts] }
+  solidity: { name: Solidity, cat: blockchain, untestable: true, aliases: [solidity, evm, ethereum] }
+  figma: { name: Figma, cat: design, untestable: true, aliases: [figma, фигма, фигмы, фигме, sketch, zeplin] }
+  photoshop: { name: Photoshop, cat: design, untestable: true, aliases: [photoshop, фотошоп, adobe illustrator, illustrator] }
+  ui_ux: { name: UI/UX, cat: design, untestable: true, aliases: [ui/ux, ux/ui, ux, ui-kit, дизайн-система, дизайн-системы, design system] }
+
+# Роли в команде (резюме: «роли»; бриф: сигнал специализации, вес на специализации).
+roles:
+  backend_dev: { name: Backend-разработчик, aliases: [backend-разработчик, бэкенд-разработчик, бекенд-разработчик, backend developer, backend engineer, бэкендер, бэкендщик, серверный разработчик], spec: { backend_python: 1.0, backend_go: 1.0, backend_java: 1.0 } }
+  frontend_dev: { name: Frontend-разработчик, aliases: [frontend-разработчик, фронтенд-разработчик, frontend developer, frontend engineer, фронтендер, фронтендщик, верстальщик, верстальщика], spec: { frontend_js: 1.0 } }
+  fullstack_dev: { name: Fullstack-разработчик, aliases: [fullstack-разработчик, фулстек-разработчик, full-stack developer, fullstack developer, фулстекер], spec: { fullstack: 1.0 } }
+  python_dev: { name: Python-разработчик, aliases: [python-разработчик, python developer, питонист, питон-разработчик], spec: { backend_python: 1.0 } }
+  go_dev: { name: Go-разработчик, aliases: [go-разработчик, golang-разработчик, golang developer, go developer, гофер], spec: { backend_go: 1.0 } }
+  java_dev: { name: Java-разработчик, aliases: [java-разработчик, джава-разработчик, java developer, kotlin-разработчик], spec: { backend_java: 1.0 } }
+  mobile_dev: { name: Мобильный разработчик, aliases: [мобильный разработчик, мобильного разработчика, ios-разработчик, android-разработчик, mobile developer, mobile-разработчик, flutter-разработчик], spec: { mobile: 1.0 } }
+  devops_eng: { name: DevOps-инженер, aliases: [devops-инженер, devops engineer, sre-инженер, site reliability engineer, системный администратор, сисадмин, администратор linux], spec: { devops: 1.0 } }
+  qa_eng: { name: QA-инженер, aliases: [qa-инженер, qa engineer, тестировщик, тестировщика, автотестировщик, инженер по тестированию, aqa, sdet], spec: { qa: 1.0 } }
+  data_scientist: { name: Data Scientist, aliases: [data scientist, дата-сайентист, дата сайентист, датасайентист, дата-саентист], spec: { data_ml: 1.0 } }
+  ml_engineer: { name: ML-инженер, aliases: [ml-инженер, ml engineer, ml-разработчик, инженер машинного обучения, mle], spec: { data_ml: 1.0 } }
+  data_analyst: { name: Аналитик данных, aliases: [аналитик данных, data analyst, bi-аналитик, продуктовый аналитик], spec: { data_ml: 0.8 } }
+  data_engineer: { name: Инженер данных, aliases: [data engineer, дата-инженер, инженер данных, dwh-разработчик, etl-разработчик], spec: { data_ml: 1.0 } }
+  security_eng: { name: Специалист по ИБ, aliases: [специалист по информационной безопасности, security engineer, пентестер, безопасник, appsec-инженер, аналитик soc], spec: { infosec: 1.0 } }
+  team_lead: { name: Тимлид, aliases: [тимлид, team lead, teamlead, тимлида, руководитель группы разработки], spec: {} }
+  tech_lead: { name: Техлид, aliases: [техлид, tech lead, techlead, ведущий инженер], spec: {} }
+  architect: { name: Архитектор, aliases: [архитектор, software architect, solution architect, архитектор по], spec: {} }
+  system_analyst: { name: Системный аналитик, aliases: [системный аналитик, system analyst, бизнес-аналитик, business analyst], spec: {} }
+  product_manager: { name: Менеджер продукта или проекта, aliases: [product manager, продакт-менеджер, продакт, project manager, проджект-менеджер, проджект, менеджер проекта], spec: {} }
+  designer: { name: Дизайнер, aliases: [дизайнер, ui/ux-дизайнер, ux-дизайнер, продуктовый дизайнер, product designer], spec: { frontend_js: 0.2 } }
+
+# Дополнительные слова-сигналы специализации (кроме ролей). cue_hits_s = Σ веса (концепция §4.2).
+spec_cues:
+  - { aliases: [бэкенд, бекенд, backend, back-end, бэк-энд, бэкэнд, серверная разработка, серверной разработки, серверная часть, серверной части, серверную часть], spec: { backend_python: 1.0, backend_go: 1.0, backend_java: 1.0 } }
+  - { aliases: [фронтенд, фронтэнд, frontend, front-end, фронт-энд, клиентская часть, клиентской части, клиентскую часть], spec: { frontend_js: 1.0 } }
+  - { aliases: [фулстек, фуллстек, фулстэк, fullstack, full-stack, full stack, фулстак], spec: { fullstack: 1.0 } }
+  - { aliases: [data science, дата сайенс, data-science, ml-команда, ml-модели, ml-моделей, модели машинного обучения], spec: { data_ml: 1.0 } }
+  - { aliases: [devops, девопс, sre, эксплуатация инфраструктуры, администрирование серверов], spec: { devops: 1.0 } }
+  - { aliases: [qa, обеспечение качества, отдел тестирования], spec: { qa: 1.0 } }
+  - { aliases: [мобильная разработка, мобильной разработки, мобильные приложения ios], spec: { mobile: 1.0 } }
+  - { aliases: [информационная безопасность, информационной безопасности, кибербезопасность, кибербезопасности, иб], spec: { infosec: 1.0 } }
+
+# Софт-скиллы (резюме; в Score не входят).
+soft_skills:
+  communication: { name: Коммуникабельность, aliases: [коммуникабельн, коммуникативные навыки, коммуникативных навыков, communication skills] }
+  responsibility: { name: Ответственность, aliases: [ответственн] }
+  independence: { name: Самостоятельность, aliases: [самостоятельн] }
+  teamwork: { name: Работа в команде, aliases: [работа в команде, работать в команде, умение работать в команде, командный игрок, командная работа, team player, teamwork] }
+  initiative: { name: Инициативность, aliases: [инициативн, проактивн, proactive] }
+  learning: { name: Обучаемость, aliases: [обучаемост, быстро учусь, быстро обучаюсь, желание учиться, желание развиваться, growth mindset] }
+  stress_resistance: { name: Стрессоустойчивость, aliases: [стрессоустойчив] }
+  attention_to_detail: { name: Внимательность к деталям, aliases: [внимательность к деталям, внимание к деталям, attention to detail, внимательн] }
+  analytical_thinking: { name: Аналитическое мышление, aliases: [аналитическое мышление, аналитический склад ума, аналитического мышления, analytical thinking] }
+  critical_thinking: { name: Критическое мышление, aliases: [критическое мышление, критического мышления, critical thinking] }
+  systems_thinking: { name: Системное мышление, aliases: [системное мышление, системного мышления] }
+  time_management: { name: Тайм-менеджмент, aliases: [тайм-менеджмент, time management, управление временем] }
+  mentoring: { name: Менторство, aliases: [менторств, наставничеств, mentoring, менторинг] }
+  leadership: { name: Лидерство, aliases: [лидерск, лидерство, leadership] }
+  punctuality: { name: Пунктуальность, aliases: [пунктуальн] }
+  customer_focus: { name: Клиентоориентированность, aliases: [клиентоориентированн, customer focus] }
+  presentation: { name: Навыки презентации, aliases: [навыки презентации, публичные выступления, публичных выступлений, презентационные навыки] }
+  writing: { name: Грамотная речь, aliases: [грамотная речь, грамотной речи, грамотная письменная речь, грамотн письменн] }
+  problem_solving: { name: Решение проблем, aliases: [problem solving, решение проблем, умение решать задачи, решать нестандартные задачи] }
+  creativity: { name: Креативность, aliases: [креативн, творческий подход] }
+  adaptability: { name: Гибкость, aliases: [гибкость мышления, адаптивность, адаптивности, умение адаптироваться] }
+  organization: { name: Организованность, aliases: [организованн, самоорганизац] }
+  multitasking: { name: Многозадачность, aliases: [многозадачн, multitasking] }
+  empathy: { name: Эмпатия, aliases: [эмпатия, эмпатии, эмпатичн] }
+  negotiation: { name: Ведение переговоров, aliases: [ведение переговоров, переговорные навыки, навыки переговоров] }
+  feedback: { name: Обратная связь, aliases: [давать обратную связь, принимать обратную связь, конструктивная обратная связь] }
+  result_orientation: { name: Ориентация на результат, aliases: [ориентация на результат, ориентированность на результат, результативн, result-oriented] }
+  diligence: { name: Усидчивость, aliases: [усидчив, исполнительн, дисциплинированн] }
+  honesty: { name: Честность, aliases: [честность, честности, порядочность] }
+  engagement: { name: Вовлечённость, aliases: [вовлеченн, увлеченн, горящие глаза] }
+  curiosity: { name: Любознательность, aliases: [любознательн, любопытство, curiosity] }
+  argumentation: { name: Умение аргументировать, aliases: [умение аргументировать, аргументировать решения, отстаивать свою позицию] }
+  uncertainty: { name: Работа в условиях неопределённости, aliases: [в условиях неопределенности, работа с неопределенностью, неопределенност] }
+  cross_functional: { name: Кросс-функциональное взаимодействие, aliases: [кросс-функциональн, взаимодействие с другими командами, взаимодействие со смежными командами] }
+  documentation_soft: { name: Умение писать документацию, aliases: [умение писать документацию, писать документацию] }
+  emotional_intelligence: { name: Эмоциональный интеллект, aliases: [эмоциональный интеллект, эмоционального интеллекта] }
+  conflict_management: { name: Управление конфликтами, aliases: [управление конфликтами, разрешение конфликтов, неконфликтн] }
+  decision_making: { name: Принятие решений, aliases: [принятие решений, принимать решения] }
+  delegation: { name: Делегирование, aliases: [делегирован] }
+  planning: { name: Планирование, aliases: [планирован, умение планировать, оценка задач, оценивать задачи] }
+  ownership: { name: Ownership, aliases: [ownership, ответственность за результат, доводить задачи до конца, доводить до конца] }
+
+# Формат работы (бриф и настройки кандидата).
+formats:
+  office: { name: Офис, aliases: [офис, в офисе, office, onsite, on-site, очно, очный формат, офисный формат] }
+  hybrid: { name: Гибрид, aliases: [гибрид, гибридн, hybrid, частично удален, частично удаленн, частично из дома, смешанный формат] }
+  remote: { name: Удалённо, aliases: [удален, удаленн, удаленк, remote, дистанционн, из дома, wfh, полная удаленка, работа из любой точки] }
+
+relocation_aliases: [релокац, relocation, переезд, помощь с переездом, готовность к переезду]
+
+# Города РФ: stems ловят словоформы («Москва» → «в Москве»). region — субъект РФ (работодатель до раскрытия видит регион).
+cities:
+  moscow: { name: Москва, region: Москва, aliases: [москв, мск, moscow] }
+  spb: { name: Санкт-Петербург, region: Санкт-Петербург, aliases: [санкт-петербург, петербург, питер, спб, saint petersburg, st. petersburg] }
+  novosibirsk: { name: Новосибирск, region: Новосибирская область, aliases: [новосибирск, novosibirsk] }
+  ekaterinburg: { name: Екатеринбург, region: Свердловская область, aliases: [екатеринбург, екб, yekaterinburg] }
+  kazan: { name: Казань, region: Республика Татарстан, aliases: [казань, казани, казанью, kazan] }
+  nizhny_novgorod: { name: Нижний Новгород, region: Нижегородская область, aliases: [нижний новгород, нижнем новгороде, нижнего новгорода, нижнему новгороду, nizhny novgorod] }
+  chelyabinsk: { name: Челябинск, region: Челябинская область, aliases: [челябинск] }
+  samara: { name: Самара, region: Самарская область, aliases: [самара, самаре, самары, самару, самарой] }
+  omsk: { name: Омск, region: Омская область, aliases: [омск] }
+  rostov: { name: Ростов-на-Дону, region: Ростовская область, aliases: [ростов-на-дону, ростове-на-дону, ростов на дону, ростове на дону, ростов] }
+  ufa: { name: Уфа, region: Республика Башкортостан, aliases: [уфа, уфе, уфы, уфу, уфой] }
+  krasnoyarsk: { name: Красноярск, region: Красноярский край, aliases: [красноярск] }
+  voronezh: { name: Воронеж, region: Воронежская область, aliases: [воронеж] }
+  perm: { name: Пермь, region: Пермский край, aliases: [пермь, перми, пермью] }
+  volgograd: { name: Волгоград, region: Волгоградская область, aliases: [волгоград] }
+  krasnodar: { name: Краснодар, region: Краснодарский край, aliases: [краснодар] }
+  saratov: { name: Саратов, region: Саратовская область, aliases: [саратов] }
+  tyumen: { name: Тюмень, region: Тюменская область, aliases: [тюмень, тюмени] }
+  tolyatti: { name: Тольятти, region: Самарская область, aliases: [тольятти] }
+  izhevsk: { name: Ижевск, region: Удмуртская Республика, aliases: [ижевск] }
+  barnaul: { name: Барнаул, region: Алтайский край, aliases: [барнаул] }
+  ulyanovsk: { name: Ульяновск, region: Ульяновская область, aliases: [ульяновск] }
+  irkutsk: { name: Иркутск, region: Иркутская область, aliases: [иркутск] }
+  khabarovsk: { name: Хабаровск, region: Хабаровский край, aliases: [хабаровск] }
+  yaroslavl: { name: Ярославль, region: Ярославская область, aliases: [ярославль, ярославле, ярославля] }
+  vladivostok: { name: Владивосток, region: Приморский край, aliases: [владивосток] }
+  makhachkala: { name: Махачкала, region: Республика Дагестан, aliases: [махачкала, махачкале, махачкалы] }
+  tomsk: { name: Томск, region: Томская область, aliases: [томск] }
+  orenburg: { name: Оренбург, region: Оренбургская область, aliases: [оренбург] }
+  kemerovo: { name: Кемерово, region: Кемеровская область, aliases: [кемерово] }
+  novokuznetsk: { name: Новокузнецк, region: Кемеровская область, aliases: [новокузнецк] }
+  ryazan: { name: Рязань, region: Рязанская область, aliases: [рязань, рязани] }
+  naberezhnye_chelny: { name: Набережные Челны, region: Республика Татарстан, aliases: [набережные челны, набережных челнах] }
+  astrakhan: { name: Астрахань, region: Астраханская область, aliases: [астрахань, астрахани] }
+  penza: { name: Пенза, region: Пензенская область, aliases: [пенза, пензе, пензы] }
+  kirov: { name: Киров, region: Кировская область, aliases: [киров] }
+  lipetsk: { name: Липецк, region: Липецкая область, aliases: [липецк] }
+  kaliningrad: { name: Калининград, region: Калининградская область, aliases: [калининград] }
+  tula: { name: Тула, region: Тульская область, aliases: [тула, туле, тулы] }
+  sochi: { name: Сочи, region: Краснодарский край, aliases: [сочи] }
+  innopolis: { name: Иннополис, region: Республика Татарстан, aliases: [иннополис] }
+  sevastopol: { name: Севастополь, region: Севастополь, aliases: [севастополь, севастополе] }
+  stavropol: { name: Ставрополь, region: Ставропольский край, aliases: [ставрополь, ставрополе] }
+  belgorod: { name: Белгород, region: Белгородская область, aliases: [белгород] }
+  kursk: { name: Курск, region: Курская область, aliases: [курск] }
+  tver: { name: Тверь, region: Тверская область, aliases: [тверь, твери] }
+  murmansk: { name: Мурманск, region: Мурманская область, aliases: [мурманск] }
+  arkhangelsk: { name: Архангельск, region: Архангельская область, aliases: [архангельск] }
+  surgut: { name: Сургут, region: Ханты-Мансийский АО, aliases: [сургут] }
+  yakutsk: { name: Якутск, region: Республика Саха (Якутия), aliases: [якутск] }
+
+# must / nice: маркеры в окне ±N токенов (spec-contact §3.1). Без маркера → must.
+markers:
+  # «желател» (а не «желательн») — чтобы ловить и краткую форму: «желателен опыт», «желательна».
+  nice: [желател, "хорошо, если", хорошо если, будет плюсом, будут плюсом, является плюсом, плюсом будет, большим плюсом, будет преимуществом, будут преимуществом, преимуществом, как плюс, приветству, опциональн, не обязательн, необязательн, по желанию, хорошо бы, было бы здорово, бонусом, nice to have, nice-to-have, is a plus, would be a plus, will be a plus, optional, preferred, плюсом]
+  must: [обязательн, нужен, нужна, нужно, нужны, требуется, требуются, требовани, необходим, уверенн, опыт с, опыт работы с, знание, знания, владение, умение, must have, must-have, required, must, хорошее знание, отличное знание, глубокое понимание]
+
+# Маркеры грейда (spec-contact §3.1, п. 4). «+» после маркера (middle+) → сдвиг к следующему грейду.
+grade_markers:
+  intern: [стажер, стажера, стажеров, стажерку, стажировк, intern, internship, trainee, практикант, без опыта, студент, студентов]
+  junior: [junior, джун, джуна, джунов, джуниор, младший разработчик, младшего разработчика, начинающ, entry level, entry-level]
+  middle: [middle, мидл, мидла, мидлов, миддл, mid-level, mid level, middle-разработчик]
+  senior: [senior, сеньор, сеньора, синьор, синьора, сениор, синиор, старший разработчик, старшего разработчика, ведущий разработчик, ведущего разработчика, lead developer]
+
+# Если маркеры грейда противоречат друг другу («Ищем Senior …, будет менторить джунов»), берём только те,
+# что стоят в ±window_tokens от роли, сигнала специализации или слова ниже (основы, по началу токена).
+grade_context:
+  window_tokens: 2
+  anchor_stems: [разработчик, программист, инженер, специалист, девелопер, developer, engineer, ищем, ищу, нужен, нужна, требуется, вакансия, позици, приглашаем, looking, hiring]
+
+# «Опыт от N лет»: слова опыта и числительные словами.
+experience:
+  words: [опыт, опыта, опытом, стаж, experience]
+  number_words: { один: 1, одного: 1, года: 1, полутора: 1.5, двух: 2, два: 2, трех: 3, три: 3, четырех: 4, четыре: 4, пяти: 5, пять: 5, шести: 6, семи: 7, десяти: 10, полугода: 0.5 }
+
+# Вилка: контекстные слова (regex-разбор в brief_parser.py).
+salary_words:
+  context: [зарплата, зарплату, зарплаты, зарплатой, зп, з/п, з.п., оклад, оклада, вилка, вилку, вилке, доход, компенсация, salary, оплата, ставка, вознаграждение, платим, предлагаем]
+  net: [на руки, чистыми, после вычета, после налогов, после ндфл, net, нетто]
+  gross: [gross, гросс, до вычета, до ндфл, до налогов, брутто, с ндфл, включая ндфл, до уплаты ндфл]
+  yearly: [в год, /год, годовых, per year, annual, /year, в годовом]
+  # Слова после числа, при которых это не деньги («200 тыс. пользователей», «опыт 3 года»).
+  not_money: [лет, год, года, years, year, мес, месяц, месяцев, процент, мин, минут, час, часов, дн, дней, день, чел, человек, сотрудник, раз, шт, км, мб, гб, тб, rps, rpm, мс, ms, пользовател, клиент, запрос, заказ, транзакц, юзер, users, requests, строк, магазин, устройств, подписчик, посетител, запис, документ, сообщени, событи, операци, задач, вакансий, кандидат, компани, проект, партнер, точек, филиал]

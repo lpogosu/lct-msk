@@ -1,0 +1,123 @@
+# «Взаимно» — локальный стенд.
+#   docker compose up -d                 → db, mailpit, backend, fsp-mock
+#   docker compose --profile fsp up -d   → плюс Keycloak (realm «fsp», ФСП ID)
+# Переменные VZ_* описаны в .env.example (скопируйте в .env при необходимости).
+# Лимиты памяти выставлены на каждом сервисе: стенд должен подниматься на ноутбуке жюри.
+
+name: vzaimno
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${VZ_DB_USER:-vzaimno}
+      POSTGRES_PASSWORD: ${VZ_DB_PASSWORD:-vzaimno}
+      POSTGRES_DB: ${VZ_DB_NAME:-vzaimno}
+    ports:
+      - "${VZ_DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+    mem_limit: 512m
+
+  mailpit:
+    # Перехватчик почты для разработки: письма с кодом видно на http://localhost:8025
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - "${VZ_MAILPIT_UI_PORT:-8025}:8025"
+      - "${VZ_MAILPIT_SMTP_PORT:-1025}:1025"
+    mem_limit: 128m
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      # config/*.yaml лежит вне контекста backend → передаём отдельным контекстом сборки
+      additional_contexts:
+        config: ./config
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+    environment:
+      VZ_ENV: ${VZ_ENV:-dev}
+      VZ_DEMO_MODE: ${VZ_DEMO_MODE:-false}
+      VZ_DATABASE_URL: postgresql+psycopg://${VZ_DB_USER:-vzaimno}:${VZ_DB_PASSWORD:-vzaimno}@db:5432/${VZ_DB_NAME:-vzaimno}
+      VZ_PUBLIC_BASE_URL: ${VZ_PUBLIC_BASE_URL:-http://localhost:5173}
+      VZ_CORS_ORIGINS: ${VZ_CORS_ORIGINS:-http://localhost:5173}
+      VZ_JWT_SECRET: ${VZ_JWT_SECRET:-dev-insecure-jwt-secret-change-me}
+      VZ_APP_SECRET: ${VZ_APP_SECRET:-dev-insecure-app-secret-change-me}
+      VZ_PSEUDONYM_SECRET: ${VZ_PSEUDONYM_SECRET:-dev-insecure-pseudonym-secret-change-me}
+      VZ_COOKIE_SECURE: ${VZ_COOKIE_SECURE:-false}
+      VZ_MAIL_BACKEND: smtp
+      VZ_SMTP_HOST: mailpit
+      VZ_SMTP_PORT: 1025
+      VZ_SMTP_SECURITY: none
+      VZ_MAIL_FROM: ${VZ_MAIL_FROM:-Взаимно <no-reply@vzaimno.local>}
+      VZ_FSP_OIDC_ISSUER: ${VZ_FSP_OIDC_ISSUER:-http://localhost:8080/realms/fsp}
+      VZ_FSP_OIDC_INTERNAL_URL: ${VZ_FSP_OIDC_INTERNAL_URL:-http://keycloak:8080/realms/fsp}
+      VZ_FSP_OIDC_CLIENT_ID: ${VZ_FSP_OIDC_CLIENT_ID:-vzaimno}
+      # Демо-секрет конфиденциального client из deploy/keycloak/realm-fsp.json (в prod — свой)
+      VZ_FSP_OIDC_CLIENT_SECRET: ${VZ_FSP_OIDC_CLIENT_SECRET:-vzaimno-demo-secret}
+      VZ_FSP_OIDC_REDIRECT_URI: ${VZ_FSP_OIDC_REDIRECT_URI:-http://localhost:5173/auth/fsp/callback}
+      VZ_FSP_REGISTRY_URL: http://fsp-mock:8001
+      # auto — реестр по сети, при недоступности встроенный снимок (демо не зависит от fsp-mock)
+      VZ_FSP_PROVIDER: ${VZ_FSP_PROVIDER:-auto}
+      VZ_FSP_REGISTRY_TOKEN: ${VZ_FSP_REGISTRY_TOKEN:-demo-fsp-registry-token}
+      VZ_FSP_DEMO_LOGIN_ENABLED: ${VZ_FSP_DEMO_LOGIN_ENABLED:-true}
+    ports:
+      - "${VZ_BACKEND_PORT:-8000}:8000"
+    command: ["sh", "-c", "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --proxy-headers"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/api/health/live', timeout=3).status == 200 else 1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    mem_limit: 768m
+
+  fsp-mock:
+    # Мок реестра ФСП (FastAPI). Сервис собирается из services/fsp-mock (его ведёт отдельный модуль).
+    # Контракт для compose: HTTP на порту 8001 внутри контейнера.
+    build:
+      context: ./services/fsp-mock
+    restart: unless-stopped
+    environment:
+      # Должен совпадать с VZ_FSP_REGISTRY_TOKEN бэкенда
+      FSP_MOCK_TOKENS: ${VZ_FSP_REGISTRY_TOKEN:-demo-fsp-registry-token}
+    ports:
+      - "${VZ_FSP_MOCK_PORT:-8001}:8001"
+    mem_limit: 256m
+
+  keycloak:
+    # ФСП ID (внешний OIDC-провайдер). Только профиль «fsp»: демо не зависит от Keycloak
+    # (есть «демо-вход ФСП», см. концепцию §6.5).
+    image: quay.io/keycloak/keycloak:26.0
+    profiles: ["fsp"]
+    command: ["start-dev", "--import-realm", "--http-port=8080"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${VZ_KEYCLOAK_ADMIN:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${VZ_KEYCLOAK_ADMIN_PASSWORD:-admin}
+      KC_HEALTH_ENABLED: "true"
+      KC_HOSTNAME_STRICT: "false"
+      # Плейсхолдер ${VZ_PUBLIC_DOMAIN} в redirect URI realm-fsp.json (deploy/keycloak/README.md)
+      VZ_PUBLIC_DOMAIN: ${VZ_PUBLIC_DOMAIN:-vzaimno.example}
+      # JVM не должна выходить за лимит контейнера
+      JAVA_OPTS_KC_HEAP: "-XX:MaxRAMPercentage=65 -XX:InitialRAMPercentage=30"
+    volumes:
+      - ./deploy/keycloak:/opt/keycloak/data/import:ro
+    ports:
+      - "${VZ_KEYCLOAK_PORT:-8080}:8080"
+    mem_limit: 768m
+
+volumes:
+  pgdata:

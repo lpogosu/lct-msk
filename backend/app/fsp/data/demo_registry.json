@@ -1,0 +1,5711 @@
+{
+ "contract_version": "1.0",
+ "seed": 20261011,
+ "data_as_of": "2026-10-05",
+ "athletes": [
+  {
+   "sub": "43d2def2-48bb-4deb-ba70-5ffa4d4f7369",
+   "last_name": "Логгеров",
+   "first_name": "Егор",
+   "middle_name": "Павлович",
+   "birth_date": "2005-03-14",
+   "region_code": "02",
+   "region_name": "Республика Башкортостан",
+   "organization": "Региональное отделение ФСП — Республика Башкортостан"
+  },
+  {
+   "sub": "c3323cfc-bcfe-42ab-a237-3dc7ee0a9b36",
+   "last_name": "Коммитов",
+   "first_name": "Олег",
+   "middle_name": "Андреевич",
+   "birth_date": "2004-04-03",
+   "region_code": "54",
+   "region_name": "Новосибирская область",
+   "organization": "Региональное отделение ФСП — Новосибирская область"
+  },
+  {
+   "sub": "54ac9bcc-d3ac-4244-a71b-656ddbaa7a8f",
+   "last_name": "Дебагов",
+   "first_name": "Роман",
+   "middle_name": "Евгеньевич",
+   "birth_date": "2001-01-03",
+   "region_code": "77",
+   "region_name": "г. Москва",
+   "organization": null
+  },
+  {
+   "sub": "ced232ac-5bea-42b9-81bf-2756c325b433",
+   "last_name": "Деплоев",
+   "first_name": "Никита",
+   "middle_name": "Романович",
+   "birth_date": "1994-01-27",
+   "region_code": "54",
+   "region_name": "Новосибирская область",
+   "organization": "Региональное отделение ФСП — Новосибирская область"
+  },
+  {
+   "sub": "34a8406c-f18f-49ef-8769-a34a4161e778",
+   "last_name": "Компиляторов",
+   "first_name": "Даниил",
+   "middle_name": "Олегович",
+   "birth_date": "1993-04-13",
+   "region_code": "25",
+   "region_name": "Приморский край",
+   "organization": "Региональное отделение ФСП — Приморский край"
+  },
+  {
+   "sub": "5c9b7091-cfec-4f88-9fef-8875cda40c98",
+   "last_name": "Стеков",
+   "first_name": "Фёдор",
+   "middle_name": "Дмитриевич",
+   "birth_date": "1993-03-02",
+   "region_code": "63",
+   "region_name": "Самарская область",
+   "organization": null
+  },
+  {
+   "sub": "f65bb71f-8ac3-4af0-8ead-29daf95d439a",
+   "last_name": "Кэшев",
+   "first_name": "Лев",
+   "middle_name": "Сергеевич",
+   "birth_date": "2009-02-12",
+   "region_code": "77",
+   "region_name": "г. Москва",
+   "organization": null
+  },
+  {
+   "sub": "0473a37f-91fd-4447-9360-f35c2e0260db",
+   "last_name": "Сервлетов",
+   "first_name": "Арсений",
+   "middle_name": "Олегович",
+   "birth_date": "1994-06-16",
+   "region_code": "77",
+   "region_name": "г. Москва",
+   "organization": "Региональное отделение ФСП — г. Москва"
+  },
+  {
+   "sub": "54e32dfe-4b66-45d4-b002-e451dbddbf71",
+   "last_name": "Триггеров",
+   "first_name": "Даниил",
+   "middle_name": "Сергеевич",
+   "birth_date": "1995-05-18",
+   "region_code": "77",
+   "region_name": "г. Москва",
+   "organization": "Региональное отделение ФСП — г. Москва"
+  },
+  {
+   "sub": "b05a3443-6e8e-4cba-9efb-383bfcb06b04",
+   "last_name": "Релизов",
+   "first_name": "Тимофей",
+   "middle_name": "Игоревич",
+   "birth_date": "2000-12-12",
+   "region_code": "78",
+   "region_name": "г. Санкт-Петербург",
+   "organization": "Региональное отделение ФСП — г. Санкт-Петербург"
+  },
+  {
+   "sub": "c7d48424-d766-41dd-a146-bb846cbf12c9",
+   "last_name": "Байтов",
+   "first_name": "Всеволод",
+   "middle_name": "Дмитриевич",
+   "birth_date": "2007-04-05",
+   "region_code": "54",
+   "region_name": "Новосибирская область",
+   "organization": "Региональное отделение ФСП — Новосибирская область"
+  },
+  {
+   "sub": "d98cba91-ae78-4d5a-bfb0-130ca2c6b02f",
+   "last_name": "Патчев",
+   "first_name": "Всеволод",
+   "middle_name": "Сергеевич",
+   "birth_date": "2007-06-08",
+   "region_code": "16",
+   "region_name": "Республика Татарстан",
+   "organization": null
+  },
+  {
+   "sub": "e0ca0b59-2788-4ebc-b6d5-4f2607c2006b",
+   "last_name": "Лямбдин",
+   "first_name": "Артём",
+   "middle_name": "Олегович",
+   "birth_date": "1994-06-11",
+   "region_code": "78",
+   "region_name": "г. Санкт-Петербург",
+   "organization": "Региональное отделение ФСП — г. Санкт-Петербург"
+  },
+  {
+   "sub": "8b56020c-ba6f-4c6d-a230-d03ec06c4ba0",
+   "last_name": "Токенов",
+   "first_name": "Матвей",
+   "middle_name": "Сергеевич",
+   "birth_date": "1998-05-07",
+   "region_code": "54",
+   "region_name": "Новосибирская область",
+   "organization": null
+  },
+  {
+   "sub": "87648a7a-c05b-48fd-b515-c6d9db523c6b",
+   "last_name": "Тензоров",
+   "first_name": "Кирилл",
+   "middle_name": "Игоревич",
+   "birth_date": "1993-09-12",
+   "region_code": "66",
+   "region_name": "Свердловская область",
+   "organization": "Региональное отделение ФСП — Свердловская область"
+  },
+  {
+   "sub": "800a9cc8-5bcb-4dac-9828-accc71a830e4",
+   "last_name": "Драйверов",
+   "first_name": "Павел",
+   "middle_name": "Дмитриевич",
+   "birth_date": "1998-02-19",
+   "region_code": "77",
+   "region_name": "г. Москва",
+   "organization": "Региональное отделение ФСП — г. Москва"
+  },
+  {
+   "sub": "72e54fca-351b-4127-98ac-faacc93bcf6a",
+   "last_name": "Битмапов",
+   "first_name": "Даниил",
+   "middle_name": "Олегович",
+   "birth_date": "2003-02-24",
+   "region_code": "77",
+   "region_name": "г. Москва",
+   "organization": "Региональное отделение ФСП — г. Москва"
+  },
+  {
+   "sub": "2410a7bf-ec13-4147-be40-1452ea8d8ab1",
+   "last_name": "Нейронова",
+   "first_name": "Полина",
+   "middle_name": "Андреевна",
+   "birth_date": "1998-01-17",
+   "region_code": "63",
+   "region_name": "Самарская область",
+   "organization": "Региональное отделение ФСП — Самарская область"
+  },
+  {
+   "sub": "5a0b204f-e2b0-4503-a624-984ce8c4fbb0",
+   "last_name": "Сокетов",
+   "first_name": "Павел",
+   "middle_name": "Романович",
+   "birth_date": "2004-08-21",
+   "region_code": "77",
+   "region_name": "г. Москва",
+   "organization": "Региональное отделение ФСП — г. Москва"
+  },
+  {
+   "sub": "d8a63131-49c6-4f92-93ae-503e55ca2c7e",
+   "last_name": "Индексов",
+   "first_name": "Кирилл",
+   "middle_name": "Сергеевич",
+   "birth_date": "2005-01-02",
+   "region_code": "77",
+   "region_name": "г. Москва",
+   "organization": "Региональное отделение ФСП — г. Москва"
+  },
+  {
+   "sub": "d2e37133-4824-4c62-8e83-476037118762",
+   "last_name": "Векторов",
+   "first_name": "Богдан",
+   "middle_name": "Викторович",
+   "birth_date": "1997-09-12",
+   "region_code": "77",
+   "region_name": "г. Москва",
+   "organization": "Региональное отделение ФСП — г. Москва"
+  },
+  {
+   "sub": "562fb333-ea35-48b4-b157-96542b932cd4",
+   "last_name": "Массивов",
+   "first_name": "Лев",
+   "middle_name": "Евгеньевич",
+   "birth_date": "2008-12-21",
+   "region_code": "77",
+   "region_name": "г. Москва",
+   "organization": "Региональное отделение ФСП — г. Москва"
+  },
+  {
+   "sub": "990dfcc5-287b-4c20-8221-a826e184799a",
+   "last_name": "Пикселев",
+   "first_name": "Семён",
+   "middle_name": "Андреевич",
+   "birth_date": "1998-12-26",
+   "region_code": "66",
+   "region_name": "Свердловская область",
+   "organization": null
+  },
+  {
+   "sub": "611ad871-6993-4e3f-81e6-04d818adb703",
+   "last_name": "Семафоров",
+   "first_name": "Никита",
+   "middle_name": "Дмитриевич",
+   "birth_date": "2010-03-12",
+   "region_code": "77",
+   "region_name": "г. Москва",
+   "organization": "Региональное отделение ФСП — г. Москва"
+  },
+  {
+   "sub": "23b6270e-fbd1-434e-b1f6-d5a9e86f07be",
+   "last_name": "Пайплайнова",
+   "first_name": "София",
+   "middle_name": "Алексеевна",
+   "birth_date": "1996-02-06",
+   "region_code": "52",
+   "region_name": "Нижегородская область",
+   "organization": null
+  },
+  {
+   "sub": "1736aba3-7015-4392-89ba-6dee9c2f2dab",
+   "last_name": "Скриптов",
+   "first_name": "Никита",
+   "middle_name": "Павлович",
+   "birth_date": "2009-07-12",
+   "region_code": "16",
+   "region_name": "Республика Татарстан",
+   "organization": null
+  },
+  {
+   "sub": "3dbb5b20-977f-4cf4-bd90-e4642fc91981",
+   "last_name": "Роутерова",
+   "first_name": "Варвара",
+   "middle_name": "Андреевна",
+   "birth_date": "2009-12-05",
+   "region_code": "77",
+   "region_name": "г. Москва",
+   "organization": null
+  },
+  {
+   "sub": "26de7f85-99d5-4063-b082-845d1cae5596",
+   "last_name": "Итераторов",
+   "first_name": "Богдан",
+   "middle_name": "Викторович",
+   "birth_date": "1999-11-28",
+   "region_code": "16",
+   "region_name": "Республика Татарстан",
+   "organization": "Региональное отделение ФСП — Республика Татарстан"
+  },
+  {
+   "sub": "558049ad-81ca-47af-8c85-46fc4c6909db",
+   "last_name": "Хэшев",
+   "first_name": "Алексей",
+   "middle_name": "Николаевич",
+   "birth_date": "2004-08-06",
+   "region_code": "77",
+   "region_name": "г. Москва",
+   "organization": null
+  },
+  {
+   "sub": "4b9d66eb-d468-464d-b17e-396e6af1749d",
+   "last_name": "Бэкапова",
+   "first_name": "Злата",
+   "middle_name": "Михайловна",
+   "birth_date": "2005-11-14",
+   "region_code": "23",
+   "region_name": "Краснодарский край",
+   "organization": "Региональное отделение ФСП — Краснодарский край"
+  },
+  {
+   "sub": "2917df3e-b0d5-4ffa-a08a-1429f7f5f98f",
+   "last_name": "Кворумов",
+   "first_name": "Алексей",
+   "middle_name": "Михайлович",
+   "birth_date": "1997-08-21",
+   "region_code": "77",
+   "region_name": "г. Москва",
+   "organization": "Региональное отделение ФСП — г. Москва"
+  },
+  {
+   "sub": "ae07ea10-bbb2-416b-869d-660b65b0b4c8",
+   "last_name": "Хостов",
+   "first_name": "Марк",
+   "middle_name": "Сергеевич",
+   "birth_date": "1997-05-27",
+   "region_code": "66",
+   "region_name": "Свердловская область",
+   "organization": null
+  },
+  {
+   "sub": "5bdaeee2-40b8-442e-b1c0-b235cd4093f3",
+   "last_name": "Кернелов",
+   "first_name": "Арсений",
+   "middle_name": "Викторович",
+   "birth_date": "2006-03-09",
+   "region_code": "02",
+   "region_name": "Республика Башкортостан",
+   "organization": "Региональное отделение ФСП — Республика Башкортостан"
+  },
+  {
+   "sub": "301b9a38-aa8a-4635-be57-7888648e88ff",
+   "last_name": "Кластеров",
+   "first_name": "Никита",
+   "middle_name": "Павлович",
+   "birth_date": "1998-12-26",
+   "region_code": "02",
+   "region_name": "Республика Башкортостан",
+   "organization": "Региональное отделение ФСП — Республика Башкортостан"
+  },
+  {
+   "sub": "66083342-da42-4c50-8ced-3c931b345fd7",
+   "last_name": "Шардов",
+   "first_name": "Богдан",
+   "middle_name": "Сергеевич",
+   "birth_date": "1994-01-25",
+   "region_code": "66",
+   "region_name": "Свердловская область",
+   "organization": null
+  },
+  {
+   "sub": "1c057d0c-2e28-4581-bab5-8a127e65356b",
+   "last_name": "Ребейзов",
+   "first_name": "Алексей",
+   "middle_name": "Дмитриевич",
+   "birth_date": "2004-08-19",
+   "region_code": "52",
+   "region_name": "Нижегородская область",
+   "organization": "Региональное отделение ФСП — Нижегородская область"
+  },
+  {
+   "sub": "f4d6d2fa-d4a5-4905-aea0-67421fae06d6",
+   "last_name": "Тредова",
+   "first_name": "Екатерина",
+   "middle_name": "Евгеньевна",
+   "birth_date": "2006-11-20",
+   "region_code": "78",
+   "region_name": "г. Санкт-Петербург",
+   "organization": null
+  },
+  {
+   "sub": "edb78aac-1c65-43fc-b29f-44243b0bd547",
+   "last_name": "Регистрова",
+   "first_name": "Анна",
+   "middle_name": "Евгеньевна",
+   "birth_date": "2006-05-06",
+   "region_code": "77",
+   "region_name": "г. Москва",
+   "organization": null
+  },
+  {
+   "sub": "2a5d3fd6-154e-41fb-b10d-f301bb9387bf",
+   "last_name": "Рекурсина",
+   "first_name": "Злата",
+   "middle_name": "Алексеевна",
+   "birth_date": "1996-08-23",
+   "region_code": "16",
+   "region_name": "Республика Татарстан",
+   "organization": "Региональное отделение ФСП — Республика Татарстан"
+  },
+  {
+   "sub": "a39d1884-8147-4e77-a104-fd8a04184bd4",
+   "last_name": "Пакетова",
+   "first_name": "Варвара",
+   "middle_name": "Евгеньевна",
+   "birth_date": "1994-06-26",
+   "region_code": "78",
+   "region_name": "г. Санкт-Петербург",
+   "organization": null
+  },
+  {
+   "sub": "2596be67-143b-487d-8c40-a323a9069ca0",
+   "last_name": "Буферова",
+   "first_name": "Злата",
+   "middle_name": "Андреевна",
+   "birth_date": "1993-01-11",
+   "region_code": "54",
+   "region_name": "Новосибирская область",
+   "organization": "Региональное отделение ФСП — Новосибирская область"
+  },
+  {
+   "sub": "eeee6dce-b472-444b-8ff6-f4a60f297241",
+   "last_name": "Курсоров",
+   "first_name": "Артём",
+   "middle_name": "Алексеевич",
+   "birth_date": "1998-05-21",
+   "region_code": "66",
+   "region_name": "Свердловская область",
+   "organization": null
+  },
+  {
+   "sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+   "last_name": "Мьютексова",
+   "first_name": "Вера",
+   "middle_name": "Викторовна",
+   "birth_date": "2006-02-26",
+   "region_code": "66",
+   "region_name": "Свердловская область",
+   "organization": "Региональное отделение ФСП — Свердловская область"
+  },
+  {
+   "sub": "bc406f8e-ed70-4eeb-b984-055956439dd9",
+   "last_name": "Фреймова",
+   "first_name": "Мария",
+   "middle_name": "Андреевна",
+   "birth_date": "2010-03-20",
+   "region_code": "78",
+   "region_name": "г. Санкт-Петербург",
+   "organization": "Региональное отделение ФСП — г. Санкт-Петербург"
+  },
+  {
+   "sub": "0f5709db-754b-4395-80fc-5ee59460114c",
+   "last_name": "Флагова",
+   "first_name": "Алиса",
+   "middle_name": "Михайловна",
+   "birth_date": "1994-02-18",
+   "region_code": "23",
+   "region_name": "Краснодарский край",
+   "organization": null
+  },
+  {
+   "sub": "15905393-2faf-4a7c-97f9-9fe03eab3873",
+   "last_name": "Шифров",
+   "first_name": "Фёдор",
+   "middle_name": "Михайлович",
+   "birth_date": "2004-03-25",
+   "region_code": "77",
+   "region_name": "г. Москва",
+   "organization": "Региональное отделение ФСП — г. Москва"
+  },
+  {
+   "sub": "8339bf64-8948-449b-81bb-2e0eb68d246c",
+   "last_name": "Мержев",
+   "first_name": "Арсений",
+   "middle_name": "Евгеньевич",
+   "birth_date": "1999-01-23",
+   "region_code": "02",
+   "region_name": "Республика Башкортостан",
+   "organization": "Региональное отделение ФСП — Республика Башкортостан"
+  },
+  {
+   "sub": "5fcd093e-0d52-4f3b-8bc9-29fa2780a577",
+   "last_name": "Модулев",
+   "first_name": "Всеволод",
+   "middle_name": "Михайлович",
+   "birth_date": "2003-03-01",
+   "region_code": "77",
+   "region_name": "г. Москва",
+   "organization": "Региональное отделение ФСП — г. Москва"
+  },
+  {
+   "sub": "d7c74f05-b012-4372-ad80-f04215f0f7d6",
+   "last_name": "Кортежев",
+   "first_name": "Роман",
+   "middle_name": "Андреевич",
+   "birth_date": "2003-03-07",
+   "region_code": "78",
+   "region_name": "г. Санкт-Петербург",
+   "organization": "Региональное отделение ФСП — г. Санкт-Петербург"
+  },
+  {
+   "sub": "430dc269-a610-4b7f-89a0-f8be9111e874",
+   "last_name": "Парсеров",
+   "first_name": "Иван",
+   "middle_name": "Дмитриевич",
+   "birth_date": "2012-03-18",
+   "region_code": "02",
+   "region_name": "Республика Башкортостан",
+   "organization": null
+  },
+  {
+   "sub": "95f03760-d06c-4dbf-9567-606f6a0abcf4",
+   "last_name": "Логгеров",
+   "first_name": "Олег",
+   "middle_name": "Михайлович",
+   "birth_date": "1993-07-20",
+   "region_code": "77",
+   "region_name": "г. Москва",
+   "organization": "Региональное отделение ФСП — г. Москва"
+  },
+  {
+   "sub": "52e12b87-a95a-4b9a-8c10-32b5d13a0c04",
+   "last_name": "Коммитова",
+   "first_name": "София",
+   "middle_name": "Николаевна",
+   "birth_date": "1998-04-11",
+   "region_code": "66",
+   "region_name": "Свердловская область",
+   "organization": "Региональное отделение ФСП — Свердловская область"
+  },
+  {
+   "sub": "492f2405-fe61-4c3b-93a8-a964cfc6d20a",
+   "last_name": "Дебагов",
+   "first_name": "Тимофей",
+   "middle_name": "Сергеевич",
+   "birth_date": "2005-04-16",
+   "region_code": "40",
+   "region_name": "Калужская область",
+   "organization": "Региональное отделение ФСП — Калужская область"
+  },
+  {
+   "sub": "e65bd5c9-0706-4a71-856d-9bd674538001",
+   "last_name": "Деплоева",
+   "first_name": "Мария",
+   "middle_name": "Николаевна",
+   "birth_date": "1998-07-22",
+   "region_code": "78",
+   "region_name": "г. Санкт-Петербург",
+   "organization": null
+  },
+  {
+   "sub": "c65e176b-ba86-4203-a194-bf6ce57859cf",
+   "last_name": "Компиляторов",
+   "first_name": "Максим",
+   "middle_name": "Романович",
+   "birth_date": "2007-01-29",
+   "region_code": "52",
+   "region_name": "Нижегородская область",
+   "organization": null
+  },
+  {
+   "sub": "3fc0f834-6227-4860-b8ae-6334b10bc344",
+   "last_name": "Стекова",
+   "first_name": "Ева",
+   "middle_name": "Сергеевна",
+   "birth_date": "2001-12-20",
+   "region_code": "02",
+   "region_name": "Республика Башкортостан",
+   "organization": "Региональное отделение ФСП — Республика Башкортостан"
+  },
+  {
+   "sub": "8c2bb7b8-7eea-4a32-8cf3-414a368dbfe8",
+   "last_name": "Кэшев",
+   "first_name": "Артём",
+   "middle_name": "Павлович",
+   "birth_date": "2000-12-18",
+   "region_code": "02",
+   "region_name": "Республика Башкортостан",
+   "organization": "Региональное отделение ФСП — Республика Башкортостан"
+  },
+  {
+   "sub": "ca4712a9-6563-45c9-b492-e39f7b8eb842",
+   "last_name": "Сервлетов",
+   "first_name": "Иван",
+   "middle_name": "Алексеевич",
+   "birth_date": "1995-05-05",
+   "region_code": "78",
+   "region_name": "г. Санкт-Петербург",
+   "organization": null
+  },
+  {
+   "sub": "b54c8785-f449-4d77-aed1-dd5236708f03",
+   "last_name": "Триггеров",
+   "first_name": "Артём",
+   "middle_name": "Олегович",
+   "birth_date": "1993-08-07",
+   "region_code": "78",
+   "region_name": "г. Санкт-Петербург",
+   "organization": "Региональное отделение ФСП — г. Санкт-Петербург"
+  },
+  {
+   "sub": "82a79030-dfa5-4c1f-9534-f4500f3bf81b",
+   "last_name": "Релизов",
+   "first_name": "Богдан",
+   "middle_name": "Игоревич",
+   "birth_date": "2001-01-03",
+   "region_code": "23",
+   "region_name": "Краснодарский край",
+   "organization": null
+  }
+ ],
+ "competitions": [
+  {
+   "ekp": "2024995388062413",
+   "title": "Чемпионат Новосибирской области по спортивному программированию — программирование алгоритмическое (2024)",
+   "discipline_code": "1010011811Я",
+   "level": "regional",
+   "status_type": "championship",
+   "age_group": "adults",
+   "stage": "single",
+   "parent_ekp": null,
+   "format": "personal",
+   "online": false,
+   "start_date": "2024-04-20",
+   "end_date": "2024-04-20",
+   "region_code": "54",
+   "city": "Новосибирск",
+   "participants_count": 44,
+   "teams_count": null,
+   "max_score": 10.0,
+   "protocol_status": "published",
+   "protocol_url": "http://localhost:8001/protocols/2024995388062413"
+  },
+  {
+   "ekp": "2024992586753117",
+   "title": "Международный турнир «Северное сияние» — программирование робототехники (2024)",
+   "discipline_code": "1010041811Я",
+   "level": "international",
+   "status_type": "other_sport",
+   "age_group": "adults",
+   "stage": "single",
+   "parent_ekp": null,
+   "format": "team",
+   "online": false,
+   "start_date": "2024-08-22",
+   "end_date": "2024-08-24",
+   "region_code": "78",
+   "city": "Санкт-Петербург",
+   "participants_count": 105,
+   "teams_count": 35,
+   "max_score": null,
+   "protocol_status": "published",
+   "protocol_url": "http://localhost:8001/protocols/2024992586753117"
+  },
+  {
+   "ekp": "2024995691049610",
+   "title": "Чемпионат Калужской области по спортивному программированию — программирование робототехники (2024)",
+   "discipline_code": "1010041811Я",
+   "level": "regional",
+   "status_type": "championship",
+   "age_group": "adults",
+   "stage": "single",
+   "parent_ekp": null,
+   "format": "team",
+   "online": false,
+   "start_date": "2024-11-15",
+   "end_date": "2024-11-15",
+   "region_code": "40",
+   "city": "Калуга",
+   "participants_count": 39,
+   "teams_count": 13,
+   "max_score": null,
+   "protocol_status": "published",
+   "protocol_url": "http://localhost:8001/protocols/2024995691049610"
+  },
+  {
+   "ekp": "2025996138161990",
+   "title": "Чемпионат Свердловской области по спортивному программированию — программирование беспилотных авиационных систем (2025)",
+   "discipline_code": "1010031811Я",
+   "level": "regional",
+   "status_type": "championship",
+   "age_group": "adults",
+   "stage": "single",
+   "parent_ekp": null,
+   "format": "personal",
+   "online": false,
+   "start_date": "2025-02-15",
+   "end_date": "2025-02-15",
+   "region_code": "66",
+   "city": "Екатеринбург",
+   "participants_count": 27,
+   "teams_count": null,
+   "max_score": null,
+   "protocol_status": "published",
+   "protocol_url": "http://localhost:8001/protocols/2025996138161990"
+  },
+  {
+   "ekp": "2025990798334828",
+   "title": "Чемпионат Республики Татарстан по спортивному программированию — программирование продуктовое (2025)",
+   "discipline_code": "1010021811Я",
+   "level": "regional",
+   "status_type": "championship",
+   "age_group": "adults",
+   "stage": "single",
+   "parent_ekp": null,
+   "format": "team",
+   "online": false,
+   "start_date": "2025-03-21",
+   "end_date": "2025-03-22",
+   "region_code": "16",
+   "city": "Казань",
+   "participants_count": 140,
+   "teams_count": 35,
+   "max_score": null,
+   "protocol_status": "published",
+   "protocol_url": "http://localhost:8001/protocols/2025990798334828"
+  },
+  {
+   "ekp": "2025993930021033",
+   "title": "Первенство г. Самары по спортивному программированию — программирование робототехники (2025)",
+   "discipline_code": "1010041811Я",
+   "level": "municipal",
+   "status_type": "first",
+   "age_group": "youth_u19",
+   "stage": "single",
+   "parent_ekp": null,
+   "format": "personal",
+   "online": false,
+   "start_date": "2025-05-17",
+   "end_date": "2025-05-17",
+   "region_code": "63",
+   "city": "Самара",
+   "participants_count": 19,
+   "teams_count": null,
+   "max_score": null,
+   "protocol_status": "published",
+   "protocol_url": "http://localhost:8001/protocols/2025993930021033"
+  },
+  {
+   "ekp": "2025990519875092",
+   "title": "Международный турнир «Евразийский кубок кода» — программирование алгоритмическое (2025)",
+   "discipline_code": "1010011811Я",
+   "level": "international",
+   "status_type": "other_sport",
+   "age_group": "adults",
+   "stage": "single",
+   "parent_ekp": null,
+   "format": "personal",
+   "online": false,
+   "start_date": "2025-07-12",
+   "end_date": "2025-07-13",
+   "region_code": "16",
+   "city": "Казань",
+   "participants_count": 181,
+   "teams_count": null,
+   "max_score": 12.0,
+   "protocol_status": "published",
+   "protocol_url": "http://localhost:8001/protocols/2025990519875092"
+  },
+  {
+   "ekp": "2025994176126058",
+   "title": "Чемпионат России по спортивному программированию — программирование беспилотных авиационных систем (2025)",
+   "discipline_code": "1010031811Я",
+   "level": "all_russian",
+   "status_type": "championship",
+   "age_group": "adults",
+   "stage": "final",
+   "parent_ekp": null,
+   "format": "personal",
+   "online": false,
+   "start_date": "2025-09-12",
+   "end_date": "2025-09-14",
+   "region_code": "40",
+   "city": "Калуга",
+   "participants_count": 72,
+   "teams_count": null,
+   "max_score": 300.0,
+   "protocol_status": "published",
+   "protocol_url": "http://localhost:8001/protocols/2025994176126058"
+  },
+  {
+   "ekp": "2025992399617295",
+   "title": "Чемпионат России по спортивному программированию — программирование продуктовое (2025)",
+   "discipline_code": "1010021811Я",
+   "level": "all_russian",
+   "status_type": "championship",
+   "age_group": "adults",
+   "stage": "final",
+   "parent_ekp": null,
+   "format": "team",
+   "online": false,
+   "start_date": "2025-10-10",
+   "end_date": "2025-10-13",
+   "region_code": "77",
+   "city": "Москва",
+   "participants_count": 412,
+   "teams_count": 103,
+   "max_score": 100.0,
+   "protocol_status": "published",
+   "protocol_url": "http://localhost:8001/protocols/2025992399617295"
+  },
+  {
+   "ekp": "2025999904555719",
+   "title": "Чемпионат России по спортивному программированию — программирование систем информационной безопасности (2025)",
+   "discipline_code": "1010051811Я",
+   "level": "all_russian",
+   "status_type": "championship",
+   "age_group": "adults",
+   "stage": "final",
+   "parent_ekp": null,
+   "format": "team",
+   "online": false,
+   "start_date": "2025-11-07",
+   "end_date": "2025-11-09",
+   "region_code": "77",
+   "city": "Москва",
+   "participants_count": 172,
+   "teams_count": 43,
+   "max_score": null,
+   "protocol_status": "published",
+   "protocol_url": "http://localhost:8001/protocols/2025999904555719"
+  },
+  {
+   "ekp": "2025995522350961",
+   "title": "Чемпионат России по спортивному программированию — программирование алгоритмическое (2025)",
+   "discipline_code": "1010011811Я",
+   "level": "all_russian",
+   "status_type": "championship",
+   "age_group": "adults",
+   "stage": "final",
+   "parent_ekp": null,
+   "format": "team",
+   "online": false,
+   "start_date": "2025-11-21",
+   "end_date": "2025-11-23",
+   "region_code": "77",
+   "city": "Москва",
+   "participants_count": 201,
+   "teams_count": 67,
+   "max_score": 13.0,
+   "protocol_status": "published",
+   "protocol_url": "http://localhost:8001/protocols/2025995522350961"
+  },
+  {
+   "ekp": "2025999178465521",
+   "title": "Чемпионат России по спортивному программированию — программирование робототехники (2025)",
+   "discipline_code": "1010041811Я",
+   "level": "all_russian",
+   "status_type": "championship",
+   "age_group": "adults",
+   "stage": "final",
+   "parent_ekp": null,
+   "format": "team",
+   "online": false,
+   "start_date": "2025-12-05",
+   "end_date": "2025-12-07",
+   "region_code": "77",
+   "city": "Москва",
+   "participants_count": 114,
+   "teams_count": 38,
+   "max_score": null,
+   "protocol_status": "published",
+   "protocol_url": "http://localhost:8001/protocols/2025999178465521"
+  },
+  {
+   "ekp": "2026993200039039",
+   "title": "Кубок России по спортивному программированию — программирование систем информационной безопасности, отборочный этап (2026)",
+   "discipline_code": "1010051811Я",
+   "level": "all_russian",
+   "status_type": "cup",
+   "age_group": "adults",
+   "stage": "qualifier",
+   "parent_ekp": "2026992410438575",
+   "format": "team",
+   "online": true,
+   "start_date": "2026-02-07",
+   "end_date": "2026-02-07",
+   "region_code": null,
+   "city": null,
+   "participants_count": 1088,
+   "teams_count": 272,
+   "max_score": null,
+   "protocol_status": "published",
+   "protocol_url": "http://localhost:8001/protocols/2026993200039039"
+  },
+  {
+   "ekp": "2026992159901997",
+   "title": "Чемпионат Северо-Западного федерального округа по спортивному программированию — программирование робототехники (2026)",
+   "discipline_code": "1010041811Я",
+   "level": "interregional",
+   "status_type": "championship",
+   "age_group": "adults",
+   "stage": "single",
+   "parent_ekp": null,
+   "format": "team",
+   "online": false,
+   "start_date": "2026-02-20",
+   "end_date": "2026-02-21",
+   "region_code": "78",
+   "city": "Санкт-Петербург",
+   "participants_count": 72,
+   "teams_count": 24,
+   "max_score": null,
+   "protocol_status": "published",
+   "protocol_url": "http://localhost:8001/protocols/2026992159901997"
+  },
+  {
+   "ekp": "2026990068780606",
+   "title": "Студенческий турнир г. Томска — программирование беспилотных авиационных систем (2026)",
+   "discipline_code": "1010031811Я",
+   "level": "municipal",
+   "status_type": "student",
+   "age_group": "juniors_u26",
+   "stage": "single",
+   "parent_ekp": null,
+   "format": "personal",
+   "online": false,
+   "start_date": "2026-03-06",
+   "end_date": "2026-03-06",
+   "region_code": "70",
+   "city": "Томск",
+   "participants_count": 20,
+   "teams_count": null,
+   "max_score": null,
+   "protocol_status": "published",
+   "protocol_url": "http://localhost:8001/protocols/2026990068780606"
+  },
+  {
+   "ekp": "2026995274940669",
+   "title": "Кубок России по спортивному программированию — программирование алгоритмическое, отборочный этап (2026)",
+   "discipline_code": "1010011811Я",
+   "level": "all_russian",
+   "status_type": "cup",
+   "age_group": "adults",
+   "stage": "qualifier",
+   "parent_ekp": "2026990793583695",
+   "format": "personal",
+   "online": true,
+   "start_date": "2026-03-14",
+   "end_date": "2026-03-14",
+   "region_code": null,
+   "city": null,
+   "participants_count": 915,
+   "teams_count": null,
+   "max_score": 8.0,
+   "protocol_status": "published",
+   "protocol_url": "http://localhost:8001/protocols/2026995274940669"
+  },
+  {
+   "ekp": "2026992098295527",
+   "title": "Первенство России по спортивному программированию — программирование беспилотных авиационных систем (2026)",
+   "discipline_code": "1010031811Я",
+   "level": "all_russian",
+   "status_type": "first",
+   "age_group": "youth_u19",
+   "stage": "final",
+   "parent_ekp": null,
+   "format": "personal",
+   "online": false,
+   "start_date": "2026-04-03",
+   "end_date": "2026-04-05",
+   "region_code": "63",
+   "city": "Самара",
+   "participants_count": 46,
+   "teams_count": null,
+   "max_score": 300.0,
+   "protocol_status": "published",
+   "protocol_url": "http://localhost:8001/protocols/2026992098295527"
+  },
+  {
+   "ekp": "2026999505743482",
+   "title": "Кубок России по спортивному программированию — программирование продуктовое, финал (2026)",
+   "discipline_code": "1010021811Я",
+   "level": "all_russian",
+   "status_type": "cup",
+   "age_group": "adults",
+   "stage": "final",
+   "parent_ekp": null,
+   "format": "team",
+   "online": false,
+   "start_date": "2026-04-17",
+   "end_date": "2026-04-19",
+   "region_code": "78",
+   "city": "Санкт-Петербург",
+   "participants_count": 176,
+   "teams_count": 44,
+   "max_score": 100.0,
+   "protocol_status": "published",
+   "protocol_url": "http://localhost:8001/protocols/2026999505743482"
+  },
+  {
+   "ekp": "2026990559005681",
+   "title": "Первенство России по спортивному программированию — программирование систем информационной безопасности (2026)",
+   "discipline_code": "1010051811Я",
+   "level": "all_russian",
+   "status_type": "first",
+   "age_group": "youth_u19",
+   "stage": "final",
+   "parent_ekp": null,
+   "format": "personal",
+   "online": false,
+   "start_date": "2026-04-24",
+   "end_date": "2026-04-25",
+   "region_code": "78",
+   "city": "Санкт-Петербург",
+   "participants_count": 81,
+   "teams_count": null,
+   "max_score": 5000.0,
+   "protocol_status": "published",
+   "protocol_url": "http://localhost:8001/protocols/2026990559005681"
+  },
+  {
+   "ekp": "2026990793583695",
+   "title": "Кубок России по спортивному программированию — программирование алгоритмическое, финал (2026)",
+   "discipline_code": "1010011811Я",
+   "level": "all_russian",
+   "status_type": "cup",
+   "age_group": "adults",
+   "stage": "final",
+   "parent_ekp": null,
+   "format": "personal",
+   "online": false,
+   "start_date": "2026-05-16",
+   "end_date": "2026-05-17",
+   "region_code": "54",
+   "city": "Новосибирск",
+   "participants_count": 72,
+   "teams_count": null,
+   "max_score": 12.0,
+   "protocol_status": "published",
+   "protocol_url": "http://localhost:8001/protocols/2026990793583695"
+  },
+  {
+   "ekp": "2026992410438575",
+   "title": "Кубок России по спортивному программированию — программирование систем информационной безопасности, финал (2026)",
+   "discipline_code": "1010051811Я",
+   "level": "all_russian",
+   "status_type": "cup",
+   "age_group": "adults",
+   "stage": "final",
+   "parent_ekp": null,
+   "format": "team",
+   "online": false,
+   "start_date": "2026-05-29",
+   "end_date": "2026-05-30",
+   "region_code": "77",
+   "city": "Москва",
+   "participants_count": 112,
+   "teams_count": 28,
+   "max_score": null,
+   "protocol_status": "published",
+   "protocol_url": "http://localhost:8001/protocols/2026992410438575"
+  },
+  {
+   "ekp": "2026993318852919",
+   "title": "Всероссийский хакатон «Код города» — программирование продуктовое (2026)",
+   "discipline_code": "1010021811Я",
+   "level": "all_russian",
+   "status_type": "physical_culture_event",
+   "age_group": "adults",
+   "stage": "single",
+   "parent_ekp": null,
+   "format": "team",
+   "online": true,
+   "start_date": "2026-06-05",
+   "end_date": "2026-06-07",
+   "region_code": null,
+   "city": null,
+   "participants_count": 940,
+   "teams_count": 235,
+   "max_score": null,
+   "protocol_status": "published",
+   "protocol_url": "http://localhost:8001/protocols/2026993318852919"
+  },
+  {
+   "ekp": "2026990145495845",
+   "title": "Кубок России по спортивному программированию — программирование беспилотных авиационных систем, отборочный этап (2026)",
+   "discipline_code": "1010031811Я",
+   "level": "all_russian",
+   "status_type": "cup",
+   "age_group": "adults",
+   "stage": "qualifier",
+   "parent_ekp": null,
+   "format": "personal",
+   "online": true,
+   "start_date": "2026-09-24",
+   "end_date": "2026-09-24",
+   "region_code": null,
+   "city": null,
+   "participants_count": 147,
+   "teams_count": null,
+   "max_score": null,
+   "protocol_status": "pending",
+   "protocol_url": null
+  },
+  {
+   "ekp": "2026992584414917",
+   "title": "Чемпионат Приволжского федерального округа по спортивному программированию — программирование продуктовое (2026)",
+   "discipline_code": "1010021811Я",
+   "level": "interregional",
+   "status_type": "championship",
+   "age_group": "adults",
+   "stage": "single",
+   "parent_ekp": null,
+   "format": "team",
+   "online": false,
+   "start_date": "2026-09-25",
+   "end_date": "2026-09-26",
+   "region_code": "52",
+   "city": "Нижний Новгород",
+   "participants_count": 156,
+   "teams_count": 39,
+   "max_score": null,
+   "protocol_status": "pending",
+   "protocol_url": null
+  },
+  {
+   "ekp": "2026997119024819",
+   "title": "Чемпионат Приморского края по спортивному программированию — программирование систем информационной безопасности (2026)",
+   "discipline_code": "1010051811Я",
+   "level": "regional",
+   "status_type": "championship",
+   "age_group": "adults",
+   "stage": "single",
+   "parent_ekp": null,
+   "format": "personal",
+   "online": false,
+   "start_date": "2026-09-27",
+   "end_date": "2026-09-27",
+   "region_code": "25",
+   "city": "Владивосток",
+   "participants_count": 29,
+   "teams_count": null,
+   "max_score": null,
+   "protocol_status": "pending",
+   "protocol_url": null
+  }
+ ],
+ "results": [
+  {
+   "id": "04726fd6-28e6-542d-8d1e-7b70cc086908",
+   "ekp": "2024995388062413",
+   "athlete_sub": "d98cba91-ae78-4d5a-bfb0-130ca2c6b02f",
+   "place": 1,
+   "place_to": null,
+   "field_size": 44,
+   "score": 9.0,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "cbbe3118-21a6-54af-9bc3-887bb41bc3d9",
+   "ekp": "2024995388062413",
+   "athlete_sub": "d8a63131-49c6-4f92-93ae-503e55ca2c7e",
+   "place": 2,
+   "place_to": null,
+   "field_size": 44,
+   "score": 9.0,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "447617ef-9085-52b7-8956-f117903ef263",
+   "ekp": "2024995388062413",
+   "athlete_sub": "8b56020c-ba6f-4c6d-a230-d03ec06c4ba0",
+   "place": 5,
+   "place_to": null,
+   "field_size": 44,
+   "score": 7.0,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "3a0a30a2-2556-5e73-b0dd-487849cf1eca",
+   "ekp": "2024995388062413",
+   "athlete_sub": "558049ad-81ca-47af-8c85-46fc4c6909db",
+   "place": 7,
+   "place_to": null,
+   "field_size": 44,
+   "score": 6.0,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "79292ebc-50d4-5eb8-b2ee-0af4e3a31c19",
+   "ekp": "2024995388062413",
+   "athlete_sub": "2596be67-143b-487d-8c40-a323a9069ca0",
+   "place": 11,
+   "place_to": null,
+   "field_size": 44,
+   "score": 5.0,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "f5296577-d231-5419-b8cf-d6e8fb1554bf",
+   "ekp": "2024995388062413",
+   "athlete_sub": "800a9cc8-5bcb-4dac-9828-accc71a830e4",
+   "place": 13,
+   "place_to": null,
+   "field_size": 44,
+   "score": 5.0,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "12d851d4-8180-5ab3-a7be-b51b2d9a640a",
+   "ekp": "2024995388062413",
+   "athlete_sub": "5c9b7091-cfec-4f88-9fef-8875cda40c98",
+   "place": 14,
+   "place_to": null,
+   "field_size": 44,
+   "score": 4.0,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "492aa3cd-8237-5bab-9532-996959fd3e8e",
+   "ekp": "2024995388062413",
+   "athlete_sub": "26de7f85-99d5-4063-b082-845d1cae5596",
+   "place": 20,
+   "place_to": null,
+   "field_size": 44,
+   "score": 3.0,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "7cae2e98-a177-5b4a-994f-d4cdef3c796c",
+   "ekp": "2024995388062413",
+   "athlete_sub": "82a79030-dfa5-4c1f-9534-f4500f3bf81b",
+   "place": 21,
+   "place_to": null,
+   "field_size": 44,
+   "score": 3.0,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "45b38b24-8719-5599-be4c-491dd0aabb57",
+   "ekp": "2024995388062413",
+   "athlete_sub": "2a5d3fd6-154e-41fb-b10d-f301bb9387bf",
+   "place": 43,
+   "place_to": null,
+   "field_size": 44,
+   "score": 0.0,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "0c65e963-bc6b-57da-ac62-7af9796c469a",
+   "ekp": "2024992586753117",
+   "athlete_sub": "1c057d0c-2e28-4581-bab5-8a127e65356b",
+   "place": 2,
+   "place_to": null,
+   "field_size": 35,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "8c0cffdd-6ef7-55fd-80f1-f47c0555a3b7",
+    "name": "Стабильный коммит",
+    "members": [
+     {
+      "athlete_sub": "b05a3443-6e8e-4cba-9efb-383bfcb06b04",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "95f03760-d06c-4dbf-9567-606f6a0abcf4",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "1c057d0c-2e28-4581-bab5-8a127e65356b",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "16d48bc9-efb9-5fd7-bd74-2bb76ff3c49f",
+   "ekp": "2024992586753117",
+   "athlete_sub": "95f03760-d06c-4dbf-9567-606f6a0abcf4",
+   "place": 2,
+   "place_to": null,
+   "field_size": 35,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "8c0cffdd-6ef7-55fd-80f1-f47c0555a3b7",
+    "name": "Стабильный коммит",
+    "members": [
+     {
+      "athlete_sub": "b05a3443-6e8e-4cba-9efb-383bfcb06b04",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "95f03760-d06c-4dbf-9567-606f6a0abcf4",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "1c057d0c-2e28-4581-bab5-8a127e65356b",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "ea4604df-50ed-5600-8580-100d86743732",
+   "ekp": "2024992586753117",
+   "athlete_sub": "b05a3443-6e8e-4cba-9efb-383bfcb06b04",
+   "place": 2,
+   "place_to": null,
+   "field_size": 35,
+   "score": null,
+   "role": "captain",
+   "team": {
+    "id": "8c0cffdd-6ef7-55fd-80f1-f47c0555a3b7",
+    "name": "Стабильный коммит",
+    "members": [
+     {
+      "athlete_sub": "b05a3443-6e8e-4cba-9efb-383bfcb06b04",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "95f03760-d06c-4dbf-9567-606f6a0abcf4",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "1c057d0c-2e28-4581-bab5-8a127e65356b",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "89e06d70-fae4-54ec-8012-195605d485f5",
+   "ekp": "2024995691049610",
+   "athlete_sub": "95f03760-d06c-4dbf-9567-606f6a0abcf4",
+   "place": 1,
+   "place_to": null,
+   "field_size": 13,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "b720843d-94c6-533e-8667-ab72e2e66944",
+    "name": "Чистый поток",
+    "members": [
+     {
+      "athlete_sub": "990dfcc5-287b-4c20-8221-a826e184799a",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "95f03760-d06c-4dbf-9567-606f6a0abcf4",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "b05a3443-6e8e-4cba-9efb-383bfcb06b04",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "8141ef61-1bb4-5f4c-8dfb-fd0a94186b36",
+   "ekp": "2024995691049610",
+   "athlete_sub": "990dfcc5-287b-4c20-8221-a826e184799a",
+   "place": 1,
+   "place_to": null,
+   "field_size": 13,
+   "score": null,
+   "role": "captain",
+   "team": {
+    "id": "b720843d-94c6-533e-8667-ab72e2e66944",
+    "name": "Чистый поток",
+    "members": [
+     {
+      "athlete_sub": "990dfcc5-287b-4c20-8221-a826e184799a",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "95f03760-d06c-4dbf-9567-606f6a0abcf4",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "b05a3443-6e8e-4cba-9efb-383bfcb06b04",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "39407026-17a8-51e8-92a6-3b696d334650",
+   "ekp": "2024995691049610",
+   "athlete_sub": "b05a3443-6e8e-4cba-9efb-383bfcb06b04",
+   "place": 1,
+   "place_to": null,
+   "field_size": 13,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "b720843d-94c6-533e-8667-ab72e2e66944",
+    "name": "Чистый поток",
+    "members": [
+     {
+      "athlete_sub": "990dfcc5-287b-4c20-8221-a826e184799a",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "95f03760-d06c-4dbf-9567-606f6a0abcf4",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "b05a3443-6e8e-4cba-9efb-383bfcb06b04",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "7c09fb89-2290-5a06-b0d8-28b25c3ca846",
+   "ekp": "2024995691049610",
+   "athlete_sub": "1c057d0c-2e28-4581-bab5-8a127e65356b",
+   "place": 2,
+   "place_to": null,
+   "field_size": 13,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "bc44b714-d68d-5f0b-80e3-2c8d5dd711c5",
+    "name": "Квантовый токен",
+    "members": [
+     {
+      "athlete_sub": "eeee6dce-b472-444b-8ff6-f4a60f297241",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "1c057d0c-2e28-4581-bab5-8a127e65356b",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "800a9cc8-5bcb-4dac-9828-accc71a830e4",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "c0236e05-dfd0-56d0-9265-06eee812388e",
+   "ekp": "2024995691049610",
+   "athlete_sub": "800a9cc8-5bcb-4dac-9828-accc71a830e4",
+   "place": 2,
+   "place_to": null,
+   "field_size": 13,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "bc44b714-d68d-5f0b-80e3-2c8d5dd711c5",
+    "name": "Квантовый токен",
+    "members": [
+     {
+      "athlete_sub": "eeee6dce-b472-444b-8ff6-f4a60f297241",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "1c057d0c-2e28-4581-bab5-8a127e65356b",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "800a9cc8-5bcb-4dac-9828-accc71a830e4",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "6e725fcb-8b47-5edf-9382-ebf1f7b2f2e5",
+   "ekp": "2024995691049610",
+   "athlete_sub": "eeee6dce-b472-444b-8ff6-f4a60f297241",
+   "place": 2,
+   "place_to": null,
+   "field_size": 13,
+   "score": null,
+   "role": "captain",
+   "team": {
+    "id": "bc44b714-d68d-5f0b-80e3-2c8d5dd711c5",
+    "name": "Квантовый токен",
+    "members": [
+     {
+      "athlete_sub": "eeee6dce-b472-444b-8ff6-f4a60f297241",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "1c057d0c-2e28-4581-bab5-8a127e65356b",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "800a9cc8-5bcb-4dac-9828-accc71a830e4",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "010c2e4d-9052-5a65-930d-d878d1ba2216",
+   "ekp": "2024995691049610",
+   "athlete_sub": "23b6270e-fbd1-434e-b1f6-d5a9e86f07be",
+   "place": 4,
+   "place_to": null,
+   "field_size": 13,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "0ee2ec6c-2382-503b-99fd-3a5adda7f830",
+    "name": "Северный кластер",
+    "members": [
+     {
+      "athlete_sub": "5bdaeee2-40b8-442e-b1c0-b235cd4093f3",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "23b6270e-fbd1-434e-b1f6-d5a9e86f07be",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "f4d6d2fa-d4a5-4905-aea0-67421fae06d6",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "52c463f0-464e-5fa6-ab96-653c07e0bf5d",
+   "ekp": "2024995691049610",
+   "athlete_sub": "5bdaeee2-40b8-442e-b1c0-b235cd4093f3",
+   "place": 4,
+   "place_to": null,
+   "field_size": 13,
+   "score": null,
+   "role": "captain",
+   "team": {
+    "id": "0ee2ec6c-2382-503b-99fd-3a5adda7f830",
+    "name": "Северный кластер",
+    "members": [
+     {
+      "athlete_sub": "5bdaeee2-40b8-442e-b1c0-b235cd4093f3",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "23b6270e-fbd1-434e-b1f6-d5a9e86f07be",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "f4d6d2fa-d4a5-4905-aea0-67421fae06d6",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "a8216e87-35b0-52d6-a873-dd0e9e5c550d",
+   "ekp": "2024995691049610",
+   "athlete_sub": "f4d6d2fa-d4a5-4905-aea0-67421fae06d6",
+   "place": 4,
+   "place_to": null,
+   "field_size": 13,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "0ee2ec6c-2382-503b-99fd-3a5adda7f830",
+    "name": "Северный кластер",
+    "members": [
+     {
+      "athlete_sub": "5bdaeee2-40b8-442e-b1c0-b235cd4093f3",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "23b6270e-fbd1-434e-b1f6-d5a9e86f07be",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "f4d6d2fa-d4a5-4905-aea0-67421fae06d6",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "6748e0b1-1b87-5097-85c0-794caba207eb",
+   "ekp": "2025996138161990",
+   "athlete_sub": "5fcd093e-0d52-4f3b-8bc9-29fa2780a577",
+   "place": 1,
+   "place_to": null,
+   "field_size": 27,
+   "score": null,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "8b74612f-a261-5803-a774-8ce21b4449f8",
+   "ekp": "2025996138161990",
+   "athlete_sub": "2410a7bf-ec13-4147-be40-1452ea8d8ab1",
+   "place": 2,
+   "place_to": null,
+   "field_size": 27,
+   "score": null,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "c076f7ba-66c2-5723-b4c9-d1faffc10bed",
+   "ekp": "2025996138161990",
+   "athlete_sub": "34a8406c-f18f-49ef-8769-a34a4161e778",
+   "place": 3,
+   "place_to": null,
+   "field_size": 27,
+   "score": null,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "9904088c-ebe8-509e-9abf-f29147da81c7",
+   "ekp": "2025996138161990",
+   "athlete_sub": "72e54fca-351b-4127-98ac-faacc93bcf6a",
+   "place": 4,
+   "place_to": null,
+   "field_size": 27,
+   "score": null,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "2eed26b8-8904-567c-94bb-bc94077da864",
+   "ekp": "2025996138161990",
+   "athlete_sub": "e0ca0b59-2788-4ebc-b6d5-4f2607c2006b",
+   "place": 5,
+   "place_to": null,
+   "field_size": 27,
+   "score": null,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "5cbc57b7-2e8e-5226-95f0-5cdc699506cf",
+   "ekp": "2025996138161990",
+   "athlete_sub": "558049ad-81ca-47af-8c85-46fc4c6909db",
+   "place": 6,
+   "place_to": null,
+   "field_size": 27,
+   "score": null,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "73ef2587-643e-5e69-bd08-27d844ea1d2e",
+   "ekp": "2025996138161990",
+   "athlete_sub": "ae07ea10-bbb2-416b-869d-660b65b0b4c8",
+   "place": 7,
+   "place_to": null,
+   "field_size": 27,
+   "score": null,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "d09916ea-6e0b-533e-9370-8c0d33f1c897",
+   "ekp": "2025996138161990",
+   "athlete_sub": "0f5709db-754b-4395-80fc-5ee59460114c",
+   "place": 12,
+   "place_to": null,
+   "field_size": 27,
+   "score": null,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "ea09b8c8-c2b9-5a03-9784-00df44bdbfdc",
+   "ekp": "2025996138161990",
+   "athlete_sub": "bc406f8e-ed70-4eeb-b984-055956439dd9",
+   "place": 15,
+   "place_to": null,
+   "field_size": 27,
+   "score": null,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "3ee99205-3219-5dcb-bcc5-ad1d0165c822",
+   "ekp": "2025996138161990",
+   "athlete_sub": "d7c74f05-b012-4372-ad80-f04215f0f7d6",
+   "place": 16,
+   "place_to": null,
+   "field_size": 27,
+   "score": null,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "40b59e96-7d3d-5109-8375-b84f08ac2b30",
+   "ekp": "2025990798334828",
+   "athlete_sub": "15905393-2faf-4a7c-97f9-9fe03eab3873",
+   "place": 2,
+   "place_to": null,
+   "field_size": 35,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "03c11bc7-11e5-5177-a621-014d2aa5d307",
+    "name": "Ленивый кластер",
+    "members": [
+     {
+      "athlete_sub": "492f2405-fe61-4c3b-93a8-a964cfc6d20a",
+      "role": "captain",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "54ac9bcc-d3ac-4244-a71b-656ddbaa7a8f",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "15905393-2faf-4a7c-97f9-9fe03eab3873",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "5fcd093e-0d52-4f3b-8bc9-29fa2780a577",
+      "role": "participant",
+      "team_function": "frontend"
+     }
+    ]
+   },
+   "team_function": "backend",
+   "status": "confirmed"
+  },
+  {
+   "id": "730a1402-2a58-54fb-8e9b-16cc27ec94bc",
+   "ekp": "2025990798334828",
+   "athlete_sub": "492f2405-fe61-4c3b-93a8-a964cfc6d20a",
+   "place": 2,
+   "place_to": null,
+   "field_size": 35,
+   "score": null,
+   "role": "captain",
+   "team": {
+    "id": "03c11bc7-11e5-5177-a621-014d2aa5d307",
+    "name": "Ленивый кластер",
+    "members": [
+     {
+      "athlete_sub": "492f2405-fe61-4c3b-93a8-a964cfc6d20a",
+      "role": "captain",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "54ac9bcc-d3ac-4244-a71b-656ddbaa7a8f",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "15905393-2faf-4a7c-97f9-9fe03eab3873",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "5fcd093e-0d52-4f3b-8bc9-29fa2780a577",
+      "role": "participant",
+      "team_function": "frontend"
+     }
+    ]
+   },
+   "team_function": "backend",
+   "status": "confirmed"
+  },
+  {
+   "id": "d036f0ee-694f-5342-b94a-83363d93cf20",
+   "ekp": "2025990798334828",
+   "athlete_sub": "54ac9bcc-d3ac-4244-a71b-656ddbaa7a8f",
+   "place": 2,
+   "place_to": null,
+   "field_size": 35,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "03c11bc7-11e5-5177-a621-014d2aa5d307",
+    "name": "Ленивый кластер",
+    "members": [
+     {
+      "athlete_sub": "492f2405-fe61-4c3b-93a8-a964cfc6d20a",
+      "role": "captain",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "54ac9bcc-d3ac-4244-a71b-656ddbaa7a8f",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "15905393-2faf-4a7c-97f9-9fe03eab3873",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "5fcd093e-0d52-4f3b-8bc9-29fa2780a577",
+      "role": "participant",
+      "team_function": "frontend"
+     }
+    ]
+   },
+   "team_function": "frontend",
+   "status": "confirmed"
+  },
+  {
+   "id": "4520d40e-6925-5ddd-a881-dc8dd67a18e3",
+   "ekp": "2025990798334828",
+   "athlete_sub": "5fcd093e-0d52-4f3b-8bc9-29fa2780a577",
+   "place": 2,
+   "place_to": null,
+   "field_size": 35,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "03c11bc7-11e5-5177-a621-014d2aa5d307",
+    "name": "Ленивый кластер",
+    "members": [
+     {
+      "athlete_sub": "492f2405-fe61-4c3b-93a8-a964cfc6d20a",
+      "role": "captain",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "54ac9bcc-d3ac-4244-a71b-656ddbaa7a8f",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "15905393-2faf-4a7c-97f9-9fe03eab3873",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "5fcd093e-0d52-4f3b-8bc9-29fa2780a577",
+      "role": "participant",
+      "team_function": "frontend"
+     }
+    ]
+   },
+   "team_function": "frontend",
+   "status": "confirmed"
+  },
+  {
+   "id": "5a0ab457-6766-5b8f-b02a-a373a5523506",
+   "ekp": "2025990798334828",
+   "athlete_sub": "1736aba3-7015-4392-89ba-6dee9c2f2dab",
+   "place": 3,
+   "place_to": null,
+   "field_size": 35,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "2e455258-7e0f-5a12-b551-172cdb8c626b",
+    "name": "Стабильный релиз",
+    "members": [
+     {
+      "athlete_sub": "5a0b204f-e2b0-4503-a624-984ce8c4fbb0",
+      "role": "captain",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "e65bd5c9-0706-4a71-856d-9bd674538001",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "54e32dfe-4b66-45d4-b002-e451dbddbf71",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "1736aba3-7015-4392-89ba-6dee9c2f2dab",
+      "role": "participant",
+      "team_function": "backend"
+     }
+    ]
+   },
+   "team_function": "backend",
+   "status": "confirmed"
+  },
+  {
+   "id": "a04bd6cc-8579-5518-8334-eb15835ae4ee",
+   "ekp": "2025990798334828",
+   "athlete_sub": "54e32dfe-4b66-45d4-b002-e451dbddbf71",
+   "place": 3,
+   "place_to": null,
+   "field_size": 35,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "2e455258-7e0f-5a12-b551-172cdb8c626b",
+    "name": "Стабильный релиз",
+    "members": [
+     {
+      "athlete_sub": "5a0b204f-e2b0-4503-a624-984ce8c4fbb0",
+      "role": "captain",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "e65bd5c9-0706-4a71-856d-9bd674538001",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "54e32dfe-4b66-45d4-b002-e451dbddbf71",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "1736aba3-7015-4392-89ba-6dee9c2f2dab",
+      "role": "participant",
+      "team_function": "backend"
+     }
+    ]
+   },
+   "team_function": "frontend",
+   "status": "confirmed"
+  },
+  {
+   "id": "b9523878-35d3-56f1-948c-db7a8318b86a",
+   "ekp": "2025990798334828",
+   "athlete_sub": "5a0b204f-e2b0-4503-a624-984ce8c4fbb0",
+   "place": 3,
+   "place_to": null,
+   "field_size": 35,
+   "score": null,
+   "role": "captain",
+   "team": {
+    "id": "2e455258-7e0f-5a12-b551-172cdb8c626b",
+    "name": "Стабильный релиз",
+    "members": [
+     {
+      "athlete_sub": "5a0b204f-e2b0-4503-a624-984ce8c4fbb0",
+      "role": "captain",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "e65bd5c9-0706-4a71-856d-9bd674538001",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "54e32dfe-4b66-45d4-b002-e451dbddbf71",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "1736aba3-7015-4392-89ba-6dee9c2f2dab",
+      "role": "participant",
+      "team_function": "backend"
+     }
+    ]
+   },
+   "team_function": "frontend",
+   "status": "confirmed"
+  },
+  {
+   "id": "8b227ad7-27ae-5dcf-8915-9d3dbde9c906",
+   "ekp": "2025990798334828",
+   "athlete_sub": "e65bd5c9-0706-4a71-856d-9bd674538001",
+   "place": 3,
+   "place_to": null,
+   "field_size": 35,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "2e455258-7e0f-5a12-b551-172cdb8c626b",
+    "name": "Стабильный релиз",
+    "members": [
+     {
+      "athlete_sub": "5a0b204f-e2b0-4503-a624-984ce8c4fbb0",
+      "role": "captain",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "e65bd5c9-0706-4a71-856d-9bd674538001",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "54e32dfe-4b66-45d4-b002-e451dbddbf71",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "1736aba3-7015-4392-89ba-6dee9c2f2dab",
+      "role": "participant",
+      "team_function": "backend"
+     }
+    ]
+   },
+   "team_function": "frontend",
+   "status": "confirmed"
+  },
+  {
+   "id": "545866d7-2a7c-5cea-be00-70e1720a7813",
+   "ekp": "2025990798334828",
+   "athlete_sub": "2410a7bf-ec13-4147-be40-1452ea8d8ab1",
+   "place": 7,
+   "place_to": null,
+   "field_size": 35,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "113e41f5-5e29-5b1e-840d-53ee3286f13d",
+    "name": "Чистый указатель",
+    "members": [
+     {
+      "athlete_sub": "f65bb71f-8ac3-4af0-8ead-29daf95d439a",
+      "role": "captain",
+      "team_function": "ml"
+     },
+     {
+      "athlete_sub": "2410a7bf-ec13-4147-be40-1452ea8d8ab1",
+      "role": "participant",
+      "team_function": "pm"
+     },
+     {
+      "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "d2e37133-4824-4c62-8e83-476037118762",
+      "role": "participant",
+      "team_function": "frontend"
+     }
+    ]
+   },
+   "team_function": "pm",
+   "status": "confirmed"
+  },
+  {
+   "id": "97c217b6-0868-50c6-9a5e-4f84abf37b57",
+   "ekp": "2025990798334828",
+   "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+   "place": 7,
+   "place_to": null,
+   "field_size": 35,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "113e41f5-5e29-5b1e-840d-53ee3286f13d",
+    "name": "Чистый указатель",
+    "members": [
+     {
+      "athlete_sub": "f65bb71f-8ac3-4af0-8ead-29daf95d439a",
+      "role": "captain",
+      "team_function": "ml"
+     },
+     {
+      "athlete_sub": "2410a7bf-ec13-4147-be40-1452ea8d8ab1",
+      "role": "participant",
+      "team_function": "pm"
+     },
+     {
+      "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "d2e37133-4824-4c62-8e83-476037118762",
+      "role": "participant",
+      "team_function": "frontend"
+     }
+    ]
+   },
+   "team_function": "backend",
+   "status": "confirmed"
+  },
+  {
+   "id": "01403e13-0cc7-5c1d-9613-accc4249abf8",
+   "ekp": "2025990798334828",
+   "athlete_sub": "d2e37133-4824-4c62-8e83-476037118762",
+   "place": 7,
+   "place_to": null,
+   "field_size": 35,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "113e41f5-5e29-5b1e-840d-53ee3286f13d",
+    "name": "Чистый указатель",
+    "members": [
+     {
+      "athlete_sub": "f65bb71f-8ac3-4af0-8ead-29daf95d439a",
+      "role": "captain",
+      "team_function": "ml"
+     },
+     {
+      "athlete_sub": "2410a7bf-ec13-4147-be40-1452ea8d8ab1",
+      "role": "participant",
+      "team_function": "pm"
+     },
+     {
+      "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "d2e37133-4824-4c62-8e83-476037118762",
+      "role": "participant",
+      "team_function": "frontend"
+     }
+    ]
+   },
+   "team_function": "frontend",
+   "status": "confirmed"
+  },
+  {
+   "id": "d83baca7-36df-5743-b08b-c4b51881b837",
+   "ekp": "2025990798334828",
+   "athlete_sub": "f65bb71f-8ac3-4af0-8ead-29daf95d439a",
+   "place": 7,
+   "place_to": null,
+   "field_size": 35,
+   "score": null,
+   "role": "captain",
+   "team": {
+    "id": "113e41f5-5e29-5b1e-840d-53ee3286f13d",
+    "name": "Чистый указатель",
+    "members": [
+     {
+      "athlete_sub": "f65bb71f-8ac3-4af0-8ead-29daf95d439a",
+      "role": "captain",
+      "team_function": "ml"
+     },
+     {
+      "athlete_sub": "2410a7bf-ec13-4147-be40-1452ea8d8ab1",
+      "role": "participant",
+      "team_function": "pm"
+     },
+     {
+      "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "d2e37133-4824-4c62-8e83-476037118762",
+      "role": "participant",
+      "team_function": "frontend"
+     }
+    ]
+   },
+   "team_function": "ml",
+   "status": "confirmed"
+  },
+  {
+   "id": "f682efec-3166-5f51-b583-cb89849e8f8c",
+   "ekp": "2025990798334828",
+   "athlete_sub": "301b9a38-aa8a-4635-be57-7888648e88ff",
+   "place": 14,
+   "place_to": null,
+   "field_size": 35,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "ef94f64b-1394-52d7-8646-7d7ba63e6481",
+    "name": "Летучий фикс",
+    "members": [
+     {
+      "athlete_sub": "8c2bb7b8-7eea-4a32-8cf3-414a368dbfe8",
+      "role": "captain",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "301b9a38-aa8a-4635-be57-7888648e88ff",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "43d2def2-48bb-4deb-ba70-5ffa4d4f7369",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "562fb333-ea35-48b4-b157-96542b932cd4",
+      "role": "participant",
+      "team_function": "ml"
+     }
+    ]
+   },
+   "team_function": "frontend",
+   "status": "confirmed"
+  },
+  {
+   "id": "fc441535-2c69-5ec9-a568-718fbb70d800",
+   "ekp": "2025990798334828",
+   "athlete_sub": "43d2def2-48bb-4deb-ba70-5ffa4d4f7369",
+   "place": 14,
+   "place_to": null,
+   "field_size": 35,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "ef94f64b-1394-52d7-8646-7d7ba63e6481",
+    "name": "Летучий фикс",
+    "members": [
+     {
+      "athlete_sub": "8c2bb7b8-7eea-4a32-8cf3-414a368dbfe8",
+      "role": "captain",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "301b9a38-aa8a-4635-be57-7888648e88ff",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "43d2def2-48bb-4deb-ba70-5ffa4d4f7369",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "562fb333-ea35-48b4-b157-96542b932cd4",
+      "role": "participant",
+      "team_function": "ml"
+     }
+    ]
+   },
+   "team_function": "backend",
+   "status": "confirmed"
+  },
+  {
+   "id": "20798d06-c17f-5afc-87cb-5873357ccff7",
+   "ekp": "2025990798334828",
+   "athlete_sub": "562fb333-ea35-48b4-b157-96542b932cd4",
+   "place": 14,
+   "place_to": null,
+   "field_size": 35,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "ef94f64b-1394-52d7-8646-7d7ba63e6481",
+    "name": "Летучий фикс",
+    "members": [
+     {
+      "athlete_sub": "8c2bb7b8-7eea-4a32-8cf3-414a368dbfe8",
+      "role": "captain",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "301b9a38-aa8a-4635-be57-7888648e88ff",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "43d2def2-48bb-4deb-ba70-5ffa4d4f7369",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "562fb333-ea35-48b4-b157-96542b932cd4",
+      "role": "participant",
+      "team_function": "ml"
+     }
+    ]
+   },
+   "team_function": "ml",
+   "status": "confirmed"
+  },
+  {
+   "id": "d7ab0a8c-49b7-5013-9431-7158ec03e358",
+   "ekp": "2025990798334828",
+   "athlete_sub": "8c2bb7b8-7eea-4a32-8cf3-414a368dbfe8",
+   "place": 14,
+   "place_to": null,
+   "field_size": 35,
+   "score": null,
+   "role": "captain",
+   "team": {
+    "id": "ef94f64b-1394-52d7-8646-7d7ba63e6481",
+    "name": "Летучий фикс",
+    "members": [
+     {
+      "athlete_sub": "8c2bb7b8-7eea-4a32-8cf3-414a368dbfe8",
+      "role": "captain",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "301b9a38-aa8a-4635-be57-7888648e88ff",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "43d2def2-48bb-4deb-ba70-5ffa4d4f7369",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "562fb333-ea35-48b4-b157-96542b932cd4",
+      "role": "participant",
+      "team_function": "ml"
+     }
+    ]
+   },
+   "team_function": "frontend",
+   "status": "confirmed"
+  },
+  {
+   "id": "709174a5-b1e5-5ece-9b93-97f79dba34c7",
+   "ekp": "2025993930021033",
+   "athlete_sub": "3dbb5b20-977f-4cf4-bd90-e4642fc91981",
+   "place": 2,
+   "place_to": null,
+   "field_size": 19,
+   "score": null,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "ab7d215c-3b70-572c-a9d4-711f0f86cc71",
+   "ekp": "2025993930021033",
+   "athlete_sub": "f4d6d2fa-d4a5-4905-aea0-67421fae06d6",
+   "place": 4,
+   "place_to": null,
+   "field_size": 19,
+   "score": null,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "df7b3761-d8f5-5dba-a580-ac91c253737e",
+   "ekp": "2025990519875092",
+   "athlete_sub": "d98cba91-ae78-4d5a-bfb0-130ca2c6b02f",
+   "place": 2,
+   "place_to": null,
+   "field_size": 181,
+   "score": 11.0,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "12e2ca71-f9ab-5e53-be86-df86fbe2882b",
+   "ekp": "2025990519875092",
+   "athlete_sub": "492f2405-fe61-4c3b-93a8-a964cfc6d20a",
+   "place": 3,
+   "place_to": null,
+   "field_size": 181,
+   "score": 11.0,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "460f29b3-da04-52dd-8c14-140a5c4c434f",
+   "ekp": "2025990519875092",
+   "athlete_sub": "8b56020c-ba6f-4c6d-a230-d03ec06c4ba0",
+   "place": 20,
+   "place_to": null,
+   "field_size": 181,
+   "score": 8.0,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "41c85cbf-85b3-5241-86ae-12d280892151",
+   "ekp": "2025994176126058",
+   "athlete_sub": "72e54fca-351b-4127-98ac-faacc93bcf6a",
+   "place": 1,
+   "place_to": null,
+   "field_size": 72,
+   "score": 242.5,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "dd4fe258-5277-5760-a510-f52ed847a4f4",
+   "ekp": "2025994176126058",
+   "athlete_sub": "34a8406c-f18f-49ef-8769-a34a4161e778",
+   "place": 6,
+   "place_to": null,
+   "field_size": 72,
+   "score": 214.7,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "ff257bfd-50c8-5f22-b849-9aec470a253e",
+   "ekp": "2025994176126058",
+   "athlete_sub": "e0ca0b59-2788-4ebc-b6d5-4f2607c2006b",
+   "place": 7,
+   "place_to": null,
+   "field_size": 72,
+   "score": 207.5,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "aaf56385-29f6-58d2-9e48-bd0d4c32f9e3",
+   "ekp": "2025994176126058",
+   "athlete_sub": "2410a7bf-ec13-4147-be40-1452ea8d8ab1",
+   "place": 10,
+   "place_to": null,
+   "field_size": 72,
+   "score": 188.5,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "63d646cc-7d24-5dbd-8c40-396cb255334d",
+   "ekp": "2025994176126058",
+   "athlete_sub": "2596be67-143b-487d-8c40-a323a9069ca0",
+   "place": 17,
+   "place_to": null,
+   "field_size": 72,
+   "score": 155.5,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "0ab67a1b-06f1-5716-8394-fd30eeb572d0",
+   "ekp": "2025992399617295",
+   "athlete_sub": "15905393-2faf-4a7c-97f9-9fe03eab3873",
+   "place": 1,
+   "place_to": null,
+   "field_size": 103,
+   "score": 87.4,
+   "role": "captain",
+   "team": {
+    "id": "f6185079-a014-5af9-bb0e-0e78a147f397",
+    "name": "Белый кластер",
+    "members": [
+     {
+      "athlete_sub": "15905393-2faf-4a7c-97f9-9fe03eab3873",
+      "role": "captain",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "5a0b204f-e2b0-4503-a624-984ce8c4fbb0",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "492f2405-fe61-4c3b-93a8-a964cfc6d20a",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "54ac9bcc-d3ac-4244-a71b-656ddbaa7a8f",
+      "role": "participant",
+      "team_function": "frontend"
+     }
+    ]
+   },
+   "team_function": "backend",
+   "status": "confirmed"
+  },
+  {
+   "id": "96381fde-dd92-576e-bfd2-cb23d3679d5a",
+   "ekp": "2025992399617295",
+   "athlete_sub": "492f2405-fe61-4c3b-93a8-a964cfc6d20a",
+   "place": 1,
+   "place_to": null,
+   "field_size": 103,
+   "score": 87.4,
+   "role": "participant",
+   "team": {
+    "id": "f6185079-a014-5af9-bb0e-0e78a147f397",
+    "name": "Белый кластер",
+    "members": [
+     {
+      "athlete_sub": "15905393-2faf-4a7c-97f9-9fe03eab3873",
+      "role": "captain",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "5a0b204f-e2b0-4503-a624-984ce8c4fbb0",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "492f2405-fe61-4c3b-93a8-a964cfc6d20a",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "54ac9bcc-d3ac-4244-a71b-656ddbaa7a8f",
+      "role": "participant",
+      "team_function": "frontend"
+     }
+    ]
+   },
+   "team_function": "backend",
+   "status": "confirmed"
+  },
+  {
+   "id": "24f14954-93c9-531c-b75f-ad8d85bf908f",
+   "ekp": "2025992399617295",
+   "athlete_sub": "54ac9bcc-d3ac-4244-a71b-656ddbaa7a8f",
+   "place": 1,
+   "place_to": null,
+   "field_size": 103,
+   "score": 87.4,
+   "role": "participant",
+   "team": {
+    "id": "f6185079-a014-5af9-bb0e-0e78a147f397",
+    "name": "Белый кластер",
+    "members": [
+     {
+      "athlete_sub": "15905393-2faf-4a7c-97f9-9fe03eab3873",
+      "role": "captain",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "5a0b204f-e2b0-4503-a624-984ce8c4fbb0",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "492f2405-fe61-4c3b-93a8-a964cfc6d20a",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "54ac9bcc-d3ac-4244-a71b-656ddbaa7a8f",
+      "role": "participant",
+      "team_function": "frontend"
+     }
+    ]
+   },
+   "team_function": "frontend",
+   "status": "confirmed"
+  },
+  {
+   "id": "95e83667-3d86-5aef-b112-1ddd39a9f782",
+   "ekp": "2025992399617295",
+   "athlete_sub": "5a0b204f-e2b0-4503-a624-984ce8c4fbb0",
+   "place": 1,
+   "place_to": null,
+   "field_size": 103,
+   "score": 87.4,
+   "role": "participant",
+   "team": {
+    "id": "f6185079-a014-5af9-bb0e-0e78a147f397",
+    "name": "Белый кластер",
+    "members": [
+     {
+      "athlete_sub": "15905393-2faf-4a7c-97f9-9fe03eab3873",
+      "role": "captain",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "5a0b204f-e2b0-4503-a624-984ce8c4fbb0",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "492f2405-fe61-4c3b-93a8-a964cfc6d20a",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "54ac9bcc-d3ac-4244-a71b-656ddbaa7a8f",
+      "role": "participant",
+      "team_function": "frontend"
+     }
+    ]
+   },
+   "team_function": "frontend",
+   "status": "confirmed"
+  },
+  {
+   "id": "85991d5f-1328-5c31-b043-014519209c98",
+   "ekp": "2025992399617295",
+   "athlete_sub": "1736aba3-7015-4392-89ba-6dee9c2f2dab",
+   "place": 5,
+   "place_to": null,
+   "field_size": 103,
+   "score": 78.6,
+   "role": "participant",
+   "team": {
+    "id": "e16c57fe-7e85-5eda-837d-65991fe2baa6",
+    "name": "Ламповый поток",
+    "members": [
+     {
+      "athlete_sub": "5fcd093e-0d52-4f3b-8bc9-29fa2780a577",
+      "role": "captain",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "1736aba3-7015-4392-89ba-6dee9c2f2dab",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "e65bd5c9-0706-4a71-856d-9bd674538001",
+      "role": "participant",
+      "team_function": "frontend"
+     }
+    ]
+   },
+   "team_function": "backend",
+   "status": "confirmed"
+  },
+  {
+   "id": "d782d50f-d5d9-5528-8cfb-70bc8a48c702",
+   "ekp": "2025992399617295",
+   "athlete_sub": "5fcd093e-0d52-4f3b-8bc9-29fa2780a577",
+   "place": 5,
+   "place_to": null,
+   "field_size": 103,
+   "score": 78.6,
+   "role": "captain",
+   "team": {
+    "id": "e16c57fe-7e85-5eda-837d-65991fe2baa6",
+    "name": "Ламповый поток",
+    "members": [
+     {
+      "athlete_sub": "5fcd093e-0d52-4f3b-8bc9-29fa2780a577",
+      "role": "captain",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "1736aba3-7015-4392-89ba-6dee9c2f2dab",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "e65bd5c9-0706-4a71-856d-9bd674538001",
+      "role": "participant",
+      "team_function": "frontend"
+     }
+    ]
+   },
+   "team_function": "frontend",
+   "status": "confirmed"
+  },
+  {
+   "id": "dc04fb50-e749-5c64-8dfc-91819239ac2f",
+   "ekp": "2025992399617295",
+   "athlete_sub": "e65bd5c9-0706-4a71-856d-9bd674538001",
+   "place": 5,
+   "place_to": null,
+   "field_size": 103,
+   "score": 78.6,
+   "role": "participant",
+   "team": {
+    "id": "e16c57fe-7e85-5eda-837d-65991fe2baa6",
+    "name": "Ламповый поток",
+    "members": [
+     {
+      "athlete_sub": "5fcd093e-0d52-4f3b-8bc9-29fa2780a577",
+      "role": "captain",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "1736aba3-7015-4392-89ba-6dee9c2f2dab",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "e65bd5c9-0706-4a71-856d-9bd674538001",
+      "role": "participant",
+      "team_function": "frontend"
+     }
+    ]
+   },
+   "team_function": "frontend",
+   "status": "confirmed"
+  },
+  {
+   "id": "37211b8f-f113-57bb-8e32-4e9b49ef7fee",
+   "ekp": "2025999904555719",
+   "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+   "place": 2,
+   "place_to": null,
+   "field_size": 43,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "88c15018-0b74-5f01-8558-5619a885c2fc",
+    "name": "Ночной кэш",
+    "members": [
+     {
+      "athlete_sub": "2917df3e-b0d5-4ffa-a08a-1429f7f5f98f",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "a39d1884-8147-4e77-a104-fd8a04184bd4",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "edb78aac-1c65-43fc-b29f-44243b0bd547",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "da52298e-7de3-5c30-9f8b-01a66ee29139",
+   "ekp": "2025999904555719",
+   "athlete_sub": "2917df3e-b0d5-4ffa-a08a-1429f7f5f98f",
+   "place": 2,
+   "place_to": null,
+   "field_size": 43,
+   "score": null,
+   "role": "captain",
+   "team": {
+    "id": "88c15018-0b74-5f01-8558-5619a885c2fc",
+    "name": "Ночной кэш",
+    "members": [
+     {
+      "athlete_sub": "2917df3e-b0d5-4ffa-a08a-1429f7f5f98f",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "a39d1884-8147-4e77-a104-fd8a04184bd4",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "edb78aac-1c65-43fc-b29f-44243b0bd547",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "d4960918-d3de-5c0e-8a54-ee406c761897",
+   "ekp": "2025999904555719",
+   "athlete_sub": "a39d1884-8147-4e77-a104-fd8a04184bd4",
+   "place": 2,
+   "place_to": null,
+   "field_size": 43,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "88c15018-0b74-5f01-8558-5619a885c2fc",
+    "name": "Ночной кэш",
+    "members": [
+     {
+      "athlete_sub": "2917df3e-b0d5-4ffa-a08a-1429f7f5f98f",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "a39d1884-8147-4e77-a104-fd8a04184bd4",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "edb78aac-1c65-43fc-b29f-44243b0bd547",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "c06a26bf-3752-5f51-81d8-c75f120ff9dc",
+   "ekp": "2025999904555719",
+   "athlete_sub": "edb78aac-1c65-43fc-b29f-44243b0bd547",
+   "place": 2,
+   "place_to": null,
+   "field_size": 43,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "88c15018-0b74-5f01-8558-5619a885c2fc",
+    "name": "Ночной кэш",
+    "members": [
+     {
+      "athlete_sub": "2917df3e-b0d5-4ffa-a08a-1429f7f5f98f",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "a39d1884-8147-4e77-a104-fd8a04184bd4",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "edb78aac-1c65-43fc-b29f-44243b0bd547",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "d1516822-928e-5894-80cd-ab5c1d546bbc",
+   "ekp": "2025995522350961",
+   "athlete_sub": "492f2405-fe61-4c3b-93a8-a964cfc6d20a",
+   "place": 4,
+   "place_to": null,
+   "field_size": 67,
+   "score": 10.0,
+   "role": "participant",
+   "team": {
+    "id": "3f2fded0-eeb7-56e8-84fb-6e1587804d1f",
+    "name": "Чистый байт",
+    "members": [
+     {
+      "athlete_sub": "d98cba91-ae78-4d5a-bfb0-130ca2c6b02f",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "492f2405-fe61-4c3b-93a8-a964cfc6d20a",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "558049ad-81ca-47af-8c85-46fc4c6909db",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "db59b71e-31ec-5ea2-a290-68c939e1eecb",
+   "ekp": "2025995522350961",
+   "athlete_sub": "558049ad-81ca-47af-8c85-46fc4c6909db",
+   "place": 4,
+   "place_to": null,
+   "field_size": 67,
+   "score": 10.0,
+   "role": "participant",
+   "team": {
+    "id": "3f2fded0-eeb7-56e8-84fb-6e1587804d1f",
+    "name": "Чистый байт",
+    "members": [
+     {
+      "athlete_sub": "d98cba91-ae78-4d5a-bfb0-130ca2c6b02f",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "492f2405-fe61-4c3b-93a8-a964cfc6d20a",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "558049ad-81ca-47af-8c85-46fc4c6909db",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "8198722c-0795-5097-9b8b-d42fbfce866f",
+   "ekp": "2025995522350961",
+   "athlete_sub": "d98cba91-ae78-4d5a-bfb0-130ca2c6b02f",
+   "place": 4,
+   "place_to": null,
+   "field_size": 67,
+   "score": 10.0,
+   "role": "captain",
+   "team": {
+    "id": "3f2fded0-eeb7-56e8-84fb-6e1587804d1f",
+    "name": "Чистый байт",
+    "members": [
+     {
+      "athlete_sub": "d98cba91-ae78-4d5a-bfb0-130ca2c6b02f",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "492f2405-fe61-4c3b-93a8-a964cfc6d20a",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "558049ad-81ca-47af-8c85-46fc4c6909db",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "6b01e045-6b08-5fd1-8fc4-acda79fd31a7",
+   "ekp": "2025995522350961",
+   "athlete_sub": "800a9cc8-5bcb-4dac-9828-accc71a830e4",
+   "place": 10,
+   "place_to": null,
+   "field_size": 67,
+   "score": 8.0,
+   "role": "participant",
+   "team": {
+    "id": "81c94f0c-4bcc-5b00-b180-d2f9749b9b95",
+    "name": "Быстрый кэш",
+    "members": [
+     {
+      "athlete_sub": "d8a63131-49c6-4f92-93ae-503e55ca2c7e",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "800a9cc8-5bcb-4dac-9828-accc71a830e4",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "d7242a68-31c4-5aae-8135-0d7a97d91703",
+   "ekp": "2025995522350961",
+   "athlete_sub": "d8a63131-49c6-4f92-93ae-503e55ca2c7e",
+   "place": 10,
+   "place_to": null,
+   "field_size": 67,
+   "score": 8.0,
+   "role": "captain",
+   "team": {
+    "id": "81c94f0c-4bcc-5b00-b180-d2f9749b9b95",
+    "name": "Быстрый кэш",
+    "members": [
+     {
+      "athlete_sub": "d8a63131-49c6-4f92-93ae-503e55ca2c7e",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "800a9cc8-5bcb-4dac-9828-accc71a830e4",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "d8b51344-eda1-5736-aeed-72d9d18788ae",
+   "ekp": "2025995522350961",
+   "athlete_sub": "2596be67-143b-487d-8c40-a323a9069ca0",
+   "place": 14,
+   "place_to": null,
+   "field_size": 67,
+   "score": 7.0,
+   "role": "participant",
+   "team": {
+    "id": "bb398ffb-2342-53e8-a44d-067982220567",
+    "name": "Стабильный стек",
+    "members": [
+     {
+      "athlete_sub": "8b56020c-ba6f-4c6d-a230-d03ec06c4ba0",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "2596be67-143b-487d-8c40-a323a9069ca0",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "466924c5-c0c5-5f3b-a838-3aa254915200",
+   "ekp": "2025995522350961",
+   "athlete_sub": "8b56020c-ba6f-4c6d-a230-d03ec06c4ba0",
+   "place": 14,
+   "place_to": null,
+   "field_size": 67,
+   "score": 7.0,
+   "role": "captain",
+   "team": {
+    "id": "bb398ffb-2342-53e8-a44d-067982220567",
+    "name": "Стабильный стек",
+    "members": [
+     {
+      "athlete_sub": "8b56020c-ba6f-4c6d-a230-d03ec06c4ba0",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "2596be67-143b-487d-8c40-a323a9069ca0",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "f182d4d9-109b-56be-8a96-ac58b14f6e4a",
+   "ekp": "2025999178465521",
+   "athlete_sub": "3dbb5b20-977f-4cf4-bd90-e4642fc91981",
+   "place": 2,
+   "place_to": null,
+   "field_size": 38,
+   "score": null,
+   "role": "captain",
+   "team": {
+    "id": "1a831958-932f-50cb-8206-e3a22e962fe2",
+    "name": "Чистый бэкап",
+    "members": [
+     {
+      "athlete_sub": "3dbb5b20-977f-4cf4-bd90-e4642fc91981",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "95f03760-d06c-4dbf-9567-606f6a0abcf4",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "5bdaeee2-40b8-442e-b1c0-b235cd4093f3",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "c913f70e-078c-5c12-9997-08c469f962b5",
+   "ekp": "2025999178465521",
+   "athlete_sub": "5bdaeee2-40b8-442e-b1c0-b235cd4093f3",
+   "place": 2,
+   "place_to": null,
+   "field_size": 38,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "1a831958-932f-50cb-8206-e3a22e962fe2",
+    "name": "Чистый бэкап",
+    "members": [
+     {
+      "athlete_sub": "3dbb5b20-977f-4cf4-bd90-e4642fc91981",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "95f03760-d06c-4dbf-9567-606f6a0abcf4",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "5bdaeee2-40b8-442e-b1c0-b235cd4093f3",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "6875f193-6bd3-5975-953b-14e8bad5738c",
+   "ekp": "2025999178465521",
+   "athlete_sub": "95f03760-d06c-4dbf-9567-606f6a0abcf4",
+   "place": 2,
+   "place_to": null,
+   "field_size": 38,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "1a831958-932f-50cb-8206-e3a22e962fe2",
+    "name": "Чистый бэкап",
+    "members": [
+     {
+      "athlete_sub": "3dbb5b20-977f-4cf4-bd90-e4642fc91981",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "95f03760-d06c-4dbf-9567-606f6a0abcf4",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "5bdaeee2-40b8-442e-b1c0-b235cd4093f3",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "b617d44c-a6fc-57ae-ba34-4b7a33069581",
+   "ekp": "2025999178465521",
+   "athlete_sub": "1c057d0c-2e28-4581-bab5-8a127e65356b",
+   "place": 3,
+   "place_to": null,
+   "field_size": 38,
+   "score": null,
+   "role": "captain",
+   "team": {
+    "id": "734b953f-bec2-574d-87c7-0119da863241",
+    "name": "Ночной деплой",
+    "members": [
+     {
+      "athlete_sub": "1c057d0c-2e28-4581-bab5-8a127e65356b",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "b05a3443-6e8e-4cba-9efb-383bfcb06b04",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "990dfcc5-287b-4c20-8221-a826e184799a",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "54350409-3125-5438-a697-6e891cca2512",
+   "ekp": "2025999178465521",
+   "athlete_sub": "990dfcc5-287b-4c20-8221-a826e184799a",
+   "place": 3,
+   "place_to": null,
+   "field_size": 38,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "734b953f-bec2-574d-87c7-0119da863241",
+    "name": "Ночной деплой",
+    "members": [
+     {
+      "athlete_sub": "1c057d0c-2e28-4581-bab5-8a127e65356b",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "b05a3443-6e8e-4cba-9efb-383bfcb06b04",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "990dfcc5-287b-4c20-8221-a826e184799a",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "81cbc03d-e6e2-50ca-b0f2-ee892a227177",
+   "ekp": "2025999178465521",
+   "athlete_sub": "b05a3443-6e8e-4cba-9efb-383bfcb06b04",
+   "place": 3,
+   "place_to": null,
+   "field_size": 38,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "734b953f-bec2-574d-87c7-0119da863241",
+    "name": "Ночной деплой",
+    "members": [
+     {
+      "athlete_sub": "1c057d0c-2e28-4581-bab5-8a127e65356b",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "b05a3443-6e8e-4cba-9efb-383bfcb06b04",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "990dfcc5-287b-4c20-8221-a826e184799a",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "a0b60d71-bdaa-5eab-80a7-f84b66aae2df",
+   "ekp": "2025999178465521",
+   "athlete_sub": "800a9cc8-5bcb-4dac-9828-accc71a830e4",
+   "place": 5,
+   "place_to": 8,
+   "field_size": 38,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "a5a67e4d-6c1e-5040-885f-8d5e2fd9a65b",
+    "name": "Асинхронный токен",
+    "members": [
+     {
+      "athlete_sub": "eeee6dce-b472-444b-8ff6-f4a60f297241",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "800a9cc8-5bcb-4dac-9828-accc71a830e4",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "54e7f4c6-6da5-5807-9a0b-e8f71f01fe79",
+   "ekp": "2025999178465521",
+   "athlete_sub": "eeee6dce-b472-444b-8ff6-f4a60f297241",
+   "place": 5,
+   "place_to": 8,
+   "field_size": 38,
+   "score": null,
+   "role": "captain",
+   "team": {
+    "id": "a5a67e4d-6c1e-5040-885f-8d5e2fd9a65b",
+    "name": "Асинхронный токен",
+    "members": [
+     {
+      "athlete_sub": "eeee6dce-b472-444b-8ff6-f4a60f297241",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "800a9cc8-5bcb-4dac-9828-accc71a830e4",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "21548ddd-9969-5a48-adf4-1e9e67f6e0af",
+   "ekp": "2026993200039039",
+   "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+   "place": 25,
+   "place_to": null,
+   "field_size": 272,
+   "score": null,
+   "role": "captain",
+   "team": {
+    "id": "69c60a7f-e0b9-557c-b197-853bba5103f1",
+    "name": "Асинхронный фикс",
+    "members": [
+     {
+      "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "c7d48424-d766-41dd-a146-bb846cbf12c9",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "2917df3e-b0d5-4ffa-a08a-1429f7f5f98f",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "611ad871-6993-4e3f-81e6-04d818adb703",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "e3cdec68-a9fe-537e-b358-463b51bfc4aa",
+   "ekp": "2026993200039039",
+   "athlete_sub": "2917df3e-b0d5-4ffa-a08a-1429f7f5f98f",
+   "place": 25,
+   "place_to": null,
+   "field_size": 272,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "69c60a7f-e0b9-557c-b197-853bba5103f1",
+    "name": "Асинхронный фикс",
+    "members": [
+     {
+      "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "c7d48424-d766-41dd-a146-bb846cbf12c9",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "2917df3e-b0d5-4ffa-a08a-1429f7f5f98f",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "611ad871-6993-4e3f-81e6-04d818adb703",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "29f2f0b1-7755-5a93-ab97-48465d3a6274",
+   "ekp": "2026993200039039",
+   "athlete_sub": "611ad871-6993-4e3f-81e6-04d818adb703",
+   "place": 25,
+   "place_to": null,
+   "field_size": 272,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "69c60a7f-e0b9-557c-b197-853bba5103f1",
+    "name": "Асинхронный фикс",
+    "members": [
+     {
+      "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "c7d48424-d766-41dd-a146-bb846cbf12c9",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "2917df3e-b0d5-4ffa-a08a-1429f7f5f98f",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "611ad871-6993-4e3f-81e6-04d818adb703",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "6cdcd496-6cd4-5316-85b3-2d4f4f6f3b33",
+   "ekp": "2026993200039039",
+   "athlete_sub": "c7d48424-d766-41dd-a146-bb846cbf12c9",
+   "place": 25,
+   "place_to": null,
+   "field_size": 272,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "69c60a7f-e0b9-557c-b197-853bba5103f1",
+    "name": "Асинхронный фикс",
+    "members": [
+     {
+      "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "c7d48424-d766-41dd-a146-bb846cbf12c9",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "2917df3e-b0d5-4ffa-a08a-1429f7f5f98f",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "611ad871-6993-4e3f-81e6-04d818adb703",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "5cd60201-bccc-5db8-99e9-c11e45763640",
+   "ekp": "2026993200039039",
+   "athlete_sub": "a39d1884-8147-4e77-a104-fd8a04184bd4",
+   "place": 112,
+   "place_to": null,
+   "field_size": 272,
+   "score": null,
+   "role": "captain",
+   "team": {
+    "id": "45f288e4-7986-5b56-8598-f9e358c03408",
+    "name": "Быстрый указатель",
+    "members": [
+     {
+      "athlete_sub": "a39d1884-8147-4e77-a104-fd8a04184bd4",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "edb78aac-1c65-43fc-b29f-44243b0bd547",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "b54c8785-f449-4d77-aed1-dd5236708f03",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "d7c74f05-b012-4372-ad80-f04215f0f7d6",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "684b0637-4eec-5ced-9eb6-2f7a96fae7a0",
+   "ekp": "2026993200039039",
+   "athlete_sub": "b54c8785-f449-4d77-aed1-dd5236708f03",
+   "place": 112,
+   "place_to": null,
+   "field_size": 272,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "45f288e4-7986-5b56-8598-f9e358c03408",
+    "name": "Быстрый указатель",
+    "members": [
+     {
+      "athlete_sub": "a39d1884-8147-4e77-a104-fd8a04184bd4",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "edb78aac-1c65-43fc-b29f-44243b0bd547",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "b54c8785-f449-4d77-aed1-dd5236708f03",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "d7c74f05-b012-4372-ad80-f04215f0f7d6",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "396ac378-ec90-55ff-bdba-318bc653da36",
+   "ekp": "2026993200039039",
+   "athlete_sub": "d7c74f05-b012-4372-ad80-f04215f0f7d6",
+   "place": 112,
+   "place_to": null,
+   "field_size": 272,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "45f288e4-7986-5b56-8598-f9e358c03408",
+    "name": "Быстрый указатель",
+    "members": [
+     {
+      "athlete_sub": "a39d1884-8147-4e77-a104-fd8a04184bd4",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "edb78aac-1c65-43fc-b29f-44243b0bd547",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "b54c8785-f449-4d77-aed1-dd5236708f03",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "d7c74f05-b012-4372-ad80-f04215f0f7d6",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "241137ae-f377-56ad-9f1c-6631483f8994",
+   "ekp": "2026993200039039",
+   "athlete_sub": "edb78aac-1c65-43fc-b29f-44243b0bd547",
+   "place": 112,
+   "place_to": null,
+   "field_size": 272,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "45f288e4-7986-5b56-8598-f9e358c03408",
+    "name": "Быстрый указатель",
+    "members": [
+     {
+      "athlete_sub": "a39d1884-8147-4e77-a104-fd8a04184bd4",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "edb78aac-1c65-43fc-b29f-44243b0bd547",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "b54c8785-f449-4d77-aed1-dd5236708f03",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "d7c74f05-b012-4372-ad80-f04215f0f7d6",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "a18b205d-5130-5d56-b3e2-970799f2d215",
+   "ekp": "2026992159901997",
+   "athlete_sub": "5bdaeee2-40b8-442e-b1c0-b235cd4093f3",
+   "place": 2,
+   "place_to": null,
+   "field_size": 24,
+   "score": null,
+   "role": "captain",
+   "team": {
+    "id": "6613d425-d24b-5099-8ddb-db5375a151a4",
+    "name": "Тихий фикс",
+    "members": [
+     {
+      "athlete_sub": "5bdaeee2-40b8-442e-b1c0-b235cd4093f3",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "95f03760-d06c-4dbf-9567-606f6a0abcf4",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "b05a3443-6e8e-4cba-9efb-383bfcb06b04",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "eeee6dce-b472-444b-8ff6-f4a60f297241",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "2b94792c-9932-5d63-83e3-7a37ff0c5cca",
+   "ekp": "2026992159901997",
+   "athlete_sub": "95f03760-d06c-4dbf-9567-606f6a0abcf4",
+   "place": 2,
+   "place_to": null,
+   "field_size": 24,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "6613d425-d24b-5099-8ddb-db5375a151a4",
+    "name": "Тихий фикс",
+    "members": [
+     {
+      "athlete_sub": "5bdaeee2-40b8-442e-b1c0-b235cd4093f3",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "95f03760-d06c-4dbf-9567-606f6a0abcf4",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "b05a3443-6e8e-4cba-9efb-383bfcb06b04",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "eeee6dce-b472-444b-8ff6-f4a60f297241",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "055f0012-1652-52b6-ad38-e29c6df072f2",
+   "ekp": "2026992159901997",
+   "athlete_sub": "b05a3443-6e8e-4cba-9efb-383bfcb06b04",
+   "place": 2,
+   "place_to": null,
+   "field_size": 24,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "6613d425-d24b-5099-8ddb-db5375a151a4",
+    "name": "Тихий фикс",
+    "members": [
+     {
+      "athlete_sub": "5bdaeee2-40b8-442e-b1c0-b235cd4093f3",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "95f03760-d06c-4dbf-9567-606f6a0abcf4",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "b05a3443-6e8e-4cba-9efb-383bfcb06b04",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "eeee6dce-b472-444b-8ff6-f4a60f297241",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "66ebd258-ad04-5930-9f23-6928a00546a7",
+   "ekp": "2026992159901997",
+   "athlete_sub": "eeee6dce-b472-444b-8ff6-f4a60f297241",
+   "place": 2,
+   "place_to": null,
+   "field_size": 24,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "6613d425-d24b-5099-8ddb-db5375a151a4",
+    "name": "Тихий фикс",
+    "members": [
+     {
+      "athlete_sub": "5bdaeee2-40b8-442e-b1c0-b235cd4093f3",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "95f03760-d06c-4dbf-9567-606f6a0abcf4",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "b05a3443-6e8e-4cba-9efb-383bfcb06b04",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "eeee6dce-b472-444b-8ff6-f4a60f297241",
+      "role": "participant",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "44a1305f-7f40-58d3-8f7f-71d37762a2a6",
+   "ekp": "2026990068780606",
+   "athlete_sub": "72e54fca-351b-4127-98ac-faacc93bcf6a",
+   "place": 1,
+   "place_to": null,
+   "field_size": 20,
+   "score": null,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "631ebd17-e0ab-52e5-8798-fe53a32a0229",
+   "ekp": "2026995274940669",
+   "athlete_sub": "d98cba91-ae78-4d5a-bfb0-130ca2c6b02f",
+   "place": 1,
+   "place_to": null,
+   "field_size": 915,
+   "score": 8.0,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "26d63329-2a00-534d-906d-c83766581d48",
+   "ekp": "2026995274940669",
+   "athlete_sub": "8b56020c-ba6f-4c6d-a230-d03ec06c4ba0",
+   "place": 111,
+   "place_to": null,
+   "field_size": 915,
+   "score": 5.0,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "5d0d7a73-281b-50bb-8f62-b88a38599758",
+   "ekp": "2026995274940669",
+   "athlete_sub": "558049ad-81ca-47af-8c85-46fc4c6909db",
+   "place": 147,
+   "place_to": null,
+   "field_size": 915,
+   "score": 5.0,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "0b5ec337-f97f-5d99-a977-39c8177d1381",
+   "ekp": "2026995274940669",
+   "athlete_sub": "800a9cc8-5bcb-4dac-9828-accc71a830e4",
+   "place": 273,
+   "place_to": null,
+   "field_size": 915,
+   "score": 4.0,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "775e8d28-f8c7-559e-82b1-0adca60dc413",
+   "ekp": "2026995274940669",
+   "athlete_sub": "82a79030-dfa5-4c1f-9534-f4500f3bf81b",
+   "place": 466,
+   "place_to": null,
+   "field_size": 915,
+   "score": 2.0,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "dfd8214c-0fc8-54a1-af35-1787936733ff",
+   "ekp": "2026995274940669",
+   "athlete_sub": "26de7f85-99d5-4063-b082-845d1cae5596",
+   "place": 549,
+   "place_to": null,
+   "field_size": 915,
+   "score": 2.0,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "2d462a38-3f71-55a0-ab0d-ceb575d41311",
+   "ekp": "2026995274940669",
+   "athlete_sub": "2a5d3fd6-154e-41fb-b10d-f301bb9387bf",
+   "place": 771,
+   "place_to": null,
+   "field_size": 915,
+   "score": 1.0,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "bf8c43a8-7692-5f26-91a0-e1f3638c2e53",
+   "ekp": "2026992098295527",
+   "athlete_sub": "1736aba3-7015-4392-89ba-6dee9c2f2dab",
+   "place": 6,
+   "place_to": null,
+   "field_size": 46,
+   "score": 192.3,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "3a2bfc4f-c6a2-5bda-8b28-85ce4ea510d9",
+   "ekp": "2026992098295527",
+   "athlete_sub": "562fb333-ea35-48b4-b157-96542b932cd4",
+   "place": 22,
+   "place_to": null,
+   "field_size": 46,
+   "score": 97.6,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "10cd337f-3028-520e-8b4e-10cffc4949e2",
+   "ekp": "2026999505743482",
+   "athlete_sub": "15905393-2faf-4a7c-97f9-9fe03eab3873",
+   "place": 3,
+   "place_to": null,
+   "field_size": 44,
+   "score": 73.7,
+   "role": "participant",
+   "team": {
+    "id": "1e73deed-b519-5ee0-a518-f9b75198a05d",
+    "name": "Тихий кластер",
+    "members": [
+     {
+      "athlete_sub": "5a0b204f-e2b0-4503-a624-984ce8c4fbb0",
+      "role": "captain",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "f65bb71f-8ac3-4af0-8ead-29daf95d439a",
+      "role": "participant",
+      "team_function": "ml"
+     },
+     {
+      "athlete_sub": "15905393-2faf-4a7c-97f9-9fe03eab3873",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "1736aba3-7015-4392-89ba-6dee9c2f2dab",
+      "role": "participant",
+      "team_function": "backend"
+     }
+    ]
+   },
+   "team_function": "backend",
+   "status": "confirmed"
+  },
+  {
+   "id": "b82b8c20-955e-5489-882a-40361be5bf62",
+   "ekp": "2026999505743482",
+   "athlete_sub": "1736aba3-7015-4392-89ba-6dee9c2f2dab",
+   "place": 3,
+   "place_to": null,
+   "field_size": 44,
+   "score": 73.7,
+   "role": "participant",
+   "team": {
+    "id": "1e73deed-b519-5ee0-a518-f9b75198a05d",
+    "name": "Тихий кластер",
+    "members": [
+     {
+      "athlete_sub": "5a0b204f-e2b0-4503-a624-984ce8c4fbb0",
+      "role": "captain",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "f65bb71f-8ac3-4af0-8ead-29daf95d439a",
+      "role": "participant",
+      "team_function": "ml"
+     },
+     {
+      "athlete_sub": "15905393-2faf-4a7c-97f9-9fe03eab3873",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "1736aba3-7015-4392-89ba-6dee9c2f2dab",
+      "role": "participant",
+      "team_function": "backend"
+     }
+    ]
+   },
+   "team_function": "backend",
+   "status": "confirmed"
+  },
+  {
+   "id": "b36f97ab-206e-501b-835a-e09f3e209a2a",
+   "ekp": "2026999505743482",
+   "athlete_sub": "5a0b204f-e2b0-4503-a624-984ce8c4fbb0",
+   "place": 3,
+   "place_to": null,
+   "field_size": 44,
+   "score": 73.7,
+   "role": "captain",
+   "team": {
+    "id": "1e73deed-b519-5ee0-a518-f9b75198a05d",
+    "name": "Тихий кластер",
+    "members": [
+     {
+      "athlete_sub": "5a0b204f-e2b0-4503-a624-984ce8c4fbb0",
+      "role": "captain",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "f65bb71f-8ac3-4af0-8ead-29daf95d439a",
+      "role": "participant",
+      "team_function": "ml"
+     },
+     {
+      "athlete_sub": "15905393-2faf-4a7c-97f9-9fe03eab3873",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "1736aba3-7015-4392-89ba-6dee9c2f2dab",
+      "role": "participant",
+      "team_function": "backend"
+     }
+    ]
+   },
+   "team_function": "frontend",
+   "status": "confirmed"
+  },
+  {
+   "id": "b6ab52cf-ec92-59eb-88d9-d2c9302ec2c8",
+   "ekp": "2026999505743482",
+   "athlete_sub": "f65bb71f-8ac3-4af0-8ead-29daf95d439a",
+   "place": 3,
+   "place_to": null,
+   "field_size": 44,
+   "score": 73.7,
+   "role": "participant",
+   "team": {
+    "id": "1e73deed-b519-5ee0-a518-f9b75198a05d",
+    "name": "Тихий кластер",
+    "members": [
+     {
+      "athlete_sub": "5a0b204f-e2b0-4503-a624-984ce8c4fbb0",
+      "role": "captain",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "f65bb71f-8ac3-4af0-8ead-29daf95d439a",
+      "role": "participant",
+      "team_function": "ml"
+     },
+     {
+      "athlete_sub": "15905393-2faf-4a7c-97f9-9fe03eab3873",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "1736aba3-7015-4392-89ba-6dee9c2f2dab",
+      "role": "participant",
+      "team_function": "backend"
+     }
+    ]
+   },
+   "team_function": "ml",
+   "status": "confirmed"
+  },
+  {
+   "id": "3bd51c62-eac6-525f-9604-0122ea05588a",
+   "ekp": "2026999505743482",
+   "athlete_sub": "2410a7bf-ec13-4147-be40-1452ea8d8ab1",
+   "place": 5,
+   "place_to": null,
+   "field_size": 44,
+   "score": 68.6,
+   "role": "participant",
+   "team": {
+    "id": "fbc77393-84c2-58ff-8c5b-b0a8f35926e1",
+    "name": "Ленивый деплой",
+    "members": [
+     {
+      "athlete_sub": "e65bd5c9-0706-4a71-856d-9bd674538001",
+      "role": "captain",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "2410a7bf-ec13-4147-be40-1452ea8d8ab1",
+      "role": "participant",
+      "team_function": "pm"
+     },
+     {
+      "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+      "role": "participant",
+      "team_function": "backend"
+     }
+    ]
+   },
+   "team_function": "pm",
+   "status": "confirmed"
+  },
+  {
+   "id": "d173ec85-82de-51d7-8858-b16f1699310d",
+   "ekp": "2026999505743482",
+   "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+   "place": 5,
+   "place_to": null,
+   "field_size": 44,
+   "score": 68.6,
+   "role": "participant",
+   "team": {
+    "id": "fbc77393-84c2-58ff-8c5b-b0a8f35926e1",
+    "name": "Ленивый деплой",
+    "members": [
+     {
+      "athlete_sub": "e65bd5c9-0706-4a71-856d-9bd674538001",
+      "role": "captain",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "2410a7bf-ec13-4147-be40-1452ea8d8ab1",
+      "role": "participant",
+      "team_function": "pm"
+     },
+     {
+      "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+      "role": "participant",
+      "team_function": "backend"
+     }
+    ]
+   },
+   "team_function": "backend",
+   "status": "confirmed"
+  },
+  {
+   "id": "512cafdb-d0d8-5099-8311-67bf84ac5431",
+   "ekp": "2026999505743482",
+   "athlete_sub": "e65bd5c9-0706-4a71-856d-9bd674538001",
+   "place": 5,
+   "place_to": null,
+   "field_size": 44,
+   "score": 68.6,
+   "role": "captain",
+   "team": {
+    "id": "fbc77393-84c2-58ff-8c5b-b0a8f35926e1",
+    "name": "Ленивый деплой",
+    "members": [
+     {
+      "athlete_sub": "e65bd5c9-0706-4a71-856d-9bd674538001",
+      "role": "captain",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "2410a7bf-ec13-4147-be40-1452ea8d8ab1",
+      "role": "participant",
+      "team_function": "pm"
+     },
+     {
+      "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+      "role": "participant",
+      "team_function": "backend"
+     }
+    ]
+   },
+   "team_function": "frontend",
+   "status": "confirmed"
+  },
+  {
+   "id": "d7b97c4b-a6d2-5415-9281-08e46ac8c6f0",
+   "ekp": "2026990559005681",
+   "athlete_sub": "430dc269-a610-4b7f-89a0-f8be9111e874",
+   "place": 8,
+   "place_to": null,
+   "field_size": 81,
+   "score": 3432.4,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "45b59b8f-589f-53d4-88e9-f4a3da49a7d3",
+   "ekp": "2026990559005681",
+   "athlete_sub": "611ad871-6993-4e3f-81e6-04d818adb703",
+   "place": 12,
+   "place_to": null,
+   "field_size": 81,
+   "score": 3118.9,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "79dd1fa0-dd2f-5b9a-bf31-48c988f1957a",
+   "ekp": "2026990793583695",
+   "athlete_sub": "d98cba91-ae78-4d5a-bfb0-130ca2c6b02f",
+   "place": 1,
+   "place_to": null,
+   "field_size": 72,
+   "score": 12.0,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "3ba20fe4-c0fe-5d57-8c01-02537740f35a",
+   "ekp": "2026990793583695",
+   "athlete_sub": "492f2405-fe61-4c3b-93a8-a964cfc6d20a",
+   "place": 4,
+   "place_to": null,
+   "field_size": 72,
+   "score": 9.0,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "cb7564b5-c156-536b-8816-921fcef4f2da",
+   "ekp": "2026990793583695",
+   "athlete_sub": "8b56020c-ba6f-4c6d-a230-d03ec06c4ba0",
+   "place": 5,
+   "place_to": null,
+   "field_size": 72,
+   "score": 9.0,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "621b85d6-df20-5f0f-9547-a196f102d907",
+   "ekp": "2026990793583695",
+   "athlete_sub": "d8a63131-49c6-4f92-93ae-503e55ca2c7e",
+   "place": 6,
+   "place_to": null,
+   "field_size": 72,
+   "score": 8.0,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "e3df3211-0ba3-5262-af92-e82c2106e03f",
+   "ekp": "2026990793583695",
+   "athlete_sub": "2596be67-143b-487d-8c40-a323a9069ca0",
+   "place": 19,
+   "place_to": null,
+   "field_size": 72,
+   "score": 6.0,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "6ec3c9c8-ff7e-5a25-ae0d-bfd1f82944c3",
+   "ekp": "2026990793583695",
+   "athlete_sub": "800a9cc8-5bcb-4dac-9828-accc71a830e4",
+   "place": 20,
+   "place_to": null,
+   "field_size": 72,
+   "score": 6.0,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "c7bf0648-09ed-5261-9afc-484a007e3084",
+   "ekp": "2026990793583695",
+   "athlete_sub": "558049ad-81ca-47af-8c85-46fc4c6909db",
+   "place": 22,
+   "place_to": null,
+   "field_size": 72,
+   "score": 6.0,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "a36d1c86-7d17-5c83-a0a1-e7bf73c6414a",
+   "ekp": "2026992410438575",
+   "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+   "place": 3,
+   "place_to": null,
+   "field_size": 28,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "df68c18f-d328-5c20-8e78-2951bd5ee533",
+    "name": "Тихий сокет",
+    "members": [
+     {
+      "athlete_sub": "2917df3e-b0d5-4ffa-a08a-1429f7f5f98f",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "430dc269-a610-4b7f-89a0-f8be9111e874",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "611ad871-6993-4e3f-81e6-04d818adb703",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "a39d1884-8147-4e77-a104-fd8a04184bd4",
+      "role": "reserve",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "f4361f8e-cc3c-5030-9410-f001aa9ee185",
+   "ekp": "2026992410438575",
+   "athlete_sub": "2917df3e-b0d5-4ffa-a08a-1429f7f5f98f",
+   "place": 3,
+   "place_to": null,
+   "field_size": 28,
+   "score": null,
+   "role": "captain",
+   "team": {
+    "id": "df68c18f-d328-5c20-8e78-2951bd5ee533",
+    "name": "Тихий сокет",
+    "members": [
+     {
+      "athlete_sub": "2917df3e-b0d5-4ffa-a08a-1429f7f5f98f",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "430dc269-a610-4b7f-89a0-f8be9111e874",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "611ad871-6993-4e3f-81e6-04d818adb703",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "a39d1884-8147-4e77-a104-fd8a04184bd4",
+      "role": "reserve",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "9ca95dec-6801-5a53-bc37-7bf8a1260378",
+   "ekp": "2026992410438575",
+   "athlete_sub": "430dc269-a610-4b7f-89a0-f8be9111e874",
+   "place": 3,
+   "place_to": null,
+   "field_size": 28,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "df68c18f-d328-5c20-8e78-2951bd5ee533",
+    "name": "Тихий сокет",
+    "members": [
+     {
+      "athlete_sub": "2917df3e-b0d5-4ffa-a08a-1429f7f5f98f",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "430dc269-a610-4b7f-89a0-f8be9111e874",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "611ad871-6993-4e3f-81e6-04d818adb703",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "a39d1884-8147-4e77-a104-fd8a04184bd4",
+      "role": "reserve",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "96348a72-5b4d-5421-a296-cc7b6b3c5d9f",
+   "ekp": "2026992410438575",
+   "athlete_sub": "611ad871-6993-4e3f-81e6-04d818adb703",
+   "place": 3,
+   "place_to": null,
+   "field_size": 28,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "df68c18f-d328-5c20-8e78-2951bd5ee533",
+    "name": "Тихий сокет",
+    "members": [
+     {
+      "athlete_sub": "2917df3e-b0d5-4ffa-a08a-1429f7f5f98f",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "430dc269-a610-4b7f-89a0-f8be9111e874",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "611ad871-6993-4e3f-81e6-04d818adb703",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "a39d1884-8147-4e77-a104-fd8a04184bd4",
+      "role": "reserve",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "b814c1f3-0466-53f2-a7e5-88059b158af9",
+   "ekp": "2026992410438575",
+   "athlete_sub": "a39d1884-8147-4e77-a104-fd8a04184bd4",
+   "place": 3,
+   "place_to": null,
+   "field_size": 28,
+   "score": null,
+   "role": "reserve",
+   "team": {
+    "id": "df68c18f-d328-5c20-8e78-2951bd5ee533",
+    "name": "Тихий сокет",
+    "members": [
+     {
+      "athlete_sub": "2917df3e-b0d5-4ffa-a08a-1429f7f5f98f",
+      "role": "captain",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "430dc269-a610-4b7f-89a0-f8be9111e874",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "611ad871-6993-4e3f-81e6-04d818adb703",
+      "role": "participant",
+      "team_function": null
+     },
+     {
+      "athlete_sub": "a39d1884-8147-4e77-a104-fd8a04184bd4",
+      "role": "reserve",
+      "team_function": null
+     }
+    ]
+   },
+   "team_function": null,
+   "status": "confirmed"
+  },
+  {
+   "id": "e6900fd2-cdc5-5c1e-a8a0-a3e6c09da17a",
+   "ekp": "2026993318852919",
+   "athlete_sub": "1736aba3-7015-4392-89ba-6dee9c2f2dab",
+   "place": 31,
+   "place_to": null,
+   "field_size": 235,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "789924d5-f2d8-5b60-9328-c663d06b5f2c",
+    "name": "Чистый граф",
+    "members": [
+     {
+      "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+      "role": "captain",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "492f2405-fe61-4c3b-93a8-a964cfc6d20a",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "1736aba3-7015-4392-89ba-6dee9c2f2dab",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "43d2def2-48bb-4deb-ba70-5ffa4d4f7369",
+      "role": "participant",
+      "team_function": "backend"
+     }
+    ]
+   },
+   "team_function": "backend",
+   "status": "confirmed"
+  },
+  {
+   "id": "a6962d72-5546-579c-a248-8ca326a6bc1a",
+   "ekp": "2026993318852919",
+   "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+   "place": 31,
+   "place_to": null,
+   "field_size": 235,
+   "score": null,
+   "role": "captain",
+   "team": {
+    "id": "789924d5-f2d8-5b60-9328-c663d06b5f2c",
+    "name": "Чистый граф",
+    "members": [
+     {
+      "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+      "role": "captain",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "492f2405-fe61-4c3b-93a8-a964cfc6d20a",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "1736aba3-7015-4392-89ba-6dee9c2f2dab",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "43d2def2-48bb-4deb-ba70-5ffa4d4f7369",
+      "role": "participant",
+      "team_function": "backend"
+     }
+    ]
+   },
+   "team_function": "backend",
+   "status": "confirmed"
+  },
+  {
+   "id": "d0dfaf03-4f82-58a5-b684-0a929015e0e2",
+   "ekp": "2026993318852919",
+   "athlete_sub": "43d2def2-48bb-4deb-ba70-5ffa4d4f7369",
+   "place": 31,
+   "place_to": null,
+   "field_size": 235,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "789924d5-f2d8-5b60-9328-c663d06b5f2c",
+    "name": "Чистый граф",
+    "members": [
+     {
+      "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+      "role": "captain",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "492f2405-fe61-4c3b-93a8-a964cfc6d20a",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "1736aba3-7015-4392-89ba-6dee9c2f2dab",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "43d2def2-48bb-4deb-ba70-5ffa4d4f7369",
+      "role": "participant",
+      "team_function": "backend"
+     }
+    ]
+   },
+   "team_function": "backend",
+   "status": "confirmed"
+  },
+  {
+   "id": "b00f65de-4001-55de-baf8-f81e1c61e806",
+   "ekp": "2026993318852919",
+   "athlete_sub": "492f2405-fe61-4c3b-93a8-a964cfc6d20a",
+   "place": 31,
+   "place_to": null,
+   "field_size": 235,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "789924d5-f2d8-5b60-9328-c663d06b5f2c",
+    "name": "Чистый граф",
+    "members": [
+     {
+      "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+      "role": "captain",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "492f2405-fe61-4c3b-93a8-a964cfc6d20a",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "1736aba3-7015-4392-89ba-6dee9c2f2dab",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "43d2def2-48bb-4deb-ba70-5ffa4d4f7369",
+      "role": "participant",
+      "team_function": "backend"
+     }
+    ]
+   },
+   "team_function": "backend",
+   "status": "confirmed"
+  },
+  {
+   "id": "7bad5bc2-7e68-5f4d-8e9e-7403afb06587",
+   "ekp": "2026993318852919",
+   "athlete_sub": "430dc269-a610-4b7f-89a0-f8be9111e874",
+   "place": 44,
+   "place_to": null,
+   "field_size": 235,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "3389d03d-0bc7-59a8-a019-f1d81f8defe4",
+    "name": "Северный указатель",
+    "members": [
+     {
+      "athlete_sub": "54e32dfe-4b66-45d4-b002-e451dbddbf71",
+      "role": "captain",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "430dc269-a610-4b7f-89a0-f8be9111e874",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "5a0b204f-e2b0-4503-a624-984ce8c4fbb0",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "54ac9bcc-d3ac-4244-a71b-656ddbaa7a8f",
+      "role": "participant",
+      "team_function": "frontend"
+     }
+    ]
+   },
+   "team_function": "backend",
+   "status": "confirmed"
+  },
+  {
+   "id": "13732e8e-a0c9-5125-8323-f3b0a2c5e5cb",
+   "ekp": "2026993318852919",
+   "athlete_sub": "54ac9bcc-d3ac-4244-a71b-656ddbaa7a8f",
+   "place": 44,
+   "place_to": null,
+   "field_size": 235,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "3389d03d-0bc7-59a8-a019-f1d81f8defe4",
+    "name": "Северный указатель",
+    "members": [
+     {
+      "athlete_sub": "54e32dfe-4b66-45d4-b002-e451dbddbf71",
+      "role": "captain",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "430dc269-a610-4b7f-89a0-f8be9111e874",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "5a0b204f-e2b0-4503-a624-984ce8c4fbb0",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "54ac9bcc-d3ac-4244-a71b-656ddbaa7a8f",
+      "role": "participant",
+      "team_function": "frontend"
+     }
+    ]
+   },
+   "team_function": "frontend",
+   "status": "confirmed"
+  },
+  {
+   "id": "bde3d3e5-ff04-5f63-94fa-85ba2c4c3a40",
+   "ekp": "2026993318852919",
+   "athlete_sub": "54e32dfe-4b66-45d4-b002-e451dbddbf71",
+   "place": 44,
+   "place_to": null,
+   "field_size": 235,
+   "score": null,
+   "role": "captain",
+   "team": {
+    "id": "3389d03d-0bc7-59a8-a019-f1d81f8defe4",
+    "name": "Северный указатель",
+    "members": [
+     {
+      "athlete_sub": "54e32dfe-4b66-45d4-b002-e451dbddbf71",
+      "role": "captain",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "430dc269-a610-4b7f-89a0-f8be9111e874",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "5a0b204f-e2b0-4503-a624-984ce8c4fbb0",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "54ac9bcc-d3ac-4244-a71b-656ddbaa7a8f",
+      "role": "participant",
+      "team_function": "frontend"
+     }
+    ]
+   },
+   "team_function": "frontend",
+   "status": "confirmed"
+  },
+  {
+   "id": "058010c1-4dd6-55c5-bc43-5e06ee117b7e",
+   "ekp": "2026993318852919",
+   "athlete_sub": "5a0b204f-e2b0-4503-a624-984ce8c4fbb0",
+   "place": 44,
+   "place_to": null,
+   "field_size": 235,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "3389d03d-0bc7-59a8-a019-f1d81f8defe4",
+    "name": "Северный указатель",
+    "members": [
+     {
+      "athlete_sub": "54e32dfe-4b66-45d4-b002-e451dbddbf71",
+      "role": "captain",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "430dc269-a610-4b7f-89a0-f8be9111e874",
+      "role": "participant",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "5a0b204f-e2b0-4503-a624-984ce8c4fbb0",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "54ac9bcc-d3ac-4244-a71b-656ddbaa7a8f",
+      "role": "participant",
+      "team_function": "frontend"
+     }
+    ]
+   },
+   "team_function": "frontend",
+   "status": "confirmed"
+  },
+  {
+   "id": "56c46a79-8da3-57bc-8ee8-00b56fd145d7",
+   "ekp": "2026993318852919",
+   "athlete_sub": "562fb333-ea35-48b4-b157-96542b932cd4",
+   "place": 84,
+   "place_to": null,
+   "field_size": 235,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "ff3efbd4-f253-5528-a670-21954cbabf4e",
+    "name": "Тихий указатель",
+    "members": [
+     {
+      "athlete_sub": "a39d1884-8147-4e77-a104-fd8a04184bd4",
+      "role": "captain",
+      "team_function": "ml"
+     },
+     {
+      "athlete_sub": "562fb333-ea35-48b4-b157-96542b932cd4",
+      "role": "participant",
+      "team_function": "ml"
+     },
+     {
+      "athlete_sub": "8c2bb7b8-7eea-4a32-8cf3-414a368dbfe8",
+      "role": "participant",
+      "team_function": "frontend"
+     }
+    ]
+   },
+   "team_function": "ml",
+   "status": "confirmed"
+  },
+  {
+   "id": "56cbc74e-ead2-5e87-ad9b-24c944e34d11",
+   "ekp": "2026993318852919",
+   "athlete_sub": "8c2bb7b8-7eea-4a32-8cf3-414a368dbfe8",
+   "place": 84,
+   "place_to": null,
+   "field_size": 235,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "ff3efbd4-f253-5528-a670-21954cbabf4e",
+    "name": "Тихий указатель",
+    "members": [
+     {
+      "athlete_sub": "a39d1884-8147-4e77-a104-fd8a04184bd4",
+      "role": "captain",
+      "team_function": "ml"
+     },
+     {
+      "athlete_sub": "562fb333-ea35-48b4-b157-96542b932cd4",
+      "role": "participant",
+      "team_function": "ml"
+     },
+     {
+      "athlete_sub": "8c2bb7b8-7eea-4a32-8cf3-414a368dbfe8",
+      "role": "participant",
+      "team_function": "frontend"
+     }
+    ]
+   },
+   "team_function": "frontend",
+   "status": "confirmed"
+  },
+  {
+   "id": "c4892368-0b8c-57c2-8680-d25f7d93b838",
+   "ekp": "2026993318852919",
+   "athlete_sub": "a39d1884-8147-4e77-a104-fd8a04184bd4",
+   "place": 84,
+   "place_to": null,
+   "field_size": 235,
+   "score": null,
+   "role": "captain",
+   "team": {
+    "id": "ff3efbd4-f253-5528-a670-21954cbabf4e",
+    "name": "Тихий указатель",
+    "members": [
+     {
+      "athlete_sub": "a39d1884-8147-4e77-a104-fd8a04184bd4",
+      "role": "captain",
+      "team_function": "ml"
+     },
+     {
+      "athlete_sub": "562fb333-ea35-48b4-b157-96542b932cd4",
+      "role": "participant",
+      "team_function": "ml"
+     },
+     {
+      "athlete_sub": "8c2bb7b8-7eea-4a32-8cf3-414a368dbfe8",
+      "role": "participant",
+      "team_function": "frontend"
+     }
+    ]
+   },
+   "team_function": "ml",
+   "status": "confirmed"
+  },
+  {
+   "id": "34bcc0c6-4b06-5b84-b9c0-a1a99b6e8cb3",
+   "ekp": "2026990145495845",
+   "athlete_sub": "0473a37f-91fd-4447-9360-f35c2e0260db",
+   "place": 8,
+   "place_to": null,
+   "field_size": 147,
+   "score": null,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "awaiting_protocol"
+  },
+  {
+   "id": "af48046f-09d1-5fc1-891c-dcb242cdb620",
+   "ekp": "2026990145495845",
+   "athlete_sub": "e0ca0b59-2788-4ebc-b6d5-4f2607c2006b",
+   "place": 13,
+   "place_to": null,
+   "field_size": 147,
+   "score": null,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "awaiting_protocol"
+  },
+  {
+   "id": "b32756cb-f430-506a-914c-590b5378ca4d",
+   "ekp": "2026990145495845",
+   "athlete_sub": "72e54fca-351b-4127-98ac-faacc93bcf6a",
+   "place": 14,
+   "place_to": null,
+   "field_size": 147,
+   "score": null,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "awaiting_protocol"
+  },
+  {
+   "id": "d79ee393-743d-5528-99f4-e65be0bf8e42",
+   "ekp": "2026990145495845",
+   "athlete_sub": "34a8406c-f18f-49ef-8769-a34a4161e778",
+   "place": 31,
+   "place_to": null,
+   "field_size": 147,
+   "score": null,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "awaiting_protocol"
+  },
+  {
+   "id": "9aedd498-0c02-5612-a836-c2b3bfb86c81",
+   "ekp": "2026990145495845",
+   "athlete_sub": "ae07ea10-bbb2-416b-869d-660b65b0b4c8",
+   "place": 43,
+   "place_to": null,
+   "field_size": 147,
+   "score": null,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "awaiting_protocol"
+  },
+  {
+   "id": "b8922e70-61b7-5742-a746-9cfe67f8dc8e",
+   "ekp": "2026990145495845",
+   "athlete_sub": "0f5709db-754b-4395-80fc-5ee59460114c",
+   "place": 60,
+   "place_to": null,
+   "field_size": 147,
+   "score": null,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "awaiting_protocol"
+  },
+  {
+   "id": "211adcd3-9a8d-558f-bcf0-f58349dbce0d",
+   "ekp": "2026990145495845",
+   "athlete_sub": "d7c74f05-b012-4372-ad80-f04215f0f7d6",
+   "place": 95,
+   "place_to": null,
+   "field_size": 147,
+   "score": null,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "awaiting_protocol"
+  },
+  {
+   "id": "48dffbca-9d10-5df4-8230-2276091428de",
+   "ekp": "2026992584414917",
+   "athlete_sub": "15905393-2faf-4a7c-97f9-9fe03eab3873",
+   "place": 6,
+   "place_to": null,
+   "field_size": 39,
+   "score": null,
+   "role": "captain",
+   "team": {
+    "id": "a2291db9-c139-5469-86d5-dfde4dc57357",
+    "name": "Асинхронный поток",
+    "members": [
+     {
+      "athlete_sub": "15905393-2faf-4a7c-97f9-9fe03eab3873",
+      "role": "captain",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "e65bd5c9-0706-4a71-856d-9bd674538001",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "ced232ac-5bea-42b9-81bf-2756c325b433",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "f65bb71f-8ac3-4af0-8ead-29daf95d439a",
+      "role": "participant",
+      "team_function": "ml"
+     }
+    ]
+   },
+   "team_function": "backend",
+   "status": "awaiting_protocol"
+  },
+  {
+   "id": "8deab83a-221d-5951-92d4-5504f9c30bb3",
+   "ekp": "2026992584414917",
+   "athlete_sub": "ced232ac-5bea-42b9-81bf-2756c325b433",
+   "place": 6,
+   "place_to": null,
+   "field_size": 39,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "a2291db9-c139-5469-86d5-dfde4dc57357",
+    "name": "Асинхронный поток",
+    "members": [
+     {
+      "athlete_sub": "15905393-2faf-4a7c-97f9-9fe03eab3873",
+      "role": "captain",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "e65bd5c9-0706-4a71-856d-9bd674538001",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "ced232ac-5bea-42b9-81bf-2756c325b433",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "f65bb71f-8ac3-4af0-8ead-29daf95d439a",
+      "role": "participant",
+      "team_function": "ml"
+     }
+    ]
+   },
+   "team_function": "frontend",
+   "status": "awaiting_protocol"
+  },
+  {
+   "id": "3199204a-290f-5562-997b-e10b95916338",
+   "ekp": "2026992584414917",
+   "athlete_sub": "e65bd5c9-0706-4a71-856d-9bd674538001",
+   "place": 6,
+   "place_to": null,
+   "field_size": 39,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "a2291db9-c139-5469-86d5-dfde4dc57357",
+    "name": "Асинхронный поток",
+    "members": [
+     {
+      "athlete_sub": "15905393-2faf-4a7c-97f9-9fe03eab3873",
+      "role": "captain",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "e65bd5c9-0706-4a71-856d-9bd674538001",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "ced232ac-5bea-42b9-81bf-2756c325b433",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "f65bb71f-8ac3-4af0-8ead-29daf95d439a",
+      "role": "participant",
+      "team_function": "ml"
+     }
+    ]
+   },
+   "team_function": "frontend",
+   "status": "awaiting_protocol"
+  },
+  {
+   "id": "70c1987a-2d75-553b-8052-116d8e310f03",
+   "ekp": "2026992584414917",
+   "athlete_sub": "f65bb71f-8ac3-4af0-8ead-29daf95d439a",
+   "place": 6,
+   "place_to": null,
+   "field_size": 39,
+   "score": null,
+   "role": "participant",
+   "team": {
+    "id": "a2291db9-c139-5469-86d5-dfde4dc57357",
+    "name": "Асинхронный поток",
+    "members": [
+     {
+      "athlete_sub": "15905393-2faf-4a7c-97f9-9fe03eab3873",
+      "role": "captain",
+      "team_function": "backend"
+     },
+     {
+      "athlete_sub": "e65bd5c9-0706-4a71-856d-9bd674538001",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "ced232ac-5bea-42b9-81bf-2756c325b433",
+      "role": "participant",
+      "team_function": "frontend"
+     },
+     {
+      "athlete_sub": "f65bb71f-8ac3-4af0-8ead-29daf95d439a",
+      "role": "participant",
+      "team_function": "ml"
+     }
+    ]
+   },
+   "team_function": "ml",
+   "status": "awaiting_protocol"
+  },
+  {
+   "id": "0260338d-b7d0-5c62-bd79-0d6f9a0314b5",
+   "ekp": "2026997119024819",
+   "athlete_sub": "430dc269-a610-4b7f-89a0-f8be9111e874",
+   "place": 2,
+   "place_to": null,
+   "field_size": 29,
+   "score": null,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "awaiting_protocol"
+  },
+  {
+   "id": "87fabd4a-ad03-5a01-bce3-15e23a142e4a",
+   "ekp": "2026997119024819",
+   "athlete_sub": "66083342-da42-4c50-8ced-3c931b345fd7",
+   "place": 17,
+   "place_to": null,
+   "field_size": 29,
+   "score": null,
+   "role": "personal",
+   "team": null,
+   "team_function": null,
+   "status": "awaiting_protocol"
+  }
+ ],
+ "ranks": [
+  {
+   "id": "18805615-fc55-5b48-b4e7-a9a952713f00",
+   "athlete_sub": "15905393-2faf-4a7c-97f9-9fe03eab3873",
+   "code": "MS",
+   "discipline_code": "1010021811Я",
+   "assigned_at": "2025-12-20",
+   "valid_until": null,
+   "order_no": "ДЕМО-2025-113",
+   "assigned_by": "Министерство спорта Российской Федерации",
+   "basis_ekp": "2025992399617295",
+   "status": "active"
+  },
+  {
+   "id": "efc2f2d5-bcd7-5a4a-a541-a87403fccf54",
+   "athlete_sub": "1736aba3-7015-4392-89ba-6dee9c2f2dab",
+   "code": "KMS",
+   "discipline_code": "1010021811Я",
+   "assigned_at": "2026-07-07",
+   "valid_until": "2029-07-07",
+   "order_no": "ДЕМО-2026-821",
+   "assigned_by": "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
+   "basis_ekp": "2026999505743482",
+   "status": "active"
+  },
+  {
+   "id": "08b47d75-67a3-5e8d-9df4-7bd88eae1df6",
+   "athlete_sub": "1c057d0c-2e28-4581-bab5-8a127e65356b",
+   "code": "KMS",
+   "discipline_code": "1010041811Я",
+   "assigned_at": "2026-01-26",
+   "valid_until": "2029-01-26",
+   "order_no": "ДЕМО-2026-343",
+   "assigned_by": "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
+   "basis_ekp": "2025999178465521",
+   "status": "active"
+  },
+  {
+   "id": "f0a7704a-0714-510b-9742-abfdeceb0b7f",
+   "athlete_sub": "23b6270e-fbd1-434e-b1f6-d5a9e86f07be",
+   "code": "II",
+   "discipline_code": "1010041811Я",
+   "assigned_at": "2025-02-28",
+   "valid_until": "2027-02-28",
+   "order_no": "ДЕМО-2025-541",
+   "assigned_by": "Орган местного самоуправления в области физической культуры и спорта",
+   "basis_ekp": "2024995691049610",
+   "status": "active"
+  },
+  {
+   "id": "50dfc6b8-5ffe-5052-bb7d-ebfff5f1b1ad",
+   "athlete_sub": "2410a7bf-ec13-4147-be40-1452ea8d8ab1",
+   "code": "I",
+   "discipline_code": "1010021811Я",
+   "assigned_at": "2026-08-16",
+   "valid_until": "2028-08-16",
+   "order_no": "ДЕМО-2026-119",
+   "assigned_by": "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
+   "basis_ekp": "2026999505743482",
+   "status": "active"
+  },
+  {
+   "id": "fc64adcb-eec5-5660-a9bf-d31baae09cef",
+   "athlete_sub": "28a30ef1-4919-4a1a-9923-b00f8ff7b37b",
+   "code": "KMS",
+   "discipline_code": "1010051811Я",
+   "assigned_at": "2026-07-14",
+   "valid_until": "2029-07-14",
+   "order_no": "ДЕМО-2026-271",
+   "assigned_by": "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
+   "basis_ekp": "2026992410438575",
+   "status": "active"
+  },
+  {
+   "id": "1b63da89-31c3-50c2-a6a7-dbf130be8c6b",
+   "athlete_sub": "2917df3e-b0d5-4ffa-a08a-1429f7f5f98f",
+   "code": "KMS",
+   "discipline_code": "1010051811Я",
+   "assigned_at": "2026-07-29",
+   "valid_until": "2029-07-29",
+   "order_no": "ДЕМО-2026-595",
+   "assigned_by": "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
+   "basis_ekp": "2026992410438575",
+   "status": "active"
+  },
+  {
+   "id": "f9c819ce-044d-5e37-b136-0dfea416fe92",
+   "athlete_sub": "34a8406c-f18f-49ef-8769-a34a4161e778",
+   "code": "I",
+   "discipline_code": "1010031811Я",
+   "assigned_at": "2025-12-19",
+   "valid_until": "2027-12-19",
+   "order_no": "ДЕМО-2025-454",
+   "assigned_by": "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
+   "basis_ekp": "2025994176126058",
+   "status": "active"
+  },
+  {
+   "id": "fd8aed92-44eb-5ded-982a-7d3573899ac0",
+   "athlete_sub": "3dbb5b20-977f-4cf4-bd90-e4642fc91981",
+   "code": "KMS",
+   "discipline_code": "1010041811Я",
+   "assigned_at": "2026-02-19",
+   "valid_until": "2029-02-19",
+   "order_no": "ДЕМО-2026-455",
+   "assigned_by": "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
+   "basis_ekp": "2025999178465521",
+   "status": "active"
+  },
+  {
+   "id": "8c99f2a8-f6b8-50ad-ba29-22c88308a639",
+   "athlete_sub": "430dc269-a610-4b7f-89a0-f8be9111e874",
+   "code": "I",
+   "discipline_code": "1010051811Я",
+   "assigned_at": "2026-07-16",
+   "valid_until": "2028-07-16",
+   "order_no": "ДЕМО-2026-746",
+   "assigned_by": "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
+   "basis_ekp": "2026990559005681",
+   "status": "active"
+  },
+  {
+   "id": "aa56b2a1-d3bb-52e8-8160-c7b7575ff97c",
+   "athlete_sub": "43d2def2-48bb-4deb-ba70-5ffa4d4f7369",
+   "code": "I",
+   "discipline_code": "1010021811Я",
+   "assigned_at": "2022-02-10",
+   "valid_until": "2024-02-10",
+   "order_no": "ДЕМО-2022-107",
+   "assigned_by": "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
+   "basis_ekp": null,
+   "status": "expired"
+  },
+  {
+   "id": "a82e241c-f567-5462-a728-bae05af220f6",
+   "athlete_sub": "492f2405-fe61-4c3b-93a8-a964cfc6d20a",
+   "code": "MS",
+   "discipline_code": "1010021811Я",
+   "assigned_at": "2025-11-27",
+   "valid_until": null,
+   "order_no": "ДЕМО-2025-628",
+   "assigned_by": "Министерство спорта Российской Федерации",
+   "basis_ekp": "2025992399617295",
+   "status": "active"
+  },
+  {
+   "id": "9f26f6b2-f3fd-51ea-853c-effdf543e2ee",
+   "athlete_sub": "54ac9bcc-d3ac-4244-a71b-656ddbaa7a8f",
+   "code": "MS",
+   "discipline_code": "1010021811Я",
+   "assigned_at": "2026-01-18",
+   "valid_until": null,
+   "order_no": "ДЕМО-2026-488",
+   "assigned_by": "Министерство спорта Российской Федерации",
+   "basis_ekp": "2025992399617295",
+   "status": "active"
+  },
+  {
+   "id": "25c636db-0bb2-5d0d-8966-3d374ced5c87",
+   "athlete_sub": "54e32dfe-4b66-45d4-b002-e451dbddbf71",
+   "code": "II",
+   "discipline_code": "1010021811Я",
+   "assigned_at": "2025-06-11",
+   "valid_until": "2027-06-11",
+   "order_no": "ДЕМО-2025-925",
+   "assigned_by": "Орган местного самоуправления в области физической культуры и спорта",
+   "basis_ekp": "2025990798334828",
+   "status": "active"
+  },
+  {
+   "id": "3072bb61-45ff-5f67-a666-56d21b591ed5",
+   "athlete_sub": "558049ad-81ca-47af-8c85-46fc4c6909db",
+   "code": "KMS",
+   "discipline_code": "1010011811Я",
+   "assigned_at": "2026-03-09",
+   "valid_until": "2029-03-09",
+   "order_no": "ДЕМО-2026-568",
+   "assigned_by": "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
+   "basis_ekp": "2025995522350961",
+   "status": "active"
+  },
+  {
+   "id": "7fdc41a7-d8cb-57c1-bde4-47d3831a1e2e",
+   "athlete_sub": "5a0b204f-e2b0-4503-a624-984ce8c4fbb0",
+   "code": "MS",
+   "discipline_code": "1010021811Я",
+   "assigned_at": "2026-01-25",
+   "valid_until": null,
+   "order_no": "ДЕМО-2026-650",
+   "assigned_by": "Министерство спорта Российской Федерации",
+   "basis_ekp": "2025992399617295",
+   "status": "active"
+  },
+  {
+   "id": "1b84ec0a-e860-52cc-a390-d47f368d8652",
+   "athlete_sub": "5bdaeee2-40b8-442e-b1c0-b235cd4093f3",
+   "code": "KMS",
+   "discipline_code": "1010041811Я",
+   "assigned_at": "2026-03-27",
+   "valid_until": "2029-03-27",
+   "order_no": "ДЕМО-2026-749",
+   "assigned_by": "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
+   "basis_ekp": "2025999178465521",
+   "status": "active"
+  },
+  {
+   "id": "b90a88ca-cc4b-5535-a16f-f3e4844b2c3a",
+   "athlete_sub": "5fcd093e-0d52-4f3b-8bc9-29fa2780a577",
+   "code": "I",
+   "discipline_code": "1010021811Я",
+   "assigned_at": "2026-01-31",
+   "valid_until": "2028-01-31",
+   "order_no": "ДЕМО-2026-773",
+   "assigned_by": "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
+   "basis_ekp": "2025992399617295",
+   "status": "active"
+  },
+  {
+   "id": "9c883dd2-a1cb-529c-891c-5fbc835f4c2f",
+   "athlete_sub": "611ad871-6993-4e3f-81e6-04d818adb703",
+   "code": "KMS",
+   "discipline_code": "1010051811Я",
+   "assigned_at": "2026-07-30",
+   "valid_until": "2029-07-30",
+   "order_no": "ДЕМО-2026-719",
+   "assigned_by": "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
+   "basis_ekp": "2026992410438575",
+   "status": "active"
+  },
+  {
+   "id": "5585b1f1-3aba-5831-b40b-3c785974f070",
+   "athlete_sub": "72e54fca-351b-4127-98ac-faacc93bcf6a",
+   "code": "MS",
+   "discipline_code": "1010031811Я",
+   "assigned_at": "2025-12-17",
+   "valid_until": null,
+   "order_no": "ДЕМО-2025-809",
+   "assigned_by": "Министерство спорта Российской Федерации",
+   "basis_ekp": "2025994176126058",
+   "status": "active"
+  },
+  {
+   "id": "0c6af421-4050-5745-8a31-d478e45deabb",
+   "athlete_sub": "800a9cc8-5bcb-4dac-9828-accc71a830e4",
+   "code": "I",
+   "discipline_code": "1010041811Я",
+   "assigned_at": "2026-03-30",
+   "valid_until": "2028-03-30",
+   "order_no": "ДЕМО-2026-881",
+   "assigned_by": "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
+   "basis_ekp": "2025999178465521",
+   "status": "active"
+  },
+  {
+   "id": "bd0fe30f-f386-56d9-beb6-4d22420b240d",
+   "athlete_sub": "8b56020c-ba6f-4c6d-a230-d03ec06c4ba0",
+   "code": "I",
+   "discipline_code": "1010011811Я",
+   "assigned_at": "2026-08-27",
+   "valid_until": "2028-08-27",
+   "order_no": "ДЕМО-2026-574",
+   "assigned_by": "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
+   "basis_ekp": "2026990793583695",
+   "status": "active"
+  },
+  {
+   "id": "f7437362-3121-5706-afae-02eb83e3ebbc",
+   "athlete_sub": "95f03760-d06c-4dbf-9567-606f6a0abcf4",
+   "code": "KMS",
+   "discipline_code": "1010041811Я",
+   "assigned_at": "2026-03-26",
+   "valid_until": "2029-03-26",
+   "order_no": "ДЕМО-2026-484",
+   "assigned_by": "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
+   "basis_ekp": "2025999178465521",
+   "status": "active"
+  },
+  {
+   "id": "1f287522-0398-5cf8-8402-c748673689d3",
+   "athlete_sub": "990dfcc5-287b-4c20-8221-a826e184799a",
+   "code": "KMS",
+   "discipline_code": "1010041811Я",
+   "assigned_at": "2026-02-24",
+   "valid_until": "2029-02-24",
+   "order_no": "ДЕМО-2026-981",
+   "assigned_by": "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
+   "basis_ekp": "2025999178465521",
+   "status": "active"
+  },
+  {
+   "id": "69df54cf-b3c1-5bab-8b5c-c929794131e7",
+   "athlete_sub": "a39d1884-8147-4e77-a104-fd8a04184bd4",
+   "code": "KMS",
+   "discipline_code": "1010051811Я",
+   "assigned_at": "2026-09-23",
+   "valid_until": "2029-09-23",
+   "order_no": "ДЕМО-2026-106",
+   "assigned_by": "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
+   "basis_ekp": "2026992410438575",
+   "status": "active"
+  },
+  {
+   "id": "e647f3dc-cdb7-5155-829c-e00eeb081211",
+   "athlete_sub": "b05a3443-6e8e-4cba-9efb-383bfcb06b04",
+   "code": "KMS",
+   "discipline_code": "1010041811Я",
+   "assigned_at": "2026-04-04",
+   "valid_until": "2029-04-04",
+   "order_no": "ДЕМО-2026-505",
+   "assigned_by": "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
+   "basis_ekp": "2025999178465521",
+   "status": "active"
+  },
+  {
+   "id": "f40837de-bbe1-5eb4-909c-4d9a736b2696",
+   "athlete_sub": "c3323cfc-bcfe-42ab-a237-3dc7ee0a9b36",
+   "code": "KMS",
+   "discipline_code": "1010011811Я",
+   "assigned_at": "2025-03-14",
+   "valid_until": "2028-03-14",
+   "order_no": "ДЕМО-2025-429",
+   "assigned_by": "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
+   "basis_ekp": null,
+   "status": "active"
+  },
+  {
+   "id": "1a0b4793-fc50-5db4-a2d9-cc5b9f004ba8",
+   "athlete_sub": "c65e176b-ba86-4203-a194-bf6ce57859cf",
+   "code": "I",
+   "discipline_code": "1010051811Я",
+   "assigned_at": "2025-06-02",
+   "valid_until": "2027-06-02",
+   "order_no": "ДЕМО-2025-659",
+   "assigned_by": "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
+   "basis_ekp": null,
+   "status": "active"
+  },
+  {
+   "id": "2e10258c-8610-54d5-8ef1-f469a0939ca4",
+   "athlete_sub": "d8a63131-49c6-4f92-93ae-503e55ca2c7e",
+   "code": "I",
+   "discipline_code": "1010011811Я",
+   "assigned_at": "2026-08-15",
+   "valid_until": "2028-08-15",
+   "order_no": "ДЕМО-2026-583",
+   "assigned_by": "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
+   "basis_ekp": "2026990793583695",
+   "status": "active"
+  },
+  {
+   "id": "902c60d5-0813-5e10-a532-57cafd8da5b2",
+   "athlete_sub": "d98cba91-ae78-4d5a-bfb0-130ca2c6b02f",
+   "code": "KMS",
+   "discipline_code": "1010011811Я",
+   "assigned_at": "2026-09-04",
+   "valid_until": "2029-09-04",
+   "order_no": "ДЕМО-2026-342",
+   "assigned_by": "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
+   "basis_ekp": "2026990793583695",
+   "status": "active"
+  },
+  {
+   "id": "30dd2240-f44f-586a-868d-3610b353af84",
+   "athlete_sub": "e0ca0b59-2788-4ebc-b6d5-4f2607c2006b",
+   "code": "I",
+   "discipline_code": "1010031811Я",
+   "assigned_at": "2025-11-06",
+   "valid_until": "2027-11-06",
+   "order_no": "ДЕМО-2025-977",
+   "assigned_by": "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
+   "basis_ekp": "2025994176126058",
+   "status": "active"
+  },
+  {
+   "id": "5b85339c-0f2f-58fa-9c83-de7d02c264f9",
+   "athlete_sub": "e65bd5c9-0706-4a71-856d-9bd674538001",
+   "code": "I",
+   "discipline_code": "1010021811Я",
+   "assigned_at": "2026-07-02",
+   "valid_until": "2028-07-02",
+   "order_no": "ДЕМО-2026-953",
+   "assigned_by": "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
+   "basis_ekp": "2026999505743482",
+   "status": "active"
+  },
+  {
+   "id": "d13a398b-dd70-54ba-8d9d-3cbf77c0e369",
+   "athlete_sub": "edb78aac-1c65-43fc-b29f-44243b0bd547",
+   "code": "KMS",
+   "discipline_code": "1010051811Я",
+   "assigned_at": "2026-02-16",
+   "valid_until": "2029-02-16",
+   "order_no": "ДЕМО-2026-858",
+   "assigned_by": "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
+   "basis_ekp": "2025999904555719",
+   "status": "active"
+  },
+  {
+   "id": "4f7d5e28-8b38-5d35-85c4-1cf0c2e1fa41",
+   "athlete_sub": "eeee6dce-b472-444b-8ff6-f4a60f297241",
+   "code": "I",
+   "discipline_code": "1010041811Я",
+   "assigned_at": "2026-06-09",
+   "valid_until": "2028-06-09",
+   "order_no": "ДЕМО-2026-696",
+   "assigned_by": "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
+   "basis_ekp": "2026992159901997",
+   "status": "active"
+  },
+  {
+   "id": "eb622618-8745-5e87-9142-c7271fdc7c30",
+   "athlete_sub": "f4d6d2fa-d4a5-4905-aea0-67421fae06d6",
+   "code": "II",
+   "discipline_code": "1010041811Я",
+   "assigned_at": "2025-01-25",
+   "valid_until": "2027-01-25",
+   "order_no": "ДЕМО-2025-674",
+   "assigned_by": "Орган местного самоуправления в области физической культуры и спорта",
+   "basis_ekp": "2024995691049610",
+   "status": "active"
+  },
+  {
+   "id": "5ba373ec-5f6c-5f0f-a72a-e9d2b92a69af",
+   "athlete_sub": "f65bb71f-8ac3-4af0-8ead-29daf95d439a",
+   "code": "KMS",
+   "discipline_code": "1010021811Я",
+   "assigned_at": "2026-06-03",
+   "valid_until": "2029-06-03",
+   "order_no": "ДЕМО-2026-899",
+   "assigned_by": "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
+   "basis_ekp": "2026999505743482",
+   "status": "active"
+  }
+ ],
+ "roles": [
+  {
+   "id": "8e1e28eb-db27-547c-9a66-4805095f4729",
+   "athlete_sub": "eeee6dce-b472-444b-8ff6-f4a60f297241",
+   "kind": "judge",
+   "position": "судья-эксперт",
+   "category": "1K",
+   "discipline_code": "1010021811Я",
+   "since": "2024-03-01"
+  },
+  {
+   "id": "b60f82c3-9fa4-566f-af5a-f272863671b9",
+   "athlete_sub": "2a5d3fd6-154e-41fb-b10d-f301bb9387bf",
+   "kind": "judge",
+   "position": "главный судья",
+   "category": "VK",
+   "discipline_code": "1010011811Я",
+   "since": "2023-09-15"
+  },
+  {
+   "id": "bdee0f43-5eca-5e99-9c22-aba8c56bd71e",
+   "athlete_sub": "8c2bb7b8-7eea-4a32-8cf3-414a368dbfe8",
+   "kind": "coach",
+   "position": "тренер",
+   "category": null,
+   "discipline_code": "1010041811Я",
+   "since": "2024-01-10"
+  },
+  {
+   "id": "a116f7bf-36da-54eb-bbc1-a68adc450e78",
+   "athlete_sub": "87648a7a-c05b-48fd-b515-c6d9db523c6b",
+   "kind": "coach",
+   "position": "тренер",
+   "category": null,
+   "discipline_code": "1010011811Я",
+   "since": "2022-09-01"
+  }
+ ]
+}

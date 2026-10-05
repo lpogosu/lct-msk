@@ -1,0 +1,669 @@
+{
+  "realm": "fsp",
+  "displayName": "ФСП ID (демо)",
+  "displayNameHtml": "<b>ФСП ID</b> · демо-стенд",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": false,
+  "editUsernameAllowed": false,
+  "rememberMe": false,
+  "bruteForceProtected": true,
+  "internationalizationEnabled": true,
+  "supportedLocales": [
+    "ru",
+    "en"
+  ],
+  "defaultLocale": "ru",
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "roles": {
+    "realm": [
+      {
+        "name": "athlete",
+        "description": "Спортсмен ФСП (демо)"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "vzaimno",
+      "name": "Взаимно — подбор ИТ-специалистов",
+      "description": "Платформа «Взаимно»: вход через ФСП ID и чтение реестра достижений",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "vzaimno-demo-secret",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "frontchannelLogout": true,
+      "consentRequired": false,
+      "fullScopeAllowed": true,
+      "rootUrl": "http://localhost:8000",
+      "baseUrl": "/",
+      "redirectUris": [
+        "http://localhost:8000/api/auth/fsp/callback",
+        "http://localhost:5173/auth/fsp/callback",
+        "https://${VZ_PUBLIC_DOMAIN:vzaimno.example}/api/auth/fsp/callback",
+        "https://${VZ_PUBLIC_DOMAIN:vzaimno.example}/auth/fsp/callback"
+      ],
+      "webOrigins": [
+        "+"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:8000/*##http://localhost:5173/*##https://${VZ_PUBLIC_DOMAIN:vzaimno.example}/*",
+        "oauth2.device.authorization.grant.enabled": "false",
+        "backchannel.logout.session.required": "true"
+      }
+    }
+  ],
+  "users": [
+    {
+      "id": "54ac9bcc-d3ac-4244-a71b-656ddbaa7a8f",
+      "username": "fsp-demo-01",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Роман",
+      "lastName": "Дебагов",
+      "email": "fsp-demo-01@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "f65bb71f-8ac3-4af0-8ead-29daf95d439a",
+      "username": "fsp-demo-02",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Лев",
+      "lastName": "Кэшев",
+      "email": "fsp-demo-02@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "b05a3443-6e8e-4cba-9efb-383bfcb06b04",
+      "username": "fsp-demo-03",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Тимофей",
+      "lastName": "Релизов",
+      "email": "fsp-demo-03@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "d98cba91-ae78-4d5a-bfb0-130ca2c6b02f",
+      "username": "fsp-demo-04",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Всеволод",
+      "lastName": "Патчев",
+      "email": "fsp-demo-04@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "c7d48424-d766-41dd-a146-bb846cbf12c9",
+      "username": "fsp-demo-05",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Всеволод",
+      "lastName": "Байтов",
+      "email": "fsp-demo-05@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "800a9cc8-5bcb-4dac-9828-accc71a830e4",
+      "username": "fsp-demo-06",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Павел",
+      "lastName": "Драйверов",
+      "email": "fsp-demo-06@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "ced232ac-5bea-42b9-81bf-2756c325b433",
+      "username": "fsp-demo-07",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Никита",
+      "lastName": "Деплоев",
+      "email": "fsp-demo-07@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "0473a37f-91fd-4447-9360-f35c2e0260db",
+      "username": "fsp-demo-08",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Арсений",
+      "lastName": "Сервлетов",
+      "email": "fsp-demo-08@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "c3323cfc-bcfe-42ab-a237-3dc7ee0a9b36",
+      "username": "fsp-demo-09",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Олег",
+      "lastName": "Коммитов",
+      "email": "fsp-demo-09@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "c65e176b-ba86-4203-a194-bf6ce57859cf",
+      "username": "fsp-demo-10",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Максим",
+      "lastName": "Компиляторов",
+      "email": "fsp-demo-10@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "4b9d66eb-d468-464d-b17e-396e6af1749d",
+      "username": "fsp-demo-11",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Злата",
+      "lastName": "Бэкапова",
+      "email": "fsp-demo-11@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "8339bf64-8948-449b-81bb-2e0eb68d246c",
+      "username": "fsp-demo-12",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Арсений",
+      "lastName": "Мержев",
+      "email": "fsp-demo-12@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "52e12b87-a95a-4b9a-8c10-32b5d13a0c04",
+      "username": "fsp-demo-13",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "София",
+      "lastName": "Коммитова",
+      "email": "fsp-demo-13@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "87648a7a-c05b-48fd-b515-c6d9db523c6b",
+      "username": "fsp-demo-14",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Кирилл",
+      "lastName": "Тензоров",
+      "email": "fsp-demo-14@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "2a5d3fd6-154e-41fb-b10d-f301bb9387bf",
+      "username": "fsp-demo-15",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Злата",
+      "lastName": "Рекурсина",
+      "email": "fsp-demo-15@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "eeee6dce-b472-444b-8ff6-f4a60f297241",
+      "username": "fsp-demo-16",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Артём",
+      "lastName": "Курсоров",
+      "email": "fsp-demo-16@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "8c2bb7b8-7eea-4a32-8cf3-414a368dbfe8",
+      "username": "fsp-demo-17",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Артём",
+      "lastName": "Кэшев",
+      "email": "fsp-demo-17@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "43d2def2-48bb-4deb-ba70-5ffa4d4f7369",
+      "username": "fsp-demo-18",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Егор",
+      "lastName": "Логгеров",
+      "email": "fsp-demo-18@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "562fb333-ea35-48b4-b157-96542b932cd4",
+      "username": "fsp-demo-19",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Лев",
+      "lastName": "Массивов",
+      "email": "fsp-demo-19@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "34a8406c-f18f-49ef-8769-a34a4161e778",
+      "username": "fsp-demo-20",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Даниил",
+      "lastName": "Компиляторов",
+      "email": "fsp-demo-20@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "5c9b7091-cfec-4f88-9fef-8875cda40c98",
+      "username": "fsp-demo-21",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Фёдор",
+      "lastName": "Стеков",
+      "email": "fsp-demo-21@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "54e32dfe-4b66-45d4-b002-e451dbddbf71",
+      "username": "fsp-demo-22",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Даниил",
+      "lastName": "Триггеров",
+      "email": "fsp-demo-22@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "e0ca0b59-2788-4ebc-b6d5-4f2607c2006b",
+      "username": "fsp-demo-23",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Артём",
+      "lastName": "Лямбдин",
+      "email": "fsp-demo-23@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "8b56020c-ba6f-4c6d-a230-d03ec06c4ba0",
+      "username": "fsp-demo-24",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Матвей",
+      "lastName": "Токенов",
+      "email": "fsp-demo-24@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "72e54fca-351b-4127-98ac-faacc93bcf6a",
+      "username": "fsp-demo-25",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Даниил",
+      "lastName": "Битмапов",
+      "email": "fsp-demo-25@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "2410a7bf-ec13-4147-be40-1452ea8d8ab1",
+      "username": "fsp-demo-26",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Полина",
+      "lastName": "Нейронова",
+      "email": "fsp-demo-26@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "5a0b204f-e2b0-4503-a624-984ce8c4fbb0",
+      "username": "fsp-demo-27",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Павел",
+      "lastName": "Сокетов",
+      "email": "fsp-demo-27@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "d8a63131-49c6-4f92-93ae-503e55ca2c7e",
+      "username": "fsp-demo-28",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Кирилл",
+      "lastName": "Индексов",
+      "email": "fsp-demo-28@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "d2e37133-4824-4c62-8e83-476037118762",
+      "username": "fsp-demo-29",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Богдан",
+      "lastName": "Векторов",
+      "email": "fsp-demo-29@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    },
+    {
+      "id": "990dfcc5-287b-4c20-8221-a826e184799a",
+      "username": "fsp-demo-30",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Семён",
+      "lastName": "Пикселев",
+      "email": "fsp-demo-30@demo.example.org",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Demo-FSP-2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-fsp",
+        "athlete"
+      ]
+    }
+  ]
+}

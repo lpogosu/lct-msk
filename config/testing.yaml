@@ -1,0 +1,214 @@
+# Параметры механики тестирования (IRT/CAT, правила, детекторы, калибровка, опрос).
+# Источник: _internal/design/spec-testing.md §2.5, §3.1–3.12; 01-concept.md §2.4, §5.2–5.4.
+# Пороги грейдов (cut) и blueprint модулей — в config/taxonomy.yaml.
+version: 1
+
+# §3.1 Модель ответа и §3.3 оценка уровня (EAP)
+scale:
+  A: 1.5                    # общая крутизна шкалы (Раш, один параметр на шкалу)
+  sigma_inst: 0.15          # разброс сложности клонов внутри семейства
+  prior_mu: -0.25           # приор N(−0.25, 1.2²) — ОДИНАКОВЫЙ для всех кандидатов
+  prior_sd: 1.2
+  grid: { min: -4.0, max: 4.0, step: 0.05 }   # 161 точка
+  interval_z: 1.2816        # 80%-интервал: S ± 1.2816·100·SE ≈ S ± 128·SE
+  params_version: "prior-v1"
+
+# §3.2 Экспертные приоры (модифицированный Ангофф)
+expert_prior:
+  pos_step: 0.35            # b = cut(g) + 0.35·pos
+  sigma_b_agree: 0.5        # расхождение экспертов ≤ 1 шага pos
+  sigma_b_disagree: 0.8     # иначе
+  max_pos_spread: 1         # шаги pos, при которых эксперты «согласны»
+
+# §3.4 Выбор задания и §3.5 стоп
+cat:
+  n_min: 8
+  n_max: 20
+  p_stop_high: 0.90
+  p_stop_low: 0.10
+  coverage_min_quota: 0.15     # каждый модуль с квотой ≥ 15% должен встретиться
+  topk_early: 5                # K для первых topk_early_items заданий
+  topk_early_items: 4
+  topk_late: 3
+  exposure_cap: 0.45           # экспозиция семейства за 30 дней
+  exposure_cap_large_bank: 0.25
+  large_bank_size: 90          # банк ≥ 90 семейств → строгий лимит
+  min_eligible_before_relax: 3 # допустимых меньше 3 → лимит экспозиции снимается (с записью в журнал)
+  family_cooldown_days: 365    # семейства кандидата за 12 месяцев исключены
+  borderline_pass_min: 0.5     # n = n_max: 0.5 ≤ P < 0.9 → BORDERLINE_PASS
+  pretest:
+    count: 2
+    pos_min: 3
+    pos_max: 14
+    max_b_distance: 1.0        # |b_prior − t| ≤ 1
+  default_time_limit_s: 90
+  timer_grace_s: 5             # +5 с запаса; таймаут = неверно
+  mcq_max_share: 0.30          # доля заданий с угадыванием (c > 0) в тесте ≤ 30% (держится на любой длине)
+
+# §3.5 Доборы
+extension:
+  max_items: 8
+  offer_up_min_p: 0.30         # предложение добора вверх при P(θ ≥ cut(g+1)) ≥ 0.30
+  confirm_lower_p: 0.90        # «ваших ответов достаточно для Junior»
+  pass_p: 0.90                 # повышение — только при P ≥ 0.90 (BORDERLINE не повышает)
+  window_hours: 24             # принять добор можно в течение 24 ч
+
+# §3.6 Подбаллы модулей и теги стека
+subscores:
+  prior_sd: 0.6                # приор N(θ̂, 0.6²) — сжатие к общему уровню
+  min_items: 2                 # n_k < 2 → «~ мало данных»
+  tag_p: 0.8                   # ✓: P(θ_k ≥ c_Junior) ≥ 0.8; ✓✓: P(θ_k ≥ c_g) ≥ 0.8
+  confirmed_floor_grade: junior
+
+# §2.2, §2.4, concept §5.3 — правила попыток и смены грейда
+rules:
+  retake_days: 14              # повтор без грейда
+  max_attempts: 3              # ≤ 3 попыток …
+  attempts_window_days: 90     # … за 90 дней
+  change_interval_days: 90     # смена грейда не чаще 1 раза в 90 дней
+  upgrade_retry_days: 30       # повтор после неудачного повышения
+  onboarding_hours: 24         # первичный тест + доборы в течение 24 ч сменой не считаются
+  pause_timeout_min: 30        # обрыв > 30 мин → ABANDONED
+  review_max_days: 7           # проверка методистом ≤ 7 дней
+  downgrade_respects_change_interval: true   # добровольное понижение считается сменой
+  regular_task_upgrade_hint_p: 0.7           # задача типа A: P(θ ≥ c_{g+1}) ≥ 0.7 → «доступен тест на повышение»
+
+# §3.10 Доверие
+trust:
+  clean: 1.0                   # 0 флагов
+  soft: 0.75                   # 1–2 мягких; также после проверки методистом
+  soft_flags_for_review: 3     # ≥ 3 мягких → UNDER_REVIEW
+  evidence_weight_factor: 0.8  # §3.12 evidence_weight = 0.8·trust
+
+# §3.10 Детекторы
+detectors:
+  lz_threshold: -2.33
+  lz_min_items: 8
+  fast_ratio: 0.25             # время < 0.25 медианы семейства
+  fast_p_max: 0.4              # P_j(θ̂_{−j}) < 0.4
+  fast_min_count: 2            # ≥ 2 раз
+  focus_blur_min_s: 10         # уход со вкладки дольше 10 с …
+  focus_blur_max_count: 3      # … больше 3 раз
+  foreign_key_max_collision: 0.02      # доля коллизий ключей в семействе < 2%
+  foreign_key_quarantine_count: 3      # ≥ 3 «чужих ключа» по семейству …
+  foreign_key_quarantine_days: 7       # … за 7 дней → QUARANTINE
+  cusum_shift: 0.5             # p1 считается при b − 0.5
+  cusum_h: 6.0                 # порог тревоги (подбирается симуляцией)
+
+# §3.9 Дообучение (фаза 1)
+calibration:
+  min_new_responses: 30
+  newton_max_iter: 25
+  newton_tol: 1.0e-6
+  newton_max_step: 1.0
+  promote: { min_n: 50, max_se_b: 0.35, min_r_pb: 0.15 }
+  quarantine_recal_n: 100
+  quarantine_max_delta_b: 0.3
+  # Перекалибровка семейства в карантине — с широким приором: узкий приор (σ_b = SE_b прошлой
+  # калибровки) стянул бы оценку к старой b и скрыл слив метода (|Δb| < 0.3 всегда).
+  quarantine_prior_sd: 0.8
+
+# §3.11 Свежесть
+freshness:
+  se_growth_per_month: 0.02    # SE²(t) = SE²_last + 0.02·Δмес
+  days_per_month: 30.4375
+  relevance_tau_days: 120      # Актуальность = 100·exp(−Δдней/120)
+  bands:                       # верхние границы, дни
+    - { code: fresh, label: свежий, max_days: 30 }
+    - { code: actual, label: актуальный, max_days: 120 }
+    - { code: aging, label: устаревает, max_days: 240 }
+    - { code: stale, label: устарел, max_days: null }
+
+# concept §2.4, spec §3.7 — классификатор специализации по опросу.
+# s_k = Σ_a W[a,k]·freq_a + tech_weight·Σ_t V[t,k]·recency_t + choice_bonus·[выбор = k];  p = softmax(s / temperature)
+# Не указанный вес = 0. Матрицы ревьюятся людьми.
+survey:
+  version: 1
+  temperature: 0.5
+  tech_weight: 0.3
+  choice_bonus: 0.5
+  hint_margin: 0.2
+  frequency_levels:
+    - { code: never, label: Не делал, value: 0.0 }
+    - { code: sometimes, label: Иногда, value: 0.5 }
+    - { code: regularly, label: Регулярно, value: 1.0 }
+  recency_levels:
+    - { code: now, label: Использую сейчас, value: 1.0 }
+    - { code: last_year, label: В последний год, value: 0.7 }
+    - { code: one_three_years, label: 1–3 года назад, value: 0.3 }
+    - { code: older, label: Больше 3 лет назад, value: 0.1 }
+  # 16 действий «что делали руками за 12 месяцев»
+  actions:
+    - code: server_api
+      label: Писал серверные обработчики и HTTP API (REST, gRPC)
+      weights: { backend_python: 1.0, backend_go: 1.0, backend_java: 1.0, fullstack: 0.6, devops: 0.1, mobile: 0.1, qa: 0.1 }
+    - code: sql_db
+      label: Писал SQL-запросы, проектировал схемы и миграции БД
+      weights: { backend_python: 0.8, backend_go: 0.8, backend_java: 0.8, fullstack: 0.5, data_ml: 0.5, devops: 0.1, qa: 0.1 }
+    - code: queues_cache
+      label: Работал с очередями и кешами (Kafka, RabbitMQ, Redis)
+      weights: { backend_python: 0.7, backend_go: 0.7, backend_java: 0.7, fullstack: 0.3, devops: 0.3, data_ml: 0.1 }
+    - code: algorithms
+      label: Решал алгоритмические задачи (олимпиады, LeetCode, оптимизация кода)
+      weights: { backend_python: 0.3, backend_go: 0.3, backend_java: 0.3, frontend_js: 0.2, fullstack: 0.2, data_ml: 0.3, mobile: 0.1, infosec: 0.1 }
+    - code: ui_layout
+      label: Верстал интерфейсы по макету (HTML, CSS, адаптивность)
+      weights: { frontend_js: 1.0, fullstack: 0.6, mobile: 0.3 }
+    - code: spa_components
+      label: Писал компоненты SPA (React, Vue, Angular)
+      weights: { frontend_js: 1.0, fullstack: 0.6, mobile: 0.2 }
+    - code: browser_debug
+      label: Отлаживал фронтенд в DevTools (сеть, производительность, рендер)
+      weights: { frontend_js: 0.8, fullstack: 0.5, qa: 0.2 }
+    - code: mobile_app
+      label: Разрабатывал мобильные приложения (iOS, Android, Flutter)
+      weights: { mobile: 1.0, frontend_js: 0.1 }
+    - code: ci_cd
+      label: Настраивал CI/CD-пайплайны
+      weights: { devops: 1.0, qa: 0.3, backend_python: 0.2, backend_go: 0.2, backend_java: 0.2, fullstack: 0.2 }
+    - code: containers_infra
+      label: Разворачивал сервисы в Docker или Kubernetes, описывал инфраструктуру кодом
+      weights: { devops: 1.0, backend_go: 0.3, backend_python: 0.2, backend_java: 0.2, fullstack: 0.2 }
+    - code: monitoring
+      label: Настраивал мониторинг и алерты, разбирал инциденты
+      weights: { devops: 0.9, backend_python: 0.2, backend_go: 0.2, backend_java: 0.2, infosec: 0.2 }
+    - code: data_analysis
+      label: Анализировал данные (pandas, SQL-аналитика, визуализация)
+      weights: { data_ml: 1.0, backend_python: 0.1, qa: 0.1 }
+    - code: ml_models
+      label: Обучал и оценивал модели машинного обучения
+      weights: { data_ml: 1.0 }
+    - code: manual_testing
+      label: Писал тест-кейсы, тестировал вручную, заводил баг-репорты
+      weights: { qa: 1.0, frontend_js: 0.1 }
+    - code: autotests
+      label: Писал автотесты (UI, API, нагрузочные)
+      weights: { qa: 1.0, backend_python: 0.2, backend_go: 0.2, backend_java: 0.2, frontend_js: 0.2, fullstack: 0.2, devops: 0.1 }
+    - code: security
+      label: Искал уязвимости, проводил пентест или аудит безопасности
+      weights: { infosec: 1.0, devops: 0.2 }
+  # Технологии с давностью использования; modules — для серых чипов «заявлено» (в оценку не входят)
+  technologies:
+    - { code: python, label: Python, modules: [python_core], weights: { backend_python: 1.0, data_ml: 0.6, qa: 0.2, devops: 0.2, infosec: 0.2 } }
+    - { code: django_fastapi, label: "Django / FastAPI / Flask", modules: [python_core, http_api], weights: { backend_python: 1.0, fullstack: 0.4 } }
+    - { code: go, label: Go, modules: [], weights: { backend_go: 1.0, devops: 0.3 } }
+    - { code: java_kotlin, label: "Java / Kotlin (Spring)", modules: [], weights: { backend_java: 1.0, mobile: 0.4 } }
+    - { code: javascript, label: JavaScript, modules: [js_core], weights: { frontend_js: 0.8, fullstack: 0.6, qa: 0.1 } }
+    - { code: typescript, label: TypeScript, modules: [js_core], weights: { frontend_js: 0.8, fullstack: 0.6 } }
+    - { code: react, label: React, modules: [react], weights: { frontend_js: 1.0, fullstack: 0.6, mobile: 0.2 } }
+    - { code: vue_angular, label: "Vue / Angular", modules: [], weights: { frontend_js: 1.0, fullstack: 0.5 } }
+    - { code: html_css, label: "HTML / CSS", modules: [html_css], weights: { frontend_js: 0.8, fullstack: 0.5, mobile: 0.1 } }
+    - { code: nodejs, label: Node.js, modules: [js_core, http_api], weights: { fullstack: 0.8, frontend_js: 0.3, backend_python: 0.1 } }
+    - { code: postgresql, label: "PostgreSQL / MySQL", modules: [sql], weights: { backend_python: 0.5, backend_go: 0.5, backend_java: 0.5, fullstack: 0.4, data_ml: 0.3 } }
+    - { code: docker, label: Docker, modules: [], weights: { devops: 0.6, backend_python: 0.3, backend_go: 0.3, backend_java: 0.3, fullstack: 0.2 } }
+    - { code: kubernetes, label: Kubernetes, modules: [], weights: { devops: 1.0, backend_go: 0.2 } }
+    - { code: linux_git, label: "Linux / Git", modules: [git_linux], weights: { devops: 0.5, backend_python: 0.2, backend_go: 0.2, backend_java: 0.2, infosec: 0.3 } }
+    - { code: mobile_sdk, label: "Swift / Android SDK / Flutter", modules: [], weights: { mobile: 1.0 } }
+    - { code: pandas_numpy, label: "pandas / NumPy", modules: [], weights: { data_ml: 1.0, backend_python: 0.1 } }
+    - { code: ml_frameworks, label: "scikit-learn / PyTorch", modules: [], weights: { data_ml: 1.0 } }
+    - { code: test_frameworks, label: "Selenium / Playwright / pytest", modules: [], weights: { qa: 1.0, frontend_js: 0.1, backend_python: 0.1 } }
+    - { code: security_tools, label: "Burp Suite / Nmap / OWASP", modules: [], weights: { infosec: 1.0 } }
+  # Подсказка по стажу при выборе грейда (ни к чему не обязывает)
+  grade_hint:
+    min_months: { intern: 0, junior: 6, middle: 18, senior: 48 }
+    senior_warning_months: 24

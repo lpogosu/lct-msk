@@ -1,0 +1,174 @@
+# Скоринг подборки, объяснения, версии, охват, разбор брифа.
+# Score(c | бриф) = 100 · G · Cov · (wT·T + wK·K + wF·F + wA·A + wU·U)       — концепция §4.2
+# Матрицы ФСП m(d, s) и m(d, модуль) берём из config/fsp.yaml (spec_relevance, module_relevance,
+# skill_evidence_factor) — единый источник с модулем ФСП. Пороги грейдов (cut) — из taxonomy.yaml.
+# Версия конфига пишется в каждую версию подборки (scoring_config_version = version + sha256 содержимого).
+version: 1
+
+# ---------------------------------------------------------------- веса и пресеты
+presets:
+  balance: { name: Баланс, weights: { T: 0.40, K: 0.25, F: 0.15, A: 0.10, U: 0.10 } }
+  stack: { name: Стек важнее, weights: { T: 0.30, K: 0.40, F: 0.10, A: 0.10, U: 0.10 } }
+default_preset: balance
+# Ограничения (концепция §4.2): вклад ФСП ≤ 15 баллов и тест не слабее 30%.
+weight_constraints: { T_min: 0.30, F_max: 0.15, sum: 1.0, sum_tolerance: 1.0e-6 }
+
+# ---------------------------------------------------------------- G: категория
+G:
+  # Смежность специализаций adjS (симметрично). Основная = 1,0; пары, которых нет, — 0.
+  spec_adjacency:
+    - [backend_python, fullstack, 0.8]
+    - [frontend_js, fullstack, 0.8]
+    - [backend_python, frontend_js, 0.3]
+    - [data_ml, backend_python, 0.5]
+    - [devops, backend_python, 0.5]
+    - [qa, backend_python, 0.3]
+    - [backend_go, backend_python, 0.5]
+    - [backend_java, backend_python, 0.5]
+    - [backend_go, backend_java, 0.5]
+  # Кандидат с бейджем Fullstack (подтверждены обе квалификации) для этих брифов получает adjS = 1,0.
+  fullstack_badge_specs: [backend_python, frontend_js, fullstack]
+  # adjG: на шаг выше брифа ×0,85, на шаг ниже ×0,80; дальше — степень (0,85² / 0,80²).
+  grade_above: 0.85
+  grade_below: 0.80
+  borderline_factor: 0.9          # BORDERLINE_PASS (тест сдан «на границе»)
+
+# ---------------------------------------------------------------- Cov: покрытие must
+Cov:
+  confirm_threshold: 0.5          # v_k ≥ 0,5 из теста, задачи или ФСП
+  min_share: 0.5                  # подтверждено меньше половины must → штраф
+  factor: 0.8
+
+# ---------------------------------------------------------------- T: тест
+T:
+  se_growth_per_month: 0.02       # SE(t)² = SE² + 0,02·Δмес (spec-testing §3.11)
+  days_per_month: 30.4375
+  min_category_n: 30              # меньше — Φ((θ_lcb − μ_g)/σ_g) по калибровке
+  fallback:                       # μ_g, σ_g нижней границы θ внутри грейда (калибровка банка)
+    intern: { mu: -1.6, sigma: 0.5 }
+    junior: { mu: -0.6, sigma: 0.5 }
+    middle: { mu: 0.4, sigma: 0.5 }
+    senior: { mu: 1.4, sigma: 0.6 }
+  stale_test_days: 365            # «против»: тест старше 12 месяцев
+  low_trust_below: 1.0            # доверие < 1 (1–2 мягких флага → 0,75) — флаг «против»
+  bands:                          # подпись для работодателя по перцентилю
+    - { min: 0.90, label: верхние 10% }
+    - { min: 0.75, label: верхние 25% }
+    - { min: 0.50, label: верхние 50% }
+
+# ---------------------------------------------------------------- K: стек брифа
+K:
+  must_weight: 1.0
+  nice_weight: 0.4
+  test_factor: 1.0                # 1,0·test_k, test_k = max_{m∈M(k)} [модуль ✓]·P(θ_m ≥ cut(грейд брифа))
+  task_factor: 0.9                # 0,9·q·2^(−Δд/90), задачи типа A
+  task_half_life_days: 90
+  confirmed_module_tags: [confirmed, strong]   # ✓ и ✓✓; «~» (low_data) не считается
+  # self_k удалён (DECISIONS п.1): заявленные навыки — только серые чипы и ключ сортировки.
+
+# ---------------------------------------------------------------- A: свежесть
+A:
+  window_days: 180
+  half_life_days: 45
+  tag_bonus: 0.25                 # q·(1 + 0,25·[тег задачи ∈ навыки брифа])
+  active_days: 30                 # «активный» кандидат для охвата
+
+# ---------------------------------------------------------------- U: условия
+U:
+  salary_weight: 0.6
+  format_weight: 0.4
+  salary_tolerance: 0.25          # SalFit = max(0, 1 − (min/to − 1)/0,25)
+  # Превышение min/to − 1 округляется ВВЕРХ до полосы 5%: SalFit ∈ {1; 0,8; 0,6; 0,4; 0,2; 0}.
+  # Без этого точный минимум кандидата («только сигнал» по умолчанию) вычислялся бы из вклада U в полосе Score.
+  salary_band: 0.05
+  ndfl_rate: 0.13                 # пересчёт «на руки ↔ до НДФЛ»: net = gross·(1 − ndfl)
+  # FmtFit = max по форматам брифа и приемлемым форматам кандидата.
+  format_fit:
+    office: { office: 1.0, hybrid: 0.7, remote: 0.0 }
+    hybrid: { office: 0.7, hybrid: 1.0, remote: 0.3 }
+    remote: { office: 0.3, hybrid: 0.7, remote: 1.0 }
+  city_mismatch_fit: 0.0          # офис/гибрид в другом городе без релокации
+
+# ---------------------------------------------------------------- банк кандидатов без брифа (Р9, концепция §3.2 шаг 7)
+bank:
+  weights: { T: 0.55, F: 0.25, A: 0.20 }
+
+# ---------------------------------------------------------------- сортировка
+tie_break:
+  confirmed_first: true           # DECISIONS п.5: «категория по опросу, не подтверждена» — ниже подтверждённых
+  declared_overlap: true          # DECISIONS п.1: заявленные навыки — последний ключ перед hash
+  score_precision: 9              # сравнение Score и T с округлением (защита от шума float)
+
+# ---------------------------------------------------------------- объяснения (концепция §4.4)
+explain:
+  pro_margin: 1.0                 # «за»: c_i − медиана_версии(c_i) > 1
+  con_margin: -3.0                # «против»: c_i − m < −3 (кроме F)
+  max_pros: 3
+  # Порядок «против» — первый сработавший. Отсутствие ФСП не попадает никогда.
+  con_priority: [must_unconfirmed, salary_above, format_mismatch, borderline, low_trust, stale_test, weak_component, nice_unconfirmed]
+  component_names: { T: тест, K: стек, F: ФСП, A: свежесть, U: условия }
+  component_titles: { T: Тест, K: Стек, F: ФСП, A: Свежесть, U: Условия }
+
+# ---------------------------------------------------------------- версии подборки (концепция §4.4 п.5)
+selection:
+  max_items: 500
+  max_per_category: 50
+  page_size: 10
+  rollback_depth: 10
+  shortlist_max: 30
+
+# ---------------------------------------------------------------- охват (концепция §4.2 «Охват»)
+coverage:
+  min_category_p: 0.10
+  max_categories: 3
+  adjacent_if_n_below: 15
+  histogram_step: 10000
+  privacy_min_n: 10               # ползунок показывается при N ≥ 10
+  privacy_min_delta: 3            # прирост охвата показывается при ≥ 3
+  quantiles_min_n: 10
+  reach_hint_share: 0.5           # подсказка, если вилка покрывает < 50%
+  hint_target_share: 0.7          # «при верхе X — N из M»: X — первый шаг, где охват ≥ 70%
+
+# Проверочный набор по вакансии (DECISIONS п.3): must → модули → 3–5 семейств типа A, ≤ 15 мин.
+check_set:
+  min_families: 3
+  max_families: 5
+  max_minutes: 15
+  default_family_minutes: 2.5
+
+# ---------------------------------------------------------------- разбор брифа (концепция §4.2, spec-contact §3.1)
+brief_parser:
+  version: rules-1
+  max_chars: 3000
+  window_tokens: 6                # маркеры must/nice в окне ±6 токенов
+  must_max: 5                     # must ≤ 5; если больше — первые 4 остаются must
+  must_keep_on_overflow: 4
+  nice_weight_for_spec: 0.4       # вклад nice-навыка в score_s (как в K)
+  fuzzy_threshold: 90             # rapidfuzz ratio ≥ 90 для опечаток
+  fuzzy_min_len: 6
+  spec:
+    cue_weight: 2.0               # score_s = 2·cue + Σ spec_weight + 1,5·cos(emb, proto)
+    cue_cap: 2.0                  # сигналы одной специализации суммируются не больше чем до 2
+    emb_weight: 1.5
+    temperature: 1.5              # P(s) = softmax(score_s / 1,5)
+    uncertain_below: 0.5          # P(spec) < 0,5 → уточняющий вопрос
+  grade:
+    marker_p: 0.85                # явный маркер → P = 0,85, остаток соседям
+    plus_split: { this: 0.6, next: 0.4 }   # «middle+»
+    exp_junior_max_years: 1       # «опыт от N лет»: N ≤ 1 → Junior
+    exp_middle_max_years: 3       # 2–3 → Middle 0,6 / Senior 0,4; ≥ 4 → Senior
+    exp_split: { middle: 0.6, senior: 0.4 }
+    no_experience: { intern: 0.5, junior: 0.5 }
+    salary_prior_weight: 0.3      # слабый априор по середине вилки
+    salary_sigma_log: 0.2
+    salary_centers_net: { intern: 60000, junior: 120000, middle: 230000, senior: 380000 }
+    default_prior: { intern: 0.05, junior: 0.25, middle: 0.45, senior: 0.25 }
+    uncertain_below: 0.45
+  salary:
+    min_from: 30000
+    step: 1000
+    ratio_ok: 1.6                 # to ≤ 1,6·from — норма
+    ratio_block: 2.0              # 1,6–2,0 — мягкое предупреждение; > 2,0 — блокировка (DECISIONS п.6)
+    max_value: 5000000
+    min_plain_rubles: 10000       # число без единиц считаем рублями, только если ≥ 10 000
+    window_chars: 40              # «на руки / до НДФЛ» ищем рядом с суммой
