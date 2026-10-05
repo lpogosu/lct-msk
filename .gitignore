@@ -1,0 +1,32 @@
+# Конфиденциальные материалы хакатона и внутренние рабочие заметки — НИКОГДА не коммитить
+materials/
+research/
+_internal/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.coverage
+htmlcov/
+
+# Node
+node_modules/
+dist/
+.vite/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Generated
+backend/var/
+eval/out/
+*.log
+.DS_Store
+Thumbs.db

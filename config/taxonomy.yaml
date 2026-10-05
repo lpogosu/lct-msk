@@ -1,0 +1,85 @@
+# Справочник специализаций, грейдов, модулей теста и отраслей.
+# Единый источник истины для тестирования (blueprint) и подбора (категории).
+version: 1
+
+# Общая шкала уровня (theta) на каждую специализацию; пороги грейдов (cut) — нижняя граница грейда.
+# Балл для UI: S = base + per_theta * theta  (линейка 300–600).
+score_scale:
+  base: 500
+  per_theta: 100
+
+grades:
+  - code: intern
+    name: Стажёр
+    cut: -2.0
+    anchor: Учебные проекты, нужна постоянная помощь
+  - code: junior
+    name: Junior
+    cut: -1.0
+    anchor: Задачи по готовому образцу, обычно до 1,5 лет опыта
+  - code: middle
+    name: Middle
+    cut: 0.0
+    anchor: Самостоятельно ведёт фичу, 1,5–4 года опыта
+  - code: senior
+    name: Senior
+    cut: 1.0
+    anchor: Проектирует, отвечает за систему, 4+ лет опыта
+
+modules:
+  python_core: { name: Python }
+  sql: { name: SQL и базы данных }
+  http_api: { name: HTTP и API }
+  algo: { name: Алгоритмы и структуры данных }
+  git_linux: { name: Git и Linux }
+  js_core: { name: JavaScript / TypeScript }
+  react: { name: React }
+  html_css: { name: HTML и CSS }
+
+# status: active — тест работает; survey_only — опрос доступен, теста пока нет (лист ожидания).
+specializations:
+  - code: backend_python
+    name: Backend (Python)
+    direction: backend
+    status: active
+    blueprint:            # квоты модулей стандартного теста категории
+      python_core: 0.35
+      sql: 0.20
+      http_api: 0.20
+      algo: 0.15
+      git_linux: 0.10
+  - code: frontend_js
+    name: Frontend (JS/TS)
+    direction: frontend
+    status: active
+    blueprint:
+      js_core: 0.35
+      react: 0.25
+      html_css: 0.15
+      http_api: 0.15
+      algo: 0.10
+  - code: fullstack
+    name: Fullstack
+    direction: fullstack
+    status: derived       # подтверждены обе квалификации; грейд = минимальный из двух
+    derived_from: [backend_python, frontend_js]
+  - { code: data_ml, name: Data Science / ML, direction: data, status: survey_only }
+  - { code: devops, name: DevOps / SRE, direction: devops, status: survey_only }
+  - { code: qa, name: QA / тестирование, direction: qa, status: survey_only }
+  - { code: mobile, name: Mobile, direction: mobile, status: survey_only }
+  - { code: infosec, name: Информационная безопасность, direction: security, status: survey_only }
+  - { code: backend_go, name: Backend (Go), direction: backend, status: survey_only }
+  - { code: backend_java, name: Backend (Java/Kotlin), direction: backend, status: survey_only }
+
+# Отрасль — фасет интереса кандидата (фильтр), в Score не входит.
+industries:
+  - { code: fintech, name: Финтех }
+  - { code: ecommerce, name: E-commerce и ритейл }
+  - { code: gov, name: Госсектор }
+  - { code: industry, name: Промышленность }
+  - { code: telecom, name: Телеком }
+  - { code: media_games, name: Медиа и игры }
+  - { code: edtech, name: Образование }
+  - { code: medtech, name: Медицина }
+  - { code: logistics, name: Логистика }
+  - { code: other, name: Другое }

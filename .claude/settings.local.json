@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(claude --bg --remote-control \"WeApp\" -n \"WeApp\" --add-dir \"E:\\\\WeApp\")",
+      "PowerShell(claude logs ad0f74f3)",
+      "PowerShell(claude agents)",
+      "mcp__plugin_figma_figma__use_figma",
+      "mcp__plugin_figma_figma__upload_assets",
+      "mcp__plugin_figma_figma__get_screenshot",
+      "PowerShell($paths = @\\(\"$env:ProgramFiles\\\\AnyDesk\\\\AnyDesk.exe\", \"${env:ProgramFiles\\(x86\\)}\\\\AnyDesk\\\\AnyDesk.exe\", \"$env:USERPROFILE\\\\Downloads\\\\AnyDesk.exe\", \"$env:USERPROFILE\\\\Desktop\\\\AnyDesk.exe\"\\); foreach \\($p in $paths\\) { if \\(Test-Path $p\\) { \"FOUND: $p\" } }; Get-Process -Name AnyDesk -ErrorAction SilentlyContinue | Select-Object Id, Path | Format-Table -AutoSize | Out-String; foreach \\($c in @\\(\"$env:ProgramData\\\\AnyDesk\\\\system.conf\", \"$env:APPDATA\\\\AnyDesk\\\\system.conf\"\\)\\) { if \\(Test-Path $c\\) { \"CONF: $c\"; Select-String -Path $c -Pattern 'ad.anynet.id' | ForEach-Object { $_.Line } } })",
+      "PowerShell(Start-Process -FilePath \"$env:USERPROFILE\\\\Downloads\\\\AnyDesk.exe\"; Start-Sleep -Seconds 4; Get-Process -Name AnyDesk -ErrorAction SilentlyContinue | Select-Object Id, StartTime | Format-Table -AutoSize | Out-String)",
+      "mcp__plugin_figma_figma__weave_find_model",
+      "mcp__plugin_figma_figma__weave_run_model",
+      "Bash(mkdir -p /c/Users/alexey/.claude/jobs/ad0f74f3/tmp/gen)",
+      "Read(//c/Users/alexey/.claude/jobs/ad0f74f3/tmp/**)",
+      "Bash(curl -sS -L -m 60 -o 01_pikmulya_pikmesha.png \"https://media.weavy.ai/image/upload/v1790956986/uploads/9XazjPl9XHSMJOPYKchHp6Qk5tM2/z0ny2zycrspjjc4loe6h.png\")",
+      "Bash(break)",
+      "PowerShell(claude respawn ad0f74f3)",
+      "mcp__plugin_figma_figma__whoami",
+      "mcp__plugin_figma_figma__get_metadata",
+      "PowerShell($l = claude logs ad0f74f3 2>$null | Out-String; [regex]::Matches\\($l, 'https://claude\\\\.ai/code/session_\\\\w+'\\) | ForEach-Object { $_.Value } | Select-Object -Unique; if \\($l -match 'auto mode'\\) { 'mode: auto' })",
+      "PowerShell($res = 'timeout'; for \\($i = 0; $i -lt 20; $i++\\) { Start-Sleep -Seconds 3; $l = claude logs ad0f74f3 2>$null | Out-String; $tail = $l.Substring\\([Math]::Max\\(0, $l.Length - 5000\\)\\); if \\($tail -match 'Remote Control disconnected'\\) { $res = 'disconnected'; break }; if \\($tail -match 'remote-control is active' -or \\($tail -match '/rc' -and $tail -notmatch '/rc connecting'\\)\\) { $res = 'active'; break } }; \"RC: $res\"; [regex]::Matches\\($l, 'https://claude\\\\.ai/code/session_\\\\w+'\\) | ForEach-Object { $_.Value } | Select-Object -Unique -Last 1)",
+      "PowerShell($out = @\\(\\); for \\($i=1; $i -le 4; $i++\\) { $r = & \"C:\\\\Windows\\\\System32\\\\OpenSSH\\\\ssh.exe\" -i \"$env:USERPROFILE\\\\.ssh\\\\id_ed25519_vpn\" -o BatchMode=yes -o IdentitiesOnly=yes -o ConnectTimeout=15 root@79.137.184.40 \\(Get-Content \"C:\\\\Users\\\\alexey\\\\.claude\\\\jobs\\\\ad0f74f3\\\\tmp\\\\inspect.sh\" -Raw\\) 2>&1; if \\($LASTEXITCODE -eq 0\\) { $r; \"== OK on attempt $i\"; break } else { \"== attempt ${i}: \" + \\($r | Select-Object -Last 1\\) } })",
+      "PowerShell(Get-Content -Raw \"C:\\\\Users\\\\alexey\\\\.claude\\\\jobs\\\\ad0f74f3\\\\tmp\\\\inspect2.sh\" | & \"C:\\\\Windows\\\\System32\\\\OpenSSH\\\\ssh.exe\" -i \"$env:USERPROFILE\\\\.ssh\\\\id_ed25519_vpn\" -o BatchMode=yes -o IdentitiesOnly=yes -o ConnectTimeout=15 root@79.137.184.40 \"tr -d '\\\\r' | bash -s\" 2>&1)",
+      "PowerShell(for \\($i=1; $i -le 4; $i++\\) { Start-Sleep -Seconds 75; $r = Get-Content -Raw \"C:\\\\Users\\\\alexey\\\\.claude\\\\jobs\\\\ad0f74f3\\\\tmp\\\\inspect2.sh\" | & \"C:\\\\Windows\\\\System32\\\\OpenSSH\\\\ssh.exe\" -i \"$env:USERPROFILE\\\\.ssh\\\\id_ed25519_vpn\" -o BatchMode=yes -o IdentitiesOnly=yes -o ConnectTimeout=15 root@79.137.184.40 \"tr -d '\\\\r' | bash -s\" 2>&1; if \\($LASTEXITCODE -eq 0\\) { $r; \"== OK on attempt $i\"; break } else { \"== attempt ${i} closed\" } })",
+      "PowerShell(foreach \\($u in \"https://dns.google/resolve?name=pikmy.ulyashk.ru&type=A\", \"https://cloudflare-dns.com/dns-query?name=pikmy.ulyashk.ru&type=A\"\\) { try { $r = Invoke-RestMethod $u -Headers @{accept='application/dns-json'} -TimeoutSec 15; \"{0}: Status={1} Answer={2}\" -f \\($u -split '/'\\)[2], $r.Status, \\(\\($r.Answer | ForEach-Object { \"$\\($_.data\\) ttl=$\\($_.TTL\\)\" }\\) -join ', '\\) } catch { \"{0}: error {1}\" -f \\($u -split '/'\\)[2], $_.Exception.Message } })",
+      "PowerShell($f = \"C:\\\\Users\\\\alexey\\\\.claude\\\\projects\\\\E--max-hack-tri-bayta\\\\ae9b7b8c-f0a4-452a-a618-b3bf9bf6e936.jsonl\"; Select-String -Path $f -Pattern '\"type\":\"\\(ai-title|custom-title\\)\"' | Select-Object -Last 1 | ForEach-Object { $_.Line.Substring\\(0, [Math]::Min\\(200, $_.Line.Length\\)\\) }; \\(Select-String -Path $f -Pattern 'claude\\\\.ai/code/session_\\\\w+' -AllMatches | ForEach-Object { $_.Matches.Value } | Group-Object | Sort-Object Count -Descending | Select-Object Name, Count -First 3 | Format-Table -AutoSize | Out-String\\))",
+      "PowerShell(Get-CimInstance Win32_Process -Filter \"Name='claude.exe'\" | Select-Object ProcessId, ParentProcessId, CreationDate, @{n='Cmd';e={ if \\($_.CommandLine.Length -gt 140\\) { $_.CommandLine.Substring\\(0,140\\) } else { $_.CommandLine } }} | Format-Table -AutoSize -Wrap)",
+      "PowerShell(claude stop ae9b7b8c; $line = Get-Content \"C:\\\\Users\\\\alexey\\\\.claude\\\\projects\\\\E--max-hack-tri-bayta\\\\ae9b7b8c-f0a4-452a-a618-b3bf9bf6e936.jsonl\" -TotalCount 50 | Where-Object { $_ -match '\"cwd\"' } | Select-Object -First 1; \\([regex]::Match\\($line, '\"cwd\":\"\\([^\"]+\\)\"'\\)\\).Groups[1].Value)",
+      "PowerShell($f = \"C:\\\\Users\\\\alexey\\\\.claude\\\\projects\\\\E--------2\\\\ad0f74f3-186c-48a5-b1a6-cbd9f88476bd.jsonl\"; $lines = Get-Content $f -Tail 400 -Encoding UTF8; $txt = $null; $ts = $null; foreach \\($ln in $lines\\) { try { $o = $ln | ConvertFrom-Json } catch { continue }; if \\($o.type -eq 'assistant' -and $o.message.content\\) { foreach \\($c in $o.message.content\\) { if \\($c.type -eq 'text' -and $c.text.Length -gt 40\\) { $txt = $c.text; $ts = $o.timestamp } } } }; \"TS: $ts\"; $txt.Substring\\(0, [Math]::Min\\(700, $txt.Length\\)\\))",
+      "PowerShell(Set-Location \"E:\\\\max-hack\\\\tri_bayta\" -ErrorAction Stop; \\(Get-Location\\).Path; claude --bg --resume ae9b7b8c-f0a4-452a-a618-b3bf9bf6e936 --remote-control)"
+    ]
+  }
+}
