@@ -1,0 +1,31 @@
+{
+  "id": "b19",
+  "split": "test",
+  "style": "mixed_en",
+  "author": "team",
+  "text": "Hiring: Middle Backend Engineer (Python). Must have: Python, Django REST Framework, PostgreSQL, Celery. Nice to have: Redis, Docker, AWS. Формат — remote, зарплата 240–300 тыс. net.",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "middle",
+    "must": [
+      "python",
+      "drf",
+      "postgresql",
+      "celery"
+    ],
+    "nice": [
+      "redis",
+      "docker",
+      "aws"
+    ],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 240000,
+    "salary_to": 300000,
+    "salary_net": true
+  },
+  "note": null
+}

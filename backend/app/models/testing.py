@@ -231,6 +231,9 @@ class Qualification(UUIDPkMixin, TimestampMixin, Base):
     attempts_90d: Mapped[int] = mapped_column(SmallInteger, default=0, server_default=text("0"))
     subscores: Mapped[dict[str, Any]] = mapped_column(default=dict, server_default=JSONB_EMPTY_OBJECT)
     module_tags: Mapped[dict[str, Any]] = mapped_column(default=dict, server_default=JSONB_EMPTY_OBJECT)
+    # Полное состояние доменной квалификации app.testing.session.Qualification (попытки, цепочка сессий,
+    # проверки методистом, снимок для отката). Колонки выше — денормализация для чтения и фильтров.
+    state: Mapped[dict[str, Any]] = mapped_column(default=dict, server_default=JSONB_EMPTY_OBJECT)
 
     __table_args__ = (UniqueConstraint("candidate_id", "specialization"),)
 

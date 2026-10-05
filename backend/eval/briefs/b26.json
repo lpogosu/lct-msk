@@ -1,0 +1,31 @@
+{
+  "id": "b26",
+  "split": "dev",
+  "style": "mixed_en",
+  "author": "team",
+  "text": "Junior Frontend Developer: HTML, CSS, JavaScript, React basics. Nice to have: TypeScript, Git. Офис/hybrid в Санкт-Петербурге, 90–120k gross.",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "junior",
+    "must": [
+      "html",
+      "css",
+      "javascript",
+      "react"
+    ],
+    "nice": [
+      "typescript",
+      "git"
+    ],
+    "formats": [
+      "office",
+      "hybrid"
+    ],
+    "city": "spb",
+    "salary_from": 90000,
+    "salary_to": 120000,
+    "salary_net": false
+  },
+  "note": null
+}

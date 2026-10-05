@@ -1,0 +1,35 @@
+{
+  "id": "b20",
+  "split": "dev",
+  "style": "long",
+  "author": "team",
+  "text": "О нас: делаем сервис онлайн-записи к врачам (медтех), команда 12 человек.\n\nКого ищем: Frontend-разработчика уровня Middle.\n\nЧто нужно уметь:\n1) React (хуки, контекст), TypeScript;\n2) работа с REST API, React Query;\n3) аккуратная адаптивная вёрстка, доступность (a11y).\n\nПлюсом будет: Next.js, Storybook, Jest.\n\nФормат: гибрид в Москве или полная удалёнка. Вилка: 200–250 тыс. на руки.",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "middle",
+    "must": [
+      "react",
+      "typescript",
+      "rest",
+      "react_query",
+      "responsive"
+    ],
+    "nice": [
+      "react_hooks",
+      "accessibility",
+      "nextjs",
+      "storybook",
+      "jest"
+    ],
+    "formats": [
+      "hybrid",
+      "remote"
+    ],
+    "city": "moscow",
+    "salary_from": 200000,
+    "salary_to": 250000,
+    "salary_net": true
+  },
+  "note": null
+}

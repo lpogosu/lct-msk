@@ -1,0 +1,37 @@
+{
+  "id": "b10",
+  "split": "dev",
+  "style": "long",
+  "author": "team",
+  "text": "Ищем Senior Frontend-разработчика в команду личного кабинета банка-партнёра (финтех).\n\nЗадачи:\n• развитие SPA на React + TypeScript;\n• архитектура фронтенда, микрофронтенды;\n• оптимизация производительности, SSR на Next.js;\n• менторство и код-ревью.\n\nМы ждём:\n• 5+ лет коммерческой разработки на JavaScript/TypeScript;\n• глубокое знание React, Redux или MobX;\n• опыт с Next.js и SSR;\n• понимание event loop и сетевых протоколов.\n\nБудет плюсом: GraphQL, Storybook, тесты на Jest.\n\nУсловия: удалёнка по РФ, 380–450 тыс. на руки.",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "senior",
+    "must": [
+      "javascript",
+      "typescript",
+      "react",
+      "redux",
+      "nextjs"
+    ],
+    "nice": [
+      "ssr",
+      "microfrontends",
+      "code_review",
+      "mobx",
+      "event_loop",
+      "graphql",
+      "storybook",
+      "jest"
+    ],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 380000,
+    "salary_to": 450000,
+    "salary_net": true
+  },
+  "note": null
+}

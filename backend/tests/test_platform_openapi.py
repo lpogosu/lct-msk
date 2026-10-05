@@ -14,21 +14,7 @@ from app.main import create_app
 CYRILLIC = re.compile(r"[а-яё]", re.IGNORECASE)
 STANDARD = {"400", "401", "403", "404", "409", "422", "429"}
 STUB_SECTIONS = {
-    "/api/survey": "Опрос",
-    "/api/tests": "Тестирование",
-    "/api/needs": "Потребности и подборка",
-    "/api/invitations": "Приглашения",
-    "/api/applications": "Отклики",
-    "/api/vacancies": "Вакансии",
-    "/api/tasks": "Регулярные задачи",
-    "/api/fsp": "ФСП ID и достижения",
-    "/api/lab": "Лаборатория",
     "/api/admin": "Администрирование",
-    "/api/companies": "Профиль компании",
-    "/api/candidates": "Профиль кандидата",
-    "/api/bank": "Банк кандидатов",
-    "/api/notifications": "Уведомления",
-    "/api/v": "Проверка профиля",
     "/api/demo": "Демо-режим",
 }
 
@@ -96,7 +82,11 @@ def test_success_responses_have_models(spec):
         if path.startswith(tuple(STUB_SECTIONS)) or path == "/api/auth/logout":
             continue
         ok = next(c for c in op["responses"] if c.startswith("2"))
-        schema = op["responses"][ok]["content"]["application/json"]["schema"]
+        content = op["responses"][ok]["content"]
+        if "application/json" not in content:  # бинарные ответы (PDF-профиль) — без JSON-модели
+            assert set(content) <= {"application/pdf"}, f"{method} {path}: неожиданный тип {set(content)}"
+            continue
+        schema = content["application/json"]["schema"]
         assert "$ref" in schema or schema.get("type") == "array", f"{method} {path}: нет модели ответа"
 
 

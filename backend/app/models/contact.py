@@ -18,6 +18,7 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    false,
     func,
     text,
 )
@@ -100,6 +101,19 @@ class Invitation(UUIDPkMixin, TimestampMixin, Base):
     why_you: Mapped[list[Any]] = mapped_column(default=list, server_default=JSONB_EMPTY_ARRAY)
     auto_disclose_on_counter: Mapped[bool] = mapped_column(default=True, server_default=text("true"))
     flags: Mapped[list[Any]] = mapped_column(default=list, server_default=JSONB_EMPTY_ARRAY)  # «требует осторожности», ...
+    # --- Состояние доменной машины (app/contact/invitation.py), которое нужно хранить между запросами ---
+    # «Да, если…»: {"salary_from", "format", "start_date", "comment", "auto_disclose", "disclosure_fields"}
+    counter: Mapped[dict[str, Any] | None]
+    countered_at: Mapped[datetime | None]
+    counter_decline_reason: Mapped[str | None] = mapped_column(String(32))
+    # Срок первого контакта прошёл без отметки «Связались» (bad записан один раз, статуса нет — §4.3)
+    contact_overdue: Mapped[bool] = mapped_column(default=False, server_default=false())
+    # Какой bad за «не связались» уже записан: contact_overdue | contact_disputed | withdrawn_after_accept
+    contact_penalty: Mapped[str | None] = mapped_column(String(32))
+    stage: Mapped[str | None] = mapped_column(String(16))  # interview
+    closed_at: Mapped[datetime | None]
+    caution: Mapped[list[Any]] = mapped_column(default=list, server_default=JSONB_EMPTY_ARRAY)  # причины плашки
+    reminders_sent: Mapped[list[Any]] = mapped_column(default=list, server_default=JSONB_EMPTY_ARRAY)
 
     __table_args__ = (
         # «Одно активное приглашение на пару компания—кандидат» (концепция §4.3); accepted тоже занимает пару
@@ -144,6 +158,9 @@ class InvitationEvent(Base):
 
     id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
     invitation_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("invitations.id", ondelete="CASCADE"), index=True)
+    # Порядковый номер события в приглашении: «{invitation_id}-{seq}» — идемпотентный event_id вебхука (§8.2).
+    # Уникальность (invitation_id, seq) не даёт двум одновременным запросам записать один переход дважды.
+    seq: Mapped[int] = mapped_column(SmallInteger)
     from_status: Mapped[str | None] = mapped_column(String(24))
     to_status: Mapped[str] = mapped_column(String(24))
     action: Mapped[str] = mapped_column(String(32))
@@ -151,6 +168,8 @@ class InvitationEvent(Base):
     actor_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
     at: Mapped[datetime] = mapped_column(default=utcnow, server_default=func.now())
     payload: Mapped[dict[str, Any]] = mapped_column(default=dict, server_default=JSONB_EMPTY_OBJECT)
+
+    __table_args__ = (UniqueConstraint("invitation_id", "seq"),)
 
 
 class ContactDisclosure(UUIDPkMixin, Base):
@@ -196,6 +215,44 @@ class Application(UUIDPkMixin, TimestampMixin, Base):
     __table_args__ = (UniqueConstraint("vacancy_id", "candidate_id"),)
 
 
+class ApplicationEvent(Base):
+    """Журнал переходов отклика (как InvitationEvent): submit → view → interest/reject, withdraw, no_response."""
+
+    __tablename__ = "application_events"
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    application_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("applications.id", ondelete="CASCADE"), index=True)
+    seq: Mapped[int] = mapped_column(SmallInteger)
+    from_status: Mapped[str | None] = mapped_column(String(24))
+    to_status: Mapped[str] = mapped_column(String(24))
+    action: Mapped[str] = mapped_column(String(32))
+    actor_role: Mapped[str] = mapped_column(String(16))
+    actor_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    at: Mapped[datetime] = mapped_column(default=utcnow, server_default=func.now())
+    payload: Mapped[dict[str, Any]] = mapped_column(default=dict, server_default=JSONB_EMPTY_OBJECT)
+
+    __table_args__ = (UniqueConstraint("application_id", "seq"),)
+
+
+class Notification(UUIDPkMixin, CreatedAtMixin, Base):
+    """Уведомление в кабинете: приглашения, отклики, задачи (тексты — готовые русские фразы)."""
+
+    __tablename__ = "notifications"
+
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    kind: Mapped[str] = mapped_column(String(16))  # invitation | application | task | company | system
+    message: Mapped[str] = mapped_column(String(500))
+    entity_type: Mapped[str | None] = mapped_column(String(32))
+    entity_id: Mapped[str | None] = mapped_column(String(64))
+    payload: Mapped[dict[str, Any]] = mapped_column(default=dict, server_default=JSONB_EMPTY_OBJECT)
+    read_at: Mapped[datetime | None]
+
+    __table_args__ = (
+        Index("ix_notifications_user_created", "user_id", "created_at"),
+        Index("ix_notifications_user_unread", "user_id", postgresql_where=text("read_at IS NULL")),
+    )
+
+
 class Feedback(UUIDPkMixin, CreatedAtMixin, Base):
     """Причина отказа/итога со ссылками на навыки брифа («каких навыков не хватило»)."""
 
@@ -230,6 +287,7 @@ class Cooldown(Base):
     until: Mapped[datetime]
     reason: Mapped[str] = mapped_column(String(32))
     salary_unlock_from: Mapped[int | None] = mapped_column(Integer)
+    decline_reason: Mapped[str | None] = mapped_column(String(32))
     source_invitation_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("invitations.id", ondelete="SET NULL"))
     is_active: Mapped[bool] = mapped_column(default=True, server_default=text("true"))
     updated_at: Mapped[datetime] = mapped_column(default=utcnow, onupdate=utcnow, server_default=func.now())

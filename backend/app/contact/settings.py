@@ -95,6 +95,7 @@ class ReasonsCfg(_Frozen):
     not_matched: dict[str, str]
     outcome_check: dict[str, str]
     application_reject: dict[str, str]
+    complaint: dict[str, str] = Field(default_factory=dict)
 
 
 class StatusLabelsCfg(_Frozen):
@@ -145,6 +146,8 @@ class PairCfg(_Frozen):
     pause_days: dict[str, int]
     salary_exception_factor: float
     salary_exception_reasons: list[str]
+    # DECISIONS 22: пауза после отзыва приглашения работодателем и отзыва согласия кандидатом
+    withdrawal_pause_days: dict[str, int] = Field(default_factory=dict)
 
 
 class MatchingCfg(_Frozen):
@@ -285,6 +288,78 @@ class DemoCfg(_Frozen):
     advance_presets: list[AdvancePreset]
 
 
+class CompanyProfileCfg(_Frozen):
+    name_max_len: int
+    field_max_len: int
+    description_min_len: int
+    description_max_len: int
+    inn_lengths: list[int]
+    required: dict[str, str]
+
+
+class WebhooksCfg(_Frozen):
+    timeout_s: float
+    max_attempts: int = Field(ge=1)
+    backoff_base_s: float
+    backoff_factor: float
+    log_size: int
+    signature_header: str
+    event_header: str
+    event_id_header: str
+    secret_bytes: int = Field(ge=16)
+    allowed_schemes: list[str]
+    # SSRF: внутренние адреса запрещены (true — только для локальной разработки)
+    allow_private_hosts: bool = False
+    blocked_host_suffixes: list[str] = Field(default_factory=list)
+
+
+class RubricCfg(_Frozen):
+    max_points: int
+    criteria: dict[str, str] = Field(min_length=1)
+
+
+class TasksCfg(_Frozen):
+    employer_active_max: int
+    max_minutes: int
+    solve_grace_s: int = 30
+    audience_grade_window: int
+    offer_interval_days: int
+    candidate_active_max: int
+    skip_streak: int
+    skip_pause_days: int
+    assignment_due_days: int
+    check_set_due_days: int
+    title_max_len: int
+    prompt_min_len: int
+    prompt_max_len: int
+    answer_max_len: int
+    comment_max_len: int
+    not_real_work_label: str
+    rubric: RubricCfg
+    training_label: str
+    check_set_label: str
+    kind_labels: dict[str, str]
+    effects: dict[str, str]
+    status_labels: dict[str, str]
+
+
+class FeedbackCfg(_Frozen):
+    task_link_text: str
+    retake_link_text: str
+
+
+class NotificationsCfg(_Frozen):
+    list_limit: int
+    kinds: dict[str, str]
+
+
+class HttpLimitsCfg(_Frozen):
+    respond_per_minute: int
+    apply_per_minute: int
+    task_submit_per_minute: int
+    webhook_test_per_minute: int
+
+
 class ContactConfig(_Frozen):
     version: int
     timezone_offset_hours: int
@@ -308,6 +383,13 @@ class ContactConfig(_Frozen):
     disclosure: DisclosureCfg
     visibility: VisibilityCfg
     demo: DemoCfg
+    # Слой API (профиль компании Р1, вебхуки ATS, регулярные задачи, обратная связь, уведомления)
+    company_profile: CompanyProfileCfg
+    webhooks: WebhooksCfg
+    tasks: TasksCfg
+    feedback: FeedbackCfg
+    notifications: NotificationsCfg
+    http_limits: HttpLimitsCfg
 
     @model_validator(mode="after")
     def _cross(self) -> ContactConfig:

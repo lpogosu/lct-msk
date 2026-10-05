@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import ForeignKey, SmallInteger, String, Text, UniqueConstraint, false, text
+from sqlalchemy import ForeignKey, Index, SmallInteger, String, Text, UniqueConstraint, false, text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -33,6 +33,10 @@ class EmployerTask(UUIDPkMixin, TimestampMixin, Base):
     status: Mapped[str] = mapped_column(String(16), default=EmployerTaskStatus.draft.value)
     is_platform: Mapped[bool] = mapped_column(default=False, server_default=false())
     not_real_work_ack: Mapped[bool] = mapped_column(default=False, server_default=false())  # «это не рабочая задача»
+    module: Mapped[str | None] = mapped_column(String(32))  # модуль теста семейства (тип A)
+    # «Проверочный набор по вакансии» (DECISIONS 3): задачи собраны под must-навыки брифа для шортлиста
+    need_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("needs.id", ondelete="SET NULL"), index=True)
+    is_check_set: Mapped[bool] = mapped_column(default=False, server_default=false())
 
 
 class TaskAssignment(UUIDPkMixin, CreatedAtMixin, Base):
@@ -53,5 +57,18 @@ class TaskAssignment(UUIDPkMixin, CreatedAtMixin, Base):
     submitted_at: Mapped[datetime | None]
     reviewed_at: Mapped[datetime | None]
     due_at: Mapped[datetime | None]
+    # --- Что нужно подбору (свежесть A, доказательство модуля в K): балл, модуль и момент завершения ---
+    kind: Mapped[str | None] = mapped_column(String(16))  # catalog (тип A) | approach (тип B)
+    module: Mapped[str | None] = mapped_column(String(32))
+    family_id: Mapped[str | None] = mapped_column(String(64))
+    is_correct: Mapped[bool | None]
+    finished_at: Mapped[datetime | None]  # автопроверка (A) или оценка работодателя (B)
+    skipped_at: Mapped[datetime | None]
+    source: Mapped[str] = mapped_column(String(16), default="offer", server_default=text("'offer'"))  # offer | check_set
+    need_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("needs.id", ondelete="SET NULL"))
+    review_comment: Mapped[str | None] = mapped_column(String(300))
 
-    __table_args__ = (UniqueConstraint("employer_task_id", "candidate_id"),)
+    __table_args__ = (
+        UniqueConstraint("employer_task_id", "candidate_id"),
+        Index("ix_task_assignments_candidate_finished", "candidate_id", "finished_at"),
+    )

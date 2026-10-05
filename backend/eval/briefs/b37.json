@@ -1,0 +1,28 @@
+{
+  "id": "b37",
+  "split": "test",
+  "style": "chat",
+  "author": "team",
+  "text": "Привет, ищем фронта middle+ на вью (Vue 3 + TS). Желательно Nuxt. Гибрид в Новосибирске или удаленка. 220-270к",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "middle",
+    "must": [
+      "vue",
+      "typescript"
+    ],
+    "nice": [
+      "nuxt"
+    ],
+    "formats": [
+      "hybrid",
+      "remote"
+    ],
+    "city": "novosibirsk",
+    "salary_from": 220000,
+    "salary_to": 270000,
+    "salary_net": null
+  },
+  "note": "«middle+»"
+}

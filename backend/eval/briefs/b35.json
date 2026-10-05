@@ -1,0 +1,36 @@
+{
+  "id": "b35",
+  "split": "test",
+  "style": "long",
+  "author": "team",
+  "text": "Вакансия: Junior Frontend-разработчик (образовательная платформа).\n\nЗадачи: вёрстка новых страниц по макетам из Figma, доработка компонентов на React, исправление багов.\n\nТребования:\n— HTML5, CSS3 (Flexbox, Grid), адаптивная вёрстка;\n— JavaScript (ES6+);\n— базовый React.\n\nБудет плюсом: TypeScript, SCSS, понимание Git.\n\nМы предлагаем: удалёнка или офис в Ростове-на-Дону, зарплата 100–130 тыс. ₽ на руки.",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "junior",
+    "must": [
+      "html",
+      "css",
+      "flexbox",
+      "javascript",
+      "react"
+    ],
+    "nice": [
+      "layout",
+      "responsive",
+      "figma",
+      "typescript",
+      "sass",
+      "git"
+    ],
+    "formats": [
+      "remote",
+      "office"
+    ],
+    "city": "rostov",
+    "salary_from": 100000,
+    "salary_to": 130000,
+    "salary_net": true
+  },
+  "note": null
+}

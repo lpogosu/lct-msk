@@ -1,0 +1,31 @@
+{
+  "id": "b31",
+  "split": "test",
+  "style": "mixed_en",
+  "author": "team",
+  "text": "Fullstack Developer (Middle): React + Node.js (NestJS), PostgreSQL, TypeScript everywhere. Nice: Docker, AWS. Удалёнка, 230–290к net.",
+  "form": null,
+  "gold": {
+    "spec": "fullstack",
+    "grade": "middle",
+    "must": [
+      "react",
+      "nodejs",
+      "nestjs",
+      "postgresql",
+      "typescript"
+    ],
+    "nice": [
+      "docker",
+      "aws"
+    ],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 230000,
+    "salary_to": 290000,
+    "salary_net": true
+  },
+  "note": null
+}

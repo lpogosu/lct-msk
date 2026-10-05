@@ -214,10 +214,37 @@ def cooldown_after(
     )
 
 
+def cooldown_after_withdrawal(
+    *,
+    company_id: str,
+    candidate_id: str,
+    reason: str,
+    at: datetime,
+    cfg: ContactConfig | None = None,
+) -> Cooldown | None:
+    """DECISIONS 22: после отзыва приглашения (withdrawn) или отзыва согласия (consent_revoked) — пауза пары,
+    как после expired. Без неё компания могла бы тут же пригласить снова, а у кандидата из защиты остался бы
+    только блок-лист. Зарплатного исключения нет: условия здесь ни при чём."""
+    cfg = cfg or get_contact_config()
+    pause = cfg.pair.withdrawal_pause_days.get(str(reason))
+    if not pause:
+        return None
+    return Cooldown(
+        company_id=company_id,
+        candidate_id=candidate_id,
+        until=require_aware(at) + timedelta(days=pause),
+        reason=str(reason),
+    )
+
+
 def _pause_message(cd: Cooldown, pseudonym: str, now: datetime) -> str:
     when = relative(cd.until, now)
     if cd.reason == InvitationStatus.EXPIRED:
         return f"Пауза после истёкшего приглашения: {pseudonym} можно пригласить снова {when}"
+    if cd.reason == InvitationStatus.WITHDRAWN:
+        return f"Пауза после отозванного приглашения: {pseudonym} можно пригласить снова {when}"
+    if cd.reason == InvitationStatus.CONSENT_REVOKED:
+        return f"Пауза после отзыва согласия: {pseudonym} можно пригласить снова {when}"
     if cd.reason == InvitationStatus.COUNTER_DECLINED:
         text = (
             f"Пауза после несостоявшегося встречного предложения: {pseudonym} можно пригласить снова {when}"

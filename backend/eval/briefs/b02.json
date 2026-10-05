@@ -1,0 +1,29 @@
+{
+  "id": "b02",
+  "split": "dev",
+  "style": "chat",
+  "author": "team",
+  "text": "привет! нужен джун на питон, немного знать джангу и sql, гит обязательно. если шарит в докере — супер. удаленка, платим 100-130к на руки",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "junior",
+    "must": [
+      "python",
+      "django",
+      "sql",
+      "git"
+    ],
+    "nice": [
+      "docker"
+    ],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 100000,
+    "salary_to": 130000,
+    "salary_net": true
+  },
+  "note": "словоформа «джангу», сленг"
+}

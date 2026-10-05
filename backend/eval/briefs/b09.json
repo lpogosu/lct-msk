@@ -1,0 +1,33 @@
+{
+  "id": "b09",
+  "split": "test",
+  "style": "chat",
+  "author": "team",
+  "text": "Ребята, кто ищет работу: берём младшего бэкендера на Python. Надо понимать SQL, REST и как работает HTTP, гит. Учим остальному сами. Офис в Екатеринбурге, можно гибрид.",
+  "form": {
+    "salary_from": 90000,
+    "salary_to": 120000,
+    "salary_net": true
+  },
+  "gold": {
+    "spec": "backend_python",
+    "grade": "junior",
+    "must": [
+      "python",
+      "sql",
+      "rest",
+      "http",
+      "git"
+    ],
+    "nice": [],
+    "formats": [
+      "office",
+      "hybrid"
+    ],
+    "city": "ekaterinburg",
+    "salary_from": 90000,
+    "salary_to": 120000,
+    "salary_net": true
+  },
+  "note": "вилка только в форме"
+}

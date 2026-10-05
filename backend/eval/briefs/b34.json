@@ -1,0 +1,29 @@
+{
+  "id": "b34",
+  "split": "dev",
+  "style": "chat",
+  "author": "team",
+  "text": "нужен бэкендер мидл, питон+джанго, постгрес, селери+редис. офис в спб или гибрид. по деньгам 200-250 тыс на руки обсуждаемо",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "middle",
+    "must": [
+      "python",
+      "django",
+      "postgresql",
+      "celery",
+      "redis"
+    ],
+    "nice": [],
+    "formats": [
+      "office",
+      "hybrid"
+    ],
+    "city": "spb",
+    "salary_from": 200000,
+    "salary_to": 250000,
+    "salary_net": true
+  },
+  "note": null
+}

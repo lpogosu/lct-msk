@@ -1,0 +1,30 @@
+{
+  "id": "b29",
+  "split": "test",
+  "style": "chat",
+  "author": "team",
+  "text": "ищу джуна фронтендщика в агенство, верстка html/css + немного js, jquery знать норм, реакт будет плюсом. офис самара, 70-90к",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "junior",
+    "must": [
+      "html",
+      "css",
+      "javascript"
+    ],
+    "nice": [
+      "layout",
+      "jquery",
+      "react"
+    ],
+    "formats": [
+      "office"
+    ],
+    "city": "samara",
+    "salary_from": 70000,
+    "salary_to": 90000,
+    "salary_net": null
+  },
+  "note": "опечатка «агенство», must/nice без явных маркеров"
+}

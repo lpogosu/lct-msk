@@ -1,0 +1,31 @@
+{
+  "id": "b05",
+  "split": "test",
+  "style": "chat",
+  "author": "team",
+  "text": "Ищем фронтендера джуна в стартап. Нужно: js, реакт, верстка html/css (адаптив). Плюсом будет тайпскрипт и редакс. Офис в Казани, 80-110 тыс",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "junior",
+    "must": [
+      "javascript",
+      "react",
+      "html",
+      "css",
+      "responsive"
+    ],
+    "nice": [
+      "typescript",
+      "redux"
+    ],
+    "formats": [
+      "office"
+    ],
+    "city": "kazan",
+    "salary_from": 80000,
+    "salary_to": 110000,
+    "salary_net": null
+  },
+  "note": null
+}

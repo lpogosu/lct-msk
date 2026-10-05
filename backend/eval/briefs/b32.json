@@ -1,0 +1,25 @@
+{
+  "id": "b32",
+  "split": "dev",
+  "style": "short",
+  "author": "team",
+  "text": "Senior React/TypeScript, архитектура фронта, 400–460 тыс. на руки, удалёнка",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "senior",
+    "must": [
+      "react",
+      "typescript"
+    ],
+    "nice": [],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 400000,
+    "salary_to": 460000,
+    "salary_net": true
+  },
+  "note": null
+}

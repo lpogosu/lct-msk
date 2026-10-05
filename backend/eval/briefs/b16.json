@@ -1,0 +1,25 @@
+{
+  "id": "b16",
+  "split": "dev",
+  "style": "short",
+  "author": "team",
+  "text": "Junior frontend, React + JS, удалёнка, 90–120к",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "junior",
+    "must": [
+      "react",
+      "javascript"
+    ],
+    "nice": [],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 90000,
+    "salary_to": 120000,
+    "salary_net": null
+  },
+  "note": null
+}

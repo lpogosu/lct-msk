@@ -1,0 +1,32 @@
+{
+  "id": "b21",
+  "split": "test",
+  "style": "chat",
+  "author": "team",
+  "text": "Срочно ищем сеньора питониста!! асинхронка (asyncio), фастапи, постгря, кафка. кубер и докер желательно. опыт от 5 лет. платим 380-450к на руки, удаленка или офис в мск",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "senior",
+    "must": [
+      "python",
+      "asyncio",
+      "fastapi",
+      "postgresql",
+      "kafka"
+    ],
+    "nice": [
+      "kubernetes",
+      "docker"
+    ],
+    "formats": [
+      "remote",
+      "office"
+    ],
+    "city": "moscow",
+    "salary_from": 380000,
+    "salary_to": 450000,
+    "salary_net": true
+  },
+  "note": "сленг: постгря, кубер, мск"
+}

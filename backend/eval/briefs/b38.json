@@ -1,0 +1,31 @@
+{
+  "id": "b38",
+  "split": "dev",
+  "style": "formal",
+  "author": "team",
+  "text": "Ищем Junior Fullstack-разработчика в веб-студию. Требования: JavaScript, React, Node.js, базовые знания SQL, Git. Желательно: TypeScript, Docker. Офис в Краснодаре. Оклад 90 000 – 120 000 руб. на руки.",
+  "form": null,
+  "gold": {
+    "spec": "fullstack",
+    "grade": "junior",
+    "must": [
+      "javascript",
+      "react",
+      "nodejs",
+      "sql",
+      "git"
+    ],
+    "nice": [
+      "typescript",
+      "docker"
+    ],
+    "formats": [
+      "office"
+    ],
+    "city": "krasnodar",
+    "salary_from": 90000,
+    "salary_to": 120000,
+    "salary_net": true
+  },
+  "note": null
+}

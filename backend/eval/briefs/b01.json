@@ -1,0 +1,30 @@
+{
+  "id": "b01",
+  "split": "test",
+  "style": "formal",
+  "author": "team",
+  "text": "Ищем Middle Python-разработчика в команду платёжного шлюза компании «Северный Ветер». Обязательно: Python 3, Django, PostgreSQL, Docker. Будет плюсом: Celery, Redis. Формат: гибрид, офис в Москве. Зарплата 220–280 тыс. руб. на руки.",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "middle",
+    "must": [
+      "python",
+      "django",
+      "postgresql",
+      "docker"
+    ],
+    "nice": [
+      "celery",
+      "redis"
+    ],
+    "formats": [
+      "hybrid"
+    ],
+    "city": "moscow",
+    "salary_from": 220000,
+    "salary_to": 280000,
+    "salary_net": true
+  },
+  "note": null
+}

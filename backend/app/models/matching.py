@@ -1,5 +1,5 @@
 """Подбор (spec-contact §4): бриф (Need), неизменяемые версии подборки, шортлист,
-просмотры карточек и журнал показов."""
+просмотры карточек, журнал показов, кэш признаков кандидата и псевдонимы «в рамках компании»."""
 
 from __future__ import annotations
 
@@ -8,6 +8,7 @@ from datetime import datetime
 from typing import Any
 
 from sqlalchemy import (
+    DDL,
     BigInteger,
     CheckConstraint,
     ForeignKey,
@@ -18,6 +19,7 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    event,
     false,
     func,
     text,
@@ -102,6 +104,19 @@ class NeedVersion(UUIDPkMixin, CreatedAtMixin, Base):
     __table_args__ = (UniqueConstraint("need_id", "n"),)
 
 
+# Версия подборки — до ~1 МБ JSON (≤ 500 строк с объяснениями). Сжатие TOAST lz4 вместо pglz вдвое удешевляет
+# запись (p95 сборки ≤ 300 мс, spec-contact §6.2). Та же команда — в миграции 0004; без lz4 в сборке Postgres
+# остаётся сжатие по умолчанию.
+NEED_VERSIONS_LZ4 = DDL(
+    "DO $$ BEGIN "
+    "ALTER TABLE need_versions ALTER COLUMN items SET COMPRESSION lz4; "
+    "ALTER TABLE need_versions ALTER COLUMN stats SET COMPRESSION lz4; "
+    "EXCEPTION WHEN feature_not_supported OR invalid_parameter_value OR undefined_object THEN NULL; "
+    "END $$"
+)
+event.listen(NeedVersion.__table__, "after_create", NEED_VERSIONS_LZ4.execute_if(dialect="postgresql"))
+
+
 class Shortlist(Base):
     """Шортлист 📌 брифа — живёт отдельно от версий подборки (≤ 30 на бриф)."""
 
@@ -141,3 +156,50 @@ class ImpressionLog(Base):
     candidate_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
     rank: Mapped[int] = mapped_column(SmallInteger)
     shown_at: Mapped[datetime] = mapped_column(default=utcnow, server_default=func.now())
+
+
+class MatchingFeatures(Base):
+    """Кэш признаков кандидата для подбора: строка на категорию (специализация; Fullstack — отдельной строкой).
+
+    payload — сериализованный app.matching.scoring.CandidateFeatures с АБСОЛЮТНЫМИ отметками времени
+    (дни «N дней назад» считаются при чтении по Clock) плюс данные для слепой карточки (обобщённая строка
+    ФСП, полоса теста, свежесть). Строки пересобирает app/services/matching/features.py: по хукам
+    инвалидации и по расхождению fingerprint источников (тест, профиль, согласия, ФСП, задачи).
+    visible — кандидат виден работодателям (категория подтверждена, согласие на слепую карточку,
+    режим поиска не «не ищу», нет проверки методистом, возраст ≥ 16).
+    """
+
+    __tablename__ = "matching_features"
+
+    candidate_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    specialization: Mapped[str] = mapped_column(String(32), primary_key=True)
+    grade: Mapped[str] = mapped_column(String(16))
+    visible: Mapped[bool] = mapped_column(default=False, server_default=false())
+    has_fsp: Mapped[bool] = mapped_column(default=False, server_default=false())
+    payload: Mapped[dict[str, Any]] = mapped_column(default=dict, server_default=JSONB_EMPTY_OBJECT)
+    fingerprint: Mapped[str | None] = mapped_column(String(64))  # NULL — помечено устаревшим хуком
+    computed_at: Mapped[datetime] = mapped_column(default=utcnow, server_default=func.now())
+
+    __table_args__ = (
+        Index("ix_matching_features_category", "specialization", "grade", postgresql_where=text("visible")),
+    )
+
+
+class CandidateAlias(Base):
+    """Как компания видит кандидата до раскрытия: псевдоним «К-4821» = HMAC(company‖candidate) и непрозрачная
+    ссылка ref для API (DECISIONS п. 20). Свои у каждой компании — две компании не сопоставят карточки.
+    Псевдоним сохраняется при первом показе, редкие совпадения внутри компании разрешаются unique_pseudonym().
+    """
+
+    __tablename__ = "candidate_aliases"
+
+    company_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("companies.id", ondelete="CASCADE"), primary_key=True)
+    candidate_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    ref: Mapped[str] = mapped_column(String(32))
+    pseudonym: Mapped[str] = mapped_column(String(16))
+    created_at: Mapped[datetime] = mapped_column(default=utcnow, server_default=func.now())
+
+    __table_args__ = (
+        UniqueConstraint("company_id", "ref"),
+        UniqueConstraint("company_id", "pseudonym"),
+    )

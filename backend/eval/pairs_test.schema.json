@@ -1,0 +1,351 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vzaimno.example/schemas/pairs_test.schema.json",
+  "title": "Набор пар «бриф × кандидат» с релевантностью по оракулу",
+  "type": "object",
+  "required": [
+    "brief_id",
+    "brief",
+    "candidate_id",
+    "candidate",
+    "rel",
+    "ranks_top20"
+  ],
+  "properties": {
+    "brief_id": {
+      "type": "string",
+      "pattern": "^b[0-9]{2}$"
+    },
+    "brief": {
+      "type": "object",
+      "required": [
+        "text",
+        "gold"
+      ],
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "style": {
+          "type": "string"
+        },
+        "form": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "description": "Поля обязательной формы вилки, если вилки нет в тексте"
+        },
+        "gold": {
+          "type": "object",
+          "required": [
+            "spec",
+            "grade",
+            "must",
+            "nice",
+            "formats",
+            "salary_from",
+            "salary_to"
+          ],
+          "properties": {
+            "spec": {
+              "type": "string"
+            },
+            "grade": {
+              "type": "string",
+              "enum": [
+                "intern",
+                "junior",
+                "middle",
+                "senior"
+              ]
+            },
+            "must": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "nice": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "formats": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "city": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "salary_from": {
+              "type": "integer"
+            },
+            "salary_to": {
+              "type": "integer"
+            },
+            "salary_net": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "candidate_id": {
+      "type": "string"
+    },
+    "candidate": {
+      "type": "object",
+      "required": [
+        "features",
+        "self_description"
+      ],
+      "properties": {
+        "features": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "description": "Признаки подбора (app.matching.scoring.CandidateFeatures); null — категория тестом не подтверждена",
+          "required": [
+            "candidate_id",
+            "spec",
+            "grade",
+            "theta",
+            "se",
+            "modules",
+            "tasks",
+            "vss_by_discipline",
+            "declared_skills",
+            "salary_min",
+            "salary_net",
+            "formats",
+            "city",
+            "relocation"
+          ],
+          "properties": {
+            "candidate_id": {
+              "type": "string"
+            },
+            "spec": {
+              "type": "string",
+              "enum": [
+                "backend_python",
+                "frontend_js",
+                "fullstack"
+              ]
+            },
+            "grade": {
+              "type": "string",
+              "enum": [
+                "intern",
+                "junior",
+                "middle",
+                "senior"
+              ]
+            },
+            "theta": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "description": "Оценка уровня по шкале теста (порог Middle = 0)"
+            },
+            "se": {
+              "type": "number"
+            },
+            "theta_age_days": {
+              "type": "number"
+            },
+            "test_days_ago": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "borderline": {
+              "type": "boolean"
+            },
+            "trust": {
+              "type": "number"
+            },
+            "modules": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "required": [
+                  "theta",
+                  "se",
+                  "tag"
+                ],
+                "properties": {
+                  "theta": {
+                    "type": "number"
+                  },
+                  "se": {
+                    "type": "number"
+                  },
+                  "tag": {
+                    "type": "string",
+                    "enum": [
+                      "strong",
+                      "confirmed",
+                      "insufficient",
+                      "none"
+                    ]
+                  }
+                }
+              }
+            },
+            "tasks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "task_id",
+                  "kind",
+                  "q",
+                  "days_ago"
+                ],
+                "properties": {
+                  "task_id": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "A",
+                      "B"
+                    ]
+                  },
+                  "q": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "days_ago": {
+                    "type": "number"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "skills": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "module": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            },
+            "vss_by_discipline": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              }
+            },
+            "fsp_summary": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "declared_skills": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "salary_min": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "salary_net": {
+              "type": "boolean"
+            },
+            "formats": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "office",
+                  "hybrid",
+                  "remote"
+                ]
+              }
+            },
+            "city": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "relocation": {
+              "type": "boolean"
+            },
+            "industries": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "self_description": {
+          "type": "string",
+          "description": "Самоописание (в Score не входит — только бейзлайны B1/B3)"
+        },
+        "claimed_spec": {
+          "type": "string"
+        },
+        "claimed_grade": {
+          "type": "string"
+        },
+        "experience_months": {
+          "type": "integer"
+        },
+        "fsp_line": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "rel": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3,
+      "description": "Оракул по скрытой истине; релевантен ⇔ rel ≥ 2"
+    },
+    "ranks_top20": {
+      "type": "object",
+      "description": "Место в топ-20 систем ours, b0, b1, b2, b3 (null — вне топ-20)",
+      "additionalProperties": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      }
+    }
+  }
+}

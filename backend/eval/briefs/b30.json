@@ -1,0 +1,35 @@
+{
+  "id": "b30",
+  "split": "dev",
+  "style": "long",
+  "author": "team",
+  "text": "Привет! Мы — команда «Цифровая Ферма» (агротех). Ищем Python-разработчика уровня Middle.\n\nЧто будешь делать: писать сервисы сбора данных с датчиков, API для мобильного приложения, интеграции с внешними системами.\n\nЧто важно:\n— Python, FastAPI или Django;\n— PostgreSQL, умение писать сложные SQL-запросы;\n— Docker;\n— понимание REST.\n\nБудет плюсом: ClickHouse, Grafana.\n\nРаботаем удалённо, вилка 210–260 тыс. на руки.",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "middle",
+    "must": [
+      "python",
+      "fastapi",
+      "postgresql",
+      "docker",
+      "rest"
+    ],
+    "nice": [
+      "django",
+      "sql",
+      "api_design",
+      "integrations",
+      "clickhouse",
+      "grafana"
+    ],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 210000,
+    "salary_to": 260000,
+    "salary_net": true
+  },
+  "note": null
+}

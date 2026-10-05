@@ -73,6 +73,25 @@ def _compile(cfg: ContactConfig) -> _Compiled:
     return tuple(out)
 
 
+CONTACT_RULES = ("contacts_in_text", "short_link")
+
+
+def comment_contacts_problem(text: str | None, cfg: ContactConfig | None = None) -> str | None:
+    """DECISIONS 20: комментарий кандидата до раскрытия («Да, если…», «Нет») не должен нести контакты —
+    иначе взаимное «да» и отдельное согласие обходятся одной строкой. Те же шаблоны, что у стоп-слов."""
+    if not text:
+        return None
+    cfg = cfg or get_contact_config()
+    norm = normalize(text)
+    for code, _reason, patterns in _compiled(cfg):
+        if code in CONTACT_RULES and any(p.search(norm) for p in patterns):
+            return (
+                "Уберите из комментария контакты и ссылки: компания получит их после взаимного «да» "
+                "и вашего согласия"
+            )
+    return None
+
+
 def check_text(*parts: str, cfg: ContactConfig | None = None) -> FraudCheck:
     """Проверяет заголовок и описание приглашения. Поле «способ связи» сюда не передаём: контакт там легален."""
     cfg = cfg or get_contact_config()

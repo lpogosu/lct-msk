@@ -17,11 +17,19 @@ from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 from typing import Any
 
-from .antifraud import check_text
+from .antifraud import check_text, comment_contacts_problem
 from .clock import Clock, add_business_days, local_date, now_of
 from .common import ContactError, Outcome, Rule, SideEffect
 from .disclosure import ContactDisclosure, disclosure_fields_problem, grant_disclosure
-from .quotas import CandidateState, SenderState, SentRecord, check_invite, cooldown_after, is_personal_email
+from .quotas import (
+    CandidateState,
+    SenderState,
+    SentRecord,
+    check_invite,
+    cooldown_after,
+    cooldown_after_withdrawal,
+    is_personal_email,
+)
 from .reliability import ReliabilityEvent
 from .rules import Check, validate_invitation_content
 from .settings import ContactConfig, get_contact_config
@@ -155,11 +163,11 @@ TRANSITIONS: dict[tuple[S, A, R], Rule] = {
         S.EXPIRED, ("response_deadline_passed",), ("return_quota_slot", "set_pause", "notify")
     ),
     (S.SENT, A.WITHDRAW, R.EMPLOYER): Rule(
-        S.WITHDRAWN, ("withdraw_reason_valid",), ("record_withdraw", "notify")
+        S.WITHDRAWN, ("withdraw_reason_valid",), ("record_withdraw", "set_withdrawal_pause", "notify")
     ),
     (S.VIEWED, A.EXPIRE, R.SYSTEM): Rule(S.EXPIRED, ("response_deadline_passed",), ("set_pause", "notify")),
     (S.VIEWED, A.WITHDRAW, R.EMPLOYER): Rule(
-        S.WITHDRAWN, ("withdraw_reason_valid",), ("record_withdraw", "notify")
+        S.WITHDRAWN, ("withdraw_reason_valid",), ("record_withdraw", "set_withdrawal_pause", "notify")
     ),
     (S.VIEWED, A.ACCEPT, R.CANDIDATE): Rule(
         S.ACCEPTED,
@@ -190,13 +198,15 @@ TRANSITIONS: dict[tuple[S, A, R], Rule] = {
         S.EXPIRED, ("counter_deadline_passed",), ("reliability_counter_unanswered", "set_pause", "notify")
     ),
     (S.COUNTERED, A.WITHDRAW, R.EMPLOYER): Rule(
-        S.WITHDRAWN, ("withdraw_reason_valid",), ("record_withdraw", "notify")
+        S.WITHDRAWN, ("withdraw_reason_valid",), ("record_withdraw", "set_withdrawal_pause", "notify")
     ),
     # Итог «Найм» без отметки «Связались» невозможен; «Не сложилось» без контакта = отзыв после accepted.
     (S.ACCEPTED, A.CLOSE, R.EMPLOYER): Rule(
         S.CLOSED, ("outcome_valid", "hire_requires_contact"), ("record_outcome",)
     ),
-    (S.ACCEPTED, A.REVOKE_CONSENT, R.CANDIDATE): Rule(S.CONSENT_REVOKED, (), ("revoke_disclosure", "notify")),
+    (S.ACCEPTED, A.REVOKE_CONSENT, R.CANDIDATE): Rule(
+        S.CONSENT_REVOKED, (), ("revoke_disclosure", "set_withdrawal_pause", "notify")
+    ),
     # Петли: события без смены статуса
     (S.ACCEPTED, A.GRANT_CONSENT, R.CANDIDATE): Rule(
         S.ACCEPTED, ("disclosure_missing", "consent_given"), ("create_disclosure",)
@@ -219,7 +229,7 @@ TRANSITIONS: dict[tuple[S, A, R], Rule] = {
     # закрыть приглашение сразу после «да» и уйти от жалобы) и права отозвать согласие (152-ФЗ: в любой момент).
     (S.CLOSED, A.DISPUTE_CONTACT, R.CANDIDATE): Rule(S.CLOSED, ("dispute_allowed",), ("record_dispute",)),
     (S.CLOSED, A.REVOKE_CONSENT, R.CANDIDATE): Rule(
-        S.CLOSED, ("consent_active",), ("revoke_disclosure", "notify")
+        S.CLOSED, ("consent_active",), ("revoke_disclosure", "set_withdrawal_pause", "notify")
     ),
 }
 
@@ -308,7 +318,8 @@ def _g_decline_reason_valid(inv: Invitation, ctx: _Ctx) -> str | None:
     options = ctx.cfg.reasons.decline
     if ctx.payload.get("reason") not in options:
         return f"Выберите причину отказа: {_reason_list(options)}"
-    return _comment_ok(ctx)
+    # DECISIONS 20: комментарий кандидата уходит работодателю до раскрытия — без контактов
+    return _comment_ok(ctx) or comment_contacts_problem(ctx.payload.get("comment"), ctx.cfg)
 
 
 def _g_withdraw_reason_valid(inv: Invitation, ctx: _Ctx) -> str | None:
@@ -339,6 +350,9 @@ def _g_counter_valid(inv: Invitation, ctx: _Ctx) -> str | None:
     check = validate_counter(counter, inv.current_terms, local_date(ctx.now, ctx.cfg), ctx.cfg)
     if not check.ok:
         return "; ".join(check.messages())
+    problem = comment_contacts_problem(counter.comment, ctx.cfg)  # DECISIONS 20
+    if problem:
+        return problem
     # Галочка «раскрыть контакты, если примут»: набор полей проверяем сейчас, а не в момент согласия
     # работодателя — иначе кандидат узнал бы о проблеме, когда исправить её уже нельзя.
     if _auto_disclose(counter, ctx.cfg) and counter.disclosure_fields is not None:
@@ -471,6 +485,17 @@ def _e_set_pause(inv: Invitation, ctx: _Ctx) -> None:
         decline_reason=reason if ctx.to in (S.DECLINED, S.COUNTER_DECLINED) else None,
         last_salary_to=inv.current_terms.salary_to,
         cfg=ctx.cfg,
+    )
+    if cd is not None:
+        ctx.effect("cooldown", cooldown=cd)
+        ctx.event_payload["pause_until"] = cd.until.isoformat()
+
+
+def _e_set_withdrawal_pause(inv: Invitation, ctx: _Ctx) -> None:
+    # DECISIONS 22: отзыв приглашения и отзыв согласия (в т. ч. из «Завершено») ставят паузу пары.
+    reason = S.CONSENT_REVOKED if ctx.action == A.REVOKE_CONSENT else S.WITHDRAWN
+    cd = cooldown_after_withdrawal(
+        company_id=inv.company_id, candidate_id=inv.candidate_id, reason=reason, at=ctx.at, cfg=ctx.cfg
     )
     if cd is not None:
         ctx.effect("cooldown", cooldown=cd)
@@ -712,6 +737,7 @@ EFFECTS: dict[str, Effect] = {
     "mark_viewed": _e_mark_viewed,
     "return_quota_slot": _e_return_quota_slot,
     "set_pause": _e_set_pause,
+    "set_withdrawal_pause": _e_set_withdrawal_pause,
     "record_withdraw": _e_record_withdraw,
     "mark_accepted": _e_mark_accepted,
     "create_disclosure": _e_create_disclosure,

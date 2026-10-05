@@ -1,0 +1,30 @@
+{
+  "id": "b33",
+  "split": "test",
+  "style": "formal",
+  "author": "team",
+  "text": "Оплачиваемая стажировка для начинающих Python-разработчиков. Ждём: базовое знание Python, основы SQL, Git. Будет плюсом: Django или Flask, Linux. Формат: офис в Москве, 4–8 часов в день. Стипендия 50 000 – 70 000 руб. на руки.",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "intern",
+    "must": [
+      "python",
+      "sql",
+      "git"
+    ],
+    "nice": [
+      "django",
+      "flask",
+      "linux"
+    ],
+    "formats": [
+      "office"
+    ],
+    "city": "moscow",
+    "salary_from": 50000,
+    "salary_to": 70000,
+    "salary_net": true
+  },
+  "note": "«4–8 часов» рядом с вилкой"
+}

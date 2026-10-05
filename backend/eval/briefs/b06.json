@@ -1,0 +1,31 @@
+{
+  "id": "b06",
+  "split": "dev",
+  "style": "mixed_en",
+  "author": "team",
+  "text": "Looking for Middle Python Developer. Stack: Python, FastAPI, PostgreSQL, Redis, Docker. Nice to have: Kubernetes, CI/CD. Remote, вилка 250-320k net.",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "middle",
+    "must": [
+      "python",
+      "fastapi",
+      "postgresql",
+      "redis",
+      "docker"
+    ],
+    "nice": [
+      "kubernetes",
+      "ci_cd"
+    ],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 250000,
+    "salary_to": 320000,
+    "salary_net": true
+  },
+  "note": null
+}

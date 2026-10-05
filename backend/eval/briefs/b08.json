@@ -1,0 +1,27 @@
+{
+  "id": "b08",
+  "split": "dev",
+  "style": "short",
+  "author": "team",
+  "text": "Senior Python, highload, Kafka, Postgres. 400-480к на руки, удалёнка.",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "senior",
+    "must": [
+      "python",
+      "highload",
+      "kafka",
+      "postgresql"
+    ],
+    "nice": [],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 400000,
+    "salary_to": 480000,
+    "salary_net": true
+  },
+  "note": null
+}

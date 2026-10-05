@@ -1,0 +1,30 @@
+{
+  "id": "b11",
+  "split": "test",
+  "style": "mixed_en",
+  "author": "team",
+  "text": "Frontend dev (middle) — Vue 3, TypeScript, Pinia, REST API. Плюс: Nuxt, Vite. Hybrid, Москва. ЗП 210–260к gross.",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "middle",
+    "must": [
+      "vue",
+      "typescript",
+      "pinia",
+      "rest"
+    ],
+    "nice": [
+      "nuxt",
+      "vite"
+    ],
+    "formats": [
+      "hybrid"
+    ],
+    "city": "moscow",
+    "salary_from": 210000,
+    "salary_to": 260000,
+    "salary_net": false
+  },
+  "note": null
+}

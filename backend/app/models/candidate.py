@@ -11,7 +11,14 @@ from sqlalchemy.dialects.postgresql import ARRAY, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.configs import load_config
-from app.db.base import JSONB_EMPTY_ARRAY, JSONB_EMPTY_OBJECT, Base, TimestampMixin, UUIDPkMixin
+from app.db.base import (
+    JSONB_EMPTY_ARRAY,
+    JSONB_EMPTY_OBJECT,
+    Base,
+    CreatedAtMixin,
+    TimestampMixin,
+    UUIDPkMixin,
+)
 from app.models.enums import SalaryType, SalaryVisibility, SearchMode
 
 if TYPE_CHECKING:
@@ -100,6 +107,11 @@ class CandidateProfile(TimestampMixin, Base):
     # [{"skill": "fastapi", "source": "resume|survey|manual", "quote": "..."}] — серые «заявлено»
     declared_skills: Mapped[list[Any]] = mapped_column(default=list, server_default=JSONB_EMPTY_ARRAY)
     declared_roles: Mapped[list[Any]] = mapped_column(default=list, server_default=JSONB_EMPTY_ARRAY)
+    # [{"id": "teamwork", "name": "Работа в команде", "source": "resume|manual", "quote": "..."}]
+    soft_skills: Mapped[list[Any]] = mapped_column(default=list, server_default=JSONB_EMPTY_ARRAY)
+    # Грейд «как заявлен» (резюме или форма). Только подсказка и серый чип: категорию даёт тест (DECISIONS п. 1)
+    declared_grade: Mapped[str | None] = mapped_column(String(16))
+    resume_uploaded_at: Mapped[datetime | None]
 
     # --- Несовершеннолетние (концепция §4.3): до 16 не видны, 16–17 — только стажировки ---
     birth_year: Mapped[int | None] = mapped_column(SmallInteger)
@@ -164,3 +176,18 @@ class CandidateFeatures(Base):
     __table_args__ = (Index("ix_candidate_features_visible_spec", "specialization", "grade", postgresql_where=text("visible")),)
 
 
+class ProfileSnapshot(CreatedAtMixin, Base):
+    """Выданный стандартизированный PDF-профиль (концепция §3.1.2): код сверки /v/{hash} → что было
+    в документе. hash = HMAC(секрет, содержимое листа + дата выдачи): изменённый PDF не найдёт свою запись.
+
+    claims — только то, что показывает публичная страница сверки (категория, даты, номер сессии, дата
+    данных реестра ФСП, псевдоним слепой версии). ПДн здесь нет.
+    """
+
+    __tablename__ = "profile_snapshots"
+
+    hash: Mapped[str] = mapped_column(String(32), primary_key=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    variant: Mapped[str] = mapped_column(String(8))  # blind | full
+    issued_on: Mapped[date]
+    claims: Mapped[dict[str, Any]] = mapped_column(default=dict, server_default=JSONB_EMPTY_OBJECT)

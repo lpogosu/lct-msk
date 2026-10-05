@@ -1,0 +1,25 @@
+{
+  "id": "b03",
+  "split": "test",
+  "style": "short",
+  "author": "team",
+  "text": "Нужен Middle React-разработчик, TypeScript обязателен. Удалённо. 200–260 тыс. на руки.",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "middle",
+    "must": [
+      "react",
+      "typescript"
+    ],
+    "nice": [],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 200000,
+    "salary_to": 260000,
+    "salary_net": true
+  },
+  "note": null
+}

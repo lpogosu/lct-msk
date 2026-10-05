@@ -1,0 +1,31 @@
+{
+  "id": "b36",
+  "split": "dev",
+  "style": "mixed_en",
+  "author": "team",
+  "text": "Senior Python Engineer / Tech Lead track. Stack: Python, Django, PostgreSQL, Kafka, Kubernetes. Требуется опыт system design и highload. Remote-first, 420–500k RUB net.",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "senior",
+    "must": [
+      "python",
+      "django",
+      "postgresql",
+      "kafka",
+      "kubernetes"
+    ],
+    "nice": [
+      "system_design",
+      "highload"
+    ],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 420000,
+    "salary_to": 500000,
+    "salary_net": true
+  },
+  "note": null
+}

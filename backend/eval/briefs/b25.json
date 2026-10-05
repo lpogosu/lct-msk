@@ -1,0 +1,35 @@
+{
+  "id": "b25",
+  "split": "test",
+  "style": "long",
+  "author": "team",
+  "text": "Ищем Senior Fullstack-разработчика в команду платформы для логистов.\n\nСтек:\n- бэкенд: Python, FastAPI, PostgreSQL, Celery;\n- фронтенд: React, TypeScript.\n\nТребования:\n- опыт от 4 лет в fullstack-разработке;\n- уверенный Python и React;\n- умение проектировать API и схемы БД.\n\nБудет плюсом: Docker, CI/CD, Redis.\n\nУсловия: удалённо, 330–400 тыс. ₽ на руки.",
+  "form": null,
+  "gold": {
+    "spec": "fullstack",
+    "grade": "senior",
+    "must": [
+      "python",
+      "fastapi",
+      "react",
+      "typescript",
+      "postgresql"
+    ],
+    "nice": [
+      "celery",
+      "api_design",
+      "db_design",
+      "docker",
+      "ci_cd",
+      "redis"
+    ],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 330000,
+    "salary_to": 400000,
+    "salary_net": true
+  },
+  "note": null
+}

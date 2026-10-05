@@ -15,7 +15,10 @@ import json
 import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, ClassVar, Literal
+from typing import TYPE_CHECKING, Any, ClassVar, Literal
+
+if TYPE_CHECKING:
+    from app.testing.anticheat.twins import Twin
 
 Format = Literal["predict_output", "bug_line", "sql_result", "parsons", "complexity", "mcq_concept"]
 AnswerMode = Literal["text", "choice", "line_choice", "order"]
@@ -111,6 +114,20 @@ class Family(ABC):
         if isinstance(answer, str):
             return _WS.sub(" ", answer.strip())
         return answer
+
+    def twin(self, inst: Instance, seed: int | None = None) -> Twin | None:
+        """«Двойник в буфере»: тот же экземпляр с ОДНИМ изменённым литералом данных и ключом, вычисленным исполнением.
+
+        Необязательный хук (spec-antiassist §2.1, §7). По умолчанию делегирует общим мутаторам
+        app.testing.anticheat.twins (predict_output на python/javascript и sql_result); семейство с особым
+        форматом данных может переопределить метод. None — безопасного двойника нет (причину даёт
+        anticheat.twins.try_make_twin). seed по умолчанию — inst.seed. Контракт генерации и ключей не меняется.
+        """
+        from app.testing.anticheat.twins import (
+            make_twin,  # noqa: PLC0415 — отложенный импорт: нет цикла base ↔ anticheat
+        )
+
+        return make_twin(self, inst, seed=seed)
 
     def check(self, inst: Instance, answer: Any) -> tuple[bool, str | None]:
         """(верно?, тег заблуждения если ответ совпал с известным дистрактором)."""

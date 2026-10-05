@@ -1,0 +1,28 @@
+{
+  "id": "b22",
+  "split": "dev",
+  "style": "short",
+  "author": "team",
+  "text": "Python Middle, Django + DRF, PostgreSQL, Redis. Казань, гибрид. 180–230 тыс. на руки",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "middle",
+    "must": [
+      "python",
+      "django",
+      "drf",
+      "postgresql",
+      "redis"
+    ],
+    "nice": [],
+    "formats": [
+      "hybrid"
+    ],
+    "city": "kazan",
+    "salary_from": 180000,
+    "salary_to": 230000,
+    "salary_net": true
+  },
+  "note": null
+}

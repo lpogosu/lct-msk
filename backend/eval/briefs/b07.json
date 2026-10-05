@@ -1,0 +1,31 @@
+{
+  "id": "b07",
+  "split": "test",
+  "style": "formal",
+  "author": "team",
+  "text": "В продуктовую команду онлайн-школы «Знайка» нужен Fullstack-разработчик уровня Middle. Бэкенд на Python (Django, DRF), фронтенд на React. Обязательно: Python, Django, React, PostgreSQL. Желательно: TypeScript, Docker. Гибридный формат, Новосибирск. От 200 до 270 тыс. рублей до вычета НДФЛ.",
+  "form": null,
+  "gold": {
+    "spec": "fullstack",
+    "grade": "middle",
+    "must": [
+      "python",
+      "django",
+      "react",
+      "postgresql"
+    ],
+    "nice": [
+      "drf",
+      "typescript",
+      "docker"
+    ],
+    "formats": [
+      "hybrid"
+    ],
+    "city": "novosibirsk",
+    "salary_from": 200000,
+    "salary_to": 270000,
+    "salary_net": false
+  },
+  "note": null
+}

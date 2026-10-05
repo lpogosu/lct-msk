@@ -1,0 +1,30 @@
+{
+  "id": "b27",
+  "split": "test",
+  "style": "short",
+  "author": "team",
+  "text": "Junior Python-разработчик, FastAPI, PostgreSQL, удалённо",
+  "form": {
+    "salary_from": 100000,
+    "salary_to": 140000,
+    "salary_net": true
+  },
+  "gold": {
+    "spec": "backend_python",
+    "grade": "junior",
+    "must": [
+      "python",
+      "fastapi",
+      "postgresql"
+    ],
+    "nice": [],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 100000,
+    "salary_to": 140000,
+    "salary_net": true
+  },
+  "note": "вилка только в форме"
+}

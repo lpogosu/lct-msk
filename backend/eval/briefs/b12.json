@@ -1,0 +1,31 @@
+{
+  "id": "b12",
+  "split": "dev",
+  "style": "formal",
+  "author": "team",
+  "text": "Ищем Python-разработчика (Middle) в команду внутренних сервисов логистической компании «Транспортная Линия». Стек: Python, Flask, SQLAlchemy, PostgreSQL, RabbitMQ. Django не нужен — у нас Flask. Будет плюсом опыт с Docker и Linux. Офис в Нижнем Новгороде, 170–230 тыс. на руки.",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "middle",
+    "must": [
+      "python",
+      "flask",
+      "sqlalchemy",
+      "postgresql",
+      "rabbitmq"
+    ],
+    "nice": [
+      "docker",
+      "linux"
+    ],
+    "formats": [
+      "office"
+    ],
+    "city": "nizhny_novgorod",
+    "salary_from": 170000,
+    "salary_to": 230000,
+    "salary_net": true
+  },
+  "note": "отрицание «Django не нужен»"
+}

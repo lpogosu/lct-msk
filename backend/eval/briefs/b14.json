@@ -1,0 +1,28 @@
+{
+  "id": "b14",
+  "split": "dev",
+  "style": "chat",
+  "author": "team",
+  "text": "Возьмём стажёра на фронт. Нужно знать html, css, основы js. Будет плюсом React. Стажировка оплачиваемая 50-70 тыс, офис в Питере",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "intern",
+    "must": [
+      "html",
+      "css",
+      "javascript"
+    ],
+    "nice": [
+      "react"
+    ],
+    "formats": [
+      "office"
+    ],
+    "city": "spb",
+    "salary_from": 50000,
+    "salary_to": 70000,
+    "salary_net": null
+  },
+  "note": null
+}

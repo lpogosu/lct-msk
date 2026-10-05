@@ -1,0 +1,38 @@
+{
+  "id": "b04",
+  "split": "dev",
+  "style": "long",
+  "author": "team",
+  "text": "Компания «Литера Софт» (B2B SaaS для документооборота) ищет Senior Backend-разработчика.\n\nЧем предстоит заниматься:\n— проектировать и развивать микросервисы на Python (FastAPI);\n— оптимизировать запросы к PostgreSQL, проектировать схемы БД;\n— выстраивать асинхронное взаимодействие через Kafka;\n— проводить код-ревью и менторить младших разработчиков.\n\nТребования:\n— опыт коммерческой разработки на Python от 5 лет;\n— уверенное знание asyncio, FastAPI, PostgreSQL;\n— опыт с Kafka или RabbitMQ.\n\nБудет плюсом:\n— Kubernetes, опыт с ClickHouse;\n— Grafana и Prometheus.\n\nУсловия: удалённо или офис в Санкт-Петербурге, 350 000 – 450 000 ₽ gross.",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "senior",
+    "must": [
+      "python",
+      "fastapi",
+      "postgresql",
+      "asyncio",
+      "kafka"
+    ],
+    "nice": [
+      "microservices",
+      "query_optimization",
+      "code_review",
+      "rabbitmq",
+      "kubernetes",
+      "clickhouse",
+      "grafana",
+      "prometheus"
+    ],
+    "formats": [
+      "remote",
+      "office"
+    ],
+    "city": "spb",
+    "salary_from": 350000,
+    "salary_to": 450000,
+    "salary_net": false
+  },
+  "note": "«младших разработчиков» в обязанностях не должно менять грейд"
+}

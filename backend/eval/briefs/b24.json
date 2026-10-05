@@ -1,0 +1,30 @@
+{
+  "id": "b24",
+  "split": "dev",
+  "style": "chat",
+  "author": "team",
+  "text": "Народ, ищем мидла на фронт (реакт + тс). Важно уметь в вёрстку, флексы-гриды, адаптив. Next.js будет плюсом. Удалёнка, 190–240к на руки.",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "middle",
+    "must": [
+      "react",
+      "typescript",
+      "layout",
+      "flexbox",
+      "responsive"
+    ],
+    "nice": [
+      "nextjs"
+    ],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 190000,
+    "salary_to": 240000,
+    "salary_net": true
+  },
+  "note": null
+}

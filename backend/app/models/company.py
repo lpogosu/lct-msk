@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import ForeignKey, Index, String, Text, false, func, text
+from sqlalchemy import BigInteger, ForeignKey, Identity, Index, String, Text, false, func, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.clock import utcnow
@@ -70,6 +70,26 @@ class WebhookDelivery(UUIDPkMixin, CreatedAtMixin, Base):
     response_excerpt: Mapped[str | None] = mapped_column(String(500))
     last_attempt_at: Mapped[datetime | None]
     next_attempt_at: Mapped[datetime | None]
+
+
+class ReliabilityEventRow(Base):
+    """Событие надёжности компании (good/bad из config/contact.yaml → reliability) — вход формулы R.
+
+    R считается на чтении из этих строк (app/contact/reliability.compute_reliability), без кеша:
+    так бейдж «есть расхождения условий» и квота ×0,5 всегда соответствуют журналу.
+    """
+
+    __tablename__ = "reliability_events"
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    company_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("companies.id", ondelete="CASCADE"))
+    kind: Mapped[str] = mapped_column(String(32))
+    at: Mapped[datetime]
+    candidate_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    invitation_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("invitations.id", ondelete="SET NULL"))
+    application_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("applications.id", ondelete="SET NULL"))
+
+    __table_args__ = (Index("ix_reliability_events_company_at", "company_id", "at"),)
 
 
 class ReliabilitySnapshot(UUIDPkMixin, Base):

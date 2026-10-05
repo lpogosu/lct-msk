@@ -1,0 +1,39 @@
+{
+  "id": "b15",
+  "split": "test",
+  "style": "long",
+  "author": "team",
+  "text": "Команда облачной платформы для ритейла ищет ведущего Python-разработчика (Senior).\n\nОбязанности:\n- проектирование и разработка высоконагруженных сервисов;\n- работа с очередями (Kafka), кешированием (Redis);\n- участие в архитектурных решениях, system design.\n\nТребования:\n- Python 3.10+, asyncio, aiohttp или FastAPI;\n- PostgreSQL: индексы, транзакции, оптимизация запросов;\n- Docker, Kubernetes;\n- опыт от 4 лет.\n\nУсловия: удалённо, 360–440 тыс. ₽ на руки.",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "senior",
+    "must": [
+      "python",
+      "asyncio",
+      "fastapi",
+      "postgresql",
+      "docker"
+    ],
+    "nice": [
+      "aiohttp",
+      "kubernetes",
+      "sql_indexes",
+      "transactions",
+      "query_optimization",
+      "kafka",
+      "redis",
+      "highload",
+      "system_design",
+      "caching"
+    ],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 360000,
+    "salary_to": 440000,
+    "salary_net": true
+  },
+  "note": null
+}

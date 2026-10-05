@@ -1,0 +1,26 @@
+{
+  "id": "b13",
+  "split": "test",
+  "style": "short",
+  "author": "team",
+  "text": "Middle Python/Django разработчик, Москва, офис или гибрид, 230–290 тыс. на руки",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "middle",
+    "must": [
+      "python",
+      "django"
+    ],
+    "nice": [],
+    "formats": [
+      "office",
+      "hybrid"
+    ],
+    "city": "moscow",
+    "salary_from": 230000,
+    "salary_to": 290000,
+    "salary_net": true
+  },
+  "note": null
+}

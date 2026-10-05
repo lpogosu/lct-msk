@@ -1,0 +1,32 @@
+{
+  "id": "b18",
+  "split": "dev",
+  "style": "formal",
+  "author": "team",
+  "text": "Открыта вакансия Junior Python-разработчика в отдел автоматизации завода (промышленность). Требования: Python, SQL (PostgreSQL), Git, понимание ООП. Желательно: Linux, Bash, Docker. Офис в Челябинске, полный день. Заработная плата 80 000 – 110 000 руб. до вычета НДФЛ.",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "junior",
+    "must": [
+      "python",
+      "sql",
+      "postgresql",
+      "git",
+      "oop"
+    ],
+    "nice": [
+      "linux",
+      "bash",
+      "docker"
+    ],
+    "formats": [
+      "office"
+    ],
+    "city": "chelyabinsk",
+    "salary_from": 80000,
+    "salary_to": 110000,
+    "salary_net": false
+  },
+  "note": null
+}

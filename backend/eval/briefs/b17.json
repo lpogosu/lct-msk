@@ -1,0 +1,29 @@
+{
+  "id": "b17",
+  "split": "test",
+  "style": "chat",
+  "author": "team",
+  "text": "Нужен фуллстек-джун: на бэке нода (express), на фронте реакт. База данных монга или постгрес. Удаленно, 110-140к на руки",
+  "form": null,
+  "gold": {
+    "spec": "fullstack",
+    "grade": "junior",
+    "must": [
+      "nodejs",
+      "express",
+      "react"
+    ],
+    "nice": [
+      "mongodb",
+      "postgresql"
+    ],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 110000,
+    "salary_to": 140000,
+    "salary_net": true
+  },
+  "note": null
+}

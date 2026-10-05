@@ -1,0 +1,35 @@
+{
+  "id": "b28",
+  "split": "dev",
+  "style": "formal",
+  "author": "team",
+  "text": "Финтех-компания «Ладья Капитал» приглашает Senior Python Developer. Требования: опыт разработки на Python от 5 лет, Django, PostgreSQL (оптимизация запросов, индексы), очереди RabbitMQ, Celery, микросервисная архитектура. Будет плюсом: Go, Kubernetes, ClickHouse. Москва, гибрид, 400–480 тыс. рублей на руки.",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "senior",
+    "must": [
+      "python",
+      "django",
+      "postgresql",
+      "rabbitmq",
+      "celery"
+    ],
+    "nice": [
+      "query_optimization",
+      "sql_indexes",
+      "microservices",
+      "go",
+      "kubernetes",
+      "clickhouse"
+    ],
+    "formats": [
+      "hybrid"
+    ],
+    "city": "moscow",
+    "salary_from": 400000,
+    "salary_to": 480000,
+    "salary_net": true
+  },
+  "note": null
+}

@@ -1,0 +1,33 @@
+{
+  "id": "b23",
+  "split": "test",
+  "style": "formal",
+  "author": "team",
+  "text": "Требуется Senior Frontend Developer в команду e-commerce платформы «Маркет Плюс». Обязательные навыки: JavaScript (ES6+), TypeScript, React, Redux Toolkit, Webpack. Будет преимуществом: Node.js, GraphQL, опыт микрофронтендов. Условия: офис в Москве или гибрид, 350–420 тыс. руб. на руки.",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "senior",
+    "must": [
+      "javascript",
+      "typescript",
+      "react",
+      "redux",
+      "webpack"
+    ],
+    "nice": [
+      "nodejs",
+      "graphql",
+      "microfrontends"
+    ],
+    "formats": [
+      "office",
+      "hybrid"
+    ],
+    "city": "moscow",
+    "salary_from": 350000,
+    "salary_to": 420000,
+    "salary_net": true
+  },
+  "note": null
+}

@@ -109,6 +109,11 @@ services:
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${VZ_KEYCLOAK_ADMIN_PASSWORD:-admin}
       KC_HEALTH_ENABLED: "true"
       KC_HOSTNAME_STRICT: "false"
+      # Публичный адрес realm для браузера: iss в id_token — всегда он, даже когда бэкенд меняет код
+      # на токен по внутреннему http://keycloak:8080 (VZ_FSP_OIDC_INTERNAL_URL). Backchannel-эндпоинты
+      # (token, JWKS) Keycloak отдаёт по адресу запроса — так бэкенд внутри сети их видит.
+      KC_HOSTNAME: ${VZ_FSP_KEYCLOAK_PUBLIC_URL:-http://localhost:8080}
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
       # Плейсхолдер ${VZ_PUBLIC_DOMAIN} в redirect URI realm-fsp.json (deploy/keycloak/README.md)
       VZ_PUBLIC_DOMAIN: ${VZ_PUBLIC_DOMAIN:-vzaimno.example}
       # JVM не должна выходить за лимит контейнера
