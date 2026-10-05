@@ -8,16 +8,22 @@ from app.api import (
     admin,
     applications,
     auth,
+    bank,
+    candidates,
+    companies,
     consents,
+    demo,
     fsp,
     health,
     invitations,
     lab,
     needs,
+    notifications,
     survey,
     tasks,
     testing,
     vacancies,
+    verify,
 )
 
 API_PREFIX = "/api"
@@ -38,9 +44,16 @@ OPENAPI_TAGS: list[dict[str, str]] = [
     {"name": "Регулярные задачи", "description": "Короткие задания от компаний и тренировочные задачи платформы."},
     {"name": "ФСП", "description": "Привязка ФСП ID (Keycloak) и достижения из реестра ФСП."},
     {"name": "Лаборатория", "description": "Трасса сессии, банк заданий, флаги целостности, валидация (роль «методист»)."},
+    {"name": "Компании", "description": "Профиль компании-работодателя и интеграция с ATS (вебхуки)."},
+    {"name": "Кандидат", "description": "Профиль и резюме кандидата, стандартизированный PDF-профиль, настройки приватности и поиска."},
+    {"name": "Уведомления", "description": "Уведомления внутри платформы."},
+    {"name": "Проверка профиля", "description": "Публичная сверка стандартизированного PDF-профиля по QR-коду."},
     {"name": "Администрирование", "description": "Импорт данных жюри и демо-инструменты."},
 ]
 
 api_router = APIRouter(prefix=API_PREFIX)
-for module in (health, auth, consents, survey, testing, needs, invitations, applications, vacancies, tasks, fsp, lab, admin):
+for module in (
+    health, auth, consents, companies, candidates, survey, testing, needs, bank, invitations, applications,
+    vacancies, tasks, notifications, fsp, verify, lab, demo, admin,
+):
     api_router.include_router(module.router)
