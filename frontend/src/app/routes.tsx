@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ComponentType, ReactNode } from 'react'
 import { createBrowserRouter, Navigate, type RouteObject } from 'react-router-dom'
 import { FullPageLoading, RedirectIfAuthed, RequireRole } from '@/auth/guards'
 import { CandidateLayout } from '@/layouts/CandidateLayout'
@@ -9,7 +9,7 @@ import { RootLayout } from '@/layouts/RootLayout'
 import { AuthLayout } from '@/pages/auth/AuthLayout'
 import Landing from '@/pages/Landing'
 import { NotFound, RouteError } from '@/pages/NotFound'
-import { MobileHeader, WorkInProgress } from '@/ui'
+import { WorkInProgress } from '@/ui'
 
 /*
  * КАРТА МАРШРУТОВ. Каждый ещё не собранный экран — заглушка `wip(...)` со спокойным «Раздел в работе»
@@ -19,16 +19,6 @@ import { MobileHeader, WorkInProgress } from '@/ui'
 
 function wip(section: string, backTo?: string, figma?: string, description?: string): ReactNode {
   return <WorkInProgress section={section} backTo={backTo} figma={figma} description={description} />
-}
-
-/** Заглушка мобильного экрана кандидата: верхняя строка + «в работе» */
-function mobileWip(section: string, backTo: string | undefined, figma?: string, description?: string): ReactNode {
-  return (
-    <>
-      <MobileHeader title={section} backTo={backTo} />
-      <WorkInProgress section={section} backTo={backTo} figma={figma} description={description} />
-    </>
-  )
 }
 
 const publicRoutes: RouteObject = {
@@ -72,6 +62,9 @@ const authRoutes: RouteObject = {
 }
 
 // Кандидат — mobile-first. Figma: К4 тест 34:2, К5 результат 34:42, К10 приглашение 29:2, «Взаимно» 29:48.
+// Экраны кандидата — `src/pages/candidate/*`, их данные и мелкие компоненты — `src/features/candidate/*`.
+const candidatePage = (load: () => Promise<{ default: ComponentType }>) => async () => ({ Component: (await load()).default })
+
 const candidateRoutes: RouteObject = {
   path: 'candidate',
   element: (
@@ -80,22 +73,27 @@ const candidateRoutes: RouteObject = {
     </RequireRole>
   ),
   children: [
-    { index: true, element: mobileWip('Мой путь', undefined, 'К1–К3: опрос → выбор грейда'), handle: { title: 'Мой путь' } },
-    { path: 'survey', element: mobileWip('Опрос', '/candidate'), handle: { title: 'Опрос' } },
-    { path: 'test', element: mobileWip('Тест', '/candidate', '34:2 К4 Тест'), handle: { title: 'Тест', hideNav: true } },
-    { path: 'result', element: mobileWip('Результат теста', '/candidate', '34:42 К5 Результат'), handle: { title: 'Результат теста' } },
-    { path: 'invitations', element: mobileWip('Приглашения', '/candidate'), handle: { title: 'Приглашения' } },
-    {
-      path: 'invitations/:id',
-      element: mobileWip('Приглашение', '/candidate/invitations', '29:2 К10 Приглашение, 29:48 К10 Взаимно'),
-      handle: { title: 'Приглашение', hideNav: true },
-    },
-    {
-      path: 'profile',
-      lazy: async () => ({ Component: (await import('@/pages/candidate/Profile')).default }),
-      handle: { title: 'Профиль' },
-    },
-    { path: 'consents', element: mobileWip('Согласия', '/candidate/profile', 'К13 журнал согласий'), handle: { title: 'Согласия' } },
+    { index: true, lazy: candidatePage(() => import('@/pages/candidate/Home')), handle: { title: 'Мой путь' } },
+    { path: 'survey', lazy: candidatePage(() => import('@/pages/candidate/Survey')), handle: { title: 'Опрос' } },
+    { path: 'grade', lazy: candidatePage(() => import('@/pages/candidate/Briefing')), handle: { title: 'Выбор грейда' } },
+    { path: 'test/:sessionId', lazy: candidatePage(() => import('@/pages/candidate/Test')), handle: { title: 'Тест', hideNav: true } },
+    { path: 'result/:sessionId', lazy: candidatePage(() => import('@/pages/candidate/Result')), handle: { title: 'Результат теста' } },
+    { path: 'result/:sessionId/review', lazy: candidatePage(() => import('@/pages/candidate/Review')), handle: { title: 'Разбор ошибок' } },
+    { path: 'invitations', lazy: candidatePage(() => import('@/pages/candidate/Invitations')), handle: { title: 'Приглашения' } },
+    { path: 'invitations/:id', lazy: candidatePage(() => import('@/pages/candidate/Invitation')), handle: { title: 'Приглашение', hideNav: true } },
+    { path: 'profile', lazy: candidatePage(() => import('@/pages/candidate/Profile')), handle: { title: 'Профиль' } },
+    { path: 'profile/edit', lazy: candidatePage(() => import('@/pages/candidate/ProfileEdit')), handle: { title: 'Профиль и резюме' } },
+    { path: 'profile/pdf', lazy: candidatePage(() => import('@/pages/candidate/ProfilePdf')), handle: { title: 'PDF-профиль' } },
+    { path: 'qualification', lazy: candidatePage(() => import('@/pages/candidate/MyGrade')), handle: { title: 'Мой грейд' } },
+    { path: 'fsp', lazy: candidatePage(() => import('@/pages/candidate/Fsp')), handle: { title: 'ФСП' } },
+    { path: 'fsp/callback', lazy: candidatePage(() => import('@/pages/candidate/FspCallback')), handle: { title: 'Привязка ФСП ID', hideNav: true } },
+    { path: 'vacancies', lazy: candidatePage(() => import('@/pages/candidate/Vacancies')), handle: { title: 'Вакансии и отклики' } },
+    { path: 'vacancies/:id', lazy: candidatePage(() => import('@/pages/candidate/VacancyDetail')), handle: { title: 'Вакансия' } },
+    { path: 'tasks', lazy: candidatePage(() => import('@/pages/candidate/Tasks')), handle: { title: 'Задачи' } },
+    { path: 'tasks/:assignmentId', lazy: candidatePage(() => import('@/pages/candidate/TaskPlayer')), handle: { title: 'Задача', hideNav: true } },
+    { path: 'visibility', lazy: candidatePage(() => import('@/pages/candidate/Visibility')), handle: { title: 'Как меня видят' } },
+    { path: 'privacy', lazy: candidatePage(() => import('@/pages/candidate/Privacy')), handle: { title: 'Приватность и поиск' } },
+    { path: 'consents', lazy: candidatePage(() => import('@/pages/candidate/Consents')), handle: { title: 'Согласия' } },
   ],
 }
 
@@ -109,13 +107,56 @@ const employerRoutes: RouteObject = {
   ),
   children: [
     { index: true, element: <Navigate to="needs" replace /> },
-    { path: 'needs', element: wip('Потребности', undefined, undefined, 'Здесь появятся ваши потребности и версии подборок.'), handle: { title: 'Потребности' } },
-    { path: 'needs/new', element: wip('Описание потребности', '/employer/needs', '40:2 Р3 Опишите, кого ищете'), handle: { title: 'Новая потребность' } },
-    { path: 'needs/:id', element: wip('Подборка', '/employer/needs', '27:2 Р5 Подборка'), handle: { title: 'Подборка' } },
-    { path: 'bank', element: wip('Банк кандидатов', undefined, '33:2 Карта талантов'), handle: { title: 'Банк кандидатов' } },
-    { path: 'invitations', element: wip('Приглашения', undefined, '42:2 Р8 Приглашения'), handle: { title: 'Приглашения' } },
-    { path: 'vacancies', element: wip('Вакансии'), handle: { title: 'Вакансии' } },
-    { path: 'tasks', element: wip('Задачи'), handle: { title: 'Задачи' } },
+    {
+      path: 'company',
+      lazy: async () => ({ Component: (await import('@/pages/employer/CompanyProfile')).default }),
+      handle: { title: 'Профиль компании' },
+    },
+    {
+      path: 'needs',
+      lazy: async () => ({ Component: (await import('@/pages/employer/Needs')).default }),
+      handle: { title: 'Потребности' },
+    },
+    {
+      path: 'needs/new',
+      lazy: async () => ({ Component: (await import('@/pages/employer/NeedBrief')).default }),
+      handle: { title: 'Новая потребность' },
+    },
+    {
+      path: 'needs/:id/edit',
+      lazy: async () => ({ Component: (await import('@/pages/employer/NeedBrief')).default }),
+      handle: { title: 'Правка потребности' },
+    },
+    {
+      path: 'needs/:id',
+      lazy: async () => ({ Component: (await import('@/pages/employer/NeedSelection')).default }),
+      handle: { title: 'Подборка' },
+    },
+    {
+      path: 'bank',
+      lazy: async () => ({ Component: (await import('@/pages/employer/TalentMap')).default }),
+      handle: { title: 'Карта талантов' },
+    },
+    {
+      path: 'bank/list',
+      lazy: async () => ({ Component: (await import('@/pages/employer/BankList')).default }),
+      handle: { title: 'Банк кандидатов' },
+    },
+    {
+      path: 'invitations',
+      lazy: async () => ({ Component: (await import('@/pages/employer/Invitations')).default }),
+      handle: { title: 'Приглашения' },
+    },
+    {
+      path: 'vacancies',
+      lazy: async () => ({ Component: (await import('@/pages/employer/Vacancies')).default }),
+      handle: { title: 'Вакансии и отклики' },
+    },
+    {
+      path: 'tasks',
+      lazy: async () => ({ Component: (await import('@/pages/employer/Tasks')).default }),
+      handle: { title: 'Задачи для кандидатов' },
+    },
   ],
 }
 
