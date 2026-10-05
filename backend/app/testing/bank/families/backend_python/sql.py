@@ -83,7 +83,7 @@ def count_rows(setup: str, query: str) -> int:
 class OrderLimitOffset(BankFamily):
     id = "sql.order.limit_offset"
     title = "ORDER BY, LIMIT и OFFSET"
-    specs = SPECS
+    specs = (*SPECS, "qa")
     module = "sql"
     format = "sql_result"
     target_grade = "intern"
@@ -167,7 +167,7 @@ _JOIN_DOMAINS = [
 class LeftJoinRows(BankFamily):
     id = "sql.join.left_rows"
     title = "Сколько строк даст LEFT JOIN"
-    specs = SPECS
+    specs = (*SPECS, "qa")
     module = "sql"
     format = "sql_result"
     target_grade = "junior"
@@ -238,7 +238,7 @@ class LeftJoinRows(BankFamily):
 class AggregateNull(BankFamily):
     id = "sql.aggregate.null"
     title = "COUNT и AVG при NULL"
-    specs = SPECS
+    specs = (*SPECS, "qa")
     module = "sql"
     format = "sql_result"
     target_grade = "junior"
@@ -314,7 +314,7 @@ class AggregateNull(BankFamily):
 class GroupByHaving(BankFamily):
     id = "sql.group.having"
     title = "GROUP BY, HAVING и порядок фильтрации"
-    specs = SPECS
+    specs = (*SPECS, "qa")
     module = "sql"
     format = "sql_result"
     target_grade = "junior"
@@ -395,7 +395,7 @@ class GroupByHaving(BankFamily):
 class DistinctNull(BankFamily):
     id = "sql.distinct.null"
     title = "DISTINCT и NULL"
-    specs = SPECS
+    specs = (*SPECS, "qa")
     module = "sql"
     format = "sql_result"
     target_grade = "middle"
@@ -559,7 +559,7 @@ class CompositeIndex(BankFamily):
 class OnVsWhere(BankFamily):
     id = "sql.join.on_vs_where"
     title = "LEFT JOIN: условие в ON или в WHERE"
-    specs = SPECS
+    specs = (*SPECS, "qa")
     module = "sql"
     format = "sql_result"
     target_grade = "middle"
@@ -641,7 +641,7 @@ class OnVsWhere(BankFamily):
 class NotInNull(BankFamily):
     id = "sql.subquery.not_in_null"
     title = "NOT IN, NOT EXISTS и NULL в подзапросе"
-    specs = SPECS
+    specs = (*SPECS, "qa")
     module = "sql"
     format = "sql_result"
     target_grade = "senior"

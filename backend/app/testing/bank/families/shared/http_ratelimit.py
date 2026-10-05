@@ -82,7 +82,7 @@ def _trace(capacity: int, rate: float, times: list[int]) -> list[str]:
 class TokenBucketRateLimit(TextIntsFamily):
     id = "http.ratelimit.token_bucket"
     title = "Rate limiting: какие запросы отклонит token bucket"
-    specs = SPECS
+    specs = (*SPECS, "qa", "devops")
     module = "http_api"
     format = "predict_output"
     target_grade = "senior"

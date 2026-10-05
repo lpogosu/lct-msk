@@ -64,7 +64,7 @@ def _fmt(cart: dict[str, int]) -> str:
 class IdempotencyRetryCart(Family):
     id = "http.idempotency.retry_cart"
     title = "Идемпотентность: корзина после автоповторов запросов"
-    specs = SPECS
+    specs = (*SPECS, "qa")
     module = "http_api"
     format = "predict_output"
     target_grade = "middle"

@@ -54,7 +54,7 @@ def test_package_composition():
     by_module = {m: [f for f in SHARED.values() if f.module == m] for m in ("http_api", "algo")}
     assert {m: len(v) for m, v in by_module.items()} == {"http_api": 8, "algo": 8}
     for fid, fam in SHARED.items():
-        assert fam.specs == ("backend_python", "frontend_js"), fid
+        assert fam.specs[:2] == ("backend_python", "frontend_js") and set(fam.specs) <= {"backend_python", "frontend_js", "qa", "devops"}, fid
         prefix = "http." if fam.module == "http_api" else "algo."
         assert fid.startswith(prefix), fid
         assert 60 <= fam.time_limit_s <= 180, fid

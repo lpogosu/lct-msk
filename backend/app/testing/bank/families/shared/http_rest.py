@@ -56,7 +56,7 @@ def _route(method: str, path: str, status: int) -> str:
 class RestRouteReview(LineChoiceFamily):
     id = "http.rest.route_review"
     title = "Ревью REST-маршрутов: найти нарушение и исправить"
-    specs = SPECS
+    specs = (*SPECS, "qa")
     module = "http_api"
     format = "bug_line"
     target_grade = "junior"

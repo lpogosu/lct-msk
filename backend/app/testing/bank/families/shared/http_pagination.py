@@ -45,7 +45,7 @@ HINTS = {
 class PaginationOffsetMath(TextIntsFamily):
     id = "http.pagination.offset_math"
     title = "Пагинация limit/offset: смещение, число страниц, хвост"
-    specs = SPECS
+    specs = (*SPECS, "qa")
     module = "http_api"
     format = "predict_output"
     target_grade = "intern"

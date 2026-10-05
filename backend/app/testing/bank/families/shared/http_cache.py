@@ -66,7 +66,7 @@ def _hex(rng: random.Random) -> str:
 class CacheRevalidationTimeline(Family):
     id = "http.cache.revalidation"
     title = "HTTP-кэш: max-age, ETag и ревалидация по шкале времени"
-    specs = SPECS
+    specs = (*SPECS, "devops")
     module = "http_api"
     format = "predict_output"
     target_grade = "middle"

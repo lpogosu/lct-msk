@@ -71,7 +71,7 @@ def _answer(reqs: list[tuple[int, str, str]], mode: str, ctx: _Timeline) -> str:
 class JwtLifecycle(ChoiceFamily):
     id = "http.jwt.lifecycle"
     title = "JWT: exp и leeway, ротация refresh, выход из системы"
-    specs = SPECS
+    specs = (*SPECS, "qa")
     module = "http_api"
     format = "predict_output"
     target_grade = "senior"

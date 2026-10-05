@@ -52,7 +52,7 @@ def apply_chmod(perms: Sequence[set[str]], clauses: Sequence[tuple[str, str, str
 class ChmodOctal(BankFamily):
     id = "sh.chmod.octal"
     title = "chmod: символьная запись → восьмеричная"
-    specs = SPECS
+    specs = (*SPECS, "devops")
     module = "git_linux"
     format = "predict_output"
     target_grade = "intern"
@@ -157,7 +157,7 @@ def sh_sort_n(lines: list[str], reverse: bool) -> list[str]:
 class PipelineUniq(BankFamily):
     id = "sh.pipeline.uniq"
     title = "Конвейер grep | cut | sort | uniq -c по логу"
-    specs = SPECS
+    specs = (*SPECS, "qa", "devops")
     module = "git_linux"
     format = "predict_output"
     target_grade = "junior"
@@ -305,7 +305,7 @@ def simulate_redirects(cmds: Sequence[tuple[str, str]], labels: tuple[str, str],
 class RedirectOrder(BankFamily):
     id = "sh.redirect.order"
     title = "Перенаправления stdout/stderr в bash"
-    specs = SPECS
+    specs = (*SPECS, "qa", "devops")
     module = "git_linux"
     format = "predict_output"
     target_grade = "middle"
@@ -377,7 +377,7 @@ def _hash(rng: random.Random) -> str:
 class GitWorkflowOrder(BankFamily):
     id = "git.workflow.order"
     title = "Сценарии git: расставьте команды по порядку"
-    specs = SPECS
+    specs = (*SPECS, "qa", "devops")
     module = "git_linux"
     format = "parsons"
     target_grade = "junior"
@@ -491,7 +491,7 @@ class _Repo:
 class GitRangeDots(BankFamily):
     id = "git.range.dots"
     title = "git log A..B и A...B после слияния"
-    specs = SPECS
+    specs = (*SPECS, "devops")
     module = "git_linux"
     format = "predict_output"
     target_grade = "senior"

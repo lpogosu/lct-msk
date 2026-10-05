@@ -46,7 +46,7 @@ def _etag(rng: random.Random) -> str:
 class StatusCodeScenario(Family):
     id = "http.status.scenario"
     title = "Коды ответа HTTP: сценарий из пяти запросов"
-    specs = SPECS
+    specs = (*SPECS, "qa", "devops")
     module = "http_api"
     format = "predict_output"
     target_grade = "junior"

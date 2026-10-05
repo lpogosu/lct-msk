@@ -94,7 +94,7 @@ def test_inventory_matches_assignment():
     for fid, f in FAMS:
         prefix = {"python_core": ("py.",), "sql": ("sql.",), "git_linux": ("git.", "sh.")}[f.module]
         assert fid.startswith(prefix), fid
-        assert f.specs == ("backend_python",)
+        assert f.specs[0] == "backend_python" and set(f.specs) <= {"backend_python", "qa", "devops"}  # + QA/DevOps
         assert 60 <= f.time_limit_s <= 180
         assert -1 <= f.position <= 1 and f.target_grade in GRADES
         assert f.measures and f.misconceptions
