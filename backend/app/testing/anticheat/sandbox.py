@@ -20,8 +20,9 @@ from typing import Any
 
 from app.testing.anticheat.act import ReconciliationAct, build_act
 from app.testing.anticheat.config import AntiCheatConfig, load_anticheat_config
+from app.testing.anticheat.dispatch import family_twin_result, twin_applicable
 from app.testing.anticheat.evidence import AnswerClass, classify_for_twin
-from app.testing.anticheat.twins import Twin, structural_reason, try_make_twin
+from app.testing.anticheat.twins import Twin
 from app.testing.bank.base import Family, Instance
 from app.testing.bank.registry import all_families
 
@@ -78,7 +79,7 @@ def sandbox_pool(registry: Mapping[str, Family], cfg: AntiCheatConfig) -> dict[s
             inst = fam.generate(0)
         except Exception:  # noqa: BLE001
             continue
-        if structural_reason(fam, inst, cfg) is None:
+        if twin_applicable(fam, inst, cfg):  # в том числе семейства со своим Family.twin() (QA, DevOps)
             pool.setdefault(inst.rendered.language or "", []).append(fid)
     _POOL_CACHE[cache_key] = {k: list(v) for k, v in pool.items()}
     return pool
@@ -116,7 +117,7 @@ def build_sandbox(
             attempts += 1
             seed = base_seed + step
             inst = fam.generate(seed)
-            res = try_make_twin(fam, inst, cfg=cfg)
+            res = family_twin_result(fam, inst, cfg=cfg)  # Family.twin() первым, затем общий мутатор
             if res.twin is not None:
                 items.append(SandboxItem(len(items) + 1, fid, seed, inst.variant_code, inst, res.twin))
                 used.add(fid)

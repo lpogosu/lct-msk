@@ -3,20 +3,40 @@
 Трасса сессии (уровень и погрешность по шагам — внутренняя шкала, подписи «уровень»/«погрешность»),
 банк семейств с параметрами, экспозицией и статусом, «3 клона рядом», очередь флагов с решением,
 последний прогон валидации, калибровка фазы 1 (MAP по сложности, app/testing/calibration.py).
+
+«Антиподсказчик» (spec-antiassist, killer-features §2.1 п. 1–2): лента сверок «двойника в буфере» и акт сверки с решением
+методиста («назначить подтверждение», «снять отметку» — автобана нет), комплект «Подтверждение за 5 минут» по сессии,
+покрытие банка двойниками и предрасчёт, отчёт последнего `make validate` для экрана «Валидация».
 """
 
 from __future__ import annotations
 
 import uuid
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, BackgroundTasks, Depends, Query
 
 from app.api.deps import DbSession, LimiterDep, require_roles
 from app.core.audit import audit
-from app.core.errors import error_responses
+from app.core.errors import error_responses, not_found
 from app.models.enums import UserRole
 from app.models.users import User
+from app.services.anticheat import coverage as twin_coverage
+from app.services.anticheat import evidence as anticheat_evidence
+from app.services.anticheat import kit as anticheat_kit
+from app.services.anticheat import precompute as twin_precompute
+from app.services.anticheat.cfg import runtime_config
+from app.services.anticheat.schemas import (
+    ActOut,
+    LabVerificationKitOut,
+    PrecomputeIn,
+    PrecomputeOut,
+    ReconciliationListOut,
+    ReconciliationReviewIn,
+    TwinCoverageOut,
+    ValidationReportOut,
+)
+from app.services.demo.jury_admin import validation_result
 from app.services.testing import lab as svc
 from app.services.testing import limits
 from app.services.testing.schemas import (
@@ -189,3 +209,145 @@ def calibrate(body: CalibrateIn, user: Methodist, db: DbSession, limiter: Limite
     )
     db.commit()
     return out
+
+
+# ---------------------------------------------------------------------------
+# «Антиподсказчик»: сверки, комплект подтверждения, покрытие двойниками, отчёт валидации
+# ---------------------------------------------------------------------------
+
+_RC = runtime_config()
+
+
+@router.get(
+    "/reconciliations",
+    response_model=ReconciliationListOut,
+    summary="Лента сверок «двойника в буфере»",
+    description=(
+        "Ответы, в которых есть след копии из буфера обмена: совпадение с ключом копии (а не с ключом экрана) и слабые "
+        "следы (значение, которого нет на экране; типичная ошибка на копии — только контекст). Ответ двойника уже засчитан "
+        "в тесте неверным; вес улики в доверии 0 до калибровки; автоматического бана нет — решает методист. Работодатель "
+        "этого не видит. Включает мини-тесты песочницы жюри (`source = sandbox`, сессии demo_assisted)."
+    ),
+)
+def reconciliations(
+    user: Methodist,  # noqa: ARG001
+    db: DbSession,
+    status: Annotated[
+        Literal["open", "verification_assigned", "dismissed"] | None, Query(description="Фильтр по решению методиста")
+    ] = None,
+    session_id: Annotated[uuid.UUID | None, Query(description="Только сверки этой сессии")] = None,
+    include_sandbox: Annotated[bool, Query(description="Добавить песочницу жюри «Попробуй списать»")] = True,
+    limit: Annotated[int, Query(ge=1, le=_RC.list_limit_max, description="Сколько вернуть")] = _RC.list_limit,
+) -> ReconciliationListOut:
+    rows, counts = anticheat_evidence.list_reconciliations(
+        db, status=status, include_sandbox=include_sandbox and session_id is None, limit=limit, session_id=session_id
+    )
+    return ReconciliationListOut(items=rows, counts=counts, note_ru=_RC.text("list_note_ru"))  # type: ignore[arg-type]
+
+
+@router.get(
+    "/reconciliations/{reconciliation_id}",
+    response_model=ActOut,
+    summary="Акт сверки",
+    description=(
+        "Показанная версия и копия из буфера рядом с подсвеченным литералом, оба ключа (получены исполнением), ответ и то, "
+        "с чем он совпал, «до/после предупреждения», вероятность честного совпадения («ожидаемо N на 10 000 сессий»), "
+        "чек-лист альтернативных объяснений и сводка по сессии. Формулировки — только наблюдаемые факты, без обвинений."
+    ),
+)
+def reconciliation(reconciliation_id: str, user: Methodist, db: DbSession) -> ActOut:  # noqa: ARG001
+    return ActOut.model_validate(anticheat_evidence.get_act(db, reconciliation_id))
+
+
+@router.post(
+    "/reconciliations/{reconciliation_id}/review",
+    response_model=ActOut,
+    summary="Решение по сверке",
+    description=(
+        "«Назначить подтверждение» (кандидату предлагается «Подтверждение за 5 минут»), «Снять отметку» или «Вернуть в "
+        "очередь». Решает человек: автоматического бана и понижения нет, работодатель решение и причины не видит."
+    ),
+)
+def reconciliation_review(reconciliation_id: str, body: ReconciliationReviewIn, user: Methodist, db: DbSession) -> ActOut:
+    out = anticheat_evidence.review(db, reconciliation_id, body.action, user.id, body.note)
+    audit(
+        db,
+        "lab.anticheat_review",
+        actor_id=user.id,
+        actor_role=user.role,
+        entity_type="anticheat_reconciliation",
+        entity_id=None,
+        reconciliation=reconciliation_id,
+        decision=body.action,
+    )
+    db.commit()
+    return ActOut.model_validate(out)
+
+
+@router.get(
+    "/sessions/{session_id}/verification-kit",
+    response_model=LabVerificationKitOut,
+    summary="«Подтверждение за 5 минут» по сессии",
+    description=(
+        "Комплект из 3 вопросов по собственным заданиям кандидата (в каждом изменён один параметр, ожидаемый ответ "
+        "вычислен исполнением, рубрика 0–2, «что слушать») и до 2 шаблонных вопросов по навыкам. Методисту — с причиной "
+        "выбора заданий; работодателю доступна урезанная версия после раскрытия контакта "
+        "(`/api/invitations/{id}/verification-kit`)."
+    ),
+)
+def verification_kit(session_id: uuid.UUID, user: Methodist, db: DbSession) -> LabVerificationKitOut:  # noqa: ARG001
+    kit, session = anticheat_kit.lab_kit(db, session_id)
+    return LabVerificationKitOut.model_validate({**kit.to_dict("methodist"), "session_id": session.id})
+
+
+@router.get(
+    "/twins/coverage",
+    response_model=TwinCoverageOut,
+    summary="Покрытие банка двойниками",
+    description=(
+        "По семействам: свой двойник семейства или общий мутатор, сколько свободных экземпляров пула, у скольких двойник "
+        "готов, ждёт расчёта или построить не удалось (с причиной), сколько выдано кандидатам. Ключей и текстов подмены нет."
+    ),
+)
+def twins_coverage(user: Methodist, db: DbSession) -> TwinCoverageOut:  # noqa: ARG001
+    return TwinCoverageOut.model_validate(twin_coverage.coverage(db))
+
+
+@router.post(
+    "/twins/precompute",
+    response_model=PrecomputeOut,
+    summary="Посчитать двойники пула",
+    description=(
+        "Запускает в фоне расчёт двойников для свободных экземпляров (одно семейство или все). Расчёт — запуски кода, у "
+        "части семейств он занимает секунды, поэтому делается заранее, а не при выдаче задания. Прогресс — в «Покрытии»."
+    ),
+)
+def twins_precompute(
+    body: PrecomputeIn, user: Methodist, db: DbSession, background: BackgroundTasks, limiter: LimiterDep
+) -> PrecomputeOut:
+    limiter.check("lab_twins_precompute", str(user.id), limits.RL_LAB_CALIBRATE)
+    known = twin_coverage.all_families()
+    if body.family_id and body.family_id not in known:
+        raise not_found("family_not_found", "Семейство не найдено")
+    if twin_precompute.is_running():
+        return PrecomputeOut(accepted=False, families=0, message=_RC.text("precompute_busy_ru"))
+    families = [body.family_id] if body.family_id else None
+    background.add_task(twin_precompute.run_background, db.get_bind(), families, body.per_family)
+    return PrecomputeOut(accepted=True, families=1 if families else len(known), message=_RC.text("precompute_started_ru"))
+
+
+@router.get(
+    "/validation/report",
+    response_model=ValidationReportOut,
+    summary="Отчёт последней валидации",
+    description=(
+        "Полный JSON последнего `make validate` (`backend/eval/out/validation.json`): тестирование, категоризация, подбор, "
+        "набор пар — для экрана «Валидация». 404 — прогона ещё нет."
+    ),
+)
+def validation_report(user: Methodist, db: DbSession) -> dict[str, Any]:  # noqa: ARG001
+    found = validation_result()
+    if found is None:
+        raise not_found("validation_missing", "Прогона валидации ещё нет — выполните `make validate`")
+    data, rel, stamp = found
+    return {"source": rel, "file_time": stamp, "sections": sorted(data), "meta": data.get("meta", {}), "result": data}

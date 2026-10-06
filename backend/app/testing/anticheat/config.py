@@ -103,6 +103,7 @@ class VerificationParams:
     above_min_ratio: float
     rubric_max: int
     skill_aliases: dict[str, tuple[str, ...]]
+    variant_tries: int  # сколько производных seed пробуем у семейства со своим двойником, чтобы найти другой литерал
 
 
 @dataclass(frozen=True)
@@ -201,6 +202,7 @@ class AntiCheatConfig:
             above_min_ratio=float(v["above_min_ratio"]),
             rubric_max=int(v["rubric_max"]),
             skill_aliases={str(k): tuple(x) for k, x in v["skill_aliases"].items()},
+            variant_tries=int(v["variant_tries"]),
         )
         sandbox = SandboxParams(
             n_items=int(s["n_items"]),

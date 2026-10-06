@@ -6,6 +6,7 @@ from fastapi import APIRouter
 
 from app.api import (
     admin,
+    anticheat,
     applications,
     auth,
     bank,
@@ -43,7 +44,11 @@ OPENAPI_TAGS: list[dict[str, str]] = [
     {"name": "Вакансии", "description": "Опубликованные брифы и «как мы проверим» навыки вакансии."},
     {"name": "Регулярные задачи", "description": "Короткие задания от компаний и тренировочные задачи платформы."},
     {"name": "ФСП", "description": "Привязка ФСП ID (Keycloak) и достижения из реестра ФСП."},
-    {"name": "Лаборатория", "description": "Трасса сессии, банк заданий, флаги целостности, валидация (роль «методист»)."},
+    {"name": "Лаборатория", "description": "Трасса сессии, банк заданий, флаги целостности, валидация, сверки «двойника в буфере» (роль «методист»)."},
+    {
+        "name": "Антиподсказчик",
+        "description": "«Подтверждение за 5 минут» для работодателя (после раскрытия контакта) и песочница жюри «Попробуй списать» (DEMO_MODE).",
+    },
     {"name": "Компании", "description": "Профиль компании-работодателя и интеграция с ATS (вебхуки)."},
     {"name": "Кандидат", "description": "Профиль и резюме кандидата, стандартизированный PDF-профиль, настройки приватности и поиска."},
     {"name": "Уведомления", "description": "Уведомления внутри платформы."},
@@ -54,6 +59,6 @@ OPENAPI_TAGS: list[dict[str, str]] = [
 api_router = APIRouter(prefix=API_PREFIX)
 for module in (
     health, auth, consents, companies, candidates, survey, testing, needs, bank, invitations, applications,
-    vacancies, tasks, notifications, fsp, verify, lab, demo, admin,
+    vacancies, tasks, notifications, fsp, verify, lab, anticheat, demo, admin,
 ):
     api_router.include_router(module.router)

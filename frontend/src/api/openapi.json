@@ -21372,7 +21372,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ValidationOut"
+                  "$ref": "#/components/schemas/app__services__testing__schemas__ValidationOut"
                 }
               }
             }
@@ -21611,6 +21611,1534 @@
             "Bearer": []
           }
         ]
+      }
+    },
+    "/api/lab/reconciliations": {
+      "get": {
+        "tags": [
+          "Лаборатория"
+        ],
+        "summary": "Лента сверок «двойника в буфере»",
+        "description": "Ответы, в которых есть след копии из буфера обмена: совпадение с ключом копии (а не с ключом экрана) и слабые следы (значение, которого нет на экране; типичная ошибка на копии — только контекст). Ответ двойника уже засчитан в тесте неверным; вес улики в доверии 0 до калибровки; автоматического бана нет — решает методист. Работодатель этого не видит. Включает мини-тесты песочницы жюри (`source = sandbox`, сессии demo_assisted).",
+        "operationId": "reconciliations_api_lab_reconciliations_get",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "open",
+                    "verification_assigned",
+                    "dismissed"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Фильтр по решению методиста",
+              "title": "Status"
+            },
+            "description": "Фильтр по решению методиста"
+          },
+          {
+            "name": "session_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Только сверки этой сессии",
+              "title": "Session Id"
+            },
+            "description": "Только сверки этой сессии"
+          },
+          {
+            "name": "include_sandbox",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Добавить песочницу жюри «Попробуй списать»",
+              "default": true,
+              "title": "Include Sandbox"
+            },
+            "description": "Добавить песочницу жюри «Попробуй списать»"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "description": "Сколько вернуть",
+              "default": 200,
+              "title": "Limit"
+            },
+            "description": "Сколько вернуть"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReconciliationListOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lab/reconciliations/{reconciliation_id}": {
+      "get": {
+        "tags": [
+          "Лаборатория"
+        ],
+        "summary": "Акт сверки",
+        "description": "Показанная версия и копия из буфера рядом с подсвеченным литералом, оба ключа (получены исполнением), ответ и то, с чем он совпал, «до/после предупреждения», вероятность честного совпадения («ожидаемо N на 10 000 сессий»), чек-лист альтернативных объяснений и сводка по сессии. Формулировки — только наблюдаемые факты, без обвинений.",
+        "operationId": "reconciliation_api_lab_reconciliations__reconciliation_id__get",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "reconciliation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Reconciliation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lab/reconciliations/{reconciliation_id}/review": {
+      "post": {
+        "tags": [
+          "Лаборатория"
+        ],
+        "summary": "Решение по сверке",
+        "description": "«Назначить подтверждение» (кандидату предлагается «Подтверждение за 5 минут»), «Снять отметку» или «Вернуть в очередь». Решает человек: автоматического бана и понижения нет, работодатель решение и причины не видит.",
+        "operationId": "reconciliation_review_api_lab_reconciliations__reconciliation_id__review_post",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "reconciliation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Reconciliation Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReconciliationReviewIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lab/sessions/{session_id}/verification-kit": {
+      "get": {
+        "tags": [
+          "Лаборатория"
+        ],
+        "summary": "«Подтверждение за 5 минут» по сессии",
+        "description": "Комплект из 3 вопросов по собственным заданиям кандидата (в каждом изменён один параметр, ожидаемый ответ вычислен исполнением, рубрика 0–2, «что слушать») и до 2 шаблонных вопросов по навыкам. Методисту — с причиной выбора заданий; работодателю доступна урезанная версия после раскрытия контакта (`/api/invitations/{id}/verification-kit`).",
+        "operationId": "verification_kit_api_lab_sessions__session_id__verification_kit_get",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LabVerificationKitOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lab/twins/coverage": {
+      "get": {
+        "tags": [
+          "Лаборатория"
+        ],
+        "summary": "Покрытие банка двойниками",
+        "description": "По семействам: свой двойник семейства или общий мутатор, сколько свободных экземпляров пула, у скольких двойник готов, ждёт расчёта или построить не удалось (с причиной), сколько выдано кандидатам. Ключей и текстов подмены нет.",
+        "operationId": "twins_coverage_api_lab_twins_coverage_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TwinCoverageOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/lab/twins/precompute": {
+      "post": {
+        "tags": [
+          "Лаборатория"
+        ],
+        "summary": "Посчитать двойники пула",
+        "description": "Запускает в фоне расчёт двойников для свободных экземпляров (одно семейство или все). Расчёт — запуски кода, у части семейств он занимает секунды, поэтому делается заранее, а не при выдаче задания. Прогресс — в «Покрытии».",
+        "operationId": "twins_precompute_api_lab_twins_precompute_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrecomputeIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrecomputeOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/lab/validation/report": {
+      "get": {
+        "tags": [
+          "Лаборатория"
+        ],
+        "summary": "Отчёт последней валидации",
+        "description": "Полный JSON последнего `make validate` (`backend/eval/out/validation.json`): тестирование, категоризация, подбор, набор пар — для экрана «Валидация». 404 — прогона ещё нет.",
+        "operationId": "validation_report_api_lab_validation_report_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationReportOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/invitations/{invitation_id}/verification-kit": {
+      "get": {
+        "tags": [
+          "Антиподсказчик"
+        ],
+        "summary": "«Подтверждение за 5 минут» для работодателя",
+        "description": "Три вопроса по собственным заданиям кандидата: в каждом изменён один параметр, ожидаемый ответ вычислен исполнением, к вопросу — рубрика 0–2 и подсказка «что слушать»; до двух шаблонных вопросов по must-навыкам, которых тест не покрывает (с пометкой «не откалибровано»). Доступно только после взаимного «да», когда контакты кандидата раскрыты (иначе 409 `kit_not_available`). Улик, флагов и причин выбора заданий в комплекте нет.",
+        "operationId": "employer_verification_kit_api_invitations__invitation_id__verification_kit_get",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "invitation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Invitation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerificationKitOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jury/cheat-lab": {
+      "post": {
+        "tags": [
+          "Антиподсказчик"
+        ],
+        "summary": "Песочница жюри: начать мини-тест",
+        "description": "Публичный маршрут (без входа), только при DEMO_MODE. Собирает мини-тест из 4 заданий разных семейств; у каждого есть «двойник в буфере». Набор уникален для проверяющего. В задании — условие и `clip`: что обработчик копирования кладёт в буфер. Ключей нет. Сессия помечена demo_assisted и исключена из метрик. Поведение копирования на мобильных не проверено — проверяйте с ноутбука.",
+        "operationId": "sandbox_start_api_jury_cheat_lab_post",
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SandboxStartOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jury/cheat-lab/{test_id}/answers": {
+      "post": {
+        "tags": [
+          "Антиподсказчик"
+        ],
+        "summary": "Песочница жюри: отправить ответы",
+        "description": "Диагноз по каждому заданию: «вы копировали текст — пойман двойником» (ответ совпал с ключом копии) либо «ответ верный — скриншот и ручной ввод двойник не ловит, поэтому подтверждение за 5 минут»; для пойманного — акт сверки. Ответы принимаются один раз.",
+        "operationId": "sandbox_answers_api_jury_cheat_lab__test_id__answers_post",
+        "parameters": [
+          {
+            "name": "test_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Test Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SandboxAnswersIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SandboxResultOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jury/cheat-lab/{test_id}/result": {
+      "get": {
+        "tags": [
+          "Антиподсказчик"
+        ],
+        "summary": "Песочница жюри: результат",
+        "description": "Результат уже отправленного мини-теста (409 `sandbox_not_scored`, пока ответов нет).",
+        "operationId": "sandbox_result_api_jury_cheat_lab__test_id__result_get",
+        "parameters": [
+          {
+            "name": "test_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Test Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SandboxResultOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/demo/state": {
@@ -22522,6 +24050,131 @@
         }
       }
     },
+    "/api/demo/synthetic": {
+      "get": {
+        "tags": [
+          "Администрирование"
+        ],
+        "summary": "Какие кандидаты синтетические",
+        "description": "Для метки «синтетический кандидат» в слепой карточке (Р6, G2): ссылки `ref` тех кандидатов компании, которых создал демо-мир и за которых отвечает автоответчик. Только роль «Нанимаю»; настоящих людей в списке нет.",
+        "operationId": "synthetic_refs_api_demo_synthetic_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyntheticOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
     "/api/demo/webhook-sink": {
       "get": {
         "tags": [
@@ -22760,15 +24413,29 @@
         }
       }
     },
-    "/api/admin": {
+    "/api/admin/import": {
       "get": {
         "tags": [
           "Администрирование"
         ],
-        "summary": "Администрирование: в разработке",
-        "description": "Раздел «Администрирование» в разработке: любой запрос возвращает 501 `not_implemented`. Планируется: POST /admin/import (кандидаты и брифы жюри), демо-инструменты advance/reset в DEMO_MODE (концепция §7.3, DECISIONS п. 5).",
-        "operationId": "stub_admin_get",
+        "summary": "Список импортов жюри",
+        "description": "Загрузки жюри (новые сверху) с числом брифов, кандидатов, кандидатов без теста и размеченных пар.",
+        "operationId": "list_imports_api_admin_import_get",
         "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/BatchOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Imports Api Admin Import Get"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Некорректный запрос",
             "content": {
@@ -22866,153 +24533,42 @@
                 }
               }
             }
-          },
-          "501": {
-            "description": "Раздел в разработке",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": "not_implemented",
-                  "message": "Раздел «Опрос» ещё в разработке"
-                }
-              }
-            }
           }
-        }
-      },
-      "put": {
-        "tags": [
-          "Администрирование"
-        ],
-        "summary": "Администрирование: в разработке",
-        "description": "Раздел «Администрирование» в разработке: любой запрос возвращает 501 `not_implemented`. Планируется: POST /admin/import (кандидаты и брифы жюри), демо-инструменты advance/reset в DEMO_MODE (концепция §7.3, DECISIONS п. 5).",
-        "operationId": "stub_admin_put",
-        "responses": {
-          "400": {
-            "description": "Некорректный запрос",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": "bad_request",
-                  "message": "Запрос не может быть выполнен"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Требуется вход или токен недействителен",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": "unauthorized",
-                  "message": "Требуется вход в систему"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Недостаточно прав",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": "forbidden",
-                  "message": "Недостаточно прав для этого действия"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Не найдено",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": "not_found",
-                  "message": "Запись не найдена"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Конфликт состояния",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": "conflict",
-                  "message": "Действие противоречит текущему состоянию"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Ошибка валидации полей",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": "validation_error",
-                  "message": "Проверьте заполнение полей"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Слишком много запросов",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": "rate_limited",
-                  "message": "Слишком много запросов. Повторите через 30 с"
-                }
-              }
-            }
-          },
-          "501": {
-            "description": "Раздел в разработке",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": "not_implemented",
-                  "message": "Раздел «Опрос» ещё в разработке"
-                }
-              }
-            }
+        },
+        "security": [
+          {
+            "Bearer": []
           }
-        }
+        ]
       },
       "post": {
         "tags": [
           "Администрирование"
         ],
-        "summary": "Администрирование: в разработке",
-        "description": "Раздел «Администрирование» в разработке: любой запрос возвращает 501 `not_implemented`. Планируется: POST /admin/import (кандидаты и брифы жюри), демо-инструменты advance/reset в DEMO_MODE (концепция §7.3, DECISIONS п. 5).",
-        "operationId": "stub_admin_post",
+        "summary": "Импорт кандидатов и брифов жюри",
+        "description": "Принимает строки набора пар (формат `eval/pairs_test.jsonl`, схема `eval/pairs_test.schema.json`): бриф, кандидат с признаками подбора и разметка rel 0–3; можно отдельно `briefs` и `candidates`. Кандидат с `features: null` — без теста: он попадает в группу «категория по опросу, не подтверждена» (заявленные `claimed_spec`/`claimed_grade`, навыки из `survey`/`declared_skills` или самоописания) и ранжируется ниже подтверждённых. Данные не попадают в банк платформы. 400 — формат строки неверен (в сообщении путь до поля).",
+        "operationId": "import_pairs_api_admin_import_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportIn"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportOut"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Некорректный запрос",
             "content": {
@@ -23110,163 +24666,61 @@
                 }
               }
             }
-          },
-          "501": {
-            "description": "Раздел в разработке",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": "not_implemented",
-                  "message": "Раздел «Опрос» ещё в разработке"
-                }
-              }
-            }
           }
-        }
-      },
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/admin/import/{batch_id}": {
       "delete": {
         "tags": [
           "Администрирование"
         ],
-        "summary": "Администрирование: в разработке",
-        "description": "Раздел «Администрирование» в разработке: любой запрос возвращает 501 `not_implemented`. Планируется: POST /admin/import (кандидаты и брифы жюри), демо-инструменты advance/reset в DEMO_MODE (концепция §7.3, DECISIONS п. 5).",
-        "operationId": "stub_admin_delete",
-        "responses": {
-          "400": {
-            "description": "Некорректный запрос",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": "bad_request",
-                  "message": "Запрос не может быть выполнен"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Требуется вход или токен недействителен",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": "unauthorized",
-                  "message": "Требуется вход в систему"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Недостаточно прав",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": "forbidden",
-                  "message": "Недостаточно прав для этого действия"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Не найдено",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": "not_found",
-                  "message": "Запись не найдена"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Конфликт состояния",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": "conflict",
-                  "message": "Действие противоречит текущему состоянию"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Ошибка валидации полей",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": "validation_error",
-                  "message": "Проверьте заполнение полей"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Слишком много запросов",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": "rate_limited",
-                  "message": "Слишком много запросов. Повторите через 30 с"
-                }
-              }
-            }
-          },
-          "501": {
-            "description": "Раздел в разработке",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": "not_implemented",
-                  "message": "Раздел «Опрос» ещё в разработке"
-                }
-              }
+        "summary": "Удалить импорт жюри",
+        "description": "Удаляет загрузку вместе с её брифами, кандидатами и разметкой. Данные платформы не затрагиваются.",
+        "operationId": "delete_import_api_admin_import__batch_id__delete",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "batch_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Batch Id"
             }
           }
-        }
-      },
-      "patch": {
-        "tags": [
-          "Администрирование"
         ],
-        "summary": "Администрирование: в разработке",
-        "description": "Раздел «Администрирование» в разработке: любой запрос возвращает 501 `not_implemented`. Планируется: POST /admin/import (кандидаты и брифы жюри), демо-инструменты advance/reset в DEMO_MODE (концепция §7.3, DECISIONS п. 5).",
-        "operationId": "stub_admin_patch",
         "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeletedOut"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Некорректный запрос",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "bad_request",
                   "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23275,12 +24729,12 @@
             "description": "Требуется вход или токен недействителен",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "unauthorized",
                   "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23289,12 +24743,12 @@
             "description": "Недостаточно прав",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "forbidden",
                   "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23303,12 +24757,12 @@
             "description": "Не найдено",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "not_found",
                   "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23317,12 +24771,12 @@
             "description": "Конфликт состояния",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "conflict",
                   "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23331,12 +24785,12 @@
             "description": "Ошибка валидации полей",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "validation_error",
                   "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23345,26 +24799,12 @@
             "description": "Слишком много запросов",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "rate_limited",
                   "message": "Слишком много запросов. Повторите через 30 с"
-                }
-              }
-            }
-          },
-          "501": {
-            "description": "Раздел в разработке",
-            "content": {
-              "application/json": {
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": "not_implemented",
-                  "message": "Раздел «Опрос» ещё в разработке"
                 }
               }
             }
@@ -23372,159 +24812,58 @@
         }
       }
     },
-    "/api/admin/{path}": {
-      "get": {
-        "tags": [
-          "Администрирование"
-        ],
-        "summary": "Администрирование: в разработке",
-        "description": "Раздел «Администрирование» в разработке: любой запрос возвращает 501 `not_implemented`. Планируется: POST /admin/import (кандидаты и брифы жюри), демо-инструменты advance/reset в DEMO_MODE (концепция §7.3, DECISIONS п. 5).",
-        "operationId": "stub_admin_get_path",
-        "parameters": [
-          {
-            "name": "path",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Path"
-            }
-          }
-        ],
-        "responses": {
-          "400": {
-            "description": "Некорректный запрос",
-            "content": {
-              "application/json": {
-                "example": {
-                  "code": "bad_request",
-                  "message": "Запрос не может быть выполнен"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Требуется вход или токен недействителен",
-            "content": {
-              "application/json": {
-                "example": {
-                  "code": "unauthorized",
-                  "message": "Требуется вход в систему"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Недостаточно прав",
-            "content": {
-              "application/json": {
-                "example": {
-                  "code": "forbidden",
-                  "message": "Недостаточно прав для этого действия"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Не найдено",
-            "content": {
-              "application/json": {
-                "example": {
-                  "code": "not_found",
-                  "message": "Запись не найдена"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Конфликт состояния",
-            "content": {
-              "application/json": {
-                "example": {
-                  "code": "conflict",
-                  "message": "Действие противоречит текущему состоянию"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Ошибка валидации полей",
-            "content": {
-              "application/json": {
-                "example": {
-                  "code": "validation_error",
-                  "message": "Проверьте заполнение полей"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Слишком много запросов",
-            "content": {
-              "application/json": {
-                "example": {
-                  "code": "rate_limited",
-                  "message": "Слишком много запросов. Повторите через 30 с"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "501": {
-            "description": "Раздел в разработке",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": "not_implemented",
-                  "message": "Раздел «Опрос» ещё в разработке"
-                }
-              }
-            }
-          }
-        }
-      },
+    "/api/admin/eval/rank": {
       "post": {
         "tags": [
           "Администрирование"
         ],
-        "summary": "Администрирование: в разработке",
-        "description": "Раздел «Администрирование» в разработке: любой запрос возвращает 501 `not_implemented`. Планируется: POST /admin/import (кандидаты и брифы жюри), демо-инструменты advance/reset в DEMO_MODE (концепция §7.3, DECISIONS п. 5).",
-        "operationId": "stub_admin_post_path",
-        "parameters": [
+        "summary": "Ранжирование по брифу (топ-N с компонентами Score)",
+        "description": "Бриф (из импорта по `brief_id` или текстом с вилкой) → топ-N кандидатов тем же движком, что подборка работодателя: Score, нормированные компоненты T, K, F, A, U, вклады и «за»/«против». Кандидаты без теста — группа «категория по опросу, не подтверждена» ниже подтверждённых. `format=csv` отдаёт тот же топ в CSV. `source`: импорт жюри, слепой банк платформы или оба. 404 — нет импорта или брифа, 422 — у брифа нет вилки.",
+        "operationId": "eval_rank_api_admin_eval_rank_post",
+        "security": [
           {
-            "name": "path",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Path"
-            }
+            "Bearer": []
           }
         ],
+        "parameters": [
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "json",
+                "csv"
+              ],
+              "type": "string",
+              "description": "Формат ответа",
+              "default": "json",
+              "title": "Format"
+            },
+            "description": "Формат ответа"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RankIn"
+              }
+            }
+          }
+        },
         "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RankOut"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Некорректный запрос",
             "content": {
@@ -23622,52 +24961,49 @@
                 }
               }
             }
-          },
-          "501": {
-            "description": "Раздел в разработке",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": "not_implemented",
-                  "message": "Раздел «Опрос» ещё в разработке"
-                }
-              }
-            }
           }
         }
-      },
-      "put": {
+      }
+    },
+    "/api/admin/eval/pairs": {
+      "post": {
         "tags": [
           "Администрирование"
         ],
-        "summary": "Администрирование: в разработке",
-        "description": "Раздел «Администрирование» в разработке: любой запрос возвращает 501 `not_implemented`. Планируется: POST /admin/import (кандидаты и брифы жюри), демо-инструменты advance/reset в DEMO_MODE (концепция §7.3, DECISIONS п. 5).",
-        "operationId": "stub_admin_put_path",
-        "parameters": [
-          {
-            "name": "path",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Path"
+        "summary": "Метрики по размеченным парам (P@5, P@10, nDCG@10)",
+        "description": "Загрузите размеченные пары «бриф × кандидат» (формат eval/pairs_test.jsonl, rel 0–3; релевантен rel ≥ 2) — или не передавайте `pairs`, и возьмутся пары последнего импорта. Для каждого брифа ранжируются размеченные кандидаты нашим движком; считаются P@5, P@10, nDCG@10: среднее по брифам и 95% бутстреп-ДИ (тот же код, что в `make validate`). Если в строках есть `ranks_top20` (ours, b0–b3), по ним считаются те же метрики для сравнения.",
+        "operationId": "eval_pairs_api_admin_eval_pairs_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PairsIn"
+              }
             }
-          }
-        ],
+          },
+          "required": true
+        },
         "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PairsOut"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Некорректный запрос",
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
                 "example": {
                   "code": "bad_request",
                   "message": "Запрос не может быть выполнен"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23676,12 +25012,12 @@
             "description": "Требуется вход или токен недействителен",
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
                 "example": {
                   "code": "unauthorized",
                   "message": "Требуется вход в систему"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23690,12 +25026,12 @@
             "description": "Недостаточно прав",
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
                 "example": {
                   "code": "forbidden",
                   "message": "Недостаточно прав для этого действия"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23704,12 +25040,12 @@
             "description": "Не найдено",
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
                 "example": {
                   "code": "not_found",
                   "message": "Запись не найдена"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23718,12 +25054,12 @@
             "description": "Конфликт состояния",
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
                 "example": {
                   "code": "conflict",
                   "message": "Действие противоречит текущему состоянию"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23732,12 +25068,12 @@
             "description": "Ошибка валидации полей",
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
                 "example": {
                   "code": "validation_error",
                   "message": "Проверьте заполнение полей"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23746,61 +25082,53 @@
             "description": "Слишком много запросов",
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
                 "example": {
                   "code": "rate_limited",
                   "message": "Слишком много запросов. Повторите через 30 с"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "501": {
-            "description": "Раздел в разработке",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": "not_implemented",
-                  "message": "Раздел «Опрос» ещё в разработке"
                 }
               }
             }
           }
-        }
-      },
-      "patch": {
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/admin/validation": {
+      "get": {
         "tags": [
           "Администрирование"
         ],
-        "summary": "Администрирование: в разработке",
-        "description": "Раздел «Администрирование» в разработке: любой запрос возвращает 501 `not_implemented`. Планируется: POST /admin/import (кандидаты и брифы жюри), демо-инструменты advance/reset в DEMO_MODE (концепция §7.3, DECISIONS п. 5).",
-        "operationId": "stub_admin_patch_path",
-        "parameters": [
-          {
-            "name": "path",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Path"
-            }
-          }
-        ],
+        "summary": "Последний прогон валидации",
+        "description": "JSON последнего `make validate` (`backend/eval/out/validation.json`): тестирование, категоризация, подбор, набор пар, плитки. 404 — прогона ещё нет (выполните `make validate`).",
+        "operationId": "validation_api_admin_validation_get",
         "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__api__admin__ValidationOut"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Некорректный запрос",
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
                 "example": {
                   "code": "bad_request",
                   "message": "Запрос не может быть выполнен"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23809,12 +25137,12 @@
             "description": "Требуется вход или токен недействителен",
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
                 "example": {
                   "code": "unauthorized",
                   "message": "Требуется вход в систему"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23823,12 +25151,12 @@
             "description": "Недостаточно прав",
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
                 "example": {
                   "code": "forbidden",
                   "message": "Недостаточно прав для этого действия"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23837,12 +25165,12 @@
             "description": "Не найдено",
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
                 "example": {
                   "code": "not_found",
                   "message": "Запись не найдена"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23851,12 +25179,12 @@
             "description": "Конфликт состояния",
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
                 "example": {
                   "code": "conflict",
                   "message": "Действие противоречит текущему состоянию"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23865,12 +25193,12 @@
             "description": "Ошибка валидации полей",
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
                 "example": {
                   "code": "validation_error",
                   "message": "Проверьте заполнение полей"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23879,164 +25207,22 @@
             "description": "Слишком много запросов",
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
                 "example": {
                   "code": "rate_limited",
                   "message": "Слишком много запросов. Повторите через 30 с"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "501": {
-            "description": "Раздел в разработке",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": "not_implemented",
-                  "message": "Раздел «Опрос» ещё в разработке"
                 }
               }
             }
           }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Администрирование"
-        ],
-        "summary": "Администрирование: в разработке",
-        "description": "Раздел «Администрирование» в разработке: любой запрос возвращает 501 `not_implemented`. Планируется: POST /admin/import (кандидаты и брифы жюри), демо-инструменты advance/reset в DEMO_MODE (концепция §7.3, DECISIONS п. 5).",
-        "operationId": "stub_admin_delete_path",
-        "parameters": [
+        },
+        "security": [
           {
-            "name": "path",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Path"
-            }
+            "Bearer": []
           }
-        ],
-        "responses": {
-          "400": {
-            "description": "Некорректный запрос",
-            "content": {
-              "application/json": {
-                "example": {
-                  "code": "bad_request",
-                  "message": "Запрос не может быть выполнен"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Требуется вход или токен недействителен",
-            "content": {
-              "application/json": {
-                "example": {
-                  "code": "unauthorized",
-                  "message": "Требуется вход в систему"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Недостаточно прав",
-            "content": {
-              "application/json": {
-                "example": {
-                  "code": "forbidden",
-                  "message": "Недостаточно прав для этого действия"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Не найдено",
-            "content": {
-              "application/json": {
-                "example": {
-                  "code": "not_found",
-                  "message": "Запись не найдена"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Конфликт состояния",
-            "content": {
-              "application/json": {
-                "example": {
-                  "code": "conflict",
-                  "message": "Действие противоречит текущему состоянию"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Ошибка валидации полей",
-            "content": {
-              "application/json": {
-                "example": {
-                  "code": "validation_error",
-                  "message": "Проверьте заполнение полей"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Слишком много запросов",
-            "content": {
-              "application/json": {
-                "example": {
-                  "code": "rate_limited",
-                  "message": "Слишком много запросов. Повторите через 30 с"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "501": {
-            "description": "Раздел в разработке",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "code": "not_implemented",
-                  "message": "Раздел «Опрос» ещё в разработке"
-                }
-              }
-            }
-          }
-        }
+        ]
       }
     }
   },
@@ -24071,6 +25257,440 @@
           "consent"
         ],
         "title": "AcceptIn"
+      },
+      "ActLineOut": {
+        "properties": {
+          "no": {
+            "type": "integer",
+            "title": "No",
+            "description": "Номер строки внутри блока (с 1)"
+          },
+          "shown": {
+            "type": "string",
+            "title": "Shown",
+            "description": "Строка, показанная на экране"
+          },
+          "clipboard": {
+            "type": "string",
+            "title": "Clipboard",
+            "description": "Та же строка в буфере обмена"
+          },
+          "changed": {
+            "type": "boolean",
+            "title": "Changed",
+            "description": "Строка отличается"
+          },
+          "shown_span": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shown Span",
+            "description": "Колонки подсвеченного токена на экране [от, до)"
+          },
+          "clipboard_span": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clipboard Span",
+            "description": "Колонки подсвеченного токена в копии [от, до)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "no",
+          "shown",
+          "clipboard",
+          "changed"
+        ],
+        "title": "ActLineOut"
+      },
+      "ActOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Идентификатор сверки"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "session",
+              "sandbox"
+            ],
+            "title": "Source",
+            "description": "session | sandbox"
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session Id",
+            "description": "Сессия"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label",
+            "description": "Подпись над заголовком"
+          },
+          "headline_ru": {
+            "type": "string",
+            "title": "Headline Ru",
+            "description": "Заголовок акта"
+          },
+          "lead_ru": {
+            "type": "string",
+            "title": "Lead Ru",
+            "description": "Что такое копия с изменённым числом"
+          },
+          "title_ru": {
+            "type": "string",
+            "title": "Title Ru",
+            "description": "Название документа: «Акт сверки: показано и скопировано»"
+          },
+          "variant_code": {
+            "type": "string",
+            "title": "Variant Code",
+            "description": "Код варианта"
+          },
+          "family_id": {
+            "type": "string",
+            "title": "Family Id",
+            "description": "Семейство"
+          },
+          "family_title": {
+            "type": "string",
+            "title": "Family Title",
+            "description": "Название семейства"
+          },
+          "mutation_class": {
+            "type": "string",
+            "title": "Mutation Class",
+            "description": "Класс подмены"
+          },
+          "mutation_subclass": {
+            "type": "string",
+            "title": "Mutation Subclass",
+            "description": "Класс и роль литерала"
+          },
+          "changed_literal": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Changed Literal",
+            "description": "Изменённый литерал: было, стало, строка, роль, блок"
+          },
+          "block_name": {
+            "type": "string",
+            "title": "Block Name",
+            "description": "Блок с подменой: code | table:<имя>"
+          },
+          "context_ru": {
+            "type": "string",
+            "title": "Context Ru",
+            "description": "Остальной текст условия над блоком (формулировка), без подсветки"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/ActLineOut"
+            },
+            "type": "array",
+            "title": "Lines",
+            "description": "Строки блока: слева «показано», справа «попало в буфер»"
+          },
+          "keys": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Keys",
+            "description": "Ключи: shown — для экрана, clipboard — для копии (оба получены исполнением)"
+          },
+          "candidate_answer": {
+            "type": "string",
+            "title": "Candidate Answer",
+            "description": "Ответ кандидата"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind",
+            "description": "correct | twin_trace | misconception | other"
+          },
+          "matched": {
+            "type": "string",
+            "title": "Matched",
+            "description": "С чем совпал ответ"
+          },
+          "matched_ru": {
+            "type": "string",
+            "title": "Matched Ru",
+            "description": "То же словами"
+          },
+          "strength": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strength",
+            "description": "exact | err_twin | token"
+          },
+          "verdict_ru": {
+            "type": "string",
+            "title": "Verdict Ru",
+            "description": "Вердикт без обвинений: только наблюдаемые факты"
+          },
+          "phase": {
+            "type": "string",
+            "title": "Phase",
+            "description": "before_warning | after_warning | unknown"
+          },
+          "phase_ru": {
+            "type": "string",
+            "title": "Phase Ru",
+            "description": "До/после предупреждения словами"
+          },
+          "copy_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Copy At",
+            "description": "Когда скопировали (по журналу событий)"
+          },
+          "answered_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answered At",
+            "description": "Когда ответили"
+          },
+          "warned_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Warned At",
+            "description": "Когда показано предупреждение (первое копирование в сессии)"
+          },
+          "p_honest": {
+            "type": "number",
+            "title": "P Honest",
+            "description": "Вероятность честного совпадения на этом задании (модельная оценка)"
+          },
+          "p_honest_text": {
+            "type": "string",
+            "title": "P Honest Text",
+            "description": "То же с «ожидаемо N на 10 000 сессий»"
+          },
+          "stats": {
+            "items": {
+              "$ref": "#/components/schemas/ActStatOut"
+            },
+            "type": "array",
+            "title": "Stats",
+            "description": "Четыре числа под ключами: шанс, впервые/повторно, засчитано, вес"
+          },
+          "checklist": {
+            "items": {
+              "$ref": "#/components/schemas/ChecklistItemOut"
+            },
+            "type": "array",
+            "title": "Checklist",
+            "description": "Альтернативные объяснения (spec §2.1, M7)"
+          },
+          "means_title": {
+            "type": "string",
+            "title": "Means Title",
+            "description": "Заголовок «Что это значит»"
+          },
+          "means_ru": {
+            "type": "string",
+            "title": "Means Ru",
+            "description": "Что это значит"
+          },
+          "session": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SessionTwinOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Сводка по сессии (для песочницы нет)"
+          },
+          "review_status": {
+            "type": "string",
+            "title": "Review Status",
+            "description": "open | verification_assigned | dismissed"
+          },
+          "review_status_ru": {
+            "type": "string",
+            "title": "Review Status Ru",
+            "description": "Решение словами"
+          },
+          "review_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Note",
+            "description": "Комментарий методиста"
+          },
+          "reviewed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewed At",
+            "description": "Когда принято решение"
+          },
+          "actions": {
+            "items": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Actions",
+            "description": "Доступные решения: id и подпись"
+          },
+          "demo_assisted": {
+            "type": "boolean",
+            "title": "Demo Assisted",
+            "description": "Сессия жюри: исключена из метрик"
+          },
+          "auto_ban": {
+            "type": "boolean",
+            "title": "Auto Ban",
+            "description": "Всегда false: автоматического бана нет",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "source",
+          "label",
+          "headline_ru",
+          "lead_ru",
+          "title_ru",
+          "variant_code",
+          "family_id",
+          "family_title",
+          "mutation_class",
+          "mutation_subclass",
+          "changed_literal",
+          "block_name",
+          "context_ru",
+          "lines",
+          "keys",
+          "candidate_answer",
+          "kind",
+          "matched",
+          "matched_ru",
+          "verdict_ru",
+          "phase",
+          "phase_ru",
+          "p_honest",
+          "p_honest_text",
+          "stats",
+          "checklist",
+          "means_title",
+          "means_ru",
+          "review_status",
+          "review_status_ru",
+          "actions",
+          "demo_assisted"
+        ],
+        "title": "ActOut"
+      },
+      "ActStatOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "probability | phase | scored | weight"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value",
+            "description": "Крупное значение"
+          },
+          "caption": {
+            "type": "string",
+            "title": "Caption",
+            "description": "Подпись"
+          },
+          "tone": {
+            "type": "string",
+            "enum": [
+              "neutral",
+              "brand",
+              "danger"
+            ],
+            "title": "Tone",
+            "description": "Окраска значения",
+            "default": "neutral"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "value",
+          "caption"
+        ],
+        "title": "ActStatOut"
       },
       "AnswerIn": {
         "properties": {
@@ -25969,6 +27589,51 @@
         ],
         "title": "BankStatusOut"
       },
+      "BatchOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "briefs": {
+            "type": "integer",
+            "title": "Briefs"
+          },
+          "candidates": {
+            "type": "integer",
+            "title": "Candidates"
+          },
+          "unconfirmed": {
+            "type": "integer",
+            "title": "Unconfirmed"
+          },
+          "pairs": {
+            "type": "integer",
+            "title": "Pairs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "created_at",
+          "briefs",
+          "candidates",
+          "unconfirmed",
+          "pairs"
+        ],
+        "title": "BatchOut"
+      },
       "BlindCardModuleOut": {
         "properties": {
           "name": {
@@ -27683,6 +29348,44 @@
         ],
         "title": "CheckSlotOut"
       },
+      "ChecklistItemOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "self_paste | misconception | glyphs | stale_clip | a11y_mode"
+          },
+          "title_ru": {
+            "type": "string",
+            "title": "Title Ru",
+            "description": "Альтернативное объяснение"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "ok | attention | excluded | unknown"
+          },
+          "status_ru": {
+            "type": "string",
+            "title": "Status Ru",
+            "description": "Статус словами"
+          },
+          "note_ru": {
+            "type": "string",
+            "title": "Note Ru",
+            "description": "Пояснение"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title_ru",
+          "status",
+          "status_ru",
+          "note_ru"
+        ],
+        "title": "ChecklistItemOut"
+      },
       "ClockOut": {
         "properties": {
           "now": {
@@ -29198,6 +30901,25 @@
           "count"
         ],
         "title": "DeclineSummaryOut"
+      },
+      "DeletedOut": {
+        "properties": {
+          "deleted": {
+            "type": "boolean",
+            "title": "Deleted"
+          },
+          "batch_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Batch Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "deleted",
+          "batch_id"
+        ],
+        "title": "DeletedOut"
       },
       "DemoAccountOut": {
         "properties": {
@@ -31235,6 +32957,111 @@
         ],
         "title": "HistogramOut"
       },
+      "ImportIn": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "Название загрузки (для списка импортов)"
+          },
+          "pairs": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Pairs",
+            "description": "Строки как в eval/pairs_test.jsonl: brief_id, brief{text, gold, form}, candidate_id, candidate{features|null, self_description, claimed_spec, claimed_grade, survey}, rel 0–3"
+          },
+          "briefs": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Briefs",
+            "description": "Только брифы: {brief_id, text, gold?, form?} или {brief_id, brief: {…}}"
+          },
+          "candidates": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Candidates",
+            "description": "Только кандидаты: {candidate_id, features|null, self_description, claimed_spec, claimed_grade, survey}"
+          }
+        },
+        "type": "object",
+        "title": "ImportIn"
+      },
+      "ImportOut": {
+        "properties": {
+          "batch_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Batch Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "briefs": {
+            "type": "integer",
+            "title": "Briefs"
+          },
+          "candidates": {
+            "type": "integer",
+            "title": "Candidates"
+          },
+          "confirmed": {
+            "type": "integer",
+            "title": "Confirmed",
+            "description": "Кандидатов с тестом (полный Score)"
+          },
+          "unconfirmed": {
+            "type": "integer",
+            "title": "Unconfirmed",
+            "description": "Кандидатов без теста: группа «категория по опросу, не подтверждена»"
+          },
+          "pairs": {
+            "type": "integer",
+            "title": "Pairs"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "batch_id",
+          "name",
+          "briefs",
+          "candidates",
+          "confirmed",
+          "unconfirmed",
+          "pairs",
+          "warnings",
+          "note"
+        ],
+        "title": "ImportOut"
+      },
       "InvitationBatchIn": {
         "properties": {
           "need_id": {
@@ -33211,6 +35038,238 @@
         ],
         "title": "LabSessionOut"
       },
+      "LabVerificationKitOut": {
+        "properties": {
+          "kit_id": {
+            "type": "string",
+            "title": "Kit Id",
+            "description": "Идентификатор комплекта"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "description": "Версия формата комплекта"
+          },
+          "title_ru": {
+            "type": "string",
+            "title": "Title Ru",
+            "description": "«Подтверждение за 5 минут»"
+          },
+          "subtitle_ru": {
+            "type": "string",
+            "title": "Subtitle Ru",
+            "description": "Подзаголовок"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/LabVerificationQuestionOut"
+            },
+            "type": "array",
+            "title": "Questions",
+            "description": "Вопросы с причинами выбора"
+          },
+          "shortfall": {
+            "type": "integer",
+            "title": "Shortfall",
+            "description": "Сколько вопросов по трассе не удалось построить"
+          },
+          "session_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Session Id",
+            "description": "Сессия кандидата"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kit_id",
+          "version",
+          "title_ru",
+          "subtitle_ru",
+          "questions",
+          "shortfall",
+          "session_id"
+        ],
+        "title": "LabVerificationKitOut"
+      },
+      "LabVerificationQuestionOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "q1…q3 — по трассе; s1, s2 — по навыкам"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "trace",
+              "skill"
+            ],
+            "title": "Kind",
+            "description": "trace — вопрос по собственному заданию кандидата; skill — шаблонный по навыку"
+          },
+          "prompt_ru": {
+            "type": "string",
+            "title": "Prompt Ru",
+            "description": "Что спросить"
+          },
+          "rubric": {
+            "items": {
+              "$ref": "#/components/schemas/RubricLevelOut"
+            },
+            "type": "array",
+            "title": "Rubric",
+            "description": "Рубрика 0–2"
+          },
+          "listen_for_ru": {
+            "type": "string",
+            "title": "Listen For Ru",
+            "description": "Что слушать"
+          },
+          "calibrated": {
+            "type": "boolean",
+            "title": "Calibrated",
+            "description": "Откалибровано (шаблонные вопросы по навыкам — нет)"
+          },
+          "label_ru": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label Ru",
+            "description": "Пометка «не откалибровано»"
+          },
+          "variant_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Variant Code",
+            "description": "Вариант кандидата, по которому вопрос"
+          },
+          "method": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Method",
+            "description": "literal_mutation | family_reseed | template"
+          },
+          "verified_by": {
+            "type": "string",
+            "title": "Verified By",
+            "description": "execution | generator | none — чем получен ожидаемый ответ"
+          },
+          "candidate_answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Answer",
+            "description": "Что ответил кандидат (если цитирование безопасно)"
+          },
+          "changed": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Changed",
+            "description": "Что изменено: было, стало, строка"
+          },
+          "variant_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Variant Text",
+            "description": "Текст изменённого задания"
+          },
+          "expected_answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Answer",
+            "description": "Ожидаемый ответ, вычисленный исполнением"
+          },
+          "family_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Family Id",
+            "description": "Семейство (только методисту)"
+          },
+          "seed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seed",
+            "description": "Seed экземпляра (только методисту)"
+          },
+          "selection_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selection Reason",
+            "description": "Почему выбрано это задание (только методисту)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "prompt_ru",
+          "rubric",
+          "listen_for_ru",
+          "calibrated",
+          "verified_by"
+        ],
+        "title": "LabVerificationQuestionOut"
+      },
       "LevelLineOut": {
         "properties": {
           "grade": {
@@ -33316,6 +35375,53 @@
           "password"
         ],
         "title": "LoginRequest"
+      },
+      "MetricOut": {
+        "properties": {
+          "mean": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean"
+          },
+          "ci_low": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ci Low"
+          },
+          "ci_high": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ci High"
+          },
+          "n_briefs": {
+            "type": "integer",
+            "title": "N Briefs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mean",
+          "n_briefs"
+        ],
+        "title": "MetricOut"
       },
       "MissingSkillOut": {
         "properties": {
@@ -34650,6 +36756,125 @@
         ],
         "title": "OutcomeOut"
       },
+      "PairsIn": {
+        "properties": {
+          "pairs": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Pairs",
+            "description": "Размеченные пары (формат eval/pairs_test.jsonl); не заданы — берутся пары из batch_id"
+          },
+          "batch_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Batch Id",
+            "description": "Импорт с разметкой (по умолчанию — последний)"
+          },
+          "use_gold": {
+            "type": "boolean",
+            "title": "Use Gold",
+            "default": false
+          },
+          "systems": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Systems",
+            "description": "Какие системы из ranks_top20 сравнивать (по умолчанию все)"
+          }
+        },
+        "type": "object",
+        "title": "PairsIn"
+      },
+      "PairsOut": {
+        "properties": {
+          "n_briefs": {
+            "type": "integer",
+            "title": "N Briefs"
+          },
+          "n_pairs": {
+            "type": "integer",
+            "title": "N Pairs"
+          },
+          "n_candidates": {
+            "type": "integer",
+            "title": "N Candidates"
+          },
+          "n_unconfirmed": {
+            "type": "integer",
+            "title": "N Unconfirmed"
+          },
+          "ours": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/MetricOut"
+            },
+            "type": "object",
+            "title": "Ours",
+            "description": "P@5, P@10, nDCG@10 нашей системы: среднее по брифам и 95% бутстреп-ДИ"
+          },
+          "reported_systems": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/MetricOut"
+              },
+              "type": "object"
+            },
+            "type": "object",
+            "title": "Reported Systems",
+            "description": "Те же метрики по местам из ranks_top20 (наш набор пар: ours, b0–b3)"
+          },
+          "per_brief": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Per Brief"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Notes"
+          },
+          "scoring_config_version": {
+            "type": "string",
+            "title": "Scoring Config Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "n_briefs",
+          "n_pairs",
+          "n_candidates",
+          "n_unconfirmed",
+          "ours",
+          "reported_systems",
+          "per_brief",
+          "notes",
+          "scoring_config_version"
+        ],
+        "title": "PairsOut"
+      },
       "ParseOut": {
         "properties": {
           "parser_version": {
@@ -34919,6 +37144,66 @@
           "key_collision_rate"
         ],
         "title": "PoolOut"
+      },
+      "PrecomputeIn": {
+        "properties": {
+          "family_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Family Id",
+            "description": "Только это семейство (по умолчанию — все)"
+          },
+          "per_family": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 500,
+                "minimum": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Per Family",
+            "description": "Сколько свободных экземпляров семейства обработать"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "PrecomputeIn"
+      },
+      "PrecomputeOut": {
+        "properties": {
+          "accepted": {
+            "type": "boolean",
+            "title": "Accepted",
+            "description": "Расчёт запущен в фоне"
+          },
+          "families": {
+            "type": "integer",
+            "title": "Families",
+            "description": "Семейств в работе"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Что произойдёт дальше"
+          }
+        },
+        "type": "object",
+        "required": [
+          "accepted",
+          "families",
+          "message"
+        ],
+        "title": "PrecomputeOut"
       },
       "PreviewCheckOut": {
         "properties": {
@@ -36415,6 +38700,317 @@
         ],
         "title": "QuoteOut"
       },
+      "RankIn": {
+        "properties": {
+          "brief_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brief Id",
+            "description": "Бриф из импорта"
+          },
+          "batch_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Batch Id",
+            "description": "Импорт (по умолчанию — последний)"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 5000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text",
+            "description": "Или текст брифа прямо в запросе"
+          },
+          "salary_from": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salary From",
+            "description": "Вилка от, ₽/мес (если её нет в тексте)"
+          },
+          "salary_to": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salary To",
+            "description": "Вилка до, ₽/мес"
+          },
+          "salary_net": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salary Net",
+            "description": "true — на руки, false — до НДФЛ"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "import",
+              "platform",
+              "both"
+            ],
+            "title": "Source",
+            "description": "Откуда кандидаты: загрузка жюри, слепой банк платформы или оба",
+            "default": "import"
+          },
+          "top": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Top",
+            "description": "Сколько строк вернуть (по умолчанию из config/demo.yaml)"
+          },
+          "use_gold": {
+            "type": "boolean",
+            "title": "Use Gold",
+            "description": "Брать эталонный разбор брифа из импорта вместо разбора текста",
+            "default": false
+          },
+          "all_categories": {
+            "type": "boolean",
+            "title": "All Categories",
+            "description": "Все категории пула, а не рекомендованные для брифа",
+            "default": false
+          }
+        },
+        "type": "object",
+        "title": "RankIn"
+      },
+      "RankOut": {
+        "properties": {
+          "brief_id": {
+            "type": "string",
+            "title": "Brief Id"
+          },
+          "brief": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Brief",
+            "description": "Как разобран бриф: специализация, грейд, навыки, вилка, формат"
+          },
+          "categories": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Categories"
+          },
+          "pool_size": {
+            "type": "integer",
+            "title": "Pool Size"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "confirmed": {
+            "type": "integer",
+            "title": "Confirmed"
+          },
+          "unconfirmed": {
+            "type": "integer",
+            "title": "Unconfirmed"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RankRowOut"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "scoring_config_version": {
+            "type": "string",
+            "title": "Scoring Config Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "brief_id",
+          "brief",
+          "categories",
+          "pool_size",
+          "total",
+          "confirmed",
+          "unconfirmed",
+          "items",
+          "scoring_config_version"
+        ],
+        "title": "RankOut"
+      },
+      "RankReasonOut": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "title": "Kind",
+            "description": "pro — «за», con — «против»"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "component": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Component"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "code",
+          "text"
+        ],
+        "title": "RankReasonOut"
+      },
+      "RankRowOut": {
+        "properties": {
+          "rank": {
+            "type": "integer",
+            "title": "Rank"
+          },
+          "candidate_id": {
+            "type": "string",
+            "title": "Candidate Id"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "description": "import — из загрузки жюри, platform — из банка платформы"
+          },
+          "group": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "unconfirmed"
+            ],
+            "title": "Group"
+          },
+          "group_label": {
+            "type": "string",
+            "title": "Group Label"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          },
+          "components": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Components",
+            "description": "Нормированные компоненты Score: T, K, F, A, U"
+          },
+          "contributions": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Contributions",
+            "description": "Вклад компонентов в баллах (Σ = Score)"
+          },
+          "parts": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Parts"
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/RankReasonOut"
+            },
+            "type": "array",
+            "title": "Reasons"
+          },
+          "flags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Flags"
+          },
+          "has_fsp": {
+            "type": "boolean",
+            "title": "Has Fsp"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rank",
+          "candidate_id",
+          "source",
+          "group",
+          "group_label",
+          "category",
+          "score",
+          "components",
+          "contributions",
+          "parts",
+          "reasons",
+          "flags",
+          "has_fsp"
+        ],
+        "title": "RankRowOut"
+      },
       "ReachOut": {
         "properties": {
           "shown": {
@@ -36682,6 +39278,263 @@
           "evidence"
         ],
         "title": "ReasonOut"
+      },
+      "ReconciliationCountsOut": {
+        "properties": {
+          "open": {
+            "type": "integer",
+            "title": "Open",
+            "description": "Ждут решения методиста"
+          },
+          "verification_assigned": {
+            "type": "integer",
+            "title": "Verification Assigned",
+            "description": "Назначено подтверждение"
+          },
+          "dismissed": {
+            "type": "integer",
+            "title": "Dismissed",
+            "description": "Отметка снята"
+          }
+        },
+        "type": "object",
+        "required": [
+          "open",
+          "verification_assigned",
+          "dismissed"
+        ],
+        "title": "ReconciliationCountsOut"
+      },
+      "ReconciliationListOut": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ReconciliationRowOut"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "Сверки, новые сверху"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/ReconciliationCountsOut",
+            "description": "Сколько сверок в каждом статусе (по всей ленте, без учёта фильтра)"
+          },
+          "note_ru": {
+            "type": "string",
+            "title": "Note Ru",
+            "description": "Что здесь показано и что не показано (ответы двойника — уже неверные; вес 0; автобана нет)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "counts",
+          "note_ru"
+        ],
+        "title": "ReconciliationListOut"
+      },
+      "ReconciliationReviewIn": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "assign_verification",
+              "dismiss",
+              "reopen"
+            ],
+            "title": "Action",
+            "description": "Назначить подтверждение за 5 минут, снять отметку или вернуть в очередь"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note",
+            "description": "Комментарий методиста"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "action"
+        ],
+        "title": "ReconciliationReviewIn"
+      },
+      "ReconciliationRowOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Идентификатор сверки: uuid улики сессии либо `sb-<тест>-<номер>` для песочницы жюри"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "session",
+              "sandbox"
+            ],
+            "title": "Source",
+            "description": "session — сессия кандидата; sandbox — «Попробуй списать» (demo_assisted)"
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session Id",
+            "description": "Сессия (для песочницы — нет)"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label",
+            "description": "Подпись: «Сессия кандидата Илья К., задание 7, вариант 7F3A»"
+          },
+          "seq": {
+            "type": "integer",
+            "title": "Seq",
+            "description": "Номер задания"
+          },
+          "variant_code": {
+            "type": "string",
+            "title": "Variant Code",
+            "description": "Код варианта"
+          },
+          "family_id": {
+            "type": "string",
+            "title": "Family Id",
+            "description": "Семейство заданий"
+          },
+          "family_title": {
+            "type": "string",
+            "title": "Family Title",
+            "description": "Название семейства"
+          },
+          "mutation_class": {
+            "type": "string",
+            "title": "Mutation Class",
+            "description": "Класс подмены: data_literal | table_value"
+          },
+          "answer": {
+            "type": "string",
+            "title": "Answer",
+            "description": "Ответ кандидата"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind",
+            "description": "correct | twin_trace | misconception | other"
+          },
+          "matched": {
+            "type": "string",
+            "title": "Matched",
+            "description": "С чем совпал ответ: key | twin_key | twin_err | twin_token | distractor | none"
+          },
+          "matched_ru": {
+            "type": "string",
+            "title": "Matched Ru",
+            "description": "То же словами"
+          },
+          "strength": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strength",
+            "description": "exact (ключ копии) | err_twin | token"
+          },
+          "headline_ru": {
+            "type": "string",
+            "title": "Headline Ru",
+            "description": "Что нашли, одной фразой"
+          },
+          "phase": {
+            "type": "string",
+            "title": "Phase",
+            "description": "before_warning | after_warning | unknown"
+          },
+          "phase_ru": {
+            "type": "string",
+            "title": "Phase Ru",
+            "description": "До/после предупреждения словами"
+          },
+          "session_state": {
+            "type": "string",
+            "title": "Session State",
+            "description": "Состояние сессии по двойникам: none | warning | evidence | review_candidate"
+          },
+          "session_state_ru": {
+            "type": "string",
+            "title": "Session State Ru",
+            "description": "Состояние словами"
+          },
+          "review_status": {
+            "type": "string",
+            "title": "Review Status",
+            "description": "open | verification_assigned | dismissed"
+          },
+          "review_status_ru": {
+            "type": "string",
+            "title": "Review Status Ru",
+            "description": "Решение методиста словами"
+          },
+          "answered_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answered At",
+            "description": "Когда ответили"
+          },
+          "demo_assisted": {
+            "type": "boolean",
+            "title": "Demo Assisted",
+            "description": "Сессия жюри: исключена из метрик"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "source",
+          "label",
+          "seq",
+          "variant_code",
+          "family_id",
+          "family_title",
+          "mutation_class",
+          "answer",
+          "kind",
+          "matched",
+          "matched_ru",
+          "headline_ru",
+          "phase",
+          "phase_ru",
+          "session_state",
+          "session_state_ru",
+          "review_status",
+          "review_status_ru",
+          "demo_assisted"
+        ],
+        "title": "ReconciliationRowOut"
       },
       "RegisterRequest": {
         "properties": {
@@ -37993,6 +40846,26 @@
         ],
         "title": "RollbackIn"
       },
+      "RubricLevelOut": {
+        "properties": {
+          "score": {
+            "type": "integer",
+            "title": "Score",
+            "description": "Балл рубрики 0–2"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text",
+            "description": "Критерий"
+          }
+        },
+        "type": "object",
+        "required": [
+          "score",
+          "text"
+        ],
+        "title": "RubricLevelOut"
+      },
       "RuleCheckOut": {
         "properties": {
           "ok": {
@@ -38278,6 +41151,331 @@
         },
         "type": "object",
         "title": "SalarySignalOut"
+      },
+      "SandboxAnswersIn": {
+        "properties": {
+          "answers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "maxProperties": 8,
+            "title": "Answers",
+            "description": "Ответы по номерам заданий: {\"1\": \"…\"}"
+          },
+          "copied": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "maxItems": 8,
+            "title": "Copied",
+            "description": "Номера заданий, где проверяющий копировал текст (со слов страницы)"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "answers"
+        ],
+        "title": "SandboxAnswersIn"
+      },
+      "SandboxClipOut": {
+        "properties": {
+          "render_id": {
+            "type": "string",
+            "title": "Render Id",
+            "description": "Идентификатор показа"
+          },
+          "clipboard_text": {
+            "type": "string",
+            "title": "Clipboard Text",
+            "description": "Что обработчик копирования кладёт в буфер обмена"
+          }
+        },
+        "type": "object",
+        "required": [
+          "render_id",
+          "clipboard_text"
+        ],
+        "title": "SandboxClipOut"
+      },
+      "SandboxDiagnosisOut": {
+        "properties": {
+          "no": {
+            "type": "integer",
+            "title": "No",
+            "description": "Номер задания"
+          },
+          "variant_code": {
+            "type": "string",
+            "title": "Variant Code",
+            "description": "Код варианта"
+          },
+          "answer": {
+            "type": "string",
+            "title": "Answer",
+            "description": "Ответ проверяющего"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind",
+            "description": "correct | twin_trace | misconception | other | blank"
+          },
+          "matched": {
+            "type": "string",
+            "title": "Matched",
+            "description": "С чем совпал ответ"
+          },
+          "channel": {
+            "type": "string",
+            "title": "Channel",
+            "description": "clipboard_text | screen_or_retyped | misconception | unknown"
+          },
+          "channel_ru": {
+            "type": "string",
+            "title": "Channel Ru",
+            "description": "Канал словами"
+          },
+          "caught": {
+            "type": "boolean",
+            "title": "Caught",
+            "description": "Поймано двойником"
+          },
+          "copied": {
+            "type": "boolean",
+            "title": "Copied",
+            "description": "Проверяющий копировал текст (по событию страницы; только контекст)"
+          },
+          "diagnosis_ru": {
+            "type": "string",
+            "title": "Diagnosis Ru",
+            "description": "Диагноз по заданию"
+          },
+          "key_shown": {
+            "type": "string",
+            "title": "Key Shown",
+            "description": "Ключ экрана"
+          },
+          "key_clipboard": {
+            "type": "string",
+            "title": "Key Clipboard",
+            "description": "Ключ копии"
+          },
+          "act": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ActOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Акт сверки для пойманного (или со следом) задания"
+          }
+        },
+        "type": "object",
+        "required": [
+          "no",
+          "variant_code",
+          "answer",
+          "kind",
+          "matched",
+          "channel",
+          "channel_ru",
+          "caught",
+          "copied",
+          "diagnosis_ru",
+          "key_shown",
+          "key_clipboard"
+        ],
+        "title": "SandboxDiagnosisOut"
+      },
+      "SandboxItemOut": {
+        "properties": {
+          "no": {
+            "type": "integer",
+            "title": "No",
+            "description": "Номер задания 1…4"
+          },
+          "variant_code": {
+            "type": "string",
+            "title": "Variant Code",
+            "description": "Код варианта"
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "Формулировка"
+          },
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code",
+            "description": "Код"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language",
+            "description": "Язык"
+          },
+          "table": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Table",
+            "description": "Таблица для SQL"
+          },
+          "answer_mode": {
+            "type": "string",
+            "title": "Answer Mode",
+            "description": "Режим ответа"
+          },
+          "answer_hint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer Hint",
+            "description": "Что ввести"
+          },
+          "clip": {
+            "$ref": "#/components/schemas/SandboxClipOut",
+            "description": "Данные для обработчика копирования"
+          }
+        },
+        "type": "object",
+        "required": [
+          "no",
+          "variant_code",
+          "prompt",
+          "answer_mode",
+          "clip"
+        ],
+        "title": "SandboxItemOut"
+      },
+      "SandboxResultOut": {
+        "properties": {
+          "test_id": {
+            "type": "string",
+            "title": "Test Id",
+            "description": "Идентификатор мини-теста"
+          },
+          "demo_assisted": {
+            "type": "boolean",
+            "title": "Demo Assisted",
+            "description": "Исключена из метрик"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "Заданий"
+          },
+          "caught": {
+            "type": "integer",
+            "title": "Caught",
+            "description": "Поймано двойником"
+          },
+          "correct_uncaught": {
+            "type": "integer",
+            "title": "Correct Uncaught",
+            "description": "Верных ответов, которые двойник не ловит"
+          },
+          "summary_ru": {
+            "type": "string",
+            "title": "Summary Ru",
+            "description": "Итог словами"
+          },
+          "next_step_ru": {
+            "type": "string",
+            "title": "Next Step Ru",
+            "description": "Что ловит то, что двойник не ловит"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SandboxDiagnosisOut"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "Диагноз по заданиям"
+          }
+        },
+        "type": "object",
+        "required": [
+          "test_id",
+          "demo_assisted",
+          "total",
+          "caught",
+          "correct_uncaught",
+          "summary_ru",
+          "next_step_ru",
+          "items"
+        ],
+        "title": "SandboxResultOut"
+      },
+      "SandboxStartOut": {
+        "properties": {
+          "test_id": {
+            "type": "string",
+            "title": "Test Id",
+            "description": "Идентификатор мини-теста"
+          },
+          "banner_ru": {
+            "type": "string",
+            "title": "Banner Ru",
+            "description": "Баннер: «Списывайте как угодно…»"
+          },
+          "readme_note_ru": {
+            "type": "string",
+            "title": "Readme Note Ru",
+            "description": "Оговорка про ноутбук (поведение copy на мобильных не проверено)"
+          },
+          "demo_assisted": {
+            "type": "boolean",
+            "title": "Demo Assisted",
+            "description": "Сессия помечена demo_assisted и исключена из метрик"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SandboxItemOut"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "4 задания, у каждого есть двойник"
+          }
+        },
+        "type": "object",
+        "required": [
+          "test_id",
+          "banner_ru",
+          "readme_note_ru",
+          "demo_assisted",
+          "items"
+        ],
+        "title": "SandboxStartOut"
       },
       "ScalarField": {
         "properties": {
@@ -38828,6 +42026,74 @@
           "finished"
         ],
         "title": "SessionOut"
+      },
+      "SessionTwinOut": {
+        "properties": {
+          "state": {
+            "type": "string",
+            "title": "State",
+            "description": "none | warning | evidence | review_candidate"
+          },
+          "state_ru": {
+            "type": "string",
+            "title": "State Ru",
+            "description": "Состояние словами"
+          },
+          "n_twin_items": {
+            "type": "integer",
+            "title": "N Twin Items",
+            "description": "Заданий с двойником, на которые дан ответ"
+          },
+          "n_counted_hits": {
+            "type": "integer",
+            "title": "N Counted Hits",
+            "description": "Попаданий в ключ копии (не больше одного на класс подмены)"
+          },
+          "p_honest_text": {
+            "type": "string",
+            "title": "P Honest Text",
+            "description": "Вероятность такого совпадения у честного кандидата по всем заданиям с двойником"
+          },
+          "proposed_level_ru": {
+            "type": "string",
+            "title": "Proposed Level Ru",
+            "description": "Предлагаемый уровень доверия (до решения методиста внешне не меняется)"
+          },
+          "suggested_level_ru": {
+            "type": "string",
+            "title": "Suggested Level Ru",
+            "description": "Уровень, который предложили бы правила при откалиброванной ε"
+          },
+          "context_only": {
+            "type": "boolean",
+            "title": "Context Only",
+            "description": "ε не откалибрована: вес 0, только контекст"
+          },
+          "trust_weight": {
+            "type": "number",
+            "title": "Trust Weight",
+            "description": "Вес улики в доверии"
+          },
+          "decision": {
+            "type": "string",
+            "title": "Decision",
+            "description": "Кто решает"
+          }
+        },
+        "type": "object",
+        "required": [
+          "state",
+          "state_ru",
+          "n_twin_items",
+          "n_counted_hits",
+          "p_honest_text",
+          "proposed_level_ru",
+          "suggested_level_ru",
+          "context_only",
+          "trust_weight",
+          "decision"
+        ],
+        "title": "SessionTwinOut"
       },
       "ShortlistEntryOut": {
         "properties": {
@@ -39981,6 +43247,29 @@
         ],
         "title": "SurveyStateOut"
       },
+      "SyntheticOut": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label",
+            "description": "Подпись метки в карточке кандидата (Р6)"
+          },
+          "refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Refs",
+            "description": "Ссылки `ref` синтетических кандидатов, которых компания уже видела"
+          }
+        },
+        "type": "object",
+        "required": [
+          "label",
+          "refs"
+        ],
+        "title": "SyntheticOut"
+      },
       "TaskCreateIn": {
         "properties": {
           "kind": {
@@ -40911,6 +44200,150 @@
           "target_grade"
         ],
         "title": "TraceStepOut"
+      },
+      "TwinCoverageFamilyOut": {
+        "properties": {
+          "family_id": {
+            "type": "string",
+            "title": "Family Id",
+            "description": "Семейство"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "Название"
+          },
+          "format": {
+            "type": "string",
+            "title": "Format",
+            "description": "Формат задания"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language",
+            "description": "Язык показанного кода"
+          },
+          "mechanism": {
+            "type": "string",
+            "enum": [
+              "own",
+              "generic",
+              "none"
+            ],
+            "title": "Mechanism",
+            "description": "own — свой Family.twin() семейства; generic — общий мутатор (код/SQL); none — двойник невозможен по форме"
+          },
+          "reason_ru": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason Ru",
+            "description": "Почему двойника нет по форме"
+          },
+          "pool_free": {
+            "type": "integer",
+            "title": "Pool Free",
+            "description": "Свободных экземпляров в пуле"
+          },
+          "twins_ok": {
+            "type": "integer",
+            "title": "Twins Ok",
+            "description": "Экземпляров с готовым двойником"
+          },
+          "twins_none": {
+            "type": "integer",
+            "title": "Twins None",
+            "description": "Экземпляров, для которых двойник построить не удалось"
+          },
+          "pending": {
+            "type": "integer",
+            "title": "Pending",
+            "description": "Свободных экземпляров без записи (двойник ещё не считался)"
+          },
+          "shown": {
+            "type": "integer",
+            "title": "Shown",
+            "description": "Двойников выдано кандидатам"
+          },
+          "share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Share",
+            "description": "Доля готовых двойников среди посчитанных"
+          },
+          "top_reasons": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Top Reasons",
+            "description": "Частые причины «двойника нет»"
+          }
+        },
+        "type": "object",
+        "required": [
+          "family_id",
+          "title",
+          "format",
+          "language",
+          "mechanism",
+          "pool_free",
+          "twins_ok",
+          "twins_none",
+          "pending",
+          "shown"
+        ],
+        "title": "TwinCoverageFamilyOut"
+      },
+      "TwinCoverageOut": {
+        "properties": {
+          "families": {
+            "items": {
+              "$ref": "#/components/schemas/TwinCoverageFamilyOut"
+            },
+            "type": "array",
+            "title": "Families",
+            "description": "Семейства банка"
+          },
+          "totals": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Totals",
+            "description": "Итоги: семейств, с двойником, свободных, готовых, ждут расчёта, выдано"
+          },
+          "note_ru": {
+            "type": "string",
+            "title": "Note Ru",
+            "description": "Как получить двойников для пула"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "description": "Версия формата двойников"
+          }
+        },
+        "type": "object",
+        "required": [
+          "families",
+          "totals",
+          "note_ru",
+          "version"
+        ],
+        "title": "TwinCoverageOut"
       },
       "UnreadOut": {
         "properties": {
@@ -41889,51 +45322,56 @@
         ],
         "title": "VacancyPublishOut"
       },
-      "ValidationOut": {
+      "ValidationReportOut": {
         "properties": {
-          "available": {
-            "type": "boolean",
-            "title": "Available",
-            "description": "Есть ли прогоны"
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "description": "Файл прогона относительно backend/"
           },
-          "kinds": {
+          "file_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "File Time",
+            "description": "Время файла прогона"
+          },
+          "sections": {
             "items": {
               "type": "string"
             },
             "type": "array",
-            "title": "Kinds",
-            "description": "Виды прогонов в базе"
+            "title": "Sections",
+            "description": "Разделы результата"
           },
-          "run": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/ValidationRunOut"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Последний прогон"
+          "meta": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Meta",
+            "description": "Паспорт прогона: seed, коммит, длительности"
           },
-          "message": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Message",
-            "description": "Пояснение"
+          "result": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Result",
+            "description": "Полный JSON последнего `make validate`"
           }
         },
         "type": "object",
         "required": [
-          "available",
-          "kinds"
+          "source",
+          "file_time",
+          "sections",
+          "meta",
+          "result"
         ],
-        "title": "ValidationOut"
+        "title": "ValidationReportOut"
       },
       "ValidationRunOut": {
         "properties": {
@@ -41996,6 +45434,53 @@
         ],
         "title": "ValidationRunOut"
       },
+      "VerificationKitOut": {
+        "properties": {
+          "kit_id": {
+            "type": "string",
+            "title": "Kit Id",
+            "description": "Идентификатор комплекта (детерминирован по сессии)"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "description": "Версия формата комплекта"
+          },
+          "title_ru": {
+            "type": "string",
+            "title": "Title Ru",
+            "description": "«Подтверждение за 5 минут»"
+          },
+          "subtitle_ru": {
+            "type": "string",
+            "title": "Subtitle Ru",
+            "description": "Подзаголовок"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/VerificationQuestionOut"
+            },
+            "type": "array",
+            "title": "Questions",
+            "description": "3 вопроса по трассе и до 2 по навыкам"
+          },
+          "shortfall": {
+            "type": "integer",
+            "title": "Shortfall",
+            "description": "Сколько вопросов по трассе не удалось построить"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kit_id",
+          "version",
+          "title_ru",
+          "subtitle_ru",
+          "questions",
+          "shortfall"
+        ],
+        "title": "VerificationKitOut"
+      },
       "VerificationPendingOut": {
         "properties": {
           "user_id": {
@@ -42040,6 +45525,148 @@
           "next_step"
         ],
         "title": "VerificationPendingOut"
+      },
+      "VerificationQuestionOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "q1…q3 — по трассе; s1, s2 — по навыкам"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "trace",
+              "skill"
+            ],
+            "title": "Kind",
+            "description": "trace — вопрос по собственному заданию кандидата; skill — шаблонный по навыку"
+          },
+          "prompt_ru": {
+            "type": "string",
+            "title": "Prompt Ru",
+            "description": "Что спросить"
+          },
+          "rubric": {
+            "items": {
+              "$ref": "#/components/schemas/RubricLevelOut"
+            },
+            "type": "array",
+            "title": "Rubric",
+            "description": "Рубрика 0–2"
+          },
+          "listen_for_ru": {
+            "type": "string",
+            "title": "Listen For Ru",
+            "description": "Что слушать"
+          },
+          "calibrated": {
+            "type": "boolean",
+            "title": "Calibrated",
+            "description": "Откалибровано (шаблонные вопросы по навыкам — нет)"
+          },
+          "label_ru": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label Ru",
+            "description": "Пометка «не откалибровано»"
+          },
+          "variant_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Variant Code",
+            "description": "Вариант кандидата, по которому вопрос"
+          },
+          "method": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Method",
+            "description": "literal_mutation | family_reseed | template"
+          },
+          "verified_by": {
+            "type": "string",
+            "title": "Verified By",
+            "description": "execution | generator | none — чем получен ожидаемый ответ"
+          },
+          "candidate_answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Answer",
+            "description": "Что ответил кандидат (если цитирование безопасно)"
+          },
+          "changed": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Changed",
+            "description": "Что изменено: было, стало, строка"
+          },
+          "variant_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Variant Text",
+            "description": "Текст изменённого задания"
+          },
+          "expected_answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Answer",
+            "description": "Ожидаемый ответ, вычисленный исполнением"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "prompt_ru",
+          "rubric",
+          "listen_for_ru",
+          "calibrated",
+          "verified_by"
+        ],
+        "title": "VerificationQuestionOut"
       },
       "VerifyCategoryOut": {
         "properties": {
@@ -42964,6 +46591,56 @@
         ],
         "title": "WebhookSettingsOut"
       },
+      "app__api__admin__ValidationOut": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "description": "Файл прогона относительно backend/"
+          },
+          "file_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "File Time",
+            "description": "Время файла прогона"
+          },
+          "sections": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Sections",
+            "description": "Разделы результата"
+          },
+          "meta": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Meta"
+          },
+          "result": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Result",
+            "description": "Полный JSON последнего `make validate`"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source",
+          "file_time",
+          "sections",
+          "meta",
+          "result"
+        ],
+        "title": "ValidationOut"
+      },
       "app__services__contact__schemas__DisputeIn": {
         "properties": {
           "comment": {
@@ -43392,6 +47069,52 @@
           "counts_as_change"
         ],
         "title": "GradeChangeOut"
+      },
+      "app__services__testing__schemas__ValidationOut": {
+        "properties": {
+          "available": {
+            "type": "boolean",
+            "title": "Available",
+            "description": "Есть ли прогоны"
+          },
+          "kinds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Kinds",
+            "description": "Виды прогонов в базе"
+          },
+          "run": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ValidationRunOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Последний прогон"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Пояснение"
+          }
+        },
+        "type": "object",
+        "required": [
+          "available",
+          "kinds"
+        ],
+        "title": "ValidationOut"
       }
     },
     "securitySchemes": {
@@ -43449,7 +47172,11 @@
     },
     {
       "name": "Лаборатория",
-      "description": "Трасса сессии, банк заданий, флаги целостности, валидация (роль «методист»)."
+      "description": "Трасса сессии, банк заданий, флаги целостности, валидация, сверки «двойника в буфере» (роль «методист»)."
+    },
+    {
+      "name": "Антиподсказчик",
+      "description": "«Подтверждение за 5 минут» для работодателя (после раскрытия контакта) и песочница жюри «Попробуй списать» (DEMO_MODE)."
     },
     {
       "name": "Компании",

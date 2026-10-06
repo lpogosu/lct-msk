@@ -114,23 +114,39 @@ def test_twin_gate_fails_when_family_has_no_safe_twin():
     assert res.stats.reasons == {"no_candidates": 6}
 
 
-def test_twin_gate_reports_pool_collisions():
+def _collide_family(base_of):
+    """Семейство «v = base; print(v * 2)»: ключ base·2. Кандидат-двойник (множитель 2 → 4) для base = 300 даёт 1200 —
+    ключ соседа с base = 600; гейт 4 такого кандидата отбрасывает."""
+
     class Collide(TinyFamily):
         id = "test.collide"
 
         def generate(self, seed: int) -> Instance:
-            # каждый экземпляр — константа 300 или 600: ключ двойника одного равен ключу другого
-            base = 300 if seed % 2 == 0 else 600
+            base = base_of(seed)
             code = f"v = {base}\nprint(v * 2)"
-            fam_key = str(base * 2)
             return Instance(self.id, seed, Rendered(prompt="Что напечатает программа?", code=code, language="python",
-                                                    answer_mode="text"), fam_key, {})
+                                                    answer_mode="text"), str(base * 2), {})
 
-    res = twin_gate(Collide(), n=8)
-    # плотность ключей семейства видна (кандидаты 600/1200 совпадают с ключами соседей), но гейт 4 их отбрасывает
+    return Collide()
+
+
+def test_twin_gate_reports_pool_collisions():
+    # два экземпляра пула (300 и 600) взаимно перекрывают кандидатов друг друга, остальные ключи уникальны
+    fam = _collide_family(lambda seed: 300 if seed == 0 else 600 if seed == 1 else 1000 + seed * 37)
+    res = twin_gate(fam, n=8)
+    # плотность ключей семейства видна (кандидаты совпали с ключами соседей), но гейт 4 их отбрасывает
     assert res.stats.natural_collision > 0 and res.stats.rejects.get("pool_collision", 0) > 0
     assert res.stats.pool_collision == 0  # ни один итоговый двойник не совпал с ключом соседнего экземпляра
     assert res.ok, res.errors
+
+
+def test_twin_gate_flags_a_family_with_dense_keys():
+    # всего два различных ключа на восемь экземпляров: каждый второй кандидат совпал бы с ответом соседа, и это
+    # плотность выше порога семейства (gate.max_natural_collision), а не ошибка гейта 4: итоговые двойники чистые
+    res = twin_gate(_collide_family(lambda seed: 300 if seed % 2 == 0 else 600), n=8)
+    assert res.stats.pool_collision == 0 and res.stats.valid == 8
+    assert res.stats.natural_collision > load_anticheat_config().gate.max_natural_collision
+    assert not res.ok and any("плотность ключей семейства" in e for e in res.errors)
 
 
 # ----------------------------------------------------------------------------- реестр и отчёт

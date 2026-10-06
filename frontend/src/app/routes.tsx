@@ -27,6 +27,12 @@ const publicRoutes: RouteObject = {
     { index: true, element: <Landing />, handle: { title: 'Главная' } },
     // Публичная сверка стандартизированного PDF-профиля по QR (ссылки /v/{code} печатает бэкенд)
     { path: 'v/:code', element: wip('Сверка профиля', '/', 'Акт сверки по QR-коду'), handle: { title: 'Сверка профиля' } },
+    // Песочница жюри «Попробуй списать» (Антиподсказчик): без входа, работает только при DEMO_MODE (иначе страница сама скажет об этом)
+    {
+      path: 'try',
+      lazy: async () => ({ Component: (await import('@/pages/jury/CheatLab')).default }),
+      handle: { title: 'Попробуй списать' },
+    },
   ],
 }
 
@@ -160,7 +166,9 @@ const employerRoutes: RouteObject = {
   ],
 }
 
-// Лаборатория (методист, жюри). Figma: Акт сверки (Антиподсказчик) 39:2.
+// Лаборатория (методист, жюри). Figma: Акт сверки (Антиподсказчик) 39:2. Экраны — `src/pages/lab/*`.
+const labPage = (load: () => Promise<{ default: ComponentType }>) => async () => ({ Component: (await load()).default })
+
 const labRoutes: RouteObject = {
   path: 'lab',
   element: (
@@ -170,10 +178,13 @@ const labRoutes: RouteObject = {
   ),
   children: [
     { index: true, element: <Navigate to="sessions" replace /> },
-    { path: 'sessions', element: wip('Сессии'), handle: { title: 'Сессии' } },
-    { path: 'bank', element: wip('Банк заданий'), handle: { title: 'Банк заданий' } },
-    { path: 'reconciliations', element: wip('Сверки', undefined, '39:2 Акт сверки (Антиподсказчик)'), handle: { title: 'Сверки' } },
-    { path: 'validation', element: wip('Валидация'), handle: { title: 'Валидация' } },
+    { path: 'sessions', lazy: labPage(() => import('@/pages/lab/Sessions')), handle: { title: 'Сессии' } },
+    { path: 'sessions/:id', lazy: labPage(() => import('@/pages/lab/SessionTrace')), handle: { title: 'Трасса сессии' } },
+    { path: 'bank', lazy: labPage(() => import('@/pages/lab/Bank')), handle: { title: 'Банк заданий' } },
+    { path: 'bank/:familyId', lazy: labPage(() => import('@/pages/lab/Clones')), handle: { title: '3 клона рядом' } },
+    { path: 'reconciliations', lazy: labPage(() => import('@/pages/lab/Reconciliations')), handle: { title: 'Сверки' } },
+    { path: 'reconciliations/:id', lazy: labPage(() => import('@/pages/lab/ReconciliationAct')), handle: { title: 'Акт сверки' } },
+    { path: 'validation', lazy: labPage(() => import('@/pages/lab/Validation')), handle: { title: 'Валидация' } },
     { path: 'ai-stand', element: wip('ИИ-стенд'), handle: { title: 'ИИ-стенд' } },
   ],
 }

@@ -22,7 +22,8 @@ from dataclasses import dataclass
 from typing import Any
 
 from app.testing.anticheat.config import AntiCheatConfig, load_anticheat_config
-from app.testing.anticheat.twins import Twin, try_make_twin
+from app.testing.anticheat.dispatch import family_twin_result, variant_twin
+from app.testing.anticheat.twins import Twin
 from app.testing.bank.base import GRADES, Family, Instance, Rendered
 from app.testing.bank.registry import all_families
 
@@ -214,11 +215,11 @@ def _variant_question(
         answer=_answer_text(item.answer),
     )
     # литерал, на котором стоит двойник, не используем: ответ из чата на него уже известен
-    base_twin = try_make_twin(fam, inst).twin
+    base_twin = family_twin_result(fam, inst, cfg=cfg).twin  # Family.twin() первым, затем общий мутатор
     avoid = [base_twin.changed_literal.ident] if base_twin else []
-    res = try_make_twin(fam, inst, strict=False, avoid=avoid, salt=f"verify#{candidate_ref}")
-    if res.twin is not None:
-        v: Twin = res.twin
+    found = variant_twin(fam, inst, avoid=avoid, salt=f"verify#{candidate_ref}", cfg=cfg)
+    if found is not None:
+        v: Twin = found
         c = v.changed_literal
         shown_lines, new_lines = v.shown_text.split("\n"), v.clipboard_text.split("\n")
         ask_key = "verification.trace_ask_sql" if c.role == "cell" else "verification.trace_ask_code"

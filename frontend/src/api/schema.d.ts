@@ -2789,6 +2789,226 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/lab/reconciliations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Лента сверок «двойника в буфере»
+         * @description Ответы, в которых есть след копии из буфера обмена: совпадение с ключом копии (а не с ключом экрана) и слабые следы (значение, которого нет на экране; типичная ошибка на копии — только контекст). Ответ двойника уже засчитан в тесте неверным; вес улики в доверии 0 до калибровки; автоматического бана нет — решает методист. Работодатель этого не видит. Включает мини-тесты песочницы жюри (`source = sandbox`, сессии demo_assisted).
+         */
+        get: operations["reconciliations_api_lab_reconciliations_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/lab/reconciliations/{reconciliation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Акт сверки
+         * @description Показанная версия и копия из буфера рядом с подсвеченным литералом, оба ключа (получены исполнением), ответ и то, с чем он совпал, «до/после предупреждения», вероятность честного совпадения («ожидаемо N на 10 000 сессий»), чек-лист альтернативных объяснений и сводка по сессии. Формулировки — только наблюдаемые факты, без обвинений.
+         */
+        get: operations["reconciliation_api_lab_reconciliations__reconciliation_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/lab/reconciliations/{reconciliation_id}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Решение по сверке
+         * @description «Назначить подтверждение» (кандидату предлагается «Подтверждение за 5 минут»), «Снять отметку» или «Вернуть в очередь». Решает человек: автоматического бана и понижения нет, работодатель решение и причины не видит.
+         */
+        post: operations["reconciliation_review_api_lab_reconciliations__reconciliation_id__review_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/lab/sessions/{session_id}/verification-kit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * «Подтверждение за 5 минут» по сессии
+         * @description Комплект из 3 вопросов по собственным заданиям кандидата (в каждом изменён один параметр, ожидаемый ответ вычислен исполнением, рубрика 0–2, «что слушать») и до 2 шаблонных вопросов по навыкам. Методисту — с причиной выбора заданий; работодателю доступна урезанная версия после раскрытия контакта (`/api/invitations/{id}/verification-kit`).
+         */
+        get: operations["verification_kit_api_lab_sessions__session_id__verification_kit_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/lab/twins/coverage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Покрытие банка двойниками
+         * @description По семействам: свой двойник семейства или общий мутатор, сколько свободных экземпляров пула, у скольких двойник готов, ждёт расчёта или построить не удалось (с причиной), сколько выдано кандидатам. Ключей и текстов подмены нет.
+         */
+        get: operations["twins_coverage_api_lab_twins_coverage_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/lab/twins/precompute": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Посчитать двойники пула
+         * @description Запускает в фоне расчёт двойников для свободных экземпляров (одно семейство или все). Расчёт — запуски кода, у части семейств он занимает секунды, поэтому делается заранее, а не при выдаче задания. Прогресс — в «Покрытии».
+         */
+        post: operations["twins_precompute_api_lab_twins_precompute_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/lab/validation/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Отчёт последней валидации
+         * @description Полный JSON последнего `make validate` (`backend/eval/out/validation.json`): тестирование, категоризация, подбор, набор пар — для экрана «Валидация». 404 — прогона ещё нет.
+         */
+        get: operations["validation_report_api_lab_validation_report_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/invitations/{invitation_id}/verification-kit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * «Подтверждение за 5 минут» для работодателя
+         * @description Три вопроса по собственным заданиям кандидата: в каждом изменён один параметр, ожидаемый ответ вычислен исполнением, к вопросу — рубрика 0–2 и подсказка «что слушать»; до двух шаблонных вопросов по must-навыкам, которых тест не покрывает (с пометкой «не откалибровано»). Доступно только после взаимного «да», когда контакты кандидата раскрыты (иначе 409 `kit_not_available`). Улик, флагов и причин выбора заданий в комплекте нет.
+         */
+        get: operations["employer_verification_kit_api_invitations__invitation_id__verification_kit_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/jury/cheat-lab": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Песочница жюри: начать мини-тест
+         * @description Публичный маршрут (без входа), только при DEMO_MODE. Собирает мини-тест из 4 заданий разных семейств; у каждого есть «двойник в буфере». Набор уникален для проверяющего. В задании — условие и `clip`: что обработчик копирования кладёт в буфер. Ключей нет. Сессия помечена demo_assisted и исключена из метрик. Поведение копирования на мобильных не проверено — проверяйте с ноутбука.
+         */
+        post: operations["sandbox_start_api_jury_cheat_lab_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/jury/cheat-lab/{test_id}/answers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Песочница жюри: отправить ответы
+         * @description Диагноз по каждому заданию: «вы копировали текст — пойман двойником» (ответ совпал с ключом копии) либо «ответ верный — скриншот и ручной ввод двойник не ловит, поэтому подтверждение за 5 минут»; для пойманного — акт сверки. Ответы принимаются один раз.
+         */
+        post: operations["sandbox_answers_api_jury_cheat_lab__test_id__answers_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/jury/cheat-lab/{test_id}/result": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Песочница жюри: результат
+         * @description Результат уже отправленного мини-теста (409 `sandbox_not_scored`, пока ответов нет).
+         */
+        get: operations["sandbox_result_api_jury_cheat_lab__test_id__result_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/demo/state": {
         parameters: {
             query?: never;
@@ -2929,6 +3149,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/demo/synthetic": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Какие кандидаты синтетические
+         * @description Для метки «синтетический кандидат» в слепой карточке (Р6, G2): ссылки `ref` тех кандидатов компании, которых создал демо-мир и за которых отвечает автоответчик. Только роль «Нанимаю»; настоящих людей в списке нет.
+         */
+        get: operations["synthetic_refs_api_demo_synthetic_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/demo/webhook-sink": {
         parameters: {
             query?: never;
@@ -2953,7 +3193,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/admin": {
+    "/api/admin/import": {
         parameters: {
             query?: never;
             header?: never;
@@ -2961,35 +3201,83 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Администрирование: в разработке
-         * @description Раздел «Администрирование» в разработке: любой запрос возвращает 501 `not_implemented`. Планируется: POST /admin/import (кандидаты и брифы жюри), демо-инструменты advance/reset в DEMO_MODE (концепция §7.3, DECISIONS п. 5).
+         * Список импортов жюри
+         * @description Загрузки жюри (новые сверху) с числом брифов, кандидатов, кандидатов без теста и размеченных пар.
          */
-        get: operations["stub_admin_get"];
+        get: operations["list_imports_api_admin_import_get"];
+        put?: never;
         /**
-         * Администрирование: в разработке
-         * @description Раздел «Администрирование» в разработке: любой запрос возвращает 501 `not_implemented`. Планируется: POST /admin/import (кандидаты и брифы жюри), демо-инструменты advance/reset в DEMO_MODE (концепция §7.3, DECISIONS п. 5).
+         * Импорт кандидатов и брифов жюри
+         * @description Принимает строки набора пар (формат `eval/pairs_test.jsonl`, схема `eval/pairs_test.schema.json`): бриф, кандидат с признаками подбора и разметка rel 0–3; можно отдельно `briefs` и `candidates`. Кандидат с `features: null` — без теста: он попадает в группу «категория по опросу, не подтверждена» (заявленные `claimed_spec`/`claimed_grade`, навыки из `survey`/`declared_skills` или самоописания) и ранжируется ниже подтверждённых. Данные не попадают в банк платформы. 400 — формат строки неверен (в сообщении путь до поля).
          */
-        put: operations["stub_admin_put"];
-        /**
-         * Администрирование: в разработке
-         * @description Раздел «Администрирование» в разработке: любой запрос возвращает 501 `not_implemented`. Планируется: POST /admin/import (кандидаты и брифы жюри), демо-инструменты advance/reset в DEMO_MODE (концепция §7.3, DECISIONS п. 5).
-         */
-        post: operations["stub_admin_post"];
-        /**
-         * Администрирование: в разработке
-         * @description Раздел «Администрирование» в разработке: любой запрос возвращает 501 `not_implemented`. Планируется: POST /admin/import (кандидаты и брифы жюри), демо-инструменты advance/reset в DEMO_MODE (концепция §7.3, DECISIONS п. 5).
-         */
-        delete: operations["stub_admin_delete"];
+        post: operations["import_pairs_api_admin_import_post"];
+        delete?: never;
         options?: never;
         head?: never;
-        /**
-         * Администрирование: в разработке
-         * @description Раздел «Администрирование» в разработке: любой запрос возвращает 501 `not_implemented`. Планируется: POST /admin/import (кандидаты и брифы жюри), демо-инструменты advance/reset в DEMO_MODE (концепция §7.3, DECISIONS п. 5).
-         */
-        patch: operations["stub_admin_patch"];
+        patch?: never;
         trace?: never;
     };
-    "/api/admin/{path}": {
+    "/api/admin/import/{batch_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Удалить импорт жюри
+         * @description Удаляет загрузку вместе с её брифами, кандидатами и разметкой. Данные платформы не затрагиваются.
+         */
+        delete: operations["delete_import_api_admin_import__batch_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/eval/rank": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ранжирование по брифу (топ-N с компонентами Score)
+         * @description Бриф (из импорта по `brief_id` или текстом с вилкой) → топ-N кандидатов тем же движком, что подборка работодателя: Score, нормированные компоненты T, K, F, A, U, вклады и «за»/«против». Кандидаты без теста — группа «категория по опросу, не подтверждена» ниже подтверждённых. `format=csv` отдаёт тот же топ в CSV. `source`: импорт жюри, слепой банк платформы или оба. 404 — нет импорта или брифа, 422 — у брифа нет вилки.
+         */
+        post: operations["eval_rank_api_admin_eval_rank_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/eval/pairs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Метрики по размеченным парам (P@5, P@10, nDCG@10)
+         * @description Загрузите размеченные пары «бриф × кандидат» (формат eval/pairs_test.jsonl, rel 0–3; релевантен rel ≥ 2) — или не передавайте `pairs`, и возьмутся пары последнего импорта. Для каждого брифа ранжируются размеченные кандидаты нашим движком; считаются P@5, P@10, nDCG@10: среднее по брифам и 95% бутстреп-ДИ (тот же код, что в `make validate`). Если в строках есть `ranks_top20` (ours, b0–b3), по ним считаются те же метрики для сравнения.
+         */
+        post: operations["eval_pairs_api_admin_eval_pairs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/validation": {
         parameters: {
             query?: never;
             header?: never;
@@ -2997,32 +3285,16 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Администрирование: в разработке
-         * @description Раздел «Администрирование» в разработке: любой запрос возвращает 501 `not_implemented`. Планируется: POST /admin/import (кандидаты и брифы жюри), демо-инструменты advance/reset в DEMO_MODE (концепция §7.3, DECISIONS п. 5).
+         * Последний прогон валидации
+         * @description JSON последнего `make validate` (`backend/eval/out/validation.json`): тестирование, категоризация, подбор, набор пар, плитки. 404 — прогона ещё нет (выполните `make validate`).
          */
-        get: operations["stub_admin_get_path"];
-        /**
-         * Администрирование: в разработке
-         * @description Раздел «Администрирование» в разработке: любой запрос возвращает 501 `not_implemented`. Планируется: POST /admin/import (кандидаты и брифы жюри), демо-инструменты advance/reset в DEMO_MODE (концепция §7.3, DECISIONS п. 5).
-         */
-        put: operations["stub_admin_put_path"];
-        /**
-         * Администрирование: в разработке
-         * @description Раздел «Администрирование» в разработке: любой запрос возвращает 501 `not_implemented`. Планируется: POST /admin/import (кандидаты и брифы жюри), демо-инструменты advance/reset в DEMO_MODE (концепция §7.3, DECISIONS п. 5).
-         */
-        post: operations["stub_admin_post_path"];
-        /**
-         * Администрирование: в разработке
-         * @description Раздел «Администрирование» в разработке: любой запрос возвращает 501 `not_implemented`. Планируется: POST /admin/import (кандидаты и брифы жюри), демо-инструменты advance/reset в DEMO_MODE (концепция §7.3, DECISIONS п. 5).
-         */
-        delete: operations["stub_admin_delete_path"];
+        get: operations["validation_api_admin_validation_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
-        /**
-         * Администрирование: в разработке
-         * @description Раздел «Администрирование» в разработке: любой запрос возвращает 501 `not_implemented`. Планируется: POST /admin/import (кандидаты и брифы жюри), демо-инструменты advance/reset в DEMO_MODE (концепция §7.3, DECISIONS п. 5).
-         */
-        patch: operations["stub_admin_patch_path"];
+        patch?: never;
         trace?: never;
     };
 }
@@ -3041,6 +3313,282 @@ export interface components {
              * @description Какие поля раскрыть; по умолчанию — из настроек К13
              */
             fields?: string[] | null;
+        };
+        /** ActLineOut */
+        ActLineOut: {
+            /**
+             * No
+             * @description Номер строки внутри блока (с 1)
+             */
+            no: number;
+            /**
+             * Shown
+             * @description Строка, показанная на экране
+             */
+            shown: string;
+            /**
+             * Clipboard
+             * @description Та же строка в буфере обмена
+             */
+            clipboard: string;
+            /**
+             * Changed
+             * @description Строка отличается
+             */
+            changed: boolean;
+            /**
+             * Shown Span
+             * @description Колонки подсвеченного токена на экране [от, до)
+             */
+            shown_span?: number[] | null;
+            /**
+             * Clipboard Span
+             * @description Колонки подсвеченного токена в копии [от, до)
+             */
+            clipboard_span?: number[] | null;
+        };
+        /** ActOut */
+        ActOut: {
+            /**
+             * Id
+             * @description Идентификатор сверки
+             */
+            id: string;
+            /**
+             * Source
+             * @description session | sandbox
+             * @enum {string}
+             */
+            source: "session" | "sandbox";
+            /**
+             * Session Id
+             * @description Сессия
+             */
+            session_id?: string | null;
+            /**
+             * Label
+             * @description Подпись над заголовком
+             */
+            label: string;
+            /**
+             * Headline Ru
+             * @description Заголовок акта
+             */
+            headline_ru: string;
+            /**
+             * Lead Ru
+             * @description Что такое копия с изменённым числом
+             */
+            lead_ru: string;
+            /**
+             * Title Ru
+             * @description Название документа: «Акт сверки: показано и скопировано»
+             */
+            title_ru: string;
+            /**
+             * Variant Code
+             * @description Код варианта
+             */
+            variant_code: string;
+            /**
+             * Family Id
+             * @description Семейство
+             */
+            family_id: string;
+            /**
+             * Family Title
+             * @description Название семейства
+             */
+            family_title: string;
+            /**
+             * Mutation Class
+             * @description Класс подмены
+             */
+            mutation_class: string;
+            /**
+             * Mutation Subclass
+             * @description Класс и роль литерала
+             */
+            mutation_subclass: string;
+            /**
+             * Changed Literal
+             * @description Изменённый литерал: было, стало, строка, роль, блок
+             */
+            changed_literal: {
+                [key: string]: unknown;
+            };
+            /**
+             * Block Name
+             * @description Блок с подменой: code | table:<имя>
+             */
+            block_name: string;
+            /**
+             * Context Ru
+             * @description Остальной текст условия над блоком (формулировка), без подсветки
+             */
+            context_ru: string;
+            /**
+             * Lines
+             * @description Строки блока: слева «показано», справа «попало в буфер»
+             */
+            lines: components["schemas"]["ActLineOut"][];
+            /**
+             * Keys
+             * @description Ключи: shown — для экрана, clipboard — для копии (оба получены исполнением)
+             */
+            keys: {
+                [key: string]: string;
+            };
+            /**
+             * Candidate Answer
+             * @description Ответ кандидата
+             */
+            candidate_answer: string;
+            /**
+             * Kind
+             * @description correct | twin_trace | misconception | other
+             */
+            kind: string;
+            /**
+             * Matched
+             * @description С чем совпал ответ
+             */
+            matched: string;
+            /**
+             * Matched Ru
+             * @description То же словами
+             */
+            matched_ru: string;
+            /**
+             * Strength
+             * @description exact | err_twin | token
+             */
+            strength?: string | null;
+            /**
+             * Verdict Ru
+             * @description Вердикт без обвинений: только наблюдаемые факты
+             */
+            verdict_ru: string;
+            /**
+             * Phase
+             * @description before_warning | after_warning | unknown
+             */
+            phase: string;
+            /**
+             * Phase Ru
+             * @description До/после предупреждения словами
+             */
+            phase_ru: string;
+            /**
+             * Copy At
+             * @description Когда скопировали (по журналу событий)
+             */
+            copy_at?: string | null;
+            /**
+             * Answered At
+             * @description Когда ответили
+             */
+            answered_at?: string | null;
+            /**
+             * Warned At
+             * @description Когда показано предупреждение (первое копирование в сессии)
+             */
+            warned_at?: string | null;
+            /**
+             * P Honest
+             * @description Вероятность честного совпадения на этом задании (модельная оценка)
+             */
+            p_honest: number;
+            /**
+             * P Honest Text
+             * @description То же с «ожидаемо N на 10 000 сессий»
+             */
+            p_honest_text: string;
+            /**
+             * Stats
+             * @description Четыре числа под ключами: шанс, впервые/повторно, засчитано, вес
+             */
+            stats: components["schemas"]["ActStatOut"][];
+            /**
+             * Checklist
+             * @description Альтернативные объяснения (spec §2.1, M7)
+             */
+            checklist: components["schemas"]["ChecklistItemOut"][];
+            /**
+             * Means Title
+             * @description Заголовок «Что это значит»
+             */
+            means_title: string;
+            /**
+             * Means Ru
+             * @description Что это значит
+             */
+            means_ru: string;
+            /** @description Сводка по сессии (для песочницы нет) */
+            session?: components["schemas"]["SessionTwinOut"] | null;
+            /**
+             * Review Status
+             * @description open | verification_assigned | dismissed
+             */
+            review_status: string;
+            /**
+             * Review Status Ru
+             * @description Решение словами
+             */
+            review_status_ru: string;
+            /**
+             * Review Note
+             * @description Комментарий методиста
+             */
+            review_note?: string | null;
+            /**
+             * Reviewed At
+             * @description Когда принято решение
+             */
+            reviewed_at?: string | null;
+            /**
+             * Actions
+             * @description Доступные решения: id и подпись
+             */
+            actions: {
+                [key: string]: string;
+            }[];
+            /**
+             * Demo Assisted
+             * @description Сессия жюри: исключена из метрик
+             */
+            demo_assisted: boolean;
+            /**
+             * Auto Ban
+             * @description Всегда false: автоматического бана нет
+             * @default false
+             */
+            auto_ban: boolean;
+        };
+        /** ActStatOut */
+        ActStatOut: {
+            /**
+             * Id
+             * @description probability | phase | scored | weight
+             */
+            id: string;
+            /**
+             * Value
+             * @description Крупное значение
+             */
+            value: string;
+            /**
+             * Caption
+             * @description Подпись
+             */
+            caption: string;
+            /**
+             * Tone
+             * @description Окраска значения
+             * @default neutral
+             * @enum {string}
+             */
+            tone: "neutral" | "brand" | "danger";
         };
         /** AnswerIn */
         AnswerIn: {
@@ -3783,6 +4331,29 @@ export interface components {
              * @description Почему вас сейчас нет в банке (если нет)
              */
             reasons?: string[];
+        };
+        /** BatchOut */
+        BatchOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Briefs */
+            briefs: number;
+            /** Candidates */
+            candidates: number;
+            /** Unconfirmed */
+            unconfirmed: number;
+            /** Pairs */
+            pairs: number;
         };
         /** BlindCardModuleOut */
         BlindCardModuleOut: {
@@ -4544,6 +5115,34 @@ export interface components {
             /** Minutes */
             minutes: number;
         };
+        /** ChecklistItemOut */
+        ChecklistItemOut: {
+            /**
+             * Id
+             * @description self_paste | misconception | glyphs | stale_clip | a11y_mode
+             */
+            id: string;
+            /**
+             * Title Ru
+             * @description Альтернативное объяснение
+             */
+            title_ru: string;
+            /**
+             * Status
+             * @description ok | attention | excluded | unknown
+             */
+            status: string;
+            /**
+             * Status Ru
+             * @description Статус словами
+             */
+            status_ru: string;
+            /**
+             * Note Ru
+             * @description Пояснение
+             */
+            note_ru: string;
+        };
         /** ClockOut */
         ClockOut: {
             /**
@@ -5247,6 +5846,16 @@ export interface components {
             label: string;
             /** Count */
             count: number;
+        };
+        /** DeletedOut */
+        DeletedOut: {
+            /** Deleted */
+            deleted: boolean;
+            /**
+             * Batch Id
+             * Format: uuid
+             */
+            batch_id: string;
         };
         /** DemoAccountOut */
         DemoAccountOut: {
@@ -6266,6 +6875,65 @@ export interface components {
                 number
             ][];
         };
+        /** ImportIn */
+        ImportIn: {
+            /**
+             * Name
+             * @description Название загрузки (для списка импортов)
+             */
+            name?: string | null;
+            /**
+             * Pairs
+             * @description Строки как в eval/pairs_test.jsonl: brief_id, brief{text, gold, form}, candidate_id, candidate{features|null, self_description, claimed_spec, claimed_grade, survey}, rel 0–3
+             */
+            pairs?: {
+                [key: string]: unknown;
+            }[];
+            /**
+             * Briefs
+             * @description Только брифы: {brief_id, text, gold?, form?} или {brief_id, brief: {…}}
+             */
+            briefs?: {
+                [key: string]: unknown;
+            }[];
+            /**
+             * Candidates
+             * @description Только кандидаты: {candidate_id, features|null, self_description, claimed_spec, claimed_grade, survey}
+             */
+            candidates?: {
+                [key: string]: unknown;
+            }[];
+        };
+        /** ImportOut */
+        ImportOut: {
+            /**
+             * Batch Id
+             * Format: uuid
+             */
+            batch_id: string;
+            /** Name */
+            name: string;
+            /** Briefs */
+            briefs: number;
+            /** Candidates */
+            candidates: number;
+            /**
+             * Confirmed
+             * @description Кандидатов с тестом (полный Score)
+             */
+            confirmed: number;
+            /**
+             * Unconfirmed
+             * @description Кандидатов без теста: группа «категория по опросу, не подтверждена»
+             */
+            unconfirmed: number;
+            /** Pairs */
+            pairs: number;
+            /** Warnings */
+            warnings: string[];
+            /** Note */
+            note: string;
+        };
         /** InvitationBatchIn */
         InvitationBatchIn: {
             /** Need Id */
@@ -7002,6 +7670,136 @@ export interface components {
              */
             finished_at?: string | null;
         };
+        /** LabVerificationKitOut */
+        LabVerificationKitOut: {
+            /**
+             * Kit Id
+             * @description Идентификатор комплекта
+             */
+            kit_id: string;
+            /**
+             * Version
+             * @description Версия формата комплекта
+             */
+            version: string;
+            /**
+             * Title Ru
+             * @description «Подтверждение за 5 минут»
+             */
+            title_ru: string;
+            /**
+             * Subtitle Ru
+             * @description Подзаголовок
+             */
+            subtitle_ru: string;
+            /**
+             * Questions
+             * @description Вопросы с причинами выбора
+             */
+            questions: components["schemas"]["LabVerificationQuestionOut"][];
+            /**
+             * Shortfall
+             * @description Сколько вопросов по трассе не удалось построить
+             */
+            shortfall: number;
+            /**
+             * Session Id
+             * Format: uuid
+             * @description Сессия кандидата
+             */
+            session_id: string;
+        };
+        /** LabVerificationQuestionOut */
+        LabVerificationQuestionOut: {
+            /**
+             * Id
+             * @description q1…q3 — по трассе; s1, s2 — по навыкам
+             */
+            id: string;
+            /**
+             * Kind
+             * @description trace — вопрос по собственному заданию кандидата; skill — шаблонный по навыку
+             * @enum {string}
+             */
+            kind: "trace" | "skill";
+            /**
+             * Prompt Ru
+             * @description Что спросить
+             */
+            prompt_ru: string;
+            /**
+             * Rubric
+             * @description Рубрика 0–2
+             */
+            rubric: components["schemas"]["RubricLevelOut"][];
+            /**
+             * Listen For Ru
+             * @description Что слушать
+             */
+            listen_for_ru: string;
+            /**
+             * Calibrated
+             * @description Откалибровано (шаблонные вопросы по навыкам — нет)
+             */
+            calibrated: boolean;
+            /**
+             * Label Ru
+             * @description Пометка «не откалибровано»
+             */
+            label_ru?: string | null;
+            /**
+             * Variant Code
+             * @description Вариант кандидата, по которому вопрос
+             */
+            variant_code?: string | null;
+            /**
+             * Method
+             * @description literal_mutation | family_reseed | template
+             */
+            method?: string | null;
+            /**
+             * Verified By
+             * @description execution | generator | none — чем получен ожидаемый ответ
+             */
+            verified_by: string;
+            /**
+             * Candidate Answer
+             * @description Что ответил кандидат (если цитирование безопасно)
+             */
+            candidate_answer?: string | null;
+            /**
+             * Changed
+             * @description Что изменено: было, стало, строка
+             */
+            changed?: {
+                [key: string]: unknown;
+            } | null;
+            /**
+             * Variant Text
+             * @description Текст изменённого задания
+             */
+            variant_text?: string | null;
+            /**
+             * Expected Answer
+             * @description Ожидаемый ответ, вычисленный исполнением
+             */
+            expected_answer?: string | null;
+            /**
+             * Family Id
+             * @description Семейство (только методисту)
+             */
+            family_id?: string | null;
+            /**
+             * Seed
+             * @description Seed экземпляра (только методисту)
+             */
+            seed?: number | null;
+            /**
+             * Selection Reason
+             * @description Почему выбрано это задание (только методисту)
+             */
+            selection_reason?: string | null;
+        };
         /** LevelLineOut */
         LevelLineOut: {
             /**
@@ -7069,6 +7867,17 @@ export interface components {
              * @description Пароль
              */
             password: string;
+        };
+        /** MetricOut */
+        MetricOut: {
+            /** Mean */
+            mean: number | null;
+            /** Ci Low */
+            ci_low?: number | null;
+            /** Ci High */
+            ci_high?: number | null;
+            /** N Briefs */
+            n_briefs: number;
         };
         /** MissingSkillOut */
         MissingSkillOut: {
@@ -7631,6 +8440,66 @@ export interface components {
             /** Paused Until Text */
             paused_until_text?: string | null;
         };
+        /** PairsIn */
+        PairsIn: {
+            /**
+             * Pairs
+             * @description Размеченные пары (формат eval/pairs_test.jsonl); не заданы — берутся пары из batch_id
+             */
+            pairs?: {
+                [key: string]: unknown;
+            }[];
+            /**
+             * Batch Id
+             * @description Импорт с разметкой (по умолчанию — последний)
+             */
+            batch_id?: string | null;
+            /**
+             * Use Gold
+             * @default false
+             */
+            use_gold: boolean;
+            /**
+             * Systems
+             * @description Какие системы из ranks_top20 сравнивать (по умолчанию все)
+             */
+            systems?: string[] | null;
+        };
+        /** PairsOut */
+        PairsOut: {
+            /** N Briefs */
+            n_briefs: number;
+            /** N Pairs */
+            n_pairs: number;
+            /** N Candidates */
+            n_candidates: number;
+            /** N Unconfirmed */
+            n_unconfirmed: number;
+            /**
+             * Ours
+             * @description P@5, P@10, nDCG@10 нашей системы: среднее по брифам и 95% бутстреп-ДИ
+             */
+            ours: {
+                [key: string]: components["schemas"]["MetricOut"];
+            };
+            /**
+             * Reported Systems
+             * @description Те же метрики по местам из ranks_top20 (наш набор пар: ours, b0–b3)
+             */
+            reported_systems: {
+                [key: string]: {
+                    [key: string]: components["schemas"]["MetricOut"];
+                };
+            };
+            /** Per Brief */
+            per_brief: {
+                [key: string]: unknown;
+            }[];
+            /** Notes */
+            notes: string[];
+            /** Scoring Config Version */
+            scoring_config_version: string;
+        };
         /** ParseOut */
         ParseOut: {
             /**
@@ -7754,6 +8623,37 @@ export interface components {
              * @description Доля совпадающих ключей (детектор «чужого ключа» работает при < 2%)
              */
             key_collision_rate: number;
+        };
+        /** PrecomputeIn */
+        PrecomputeIn: {
+            /**
+             * Family Id
+             * @description Только это семейство (по умолчанию — все)
+             */
+            family_id?: string | null;
+            /**
+             * Per Family
+             * @description Сколько свободных экземпляров семейства обработать
+             */
+            per_family?: number | null;
+        };
+        /** PrecomputeOut */
+        PrecomputeOut: {
+            /**
+             * Accepted
+             * @description Расчёт запущен в фоне
+             */
+            accepted: boolean;
+            /**
+             * Families
+             * @description Семейств в работе
+             */
+            families: number;
+            /**
+             * Message
+             * @description Что произойдёт дальше
+             */
+            message: string;
         };
         /** PreviewCheckOut */
         PreviewCheckOut: {
@@ -8448,6 +9348,152 @@ export interface components {
              */
             text: string;
         };
+        /** RankIn */
+        RankIn: {
+            /**
+             * Brief Id
+             * @description Бриф из импорта
+             */
+            brief_id?: string | null;
+            /**
+             * Batch Id
+             * @description Импорт (по умолчанию — последний)
+             */
+            batch_id?: string | null;
+            /**
+             * Text
+             * @description Или текст брифа прямо в запросе
+             */
+            text?: string | null;
+            /**
+             * Salary From
+             * @description Вилка от, ₽/мес (если её нет в тексте)
+             */
+            salary_from?: number | null;
+            /**
+             * Salary To
+             * @description Вилка до, ₽/мес
+             */
+            salary_to?: number | null;
+            /**
+             * Salary Net
+             * @description true — на руки, false — до НДФЛ
+             */
+            salary_net?: boolean | null;
+            /**
+             * Source
+             * @description Откуда кандидаты: загрузка жюри, слепой банк платформы или оба
+             * @default import
+             * @enum {string}
+             */
+            source: "import" | "platform" | "both";
+            /**
+             * Top
+             * @description Сколько строк вернуть (по умолчанию из config/demo.yaml)
+             */
+            top?: number | null;
+            /**
+             * Use Gold
+             * @description Брать эталонный разбор брифа из импорта вместо разбора текста
+             * @default false
+             */
+            use_gold: boolean;
+            /**
+             * All Categories
+             * @description Все категории пула, а не рекомендованные для брифа
+             * @default false
+             */
+            all_categories: boolean;
+        };
+        /** RankOut */
+        RankOut: {
+            /** Brief Id */
+            brief_id: string;
+            /**
+             * Brief
+             * @description Как разобран бриф: специализация, грейд, навыки, вилка, формат
+             */
+            brief: {
+                [key: string]: unknown;
+            };
+            /** Categories */
+            categories: {
+                [key: string]: unknown;
+            }[];
+            /** Pool Size */
+            pool_size: number;
+            /** Total */
+            total: number;
+            /** Confirmed */
+            confirmed: number;
+            /** Unconfirmed */
+            unconfirmed: number;
+            /** Items */
+            items: components["schemas"]["RankRowOut"][];
+            /** Scoring Config Version */
+            scoring_config_version: string;
+        };
+        /** RankReasonOut */
+        RankReasonOut: {
+            /**
+             * Kind
+             * @description pro — «за», con — «против»
+             */
+            kind: string;
+            /** Code */
+            code: string;
+            /** Component */
+            component?: string | null;
+            /** Text */
+            text: string;
+        };
+        /** RankRowOut */
+        RankRowOut: {
+            /** Rank */
+            rank: number;
+            /** Candidate Id */
+            candidate_id: string;
+            /**
+             * Source
+             * @description import — из загрузки жюри, platform — из банка платформы
+             */
+            source: string;
+            /**
+             * Group
+             * @enum {string}
+             */
+            group: "confirmed" | "unconfirmed";
+            /** Group Label */
+            group_label: string;
+            /** Category */
+            category: string;
+            /** Score */
+            score: number;
+            /**
+             * Components
+             * @description Нормированные компоненты Score: T, K, F, A, U
+             */
+            components: {
+                [key: string]: number;
+            };
+            /**
+             * Contributions
+             * @description Вклад компонентов в баллах (Σ = Score)
+             */
+            contributions: {
+                [key: string]: number;
+            };
+            /** Parts */
+            parts: {
+                [key: string]: number;
+            };
+            /** Reasons */
+            reasons: components["schemas"]["RankReasonOut"][];
+            /** Flags */
+            flags: string[];
+            /** Has Fsp */
+            has_fsp: boolean;
+        };
         /** ReachOut */
         ReachOut: {
             /**
@@ -8544,6 +9590,172 @@ export interface components {
             text: string;
             /** Evidence */
             evidence: components["schemas"]["EvidenceOut"][];
+        };
+        /** ReconciliationCountsOut */
+        ReconciliationCountsOut: {
+            /**
+             * Open
+             * @description Ждут решения методиста
+             */
+            open: number;
+            /**
+             * Verification Assigned
+             * @description Назначено подтверждение
+             */
+            verification_assigned: number;
+            /**
+             * Dismissed
+             * @description Отметка снята
+             */
+            dismissed: number;
+        };
+        /** ReconciliationListOut */
+        ReconciliationListOut: {
+            /**
+             * Items
+             * @description Сверки, новые сверху
+             */
+            items: components["schemas"]["ReconciliationRowOut"][];
+            /** @description Сколько сверок в каждом статусе (по всей ленте, без учёта фильтра) */
+            counts: components["schemas"]["ReconciliationCountsOut"];
+            /**
+             * Note Ru
+             * @description Что здесь показано и что не показано (ответы двойника — уже неверные; вес 0; автобана нет)
+             */
+            note_ru: string;
+        };
+        /** ReconciliationReviewIn */
+        ReconciliationReviewIn: {
+            /**
+             * Action
+             * @description Назначить подтверждение за 5 минут, снять отметку или вернуть в очередь
+             * @enum {string}
+             */
+            action: "assign_verification" | "dismiss" | "reopen";
+            /**
+             * Note
+             * @description Комментарий методиста
+             */
+            note?: string | null;
+        };
+        /** ReconciliationRowOut */
+        ReconciliationRowOut: {
+            /**
+             * Id
+             * @description Идентификатор сверки: uuid улики сессии либо `sb-<тест>-<номер>` для песочницы жюри
+             */
+            id: string;
+            /**
+             * Source
+             * @description session — сессия кандидата; sandbox — «Попробуй списать» (demo_assisted)
+             * @enum {string}
+             */
+            source: "session" | "sandbox";
+            /**
+             * Session Id
+             * @description Сессия (для песочницы — нет)
+             */
+            session_id?: string | null;
+            /**
+             * Label
+             * @description Подпись: «Сессия кандидата Илья К., задание 7, вариант 7F3A»
+             */
+            label: string;
+            /**
+             * Seq
+             * @description Номер задания
+             */
+            seq: number;
+            /**
+             * Variant Code
+             * @description Код варианта
+             */
+            variant_code: string;
+            /**
+             * Family Id
+             * @description Семейство заданий
+             */
+            family_id: string;
+            /**
+             * Family Title
+             * @description Название семейства
+             */
+            family_title: string;
+            /**
+             * Mutation Class
+             * @description Класс подмены: data_literal | table_value
+             */
+            mutation_class: string;
+            /**
+             * Answer
+             * @description Ответ кандидата
+             */
+            answer: string;
+            /**
+             * Kind
+             * @description correct | twin_trace | misconception | other
+             */
+            kind: string;
+            /**
+             * Matched
+             * @description С чем совпал ответ: key | twin_key | twin_err | twin_token | distractor | none
+             */
+            matched: string;
+            /**
+             * Matched Ru
+             * @description То же словами
+             */
+            matched_ru: string;
+            /**
+             * Strength
+             * @description exact (ключ копии) | err_twin | token
+             */
+            strength?: string | null;
+            /**
+             * Headline Ru
+             * @description Что нашли, одной фразой
+             */
+            headline_ru: string;
+            /**
+             * Phase
+             * @description before_warning | after_warning | unknown
+             */
+            phase: string;
+            /**
+             * Phase Ru
+             * @description До/после предупреждения словами
+             */
+            phase_ru: string;
+            /**
+             * Session State
+             * @description Состояние сессии по двойникам: none | warning | evidence | review_candidate
+             */
+            session_state: string;
+            /**
+             * Session State Ru
+             * @description Состояние словами
+             */
+            session_state_ru: string;
+            /**
+             * Review Status
+             * @description open | verification_assigned | dismissed
+             */
+            review_status: string;
+            /**
+             * Review Status Ru
+             * @description Решение методиста словами
+             */
+            review_status_ru: string;
+            /**
+             * Answered At
+             * @description Когда ответили
+             */
+            answered_at?: string | null;
+            /**
+             * Demo Assisted
+             * @description Сессия жюри: исключена из метрик
+             */
+            demo_assisted: boolean;
         };
         /** RegisterRequest */
         RegisterRequest: {
@@ -9133,6 +10345,19 @@ export interface components {
              */
             n: number;
         };
+        /** RubricLevelOut */
+        RubricLevelOut: {
+            /**
+             * Score
+             * @description Балл рубрики 0–2
+             */
+            score: number;
+            /**
+             * Text
+             * @description Критерий
+             */
+            text: string;
+        };
         /** RuleCheckOut */
         RuleCheckOut: {
             /**
@@ -9278,6 +10503,217 @@ export interface components {
             value?: number | null;
             /** Net */
             net?: boolean | null;
+        };
+        /** SandboxAnswersIn */
+        SandboxAnswersIn: {
+            /**
+             * Answers
+             * @description Ответы по номерам заданий: {"1": "…"}
+             */
+            answers: {
+                [key: string]: string;
+            };
+            /**
+             * Copied
+             * @description Номера заданий, где проверяющий копировал текст (со слов страницы)
+             */
+            copied?: number[];
+        };
+        /** SandboxClipOut */
+        SandboxClipOut: {
+            /**
+             * Render Id
+             * @description Идентификатор показа
+             */
+            render_id: string;
+            /**
+             * Clipboard Text
+             * @description Что обработчик копирования кладёт в буфер обмена
+             */
+            clipboard_text: string;
+        };
+        /** SandboxDiagnosisOut */
+        SandboxDiagnosisOut: {
+            /**
+             * No
+             * @description Номер задания
+             */
+            no: number;
+            /**
+             * Variant Code
+             * @description Код варианта
+             */
+            variant_code: string;
+            /**
+             * Answer
+             * @description Ответ проверяющего
+             */
+            answer: string;
+            /**
+             * Kind
+             * @description correct | twin_trace | misconception | other | blank
+             */
+            kind: string;
+            /**
+             * Matched
+             * @description С чем совпал ответ
+             */
+            matched: string;
+            /**
+             * Channel
+             * @description clipboard_text | screen_or_retyped | misconception | unknown
+             */
+            channel: string;
+            /**
+             * Channel Ru
+             * @description Канал словами
+             */
+            channel_ru: string;
+            /**
+             * Caught
+             * @description Поймано двойником
+             */
+            caught: boolean;
+            /**
+             * Copied
+             * @description Проверяющий копировал текст (по событию страницы; только контекст)
+             */
+            copied: boolean;
+            /**
+             * Diagnosis Ru
+             * @description Диагноз по заданию
+             */
+            diagnosis_ru: string;
+            /**
+             * Key Shown
+             * @description Ключ экрана
+             */
+            key_shown: string;
+            /**
+             * Key Clipboard
+             * @description Ключ копии
+             */
+            key_clipboard: string;
+            /** @description Акт сверки для пойманного (или со следом) задания */
+            act?: components["schemas"]["ActOut"] | null;
+        };
+        /** SandboxItemOut */
+        SandboxItemOut: {
+            /**
+             * No
+             * @description Номер задания 1…4
+             */
+            no: number;
+            /**
+             * Variant Code
+             * @description Код варианта
+             */
+            variant_code: string;
+            /**
+             * Prompt
+             * @description Формулировка
+             */
+            prompt: string;
+            /**
+             * Code
+             * @description Код
+             */
+            code?: string | null;
+            /**
+             * Language
+             * @description Язык
+             */
+            language?: string | null;
+            /**
+             * Table
+             * @description Таблица для SQL
+             */
+            table?: {
+                [key: string]: unknown;
+            } | null;
+            /**
+             * Answer Mode
+             * @description Режим ответа
+             */
+            answer_mode: string;
+            /**
+             * Answer Hint
+             * @description Что ввести
+             */
+            answer_hint?: string | null;
+            /** @description Данные для обработчика копирования */
+            clip: components["schemas"]["SandboxClipOut"];
+        };
+        /** SandboxResultOut */
+        SandboxResultOut: {
+            /**
+             * Test Id
+             * @description Идентификатор мини-теста
+             */
+            test_id: string;
+            /**
+             * Demo Assisted
+             * @description Исключена из метрик
+             */
+            demo_assisted: boolean;
+            /**
+             * Total
+             * @description Заданий
+             */
+            total: number;
+            /**
+             * Caught
+             * @description Поймано двойником
+             */
+            caught: number;
+            /**
+             * Correct Uncaught
+             * @description Верных ответов, которые двойник не ловит
+             */
+            correct_uncaught: number;
+            /**
+             * Summary Ru
+             * @description Итог словами
+             */
+            summary_ru: string;
+            /**
+             * Next Step Ru
+             * @description Что ловит то, что двойник не ловит
+             */
+            next_step_ru: string;
+            /**
+             * Items
+             * @description Диагноз по заданиям
+             */
+            items: components["schemas"]["SandboxDiagnosisOut"][];
+        };
+        /** SandboxStartOut */
+        SandboxStartOut: {
+            /**
+             * Test Id
+             * @description Идентификатор мини-теста
+             */
+            test_id: string;
+            /**
+             * Banner Ru
+             * @description Баннер: «Списывайте как угодно…»
+             */
+            banner_ru: string;
+            /**
+             * Readme Note Ru
+             * @description Оговорка про ноутбук (поведение copy на мобильных не проверено)
+             */
+            readme_note_ru: string;
+            /**
+             * Demo Assisted
+             * @description Сессия помечена demo_assisted и исключена из метрик
+             */
+            demo_assisted: boolean;
+            /**
+             * Items
+             * @description 4 задания, у каждого есть двойник
+             */
+            items: components["schemas"]["SandboxItemOut"][];
         };
         /** ScalarField */
         ScalarField: {
@@ -9529,6 +10965,59 @@ export interface components {
              * @description Ответы больше не принимаются
              */
             finished: boolean;
+        };
+        /** SessionTwinOut */
+        SessionTwinOut: {
+            /**
+             * State
+             * @description none | warning | evidence | review_candidate
+             */
+            state: string;
+            /**
+             * State Ru
+             * @description Состояние словами
+             */
+            state_ru: string;
+            /**
+             * N Twin Items
+             * @description Заданий с двойником, на которые дан ответ
+             */
+            n_twin_items: number;
+            /**
+             * N Counted Hits
+             * @description Попаданий в ключ копии (не больше одного на класс подмены)
+             */
+            n_counted_hits: number;
+            /**
+             * P Honest Text
+             * @description Вероятность такого совпадения у честного кандидата по всем заданиям с двойником
+             */
+            p_honest_text: string;
+            /**
+             * Proposed Level Ru
+             * @description Предлагаемый уровень доверия (до решения методиста внешне не меняется)
+             */
+            proposed_level_ru: string;
+            /**
+             * Suggested Level Ru
+             * @description Уровень, который предложили бы правила при откалиброванной ε
+             */
+            suggested_level_ru: string;
+            /**
+             * Context Only
+             * @description ε не откалибрована: вес 0, только контекст
+             */
+            context_only: boolean;
+            /**
+             * Trust Weight
+             * @description Вес улики в доверии
+             */
+            trust_weight: number;
+            /**
+             * Decision
+             * @description Кто решает
+             */
+            decision: string;
         };
         /** ShortlistEntryOut */
         ShortlistEntryOut: {
@@ -10091,6 +11580,19 @@ export interface components {
              */
             message?: string | null;
         };
+        /** SyntheticOut */
+        SyntheticOut: {
+            /**
+             * Label
+             * @description Подпись метки в карточке кандидата (Р6)
+             */
+            label: string;
+            /**
+             * Refs
+             * @description Ссылки `ref` синтетических кандидатов, которых компания уже видела
+             */
+            refs: string[];
+        };
         /** TaskCreateIn */
         TaskCreateIn: {
             /**
@@ -10490,6 +11992,102 @@ export interface components {
                 [key: string]: unknown;
             };
         };
+        /** TwinCoverageFamilyOut */
+        TwinCoverageFamilyOut: {
+            /**
+             * Family Id
+             * @description Семейство
+             */
+            family_id: string;
+            /**
+             * Title
+             * @description Название
+             */
+            title: string;
+            /**
+             * Format
+             * @description Формат задания
+             */
+            format: string;
+            /**
+             * Language
+             * @description Язык показанного кода
+             */
+            language: string;
+            /**
+             * Mechanism
+             * @description own — свой Family.twin() семейства; generic — общий мутатор (код/SQL); none — двойник невозможен по форме
+             * @enum {string}
+             */
+            mechanism: "own" | "generic" | "none";
+            /**
+             * Reason Ru
+             * @description Почему двойника нет по форме
+             */
+            reason_ru?: string | null;
+            /**
+             * Pool Free
+             * @description Свободных экземпляров в пуле
+             */
+            pool_free: number;
+            /**
+             * Twins Ok
+             * @description Экземпляров с готовым двойником
+             */
+            twins_ok: number;
+            /**
+             * Twins None
+             * @description Экземпляров, для которых двойник построить не удалось
+             */
+            twins_none: number;
+            /**
+             * Pending
+             * @description Свободных экземпляров без записи (двойник ещё не считался)
+             */
+            pending: number;
+            /**
+             * Shown
+             * @description Двойников выдано кандидатам
+             */
+            shown: number;
+            /**
+             * Share
+             * @description Доля готовых двойников среди посчитанных
+             */
+            share?: number | null;
+            /**
+             * Top Reasons
+             * @description Частые причины «двойника нет»
+             */
+            top_reasons?: {
+                [key: string]: unknown;
+            }[];
+        };
+        /** TwinCoverageOut */
+        TwinCoverageOut: {
+            /**
+             * Families
+             * @description Семейства банка
+             */
+            families: components["schemas"]["TwinCoverageFamilyOut"][];
+            /**
+             * Totals
+             * @description Итоги: семейств, с двойником, свободных, готовых, ждут расчёта, выдано
+             */
+            totals: {
+                [key: string]: number;
+            };
+            /**
+             * Note Ru
+             * @description Как получить двойников для пула
+             */
+            note_ru: string;
+            /**
+             * Version
+             * @description Версия формата двойников
+             */
+            version: string;
+        };
         /** UnreadOut */
         UnreadOut: {
             /** Total */
@@ -10763,25 +12361,37 @@ export interface components {
             /** Warnings */
             warnings: string[];
         };
-        /** ValidationOut */
-        ValidationOut: {
+        /** ValidationReportOut */
+        ValidationReportOut: {
             /**
-             * Available
-             * @description Есть ли прогоны
+             * Source
+             * @description Файл прогона относительно backend/
              */
-            available: boolean;
+            source: string;
             /**
-             * Kinds
-             * @description Виды прогонов в базе
+             * File Time
+             * @description Время файла прогона
              */
-            kinds: string[];
-            /** @description Последний прогон */
-            run?: components["schemas"]["ValidationRunOut"] | null;
+            file_time: string;
             /**
-             * Message
-             * @description Пояснение
+             * Sections
+             * @description Разделы результата
              */
-            message?: string | null;
+            sections: string[];
+            /**
+             * Meta
+             * @description Паспорт прогона: seed, коммит, длительности
+             */
+            meta: {
+                [key: string]: unknown;
+            };
+            /**
+             * Result
+             * @description Полный JSON последнего `make validate`
+             */
+            result: {
+                [key: string]: unknown;
+            };
         };
         /** ValidationRunOut */
         ValidationRunOut: {
@@ -10827,6 +12437,39 @@ export interface components {
              */
             created_at: string;
         };
+        /** VerificationKitOut */
+        VerificationKitOut: {
+            /**
+             * Kit Id
+             * @description Идентификатор комплекта (детерминирован по сессии)
+             */
+            kit_id: string;
+            /**
+             * Version
+             * @description Версия формата комплекта
+             */
+            version: string;
+            /**
+             * Title Ru
+             * @description «Подтверждение за 5 минут»
+             */
+            title_ru: string;
+            /**
+             * Subtitle Ru
+             * @description Подзаголовок
+             */
+            subtitle_ru: string;
+            /**
+             * Questions
+             * @description 3 вопроса по трассе и до 2 по навыкам
+             */
+            questions: components["schemas"]["VerificationQuestionOut"][];
+            /**
+             * Shortfall
+             * @description Сколько вопросов по трассе не удалось построить
+             */
+            shortfall: number;
+        };
         /** VerificationPendingOut */
         VerificationPendingOut: {
             /**
@@ -10860,6 +12503,82 @@ export interface components {
              * @description Что сделать дальше
              */
             next_step: string;
+        };
+        /** VerificationQuestionOut */
+        VerificationQuestionOut: {
+            /**
+             * Id
+             * @description q1…q3 — по трассе; s1, s2 — по навыкам
+             */
+            id: string;
+            /**
+             * Kind
+             * @description trace — вопрос по собственному заданию кандидата; skill — шаблонный по навыку
+             * @enum {string}
+             */
+            kind: "trace" | "skill";
+            /**
+             * Prompt Ru
+             * @description Что спросить
+             */
+            prompt_ru: string;
+            /**
+             * Rubric
+             * @description Рубрика 0–2
+             */
+            rubric: components["schemas"]["RubricLevelOut"][];
+            /**
+             * Listen For Ru
+             * @description Что слушать
+             */
+            listen_for_ru: string;
+            /**
+             * Calibrated
+             * @description Откалибровано (шаблонные вопросы по навыкам — нет)
+             */
+            calibrated: boolean;
+            /**
+             * Label Ru
+             * @description Пометка «не откалибровано»
+             */
+            label_ru?: string | null;
+            /**
+             * Variant Code
+             * @description Вариант кандидата, по которому вопрос
+             */
+            variant_code?: string | null;
+            /**
+             * Method
+             * @description literal_mutation | family_reseed | template
+             */
+            method?: string | null;
+            /**
+             * Verified By
+             * @description execution | generator | none — чем получен ожидаемый ответ
+             */
+            verified_by: string;
+            /**
+             * Candidate Answer
+             * @description Что ответил кандидат (если цитирование безопасно)
+             */
+            candidate_answer?: string | null;
+            /**
+             * Changed
+             * @description Что изменено: было, стало, строка
+             */
+            changed?: {
+                [key: string]: unknown;
+            } | null;
+            /**
+             * Variant Text
+             * @description Текст изменённого задания
+             */
+            variant_text?: string | null;
+            /**
+             * Expected Answer
+             * @description Ожидаемый ответ, вычисленный исполнением
+             */
+            expected_answer?: string | null;
         };
         /** VerifyCategoryOut */
         VerifyCategoryOut: {
@@ -11283,6 +13002,35 @@ export interface components {
             /** Event Id Header */
             event_id_header: string;
         };
+        /** ValidationOut */
+        app__api__admin__ValidationOut: {
+            /**
+             * Source
+             * @description Файл прогона относительно backend/
+             */
+            source: string;
+            /**
+             * File Time
+             * @description Время файла прогона
+             */
+            file_time: string;
+            /**
+             * Sections
+             * @description Разделы результата
+             */
+            sections: string[];
+            /** Meta */
+            meta: {
+                [key: string]: unknown;
+            };
+            /**
+             * Result
+             * @description Полный JSON последнего `make validate`
+             */
+            result: {
+                [key: string]: unknown;
+            };
+        };
         /** DisputeIn */
         app__services__contact__schemas__DisputeIn: {
             /** Comment */
@@ -11485,6 +13233,26 @@ export interface components {
              * @description Считается сменой грейда (правило 90 дней)
              */
             counts_as_change: boolean;
+        };
+        /** ValidationOut */
+        app__services__testing__schemas__ValidationOut: {
+            /**
+             * Available
+             * @description Есть ли прогоны
+             */
+            available: boolean;
+            /**
+             * Kinds
+             * @description Виды прогонов в базе
+             */
+            kinds: string[];
+            /** @description Последний прогон */
+            run?: components["schemas"]["ValidationRunOut"] | null;
+            /**
+             * Message
+             * @description Пояснение
+             */
+            message?: string | null;
         };
     };
     responses: never;
@@ -31002,7 +32770,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ValidationOut"];
+                    "application/json": components["schemas"]["app__services__testing__schemas__ValidationOut"];
                 };
             };
             /** @description Некорректный запрос */
@@ -31132,6 +32900,1414 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CalibrateOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    reconciliations_api_lab_reconciliations_get: {
+        parameters: {
+            query?: {
+                /** @description Фильтр по решению методиста */
+                status?: ("open" | "verification_assigned" | "dismissed") | null;
+                /** @description Только сверки этой сессии */
+                session_id?: string | null;
+                /** @description Добавить песочницу жюри «Попробуй списать» */
+                include_sandbox?: boolean;
+                /** @description Сколько вернуть */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReconciliationListOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    reconciliation_api_lab_reconciliations__reconciliation_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                reconciliation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    reconciliation_review_api_lab_reconciliations__reconciliation_id__review_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                reconciliation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReconciliationReviewIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    verification_kit_api_lab_sessions__session_id__verification_kit_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LabVerificationKitOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    twins_coverage_api_lab_twins_coverage_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TwinCoverageOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    twins_precompute_api_lab_twins_precompute_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PrecomputeIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrecomputeOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    validation_report_api_lab_validation_report_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationReportOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    employer_verification_kit_api_invitations__invitation_id__verification_kit_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invitation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VerificationKitOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    sandbox_start_api_jury_cheat_lab_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SandboxStartOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    sandbox_answers_api_jury_cheat_lab__test_id__answers_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                test_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SandboxAnswersIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SandboxResultOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    sandbox_result_api_jury_cheat_lab__test_id__result_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                test_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SandboxResultOut"];
                 };
             };
             /** @description Некорректный запрос */
@@ -32131,6 +35307,131 @@ export interface operations {
             };
         };
     };
+    synthetic_refs_api_demo_synthetic_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SyntheticOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     webhook_sink_list_api_demo_webhook_sink_get: {
         parameters: {
             query?: never;
@@ -32381,7 +35682,7 @@ export interface operations {
             };
         };
     };
-    stub_admin_get: {
+    list_imports_api_admin_import_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -32390,6 +35691,15 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BatchOut"][];
+                };
+            };
             /** @description Некорректный запрос */
             400: {
                 headers: {
@@ -32495,16 +35805,130 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
-            /** @description Раздел в разработке */
-            501: {
+        };
+    };
+    import_pairs_api_admin_import_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImportIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     /**
                      * @example {
-                     *       "code": "not_implemented",
-                     *       "message": "Раздел «Опрос» ещё в разработке"
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
                      *     }
                      */
                     "application/json": components["schemas"]["ErrorResponse"];
@@ -32512,7 +35936,395 @@ export interface operations {
             };
         };
     };
-    stub_admin_put: {
+    delete_import_api_admin_import__batch_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                batch_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeletedOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    eval_rank_api_admin_eval_rank_post: {
+        parameters: {
+            query?: {
+                /** @description Формат ответа */
+                format?: "json" | "csv";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RankIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RankOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    eval_pairs_api_admin_eval_pairs_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PairsIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PairsOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    validation_api_admin_validation_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -32521,6 +36333,15 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["app__api__admin__ValidationOut"];
+                };
+            };
             /** @description Некорректный запрос */
             400: {
                 headers: {
@@ -32621,1079 +36442,6 @@ export interface operations {
                      * @example {
                      *       "code": "rate_limited",
                      *       "message": "Слишком много запросов. Повторите через 30 с"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Раздел в разработке */
-            501: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "not_implemented",
-                     *       "message": "Раздел «Опрос» ещё в разработке"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    stub_admin_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Некорректный запрос */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "bad_request",
-                     *       "message": "Запрос не может быть выполнен"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Требуется вход или токен недействителен */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "unauthorized",
-                     *       "message": "Требуется вход в систему"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Недостаточно прав */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "forbidden",
-                     *       "message": "Недостаточно прав для этого действия"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Не найдено */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "not_found",
-                     *       "message": "Запись не найдена"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Конфликт состояния */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "conflict",
-                     *       "message": "Действие противоречит текущему состоянию"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Ошибка валидации полей */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "validation_error",
-                     *       "message": "Проверьте заполнение полей"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Слишком много запросов */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "rate_limited",
-                     *       "message": "Слишком много запросов. Повторите через 30 с"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Раздел в разработке */
-            501: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "not_implemented",
-                     *       "message": "Раздел «Опрос» ещё в разработке"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    stub_admin_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Некорректный запрос */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "bad_request",
-                     *       "message": "Запрос не может быть выполнен"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Требуется вход или токен недействителен */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "unauthorized",
-                     *       "message": "Требуется вход в систему"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Недостаточно прав */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "forbidden",
-                     *       "message": "Недостаточно прав для этого действия"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Не найдено */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "not_found",
-                     *       "message": "Запись не найдена"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Конфликт состояния */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "conflict",
-                     *       "message": "Действие противоречит текущему состоянию"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Ошибка валидации полей */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "validation_error",
-                     *       "message": "Проверьте заполнение полей"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Слишком много запросов */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "rate_limited",
-                     *       "message": "Слишком много запросов. Повторите через 30 с"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Раздел в разработке */
-            501: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "not_implemented",
-                     *       "message": "Раздел «Опрос» ещё в разработке"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    stub_admin_patch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Некорректный запрос */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "bad_request",
-                     *       "message": "Запрос не может быть выполнен"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Требуется вход или токен недействителен */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "unauthorized",
-                     *       "message": "Требуется вход в систему"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Недостаточно прав */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "forbidden",
-                     *       "message": "Недостаточно прав для этого действия"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Не найдено */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "not_found",
-                     *       "message": "Запись не найдена"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Конфликт состояния */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "conflict",
-                     *       "message": "Действие противоречит текущему состоянию"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Ошибка валидации полей */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "validation_error",
-                     *       "message": "Проверьте заполнение полей"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Слишком много запросов */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "rate_limited",
-                     *       "message": "Слишком много запросов. Повторите через 30 с"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Раздел в разработке */
-            501: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "not_implemented",
-                     *       "message": "Раздел «Опрос» ещё в разработке"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    stub_admin_get_path: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                path: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Некорректный запрос */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "bad_request",
-                     *       "message": "Запрос не может быть выполнен"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Требуется вход или токен недействителен */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "unauthorized",
-                     *       "message": "Требуется вход в систему"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Недостаточно прав */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "forbidden",
-                     *       "message": "Недостаточно прав для этого действия"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Не найдено */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "not_found",
-                     *       "message": "Запись не найдена"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Конфликт состояния */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "conflict",
-                     *       "message": "Действие противоречит текущему состоянию"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Ошибка валидации полей */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "validation_error",
-                     *       "message": "Проверьте заполнение полей"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Слишком много запросов */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "rate_limited",
-                     *       "message": "Слишком много запросов. Повторите через 30 с"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Раздел в разработке */
-            501: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "not_implemented",
-                     *       "message": "Раздел «Опрос» ещё в разработке"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    stub_admin_put_path: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                path: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Некорректный запрос */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "bad_request",
-                     *       "message": "Запрос не может быть выполнен"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Требуется вход или токен недействителен */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "unauthorized",
-                     *       "message": "Требуется вход в систему"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Недостаточно прав */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "forbidden",
-                     *       "message": "Недостаточно прав для этого действия"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Не найдено */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "not_found",
-                     *       "message": "Запись не найдена"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Конфликт состояния */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "conflict",
-                     *       "message": "Действие противоречит текущему состоянию"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Ошибка валидации полей */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "validation_error",
-                     *       "message": "Проверьте заполнение полей"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Слишком много запросов */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "rate_limited",
-                     *       "message": "Слишком много запросов. Повторите через 30 с"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Раздел в разработке */
-            501: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "not_implemented",
-                     *       "message": "Раздел «Опрос» ещё в разработке"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    stub_admin_post_path: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                path: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Некорректный запрос */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "bad_request",
-                     *       "message": "Запрос не может быть выполнен"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Требуется вход или токен недействителен */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "unauthorized",
-                     *       "message": "Требуется вход в систему"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Недостаточно прав */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "forbidden",
-                     *       "message": "Недостаточно прав для этого действия"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Не найдено */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "not_found",
-                     *       "message": "Запись не найдена"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Конфликт состояния */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "conflict",
-                     *       "message": "Действие противоречит текущему состоянию"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Ошибка валидации полей */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "validation_error",
-                     *       "message": "Проверьте заполнение полей"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Слишком много запросов */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "rate_limited",
-                     *       "message": "Слишком много запросов. Повторите через 30 с"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Раздел в разработке */
-            501: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "not_implemented",
-                     *       "message": "Раздел «Опрос» ещё в разработке"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    stub_admin_delete_path: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                path: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Некорректный запрос */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "bad_request",
-                     *       "message": "Запрос не может быть выполнен"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Требуется вход или токен недействителен */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "unauthorized",
-                     *       "message": "Требуется вход в систему"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Недостаточно прав */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "forbidden",
-                     *       "message": "Недостаточно прав для этого действия"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Не найдено */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "not_found",
-                     *       "message": "Запись не найдена"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Конфликт состояния */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "conflict",
-                     *       "message": "Действие противоречит текущему состоянию"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Ошибка валидации полей */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "validation_error",
-                     *       "message": "Проверьте заполнение полей"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Слишком много запросов */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "rate_limited",
-                     *       "message": "Слишком много запросов. Повторите через 30 с"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Раздел в разработке */
-            501: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "not_implemented",
-                     *       "message": "Раздел «Опрос» ещё в разработке"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    stub_admin_patch_path: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                path: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Некорректный запрос */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "bad_request",
-                     *       "message": "Запрос не может быть выполнен"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Требуется вход или токен недействителен */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "unauthorized",
-                     *       "message": "Требуется вход в систему"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Недостаточно прав */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "forbidden",
-                     *       "message": "Недостаточно прав для этого действия"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Не найдено */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "not_found",
-                     *       "message": "Запись не найдена"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Конфликт состояния */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "conflict",
-                     *       "message": "Действие противоречит текущему состоянию"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Ошибка валидации полей */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "validation_error",
-                     *       "message": "Проверьте заполнение полей"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Слишком много запросов */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "rate_limited",
-                     *       "message": "Слишком много запросов. Повторите через 30 с"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Раздел в разработке */
-            501: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": "not_implemented",
-                     *       "message": "Раздел «Опрос» ещё в разработке"
                      *     }
                      */
                     "application/json": components["schemas"]["ErrorResponse"];
