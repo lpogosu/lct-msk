@@ -5937,13 +5937,22 @@ export interface components {
             name: string;
             /** Kind */
             kind: string | null;
-            /** Modules */
+            /**
+             * Modules
+             * @description Модули теста, сопоставленные навыку по графу «навык → модули»
+             */
             modules: components["schemas"]["ModuleRefOut"][];
             /**
              * Text
-             * @description «PostgreSQL ✓ через модуль „SQL и базы данных“»
+             * @description «PostgreSQL ✓ проверено стандартным тестом категории (модуль „SQL и базы данных“)»
              */
             text: string;
+            /**
+             * Via
+             * @description Как проверяем в этой специализации: standard — стандартным тестом категории (модуль есть в его blueprint); check_set — проверочным набором по вакансии (модуля нет в blueprint, навык обязательный и попал в набор); interview — модуль есть, но вне теста категории и набора: проверьте на интервью
+             * @enum {string}
+             */
+            via: "standard" | "check_set" | "interview";
         };
         /** DecisionOut */
         DecisionOut: {

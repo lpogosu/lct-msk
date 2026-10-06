@@ -31827,12 +31827,23 @@
               "$ref": "#/components/schemas/ModuleRefOut"
             },
             "type": "array",
-            "title": "Modules"
+            "title": "Modules",
+            "description": "Модули теста, сопоставленные навыку по графу «навык → модули»"
           },
           "text": {
             "type": "string",
             "title": "Text",
-            "description": "«PostgreSQL ✓ через модуль „SQL и базы данных“»"
+            "description": "«PostgreSQL ✓ проверено стандартным тестом категории (модуль „SQL и базы данных“)»"
+          },
+          "via": {
+            "type": "string",
+            "enum": [
+              "standard",
+              "check_set",
+              "interview"
+            ],
+            "title": "Via",
+            "description": "Как проверяем в этой специализации: standard — стандартным тестом категории (модуль есть в его blueprint); check_set — проверочным набором по вакансии (модуля нет в blueprint, навык обязательный и попал в набор); interview — модуль есть, но вне теста категории и набора: проверьте на интервью"
           }
         },
         "type": "object",
@@ -31841,7 +31852,8 @@
           "name",
           "kind",
           "modules",
-          "text"
+          "text",
+          "via"
         ],
         "title": "CoveredSkillOut"
       },

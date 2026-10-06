@@ -12,13 +12,22 @@ interface Row {
   tested: boolean
 }
 
+/** «PostgreSQL ✓ проверено стандартным тестом категории (…)» → часть после названия навыка и значка. */
+function detailOf(name: string, text: string): string {
+  return text.startsWith(name) ? text.slice(name.length).replace(/^\s*[✓✗]\s*/, '') : text
+}
+
+/**
+ * Навык сопоставлен модулю теста, но «проверяется» он не всегда: бэкенд говорит по специализации брифа (`via`):
+ * стандартным тестом категории, проверочным набором по вакансии или только на интервью (модуля нет в тесте категории).
+ */
 function rowsFromCheck(check: CheckOut): Row[] {
   return [
     ...check.covered.map((c) => ({
       key: c.skill_id,
       skill: c.name,
-      tested: true,
-      text: `${c.modules.length > 1 ? 'модули' : 'модуль'} ${c.modules.map((m) => `«${m.name}»`).join(', ')}`,
+      tested: c.via !== 'interview',
+      text: detailOf(c.name, c.text),
     })),
     ...check.untestable.map((u) => ({
       key: u.skill_id,

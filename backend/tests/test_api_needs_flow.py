@@ -109,12 +109,16 @@ def test_demo_brief_end_to_end(client, employer, pool, db_session):
     assert all(c >= 3 for _, c in mid["reach"]["histogram"]["bins"])  # приросты охвата ступенями ≥ 3
     assert cards[("backend_python", "senior")]["n"] == 3 and cards[("backend_python", "senior")]["reach"]["shown"] is False
 
-    # «Как мы проверим»: Kafka — серым; Docker теперь проверяет модуль «DevOps и инфраструктура» (специализация DevOps)
+    # «Как мы проверим»: Kafka — серым; Docker (nice) проверяет devops_core, но его нет в тесте Backend (Python) — «на интервью»
     r = client.get(f"/api/needs/{nid}/check", headers=employer.headers)
     assert r.status_code == 200, r.text
     chk = r.json()
     assert {u["skill_id"] for u in chk["untestable"]} == {"kafka"}
     assert {c["skill_id"] for c in chk["covered"]} == {"python", "fastapi", "postgresql", "docker"}
+    assert {c["skill_id"]: c["via"] for c in chk["covered"]} == {
+        "python": "standard", "fastapi": "standard", "postgresql": "standard", "docker": "interview",
+    }
+    assert "проверьте на интервью" in next(c["text"] for c in chk["covered"] if c["skill_id"] == "docker")
     assert abs(sum(m["weight"] for m in chk["module_weights"]) - 1.0) < 1e-6
     assert 3 <= len(chk["check_set"]["slots"]) <= 5 and chk["check_set"]["total_minutes"] <= 15
 

@@ -311,10 +311,14 @@ class SkillCheck:
     skill_id: str
     name: str
     kind: str | None  # must | nice
-    covered: bool
-    modules: tuple[tuple[str, str], ...]  # (код, название)
-    text: str  # «PostgreSQL ✓ через модуль „SQL и базы данных“» / «Docker — тестом не проверяется …»
+    covered: bool  # у навыка есть модуль теста; как он проверяется для этой специализации — в via
+    modules: tuple[tuple[str, str], ...]  # (код, название) всех модулей навыка по графу
+    text: str  # «PostgreSQL ✓ проверено стандартным тестом категории (модуль „SQL и базы данных“)»
     reason: str | None
+    # standard — модуль есть в blueprint стандартного теста специализации брифа; check_set — модуля там нет, но навык
+    # стоит среди must и попал в слот проверочного набора по вакансии; interview — тестом не проверяется (нет модуля,
+    # или модуль вне blueprint и вне набора): проверьте на интервью
+    via: str = "interview"
 
 
 @dataclass(frozen=True)
@@ -351,10 +355,45 @@ def module_weights(
     return {m: v / tot for m, v in sorted(acc.items(), key=lambda kv: -kv[1])} if tot else {}
 
 
+def standard_test_modules(spec: str, cfg: ScoringConfig | None = None) -> frozenset[str]:
+    """Модули стандартного теста категории: blueprint специализации (taxonomy.yaml); у «derived» (fullstack) — модули
+    обоих подтверждённых тестов; у специализаций без теста (survey_only) — пусто."""
+    specs = {s["code"]: s for s in (cfg or ScoringConfig.load()).taxonomy["specializations"]}
+
+    def modules(code: str) -> set[str]:
+        s = specs.get(code) or {}
+        out = set(s.get("blueprint") or {})
+        for parent in s.get("derived_from") or ():
+            out |= modules(parent)
+        return out
+
+    return frozenset(modules(spec))
+
+
+def _modules_text(mods: Sequence[tuple[str, str]]) -> str:
+    names = ", ".join(f"«{nm}»" for _, nm in mods)
+    return f"{'модуль' if len(mods) == 1 else 'модули'} {names}"
+
+
 def how_we_check(
-    must: Sequence[str], nice: Sequence[str] = (), catalog: SkillCatalog | None = None
+    must: Sequence[str],
+    nice: Sequence[str] = (),
+    catalog: SkillCatalog | None = None,
+    *,
+    spec: str,
+    check_set: CheckSetPlan | None = None,
+    cfg: ScoringConfig | None = None,
 ) -> CheckCoverage:
+    """Как проверим навыки брифа специализации `spec` — честно по каждому навыку (DECISIONS п.3, концепция §5.5):
+
+    - модуль навыка есть в blueprint стандартного теста категории → «проверено стандартным тестом категории»;
+    - модуля там нет, но навык — must и стоит в слоте проверочного набора по вакансии (`check_set`, тот же план, что
+      строит `plan_check_set` из must) → «проверяется проверочным набором по вакансии»;
+    - иначе (nice-навыки в набор не попадают; модуль вне blueprint и вне набора; модуля нет вовсе) → «проверьте на интервью».
+    Docker в бэкенд-брифе поэтому не получает «✓ через модуль DevOps»: бэкенд-тест модуль devops_core не включает."""
     cat = catalog or get_catalog()
+    standard = standard_test_modules(spec, cfg)
+    in_set = check_set.covered_skills if check_set is not None else frozenset()
     items = []
     for kind, ids in (("must", must), ("nice", nice)):
         for sid in ids:
@@ -362,15 +401,22 @@ def how_we_check(
             if sk is None:
                 continue
             mods = tuple((m, cat.module_names.get(m, m)) for m in sk.modules)
-            if mods:
-                names = ", ".join(f"«{nm}»" for _, nm in mods)
-                text = f"{sk.name} ✓ через {'модуль' if len(mods) == 1 else 'модули'} {names}"
-                items.append(SkillCheck(sid, sk.name, kind, True, mods, text, None))
-            else:
+            if not mods:
                 reason = sk.untestable_reason or "Тестом не проверяется — проверьте на интервью"
                 # «Docker ✗ инфраструктура … тестом не проверяются — проверьте на интервью» (концепция §5.5 п.2)
                 text = f"{sk.name} ✗ {reason[:1].lower()}{reason[1:]}"
-                items.append(SkillCheck(sid, sk.name, kind, False, (), text, reason))
+                items.append(SkillCheck(sid, sk.name, kind, False, (), text, reason, "interview"))
+                continue
+            by_std = tuple(m for m in mods if m[0] in standard)
+            if by_std:
+                text = f"{sk.name} ✓ проверено стандартным тестом категории ({_modules_text(by_std)})"
+                items.append(SkillCheck(sid, sk.name, kind, True, mods, text, None, "standard"))
+            elif kind == "must" and sid in in_set:
+                text = f"{sk.name} ✓ проверяется проверочным набором по вакансии ({_modules_text(mods)})"
+                items.append(SkillCheck(sid, sk.name, kind, True, mods, text, None, "check_set"))
+            else:
+                text = f"{sk.name} ✗ в стандартный тест категории не входит — проверьте на интервью"
+                items.append(SkillCheck(sid, sk.name, kind, True, mods, text, None, "interview"))
     return CheckCoverage(tuple(items), module_weights(must, nice, cat))
 
 
@@ -396,6 +442,11 @@ class CheckSetPlan:
     @property
     def modules(self) -> tuple[str, ...]:
         return tuple(s.module for s in self.slots)
+
+    @property
+    def covered_skills(self) -> frozenset[str]:
+        """Must-навыки, которые реально проверяет хотя бы один слот набора (в слот могут не попасть модули с малым весом)."""
+        return frozenset(sid for s in self.slots for sid in s.skills)
 
 
 FamilyCatalog = Mapping[str, Sequence[tuple[str, float]]]  # модуль → [(family_id, минуты)]

@@ -24,6 +24,7 @@ export function CodeBlock({
       className="overflow-x-auto rounded-panel-lg bg-code-bg py-3 text-white"
       role={onSelectLine ? 'group' : 'figure'}
       aria-label={label ?? 'Код задания'}
+      translate="no"
     >
       <pre className="m-0 min-w-max font-mono text-[14px] leading-[22px]">
         {lines.map((ln, i) => {
@@ -68,7 +69,7 @@ export function DataTable({ table }: { table: NonNullable<TestItem['table']> }) 
   const columns = Array.isArray(table.columns) ? (table.columns as unknown[]).map(String) : []
   const rows = Array.isArray(table.rows) ? (table.rows as unknown[][]) : []
   return (
-    <div className="overflow-x-auto rounded-panel-lg border border-hairline">
+    <div className="overflow-x-auto rounded-panel-lg border border-hairline" translate="no">
       {name && <p className="border-b border-hairline px-3.5 py-2 font-mono text-[13px] text-ink-2">{name}</p>}
       <table className="w-full border-collapse font-mono text-[13px] leading-5">
         <thead>

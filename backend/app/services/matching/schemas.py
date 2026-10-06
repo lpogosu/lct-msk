@@ -277,8 +277,13 @@ class CoveredSkillOut(BaseModel):
     skill_id: str
     name: str
     kind: str | None
-    modules: list[ModuleRefOut]
-    text: str = Field(description="«PostgreSQL ✓ через модуль „SQL и базы данных“»")
+    modules: list[ModuleRefOut] = Field(description="Модули теста, сопоставленные навыку по графу «навык → модули»")
+    text: str = Field(description="«PostgreSQL ✓ проверено стандартным тестом категории (модуль „SQL и базы данных“)»")
+    via: Literal["standard", "check_set", "interview"] = Field(
+        description="Как проверяем в этой специализации: standard — стандартным тестом категории (модуль есть в его blueprint); "
+        "check_set — проверочным набором по вакансии (модуля нет в blueprint, навык обязательный и попал в набор); "
+        "interview — модуль есть, но вне теста категории и набора: проверьте на интервью"
+    )
 
 
 class UntestableSkillOut(BaseModel):

@@ -11,6 +11,7 @@ import math
 import os
 import random
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -19,7 +20,7 @@ from pathlib import Path
 import pytest
 
 from app.testing.bank.base import Family, Instance, canonical
-from app.testing.bank.execution import run_python
+from app.testing.bank.execution import run_js, run_python
 from app.testing.bank.families.shared import (
     algo_complexity,
     algo_two_pointers,
@@ -192,6 +193,18 @@ def test_sort_stability_key_equals_subprocess():
         printed = run_python(inst.rendered.code).splitlines()
         assert [" ".join(x.split()) for x in printed] == inst.key
         assert sorted(inst.key) == sorted(inst.rendered.lines)
+
+
+def test_run_python_reads_cyrillic_output_regardless_of_console_codepage():
+    """`-I` игнорирует PYTHONIOENCODING: без флага `-X utf8` в Windows дочерний Python пишет cp1251, а мы читаем UTF-8."""
+    assert run_python('print("привет, Ж")') == "привет, Ж"
+    assert run_python("print(chr(0x416))") == "Ж"
+
+
+def test_run_js_reads_cyrillic_output():
+    if shutil.which("node") is None:
+        pytest.skip("node не найден в PATH")
+    assert run_js('console.log("привет, Ж")') == "привет, Ж"
 
 
 def test_sort_stability_shown_order_is_never_the_answer():

@@ -19,8 +19,10 @@ class ExecutionError(RuntimeError):
 
 def run_python(code: str, timeout: float = 5.0) -> str:
     """Выполнить Python-код в изолированном подпроцессе (-I) и вернуть stdout без завершающего перевода строки."""
+    # `-I` игнорирует PYTHON*-переменные (в т.ч. PYTHONIOENCODING), и в Windows дочерний Python пишет в канал в cp1251,
+    # а читаем мы UTF-8 (кириллица в print → UnicodeDecodeError). Поэтому кодировку задаём флагом `-X utf8`: он работает и с `-I`.
     proc = subprocess.run(
-        [sys.executable, "-I", "-c", code],
+        [sys.executable, "-I", "-X", "utf8", "-c", code],
         capture_output=True,
         text=True,
         timeout=timeout,

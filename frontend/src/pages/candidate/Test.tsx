@@ -5,7 +5,8 @@ import { api, unwrap } from '@/api/client'
 import { ApiException, errorMessage } from '@/api/errors'
 import { Sheet } from '@/features/candidate/components/Sheet'
 import { ItemPlayer, type AnswerValue } from '@/features/candidate/test/ItemPlayer'
-import { useTestEvents, type ClipData } from '@/features/candidate/test/useTestEvents'
+import { useClipboardTwin } from '@/features/anticheat'
+import { useTestEvents } from '@/features/candidate/test/useTestEvents'
 import { qk } from '@/features/candidate/queries'
 import { useCountdown } from '@/hooks/useCountdown'
 import { cn } from '@/lib/cn'
@@ -38,7 +39,6 @@ export default function CandidateTest() {
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [exitOpen, setExitOpen] = useState(false)
   const answerRef = useRef<() => AnswerValue>(() => null)
-  const clipRef = useRef<ClipData | null>(null)
   const autoSent = useRef<number | null>(null)
 
   const next = useQuery({
@@ -49,7 +49,7 @@ export default function CandidateTest() {
     refetchOnMount: 'always',
     refetchOnReconnect: true,
   })
-  const { flush } = useTestEvents(sessionId, clipRef)
+  const { flush } = useTestEvents(sessionId)
 
   // «Режим жюри» (только DEMO_MODE): подсказка к заданию, сессия помечается demo_assisted и в метрики не попадает
   const demo = useQuery({
@@ -66,9 +66,9 @@ export default function CandidateTest() {
   })
 
   const item = next.data?.item ?? null
-  useEffect(() => {
-    clipRef.current = (item?.clip as ClipData | null | undefined) ?? null
-  }, [item])
+  // «Двойник в буфере» (spec-antiassist §2.1): копирование условия кладёт в буфер текст с изменённым токеном, вставка в своё
+  // поле возвращает исходный; события copy/cut/dragstart/self_paste шлёт сам хук (useTestEvents их не дублирует).
+  useClipboardTwin(item, { sessionId })
 
   // Дедлайн: «сколько секунд осталось» сервер сообщает на момент ответа — от него и отсчитываем
   const deadlineMs = useMemo(

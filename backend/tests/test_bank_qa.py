@@ -47,6 +47,9 @@ QA = {fid: fam for fid, fam in sorted(all_families().items()) if type(fam).__mod
 IDS = sorted(QA)
 SEEDS = (0, 1, 7, 42, 199)
 TEXT_IDS = [i for i in IDS if QA[i].generate(0).rendered.answer_mode == "text"]
+# Дочерний Python в Windows пишет в канал в кодировке консоли (cp1251), а мы читаем канал как UTF-8 (в id параметров pytest
+# и в print фикстур есть кириллица): без этого окружения тест падает с UnicodeDecodeError, пока не задан PYTHONUTF8=1.
+CHILD_ENV = {**os.environ, "PYTHONUTF8": "1", "PYTHONIOENCODING": "utf-8"}
 
 
 def _wrong_answer(inst, wrong: str):
@@ -155,7 +158,7 @@ print(json.dumps(out))
 """
     results = []
     for hash_seed in ("0", "12345"):
-        env = {**os.environ, "PYTHONHASHSEED": hash_seed, "PYTHONIOENCODING": "utf-8"}
+        env = {**CHILD_ENV, "PYTHONHASHSEED": hash_seed}
         proc = subprocess.run([sys.executable, "-c", code], cwd=BACKEND, env=env, capture_output=True, text=True,
                               encoding="utf-8", timeout=120)
         assert proc.returncode == 0, proc.stderr[-500:]
@@ -288,7 +291,9 @@ def _real_pytest(source: str, tmp: Path, name: str, *args: str, summary: bool = 
     cmd = [sys.executable, "-m", "pytest", "-p", "no:cacheprovider", "-q", "-s", "--tb=no", "--no-header"]
     if summary:
         cmd.append("-rA")
-    return subprocess.run([*cmd, *args, f.name], cwd=tmp, capture_output=True, text=True, encoding="utf-8", timeout=60)
+    return subprocess.run(
+        [*cmd, *args, f.name], cwd=tmp, env=CHILD_ENV, capture_output=True, text=True, encoding="utf-8", timeout=60
+    )
 
 
 def _outcomes(stdout: str, name: str) -> dict[str, list[str]]:
@@ -509,7 +514,9 @@ def test_flaky_templates_verified_by_real_pytest(template, tmp_path):
         f.write_text("import pytest\n" + code + "\n", encoding="utf-8")
         nodes = [f"test_{tag}.py::{n}" for n in order]
         cmd = [sys.executable, "-m", "pytest", "-p", "no:cacheprovider", "-q", "--tb=no", "--no-header", *nodes]
-        return subprocess.run(cmd, cwd=tmp_path, capture_output=True, text=True, timeout=60).returncode
+        return subprocess.run(
+            cmd, cwd=tmp_path, env=CHILD_ENV, capture_output=True, text=True, encoding="utf-8", timeout=60
+        ).returncode
 
     rev, rot = list(reversed(names)), [*names[1:], names[0]]
     rc = _parallel(run, [(buggy, names, "b0"), (buggy, rev, "b1"), (fixed, names, "f0"), (fixed, rev, "f1"),
@@ -649,7 +656,9 @@ def test_mock_key_matches_subprocess_with_real_imports():
         inst = fam.generate(seed)
         program = "from unittest.mock import Mock, call, patch\n" + inst.rendered.code
         # обычное окружение, а не урезанное run_python: unittest.mock импортирует asyncio, которому в Windows нужен SYSTEMROOT
-        proc = subprocess.run([sys.executable, "-c", program], capture_output=True, text=True, encoding="utf-8", timeout=30)
+        proc = subprocess.run(
+            [sys.executable, "-c", program], env=CHILD_ENV, capture_output=True, text=True, encoding="utf-8", timeout=30
+        )
         assert proc.returncode == 0, proc.stderr[-300:]
         assert fam.normalize(proc.stdout.strip()) == inst.key
         kinds.add("side_effect" in inst.rendered.code)

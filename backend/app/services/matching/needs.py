@@ -609,8 +609,9 @@ def _seed(need_id: uuid.UUID | str) -> int:
 def check_view(need: Need) -> dict[str, Any]:
     """«Как мы проверим» (§5.5): покрытие навыков брифа модулями теста, серый список и проверочный набор."""
     brief = need_brief(need)
-    cov = how_we_check(brief.must, brief.nice)
+    # План набора — до разбора навыков: «через проверочный набор» говорим только о навыках, попавших в его слоты
     plan = plan_check_set(brief.must, family_catalog=family_catalog_from_registry(), seed=_seed(need.id))
+    cov = how_we_check(brief.must, brief.nice, spec=brief.spec, check_set=plan)
     cat = get_catalog()
     return {
         "need_id": str(need.id),
@@ -623,6 +624,7 @@ def check_view(need: Need) -> dict[str, Any]:
                 "kind": i.kind,
                 "modules": [{"code": c, "name": n} for c, n in i.modules],
                 "text": i.text,
+                "via": i.via,
             }
             for i in cov.covered
         ],

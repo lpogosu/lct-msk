@@ -15,6 +15,8 @@ export const MODULE_LABEL: Record<string, string> = {
   js_core: 'JavaScript / TypeScript',
   react: 'React',
   html_css: 'HTML и CSS',
+  qa_testing: 'Тестирование ПО',
+  devops_core: 'DevOps и инфраструктура',
 }
 
 export interface Range {

@@ -50,13 +50,12 @@ function Player({ sessionId, item }: { sessionId: string; item: ItemOut | null }
 - блоки кода, SQL и таблиц — с `translate="no"`, чтобы переводчик страницы не тронул подменяемый токен;
 - текст на экране — всегда настоящий. Никаких скрытых узлов, подмены глифов и инструкций в DOM (spec §4, п. 1).
 
-### Что поправить в `useTestEvents` (candidate-экраны)
+### Подключено и что осталось в `useTestEvents`
 
-Старый обработчик `copy` в `features/candidate/test/useTestEvents.ts` ждёт ключи `clip.text` / `clip.clip_text`, а бэкенд
-отдаёт `clip.clipboard_text`. После перехода на `useClipboardTwin` блок `onCopy` с `clipRef` в `useTestEvents` нужно убрать
-(копирование и событие `copy` теперь шлёт хук); остальные события (`blur`, `focus`, `paste`, `reconnect`) остаются там.
-Если оставить оба обработчика, подмена всё равно сработает один раз (хук вызывает `preventDefault`), а в журнале будет два
-события `copy` — на отчёт это не влияет, но лишний шум.
+Хук вызывается в `pages/candidate/Test.tsx` (`useClipboardTwin(item, { sessionId })`). Старый обработчик `copy` с `clipRef`
+из `features/candidate/test/useTestEvents.ts` удалён вместе с `cut` и `dragstart`: копирование, вырезание из условия,
+перетаскивание и вставку в своё поле шлёт хук (с `seq` и `render_id`). В `useTestEvents` остались `blur`, `focus`, `paste`
+(любая вставка на странице — мягкий признак) и `reconnect`.
 
 ## Что хук не делает (и почему)
 
