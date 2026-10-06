@@ -1,0 +1,39 @@
+{$VZ_PUBLIC_DOMAIN} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		-Server
+	}
+
+	# API: проксируем в бэкенд. Caddy — крайний прокси, поэтому X-Forwarded-For ПЕРЕЗАПИСЫВАЕМ адресом клиента:
+	# всё, что клиент прислал в этом заголовке, отбрасывается (по нему считаются лимиты входа и регистрации).
+	# Бэкенд верит заголовку только от подсети compose (VZ_FORWARDED_ALLOW_IPS=172.29.80.0/24).
+	handle /api/* {
+		reverse_proxy backend:8000 {
+			header_up X-Forwarded-For {remote_host}
+		}
+	}
+
+	# Статика фронтенда (Vite build): хешированные файлы кэшируем надолго, index.html не кэшируем
+	handle {
+		root * /srv/web
+		@assets path /assets/* /fonts/* /3d/*
+		header @assets Cache-Control "public, max-age=31536000, immutable"
+		header /index.html Cache-Control "no-cache"
+		try_files {path} /index.html
+		file_server
+	}
+}
+
+# Свой ФСП ID (Keycloak, профиль compose `fsp`): раскомментируйте и задайте VZ_KEYCLOAK_DOMAIN в .env и в окружении caddy.
+# Админ-консоль Keycloak наружу лучше не отдавать: закройте /admin* и /realms/master*.
+# {$VZ_KEYCLOAK_DOMAIN} {
+# 	encode zstd gzip
+# 	@admin path /admin* /realms/master*
+# 	respond @admin 404
+# 	reverse_proxy keycloak:8080
+# }

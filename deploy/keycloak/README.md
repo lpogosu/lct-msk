@@ -14,7 +14,7 @@ claims `sub`, `name`, `given_name`, `family_name`, `email`). Пока ФСП н�
 |---|---|
 | Realm | `fsp`, русская локаль, регистрация закрыта |
 | Клиент | `vzaimno` (= `VZ_FSP_OIDC_CLIENT_ID` по умолчанию), **конфиденциальный** (client secret), authorization code + **PKCE S256** |
-| Redirect URI | бэкенд `http://localhost:8000/api/auth/fsp/callback`, фронтенд `http://localhost:5173/auth/fsp/callback` (= `VZ_FSP_OIDC_REDIRECT_URI` по умолчанию) и те же пути на `https://${VZ_PUBLIC_DOMAIN}` |
+| Redirect URI | страница фронтенда `http://localhost:5173/candidate/fsp/callback` (= `VZ_FSP_OIDC_REDIRECT_URI` по умолчанию; она вызывает `GET /api/fsp/callback`) и адрес бэкенда `http://localhost:8000/api/fsp/callback` (браузер → бэкенд → перенаправление на страницу фронтенда); те же пути на `https://${VZ_PUBLIC_DOMAIN}` |
 | Сервисный аккаунт | включён: client credentials для чтения реестра достижений (`VZ_FSP_TOKEN_URL`) |
 | Scopes | стандартные `openid profile email` → claims `sub`, `name`, `given_name`, `family_name`, `email`, `preferred_username` |
 | Пользователи | 30 демо-спортсменов, `id` пользователя = `sub` = ключ спортсмена в демо-реестре |
@@ -69,7 +69,7 @@ docker compose --profile fsp up -d keycloak
 | `VZ_FSP_OIDC_ISSUER` | `http://localhost:8080/realms/fsp` | `https://sso.fsp-russia.ru/realms/fsp` |
 | `VZ_FSP_OIDC_CLIENT_ID` | `vzaimno` | client, выданный ФСП |
 | `VZ_FSP_OIDC_CLIENT_SECRET` | `vzaimno-demo-secret` | секрет от ФСП (только из секретов окружения) |
-| `VZ_FSP_OIDC_REDIRECT_URI` | `http://localhost:5173/auth/fsp/callback` (или `http://localhost:8000/api/auth/fsp/callback`) | `https://<домен>/auth/fsp/callback` |
+| `VZ_FSP_OIDC_REDIRECT_URI` | `http://localhost:5173/candidate/fsp/callback` (или `http://localhost:8000/api/fsp/callback`) | `https://<домен>/candidate/fsp/callback` (или `https://<домен>/api/fsp/callback`) |
 | `VZ_FSP_REGISTRY_URL` | `http://localhost:8001`, в compose `http://fsp-mock:8001` | адрес API реестра ФСП |
 | `VZ_FSP_REGISTRY_TOKEN` | `demo-fsp-registry-token` | не задаётся |
 | `VZ_FSP_TOKEN_URL` | не задаётся (или `…/realms/fsp/protocol/openid-connect/token`) | `https://sso.fsp-russia.ru/realms/fsp/protocol/openid-connect/token` |
@@ -78,8 +78,8 @@ docker compose --profile fsp up -d keycloak
 ## Переход на sso.fsp-russia.ru
 
 1. **Зарегистрировать client в realm `fsp` ФСП**: конфиденциальный, standard flow + PKCE S256, redirect URI
-   тот же, что в `VZ_FSP_OIDC_REDIRECT_URI` (`https://<домен>/auth/fsp/callback` или
-   `https://<домен>/api/auth/fsp/callback`), scopes `openid profile email`. Claims `sub`, имя и email
+   тот же, что в `VZ_FSP_OIDC_REDIRECT_URI` (`https://<домен>/candidate/fsp/callback` или
+   `https://<домен>/api/fsp/callback`), scopes `openid profile email`. Claims `sub`, имя и email
    в кабинете ФСП уже есть (клиент `lk-sportsman-prod` их получает).
 2. **Сменить issuer** на `https://sso.fsp-russia.ru/realms/fsp` и client id/secret. Discovery и JWKS
    берутся из `/.well-known/openid-configuration`, поэтому код и проверка подписи не меняются.

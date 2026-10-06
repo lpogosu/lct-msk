@@ -38,7 +38,7 @@ class FSPSettings(BaseSettings):
     # Секрет конфиденциального client. Демо-realm: vzaimno-demo-secret (deploy/keycloak/README.md).
     client_secret: str | None = Field(None, validation_alias=AliasChoices("VZ_FSP_OIDC_CLIENT_SECRET"))
     redirect_uri: str = Field(
-        "http://localhost:5173/auth/fsp/callback", validation_alias=AliasChoices("VZ_FSP_OIDC_REDIRECT_URI")
+        "http://localhost:5173/candidate/fsp/callback", validation_alias=AliasChoices("VZ_FSP_OIDC_REDIRECT_URI")
     )
     scopes: str = "openid profile email"
     oidc_timeout_s: float = 5.0  # discovery, обмен кода, JWKS

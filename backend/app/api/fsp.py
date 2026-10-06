@@ -2,8 +2,12 @@
 
 Вход через ФСП ID — OIDC authorization code + PKCE (Keycloak realm `fsp`):
 1. `GET /api/fsp/login` → адрес страницы ФСП ID (+ httpOnly-cookie с state: вход привязан к браузеру);
-2. ФСП ID возвращает браузер на фронтенд `/auth/fsp/callback?code&state`;
-3. фронтенд вызывает `GET /api/fsp/callback?code&state` (с Bearer, если это привязка к аккаунту).
+2. ФСП ID возвращает браузер на страницу фронтенда `/candidate/fsp/callback?code&state` (VZ_FSP_OIDC_REDIRECT_URI);
+3. страница вызывает `GET /api/fsp/callback?code&state` (с Bearer, если это привязка к аккаунту).
+Если в ФСП ID зарегистрирован адрес бэкенда `/api/fsp/callback` (redirect URI = он), браузер приходит сразу на него:
+бэкенд узнаёт «переход браузера» (Sec-Fetch-Mode: navigate) и перенаправляет (303) на страницу фронтенда с теми же
+параметрами — обмен кода всё равно идёт запросом страницы с Bearer, как в п. 3. Так realm и фронтенд согласованы
+в любом из двух вариантов (deploy/keycloak/README.md).
 
 Если Keycloak не поднят — «демо-вход ФСП» (`POST /api/fsp/demo-login`): подписанный мок-токен, привязка
 помечается как демо. Данные реестра без согласия на обогащение только показываются (предпросмотр), а не
@@ -13,8 +17,10 @@
 from __future__ import annotations
 
 from typing import Annotated, Literal
+from urllib.parse import urlencode
 
 from fastapi import APIRouter, Depends, Path, Query, Request, Response
+from fastapi.responses import RedirectResponse
 from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 
@@ -32,7 +38,7 @@ from app.api.deps import (
 )
 from app.api.schemas import TokenResponse, UserOut
 from app.core.clock import clock
-from app.core.errors import ErrorResponse, error_responses, forbidden
+from app.core.errors import ErrorResponse, bad_request, error_responses, forbidden
 from app.core.settings import Settings
 from app.db.session import get_db
 from app.fsp.provider import FSPProvider
@@ -79,6 +85,16 @@ def optional_user(
 
 
 OptionalUser = Annotated[User | None, Depends(optional_user)]
+
+FRONTEND_CALLBACK_PATH = "/candidate/fsp/callback"
+
+
+def _is_browser_navigation(request: Request) -> bool:
+    """Переход браузера по ссылке (а не fetch страницы): Sec-Fetch-Mode: navigate, у старых браузеров — Accept: text/html."""
+    if request.headers.get("sec-fetch-mode") == "navigate":
+        return True
+    accept = request.headers.get("accept", "")
+    return "text/html" in accept and "application/json" not in accept
 
 
 def _auth_result(
@@ -211,9 +227,11 @@ def login_start(
         "ФСП ID — DECISIONS п. 12; согласие на обогащение применится после подтверждения email). "
         "Ошибки: 400 `fsp_state_invalid` / `fsp_state_mismatch` / `fsp_code_invalid` / "
         "`fsp_token_invalid` / `consent_required` / `fsp_email_missing`; 403 `fsp_state_foreign`; 409 "
-        "`fsp_id_taken` / `fsp_already_linked` / `email_taken` / `email_pending`; 503 — ФСП ID недоступен."
+        "`fsp_id_taken` / `fsp_already_linked` / `email_taken` / `email_pending`; 503 — ФСП ID недоступен. "
+        "Переход браузера на этот адрес (redirect URI = адрес бэкенда) отвечает 303 на страницу фронтенда "
+        "`/candidate/fsp/callback` с теми же `code`, `state` (и `error`, если ФСП ID отказал)."
     ),
-    responses={**error_responses(), **_ERR_503},
+    responses={**error_responses(), **_ERR_503, 303: {"description": "Переход браузера: перенаправление на страницу фронтенда"}},
 )
 def callback(
     request: Request,
@@ -226,9 +244,19 @@ def callback(
     oidc: OidcDep,
     provider: ProviderDep,
     user: OptionalUser,
-    code: Annotated[str, Query(min_length=1, max_length=2048, description="Код авторизации из адреса возврата")],
-    state: Annotated[str, Query(min_length=16, max_length=256, description="state из адреса возврата")],
-) -> FspAuthResultOut:
+    code: Annotated[str | None, Query(max_length=2048, description="Код авторизации из адреса возврата")] = None,
+    state: Annotated[str | None, Query(max_length=256, description="state из адреса возврата")] = None,
+    error: Annotated[str | None, Query(max_length=128, description="Код ошибки, если ФСП ID отказал во входе")] = None,
+    error_description: Annotated[str | None, Query(max_length=512, description="Пояснение ошибки ФСП ID")] = None,
+) -> FspAuthResultOut | RedirectResponse:
+    if _is_browser_navigation(request):
+        # Адрес возврата — бэкенд: передаём управление странице фронтенда (она сделает запрос с Bearer).
+        forwarded = {k: v for k, v in (("code", code), ("state", state), ("error", error), ("error_description", error_description)) if v}
+        target = f"{settings.public_base_url.rstrip('/')}{FRONTEND_CALLBACK_PATH}"
+        return RedirectResponse(f"{target}?{urlencode(forwarded)}" if forwarded else target, status_code=303)
+    if not code or not state or len(state) < 16:
+        raise bad_request("fsp_callback_params", "В адресе возврата нет кода или state от ФСП ID. Начните привязку заново")
+
     limiter.check("fsp_callback_ip", meta.ip or "unknown", oidc.settings.rate("callback"))
     result = fsp.complete_callback(
         db,

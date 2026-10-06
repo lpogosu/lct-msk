@@ -303,7 +303,11 @@ export interface paths {
          */
         put: operations["put_me_api_companies_me_put"];
         post?: never;
-        delete?: never;
+        /**
+         * Удалить аккаунт работодателя
+         * @description Право на удаление (152-ФЗ): подтверждение паролем. Удаляется аккаунт работодателя (email, сессии). Если он был последним в компании, её ждущие приглашения отзываются («позиция закрыта»), брифы и вакансии закрываются, контакты связи и вебхук ATS стираются; название компании остаётся в истории приглашений кандидатов. Необратимо; на адрес аккаунта уходит письмо-подтверждение. 403 `password_invalid`; 429 — не больше 5 попыток в час.
+         */
+        delete: operations["delete_me_api_companies_me_delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -427,7 +431,11 @@ export interface paths {
          */
         put: operations["put_me_api_candidates_me_put"];
         post?: never;
-        delete?: never;
+        /**
+         * Удалить аккаунт
+         * @description Право на удаление (152-ФЗ): подтверждение паролем (для аккаунта без пароля — слово «УДАЛИТЬ» в `confirm`). Стирает профиль, резюме, ответы опроса и тестов, приглашения и отклики с раскрытыми контактами, привязку ФСП ID и данные реестра, согласия; завершает все сессии. Остаётся запись журнала аудита без персональных данных. Необратимо; на адрес аккаунта уходит письмо-подтверждение. 403 `password_invalid` — неверный пароль (аккаунт не тронут); 400 `confirm_phrase_required`; 429 — не больше 5 попыток в час.
+         */
+        delete: operations["delete_me_api_candidates_me_delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1377,6 +1385,26 @@ export interface paths {
          * @description Слепая карточка (после взаимного «да» — раскрытая) без привязки к брифу. Открытие записывается: пригласить можно только того, чью карточку открывали (DECISIONS п. 7). 404 — ссылка чужая или кандидат сейчас недоступен.
          */
         get: operations["bank_card_api_bank_candidates__ref__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/bank/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Сводка банка для карты талантов
+         * @description Одним запросом: по каждой специализации и грейду — число подтверждённых тестом кандидатов, доля с ФСП и ожидания по зарплате «на руки» (P25/P50/P75); плюс сколько прошли опрос по направлению и ждут теста. Те же правила видимости, что у списка банка, каждый кандидат считается один раз — лучшей категорией. Приватность: P25/P50/P75 появляются, когда в ячейке не меньше `privacy_min_n` кандидатов с указанным минимумом, и округлены до ступени. Лимит запросов отдельный от списка банка: карта не съедает его.
+         */
+        get: operations["bank_summary_api_bank_summary_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2454,7 +2482,7 @@ export interface paths {
         };
         /**
          * Завершить вход через ФСП ID
-         * @description Фронтенд передаёт `code` и `state`, которые ФСП ID вернул в адрес возврата. Бэкенд меняет код на токены (PKCE), проверяет подпись id_token по JWKS, issuer, audience и nonce. Привязка (`mode=link`) завершается только тем же аккаунтом, что её начал (Bearer). Результат: `linked`, `logged_in` (сессия, refresh — в cookie) или `email_verification_required` (первый вход: аккаунт создан, код отправлен на email из ФСП ID — DECISIONS п. 12; согласие на обогащение применится после подтверждения email). Ошибки: 400 `fsp_state_invalid` / `fsp_state_mismatch` / `fsp_code_invalid` / `fsp_token_invalid` / `consent_required` / `fsp_email_missing`; 403 `fsp_state_foreign`; 409 `fsp_id_taken` / `fsp_already_linked` / `email_taken` / `email_pending`; 503 — ФСП ID недоступен.
+         * @description Фронтенд передаёт `code` и `state`, которые ФСП ID вернул в адрес возврата. Бэкенд меняет код на токены (PKCE), проверяет подпись id_token по JWKS, issuer, audience и nonce. Привязка (`mode=link`) завершается только тем же аккаунтом, что её начал (Bearer). Результат: `linked`, `logged_in` (сессия, refresh — в cookie) или `email_verification_required` (первый вход: аккаунт создан, код отправлен на email из ФСП ID — DECISIONS п. 12; согласие на обогащение применится после подтверждения email). Ошибки: 400 `fsp_state_invalid` / `fsp_state_mismatch` / `fsp_code_invalid` / `fsp_token_invalid` / `consent_required` / `fsp_email_missing`; 403 `fsp_state_foreign`; 409 `fsp_id_taken` / `fsp_already_linked` / `email_taken` / `email_pending`; 503 — ФСП ID недоступен. Переход браузера на этот адрес (redirect URI = адрес бэкенда) отвечает 303 на страницу фронтенда `/candidate/fsp/callback` с теми же `code`, `state` (и `error`, если ФСП ID отказал).
          */
         get: operations["callback_api_fsp_callback_get"];
         put?: never;
@@ -3060,7 +3088,7 @@ export interface paths {
         put?: never;
         /**
          * Сдвинуть часы демо
-         * @description «+1 день», «+3 дня» или сброс смещения (app.core.clock). Двигает сроки приглашений, откликов и свежесть тестов; сразу применяет сроки (истёкшие приглашения, «нет ответа»), смещение переживает перезапуск. Нужен вход под любой ролью.
+         * @description «+1 день», «+3 дня» или сброс смещения (app.core.clock). Двигает сроки приглашений, откликов и свежесть тестов; сразу применяет сроки (истёкшие приглашения, «нет ответа»), смещение переживает перезапуск. Нужен вход под любой ролью; на боевом стенде (VZ_ENV=prod) — только администратор или заголовок X-Demo-Key.
          */
         post: operations["clock_shift_api_demo_clock_post"];
         delete?: never;
@@ -3080,7 +3108,7 @@ export interface paths {
         put?: never;
         /**
          * Сбросить демо-мир
-         * @description Быстро (секунды) возвращает мир к состоянию seed: часы, приглашения, отклики, брифы, персоны (Анна, Илья, ступенчатые аккаунты), «Мария» удаляется, чтобы зарегистрироваться заново. Синтетическая популяция с тестами не пересоздаётся. Нужен вход под любой ролью.
+         * @description Быстро (секунды) возвращает мир к состоянию seed: часы, приглашения, отклики, брифы, персоны (Анна, Илья, ступенчатые аккаунты), «Мария» удаляется, чтобы зарегистрироваться заново. Синтетическая популяция с тестами не пересоздаётся. Режим жюри сохраняет своё значение (сброс его не выключает). Нужен вход под любой ролью; на боевом стенде (VZ_ENV=prod) — только администратор или заголовок X-Demo-Key.
          */
         post: operations["reset_api_demo_reset_post"];
         delete?: never;
@@ -3100,7 +3128,7 @@ export interface paths {
         put?: never;
         /**
          * Автоответчик синтетических кандидатов
-         * @description Включить/выключить автоответчик и/или ответить прямо сейчас (`respond_now`). Правила: «Да», если верхняя граница вилки не ниже минимума и формат подходит; «Да, если: от min», если минимум выше вилки не более чем в 1,2 раза; иначе «Нет» с причиной из персоны. В штатном режиме отвечает через 30–90 с после отправки. Нужен вход под любой ролью.
+         * @description Включить/выключить автоответчик и/или ответить прямо сейчас (`respond_now`). Правила: «Да», если верхняя граница вилки не ниже минимума и формат подходит; «Да, если: от min», если минимум выше вилки не более чем в 1,2 раза; иначе «Нет» с причиной из персоны. В штатном режиме отвечает через 30–90 с после отправки. Нужен вход под любой ролью; на боевом стенде — только администратор или X-Demo-Key.
          */
         post: operations["autoresponder_control_api_demo_autoresponder_post"];
         delete?: never;
@@ -3120,7 +3148,7 @@ export interface paths {
         put?: never;
         /**
          * Режим жюри
-         * @description Включает или выключает «режим жюри» (RK2): кандидату доступна подсказка к текущему заданию, сессии, начатые в этом режиме, помечаются demo_assisted и исключаются из метрик. Нужен вход под любой ролью.
+         * @description Включает или выключает «режим жюри» (RK2): кандидату доступна подсказка к текущему заданию, сессии, начатые в этом режиме, помечаются demo_assisted и исключаются из метрик. Нужен вход под любой ролью; на боевом стенде (VZ_ENV=prod) переключает только администратор или X-Demo-Key — подсказка при включённом режиме доступна владельцу сессии.
          */
         post: operations["jury_mode_api_demo_jury_mode_post"];
         delete?: never;
@@ -3297,6 +3325,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/skills": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Справочник навыков
+         * @description Навыки справочника (config/skills.yaml) для фильтров банка и брифа: id, название, категория, модули теста, специализации и флаг `testable` — навык можно подтвердить тестом. Для фильтра «стек» в банке берутся `testable` навыки (остальные в банке будут только «заявлено»). Нужен вход.
+         */
+        get: operations["skills_list_api_skills_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -3313,6 +3361,61 @@ export interface components {
              * @description Какие поля раскрыть; по умолчанию — из настроек К13
              */
             fields?: string[] | null;
+        };
+        /** AccountDeleteRequest */
+        AccountDeleteRequest: {
+            /**
+             * Password
+             * @description Текущий пароль — подтверждение удаления. Для аккаунта без пароля (вход через ФСП ID) не нужен
+             */
+            password?: string | null;
+            /**
+             * Confirm
+             * @description Только для аккаунта без пароля: слово «УДАЛИТЬ» вместо пароля
+             * @example УДАЛИТЬ
+             */
+            confirm?: string | null;
+        };
+        /** AccountDeleteResponse */
+        AccountDeleteResponse: {
+            /**
+             * Deleted
+             * @description Аккаунт удалён безвозвратно
+             * @constant
+             */
+            deleted: true;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "candidate" | "employer";
+            /**
+             * Message
+             * @description Что произошло, готовый текст на русском
+             */
+            message: string;
+            /**
+             * Removed
+             * @description Что стёрто
+             */
+            removed: string[];
+            /**
+             * Kept
+             * @description Что остаётся и почему (без персональных данных)
+             */
+            kept: string[];
+            /**
+             * Company Closed
+             * @description Работодатель был последним в компании: компания закрыта
+             * @default false
+             */
+            company_closed: boolean;
+            /**
+             * Invitations Withdrawn
+             * @description Сколько ждущих ответа приглашений отозвано (работодатель)
+             * @default 0
+             */
+            invitations_withdrawn: number;
         };
         /** ActLineOut */
         ActLineOut: {
@@ -3340,12 +3443,12 @@ export interface components {
              * Shown Span
              * @description Колонки подсвеченного токена на экране [от, до)
              */
-            shown_span?: number[] | null;
+            shown_span: number[] | null;
             /**
              * Clipboard Span
              * @description Колонки подсвеченного токена в копии [от, до)
              */
-            clipboard_span?: number[] | null;
+            clipboard_span: number[] | null;
         };
         /** ActOut */
         ActOut: {
@@ -3364,7 +3467,7 @@ export interface components {
              * Session Id
              * @description Сессия
              */
-            session_id?: string | null;
+            session_id: string | null;
             /**
              * Label
              * @description Подпись над заголовком
@@ -3463,7 +3566,7 @@ export interface components {
              * Strength
              * @description exact | err_twin | token
              */
-            strength?: string | null;
+            strength: string | null;
             /**
              * Verdict Ru
              * @description Вердикт без обвинений: только наблюдаемые факты
@@ -3483,17 +3586,17 @@ export interface components {
              * Copy At
              * @description Когда скопировали (по журналу событий)
              */
-            copy_at?: string | null;
+            copy_at: string | null;
             /**
              * Answered At
              * @description Когда ответили
              */
-            answered_at?: string | null;
+            answered_at: string | null;
             /**
              * Warned At
              * @description Когда показано предупреждение (первое копирование в сессии)
              */
-            warned_at?: string | null;
+            warned_at: string | null;
             /**
              * P Honest
              * @description Вероятность честного совпадения на этом задании (модельная оценка)
@@ -3525,7 +3628,7 @@ export interface components {
              */
             means_ru: string;
             /** @description Сводка по сессии (для песочницы нет) */
-            session?: components["schemas"]["SessionTwinOut"] | null;
+            session: components["schemas"]["SessionTwinOut"] | null;
             /**
              * Review Status
              * @description open | verification_assigned | dismissed
@@ -3540,12 +3643,12 @@ export interface components {
              * Review Note
              * @description Комментарий методиста
              */
-            review_note?: string | null;
+            review_note: string | null;
             /**
              * Reviewed At
              * @description Когда принято решение
              */
-            reviewed_at?: string | null;
+            reviewed_at: string | null;
             /**
              * Actions
              * @description Доступные решения: id и подпись
@@ -3650,16 +3753,16 @@ export interface components {
              * Format: uuid
              */
             id: string;
-            vacancy?: components["schemas"]["VacancyOut"] | null;
-            company?: components["schemas"]["ApplicationCompanyOut"] | null;
+            vacancy: components["schemas"]["VacancyOut"] | null;
+            company: components["schemas"]["ApplicationCompanyOut"] | null;
             /** Status */
             status: string;
             /** Status Label */
             status_label: string;
             /** Submitted Text */
-            submitted_text?: string | null;
+            submitted_text: string | null;
             /** Score */
-            score?: number | null;
+            score: number | null;
             /** Contacts Shared */
             contacts_shared: boolean;
             timers: components["schemas"]["ApplicationTimersOut"];
@@ -3673,25 +3776,25 @@ export interface components {
              * Format: uuid
              */
             id: string;
-            vacancy?: components["schemas"]["VacancyOut"] | null;
-            company?: components["schemas"]["ApplicationCompanyOut"] | null;
+            vacancy: components["schemas"]["VacancyOut"] | null;
+            company: components["schemas"]["ApplicationCompanyOut"] | null;
             /** Status */
             status: string;
             /** Status Label */
             status_label: string;
             /** Submitted Text */
-            submitted_text?: string | null;
+            submitted_text: string | null;
             /** Score */
-            score?: number | null;
+            score: number | null;
             /** Contacts Shared */
             contacts_shared: boolean;
             timers: components["schemas"]["ApplicationTimersOut"];
             /** Actions */
             actions: string[];
             /** Reject Reason */
-            reject_reason?: string | null;
+            reject_reason: string | null;
             /** Reject Reason Label */
-            reject_reason_label?: string | null;
+            reject_reason_label: string | null;
             /** Feedback */
             feedback: components["schemas"]["FeedbackOut"][];
             /** Disclosure Fields */
@@ -3728,25 +3831,25 @@ export interface components {
             /** Pseudonym */
             pseudonym: string;
             /** Candidate Ref */
-            candidate_ref?: string | null;
+            candidate_ref: string | null;
             /** Status */
             status: string;
             /** Status Label */
             status_label: string;
             /** Score */
-            score?: number | null;
+            score: number | null;
             /** Category */
-            category?: string | null;
+            category: string | null;
             /** Submitted Text */
-            submitted_text?: string | null;
+            submitted_text: string | null;
             /** Viewed */
             viewed: boolean;
             /** Contacts Visible */
             contacts_visible: boolean;
             /** Reject Reason */
-            reject_reason?: string | null;
+            reject_reason: string | null;
             /** Reject Reason Label */
-            reject_reason_label?: string | null;
+            reject_reason_label: string | null;
             timers: components["schemas"]["ApplicationTimersOut"];
             /** Actions */
             actions: string[];
@@ -3766,40 +3869,35 @@ export interface components {
             /** Pseudonym */
             pseudonym: string;
             /** Candidate Ref */
-            candidate_ref?: string | null;
+            candidate_ref: string | null;
             /** Status */
             status: string;
             /** Status Label */
             status_label: string;
             /** Score */
-            score?: number | null;
+            score: number | null;
             /** Category */
-            category?: string | null;
+            category: string | null;
             /** Submitted Text */
-            submitted_text?: string | null;
+            submitted_text: string | null;
             /** Viewed */
             viewed: boolean;
             /** Contacts Visible */
             contacts_visible: boolean;
             /** Reject Reason */
-            reject_reason?: string | null;
+            reject_reason: string | null;
             /** Reject Reason Label */
-            reject_reason_label?: string | null;
+            reject_reason_label: string | null;
             timers: components["schemas"]["ApplicationTimersOut"];
             /** Actions */
             actions: string[];
             vacancy: components["schemas"]["VacancyOut"];
-            /** Score Snapshot */
-            score_snapshot?: {
-                [key: string]: unknown;
-            } | null;
+            score_snapshot: components["schemas"]["ScoreSnapshotOut"] | null;
             /**
              * Candidate
              * @description Карточка кандидата: контакты видны — он откликнулся сам
              */
-            candidate: {
-                [key: string]: unknown;
-            };
+            candidate: components["schemas"]["EmployerCandidateBlind"] | components["schemas"]["EmployerCandidateDisclosed"];
             /** Events */
             events: components["schemas"]["EventOut"][];
             /** Reject Reasons */
@@ -3810,9 +3908,9 @@ export interface components {
         /** ApplicationTimersOut */
         ApplicationTimersOut: {
             /** Sla Due At */
-            sla_due_at?: string | null;
+            sla_due_at: string | null;
             /** Sla Due Text */
-            sla_due_text?: string | null;
+            sla_due_text: string | null;
         };
         /** ApplyIn */
         ApplyIn: {
@@ -3848,9 +3946,9 @@ export interface components {
             /** Title */
             title: string;
             /** Module */
-            module?: string | null;
+            module: string | null;
             /** Module Name */
-            module_name?: string | null;
+            module_name: string | null;
             /** Minutes */
             minutes: number;
             /**
@@ -3866,12 +3964,12 @@ export interface components {
             /** Status Label */
             status_label: string;
             /** Due Text */
-            due_text?: string | null;
+            due_text: string | null;
             /** Solve Until Text */
-            solve_until_text?: string | null;
+            solve_until_text: string | null;
             /** Not Real Work Label */
             not_real_work_label: string;
-            result?: components["schemas"]["AssignmentResultOut"] | null;
+            result: components["schemas"]["AssignmentResultOut"] | null;
             outcome: components["schemas"]["OutcomeOut"];
         };
         /** AssignmentOut */
@@ -3893,9 +3991,9 @@ export interface components {
             /** Title */
             title: string;
             /** Module */
-            module?: string | null;
+            module: string | null;
             /** Module Name */
-            module_name?: string | null;
+            module_name: string | null;
             /** Minutes */
             minutes: number;
             /**
@@ -3911,27 +4009,27 @@ export interface components {
             /** Status Label */
             status_label: string;
             /** Due Text */
-            due_text?: string | null;
+            due_text: string | null;
             /** Solve Until Text */
-            solve_until_text?: string | null;
+            solve_until_text: string | null;
             /** Not Real Work Label */
             not_real_work_label: string;
-            result?: components["schemas"]["AssignmentResultOut"] | null;
+            result: components["schemas"]["AssignmentResultOut"] | null;
         };
         /** AssignmentResultOut */
         AssignmentResultOut: {
             /** Score */
-            score?: number | null;
+            score: number | null;
             /** Score Text */
-            score_text?: string | null;
+            score_text: string | null;
             /** Is Correct */
-            is_correct?: boolean | null;
+            is_correct: boolean | null;
             /** Rubric Scores */
-            rubric_scores?: {
+            rubric_scores: {
                 [key: string]: number;
             } | null;
             /** Review Comment */
-            review_comment?: string | null;
+            review_comment: string | null;
         };
         /** AssignmentStartOut */
         AssignmentStartOut: {
@@ -3952,9 +4050,9 @@ export interface components {
             /** Title */
             title: string;
             /** Module */
-            module?: string | null;
+            module: string | null;
             /** Module Name */
-            module_name?: string | null;
+            module_name: string | null;
             /** Minutes */
             minutes: number;
             /**
@@ -3970,30 +4068,30 @@ export interface components {
             /** Status Label */
             status_label: string;
             /** Due Text */
-            due_text?: string | null;
+            due_text: string | null;
             /** Solve Until Text */
-            solve_until_text?: string | null;
+            solve_until_text: string | null;
             /** Not Real Work Label */
             not_real_work_label: string;
-            result?: components["schemas"]["AssignmentResultOut"] | null;
+            result: components["schemas"]["AssignmentResultOut"] | null;
             /**
              * Item
              * @description Тип A: ваш экземпляр (без ключа) и код варианта
              */
-            item?: {
+            item: {
                 [key: string]: unknown;
             } | null;
             /**
              * Prompt
              * @description Тип B: текст задачи
              */
-            prompt?: string | null;
+            prompt: string | null;
             /** Rubric */
-            rubric?: {
+            rubric: {
                 [key: string]: unknown;
             } | null;
             /** Answer Max Len */
-            answer_max_len?: number | null;
+            answer_max_len: number | null;
         };
         /** AttemptOut */
         AttemptOut: {
@@ -4029,38 +4127,38 @@ export interface components {
              * Decision
              * @description Решение
              */
-            decision?: string | null;
+            decision: string | null;
             /**
              * Decision Ru
              * @description Решение по-русски
              */
-            decision_ru?: string | null;
+            decision_ru: string | null;
             /**
              * Score
              * @description Балл
              */
-            score?: number | null;
+            score: number | null;
             /**
              * Started At
              * @description Начало
              */
-            started_at?: string | null;
+            started_at: string | null;
             /**
              * Started Ago
              * @description Начало — относительно
              */
-            started_ago?: string | null;
+            started_ago: string | null;
         };
         /** AudienceOut */
         AudienceOut: {
             /** Specialization */
-            specialization?: string | null;
+            specialization: string | null;
             /** Specialization Name */
-            specialization_name?: string | null;
+            specialization_name: string | null;
             /** Grade */
-            grade?: string | null;
+            grade: string | null;
             /** Grade Name */
-            grade_name?: string | null;
+            grade_name: string | null;
             /** Window */
             window: number;
         };
@@ -4108,7 +4206,7 @@ export interface components {
              */
             skipped: number;
             /** Errors */
-            errors?: string[];
+            errors: string[];
         };
         /** BadgeOut */
         BadgeOut: {
@@ -4219,7 +4317,7 @@ export interface components {
              * Label
              * @description Название фильтра, скрывшего кандидатов
              */
-            label?: string | null;
+            label: string | null;
             /** Items */
             items: components["schemas"]["BankItemOut"][];
         };
@@ -4298,17 +4396,17 @@ export interface components {
              * Invitation Status
              * @description Код статуса активного приглашения этой компании: sent, viewed, countered, accepted
              */
-            invitation_status?: string | null;
+            invitation_status: string | null;
             /**
              * Invitation Label
              * @description Подпись статуса: «Отправлено», «Просмотрено», …
              */
-            invitation_label?: string | null;
+            invitation_label: string | null;
             /**
              * Hidden By
              * @description Фильтры, скрывшие кандидата (группа «Скрыто»)
              */
-            hidden_by?: string[];
+            hidden_by: string[];
         };
         /** BankModuleOut */
         BankModuleOut: {
@@ -4330,7 +4428,100 @@ export interface components {
              * Reasons
              * @description Почему вас сейчас нет в банке (если нет)
              */
-            reasons?: string[];
+            reasons: string[];
+        };
+        /** BankSummaryCellOut */
+        BankSummaryCellOut: {
+            /**
+             * Grade
+             * @enum {string}
+             */
+            grade: "intern" | "junior" | "middle" | "senior";
+            /**
+             * N
+             * @description Подтверждённых тестом кандидатов в категории — столько же в списке `GET /api/bank?category=spec:grade`
+             */
+            n: number;
+            /**
+             * With Fsp
+             * @description Из них с достижениями ФСП
+             */
+            with_fsp: number;
+            /**
+             * Fsp Share
+             * @description Доля с ФСП (0–1); null, если в ячейке никого нет
+             */
+            fsp_share: number | null;
+            /** @description P25/P50/P75 ожиданий; null, пока кандидатов с указанным минимумом меньше порога приватности (privacy_min_n) */
+            salary_min: components["schemas"]["SalaryQuantilesOut"] | null;
+        };
+        /** BankSummaryOut */
+        BankSummaryOut: {
+            /** Specs */
+            specs: components["schemas"]["BankSummarySpecOut"][];
+            /**
+             * Total
+             * @description Уникальных кандидатов в банке (Fullstack-кандидат входит в несколько ячеек, но здесь один раз)
+             */
+            total: number;
+            /** With Fsp */
+            with_fsp: number;
+            /** Survey Only */
+            survey_only: number;
+            /**
+             * Privacy Min N
+             * @description Минимум кандидатов с указанным минимумом зарплаты, чтобы показать P25/P50/P75
+             */
+            privacy_min_n: number;
+            /**
+             * Salary Basis
+             * @description Ожидания приведены к «на руки»
+             * @constant
+             */
+            salary_basis: "net";
+            /**
+             * As Of
+             * Format: date-time
+             * @description Момент расчёта по часам платформы
+             */
+            as_of: string;
+        };
+        /** BankSummarySpecOut */
+        BankSummarySpecOut: {
+            /**
+             * Spec
+             * @description Код специализации (config/taxonomy.yaml)
+             */
+            spec: string;
+            /** Name */
+            name: string;
+            /**
+             * Status
+             * @description active — тест есть; derived — собирается из двух квалификаций; survey_only — только опрос
+             */
+            status: string;
+            /**
+             * Testable
+             * @description По направлению есть собственный тест
+             */
+            testable: boolean;
+            /**
+             * N
+             * @description Подтверждённых тестом кандидатов по направлению
+             */
+            n: number;
+            /** With Fsp */
+            with_fsp: number;
+            /**
+             * Survey Only
+             * @description Прошли опрос по этому направлению, но теста с подтверждённой категорией ещё нет («ждут теста»)
+             */
+            survey_only: number;
+            /**
+             * Cells
+             * @description Четыре грейда по порядку: intern, junior, middle, senior
+             */
+            cells: components["schemas"]["BankSummaryCellOut"][];
         };
         /** BatchOut */
         BatchOut: {
@@ -4379,7 +4570,7 @@ export interface components {
              * Category
              * @description Категория «специализация · грейд»
              */
-            category?: string | null;
+            category: string | null;
             /**
              * Badge
              * @description Строка бейджа, как в выдаче работодателя
@@ -4389,17 +4580,17 @@ export interface components {
              * Score
              * @description Балл
              */
-            score?: number | null;
+            score: number | null;
             /**
              * Interval80
              * @description 80%-интервал балла
              */
-            interval80?: number[];
+            interval80: number[];
             /**
              * Confidence Pct
              * @description Уверенность, %
              */
-            confidence_pct?: number | null;
+            confidence_pct: number | null;
             /**
              * How Obtained
              * @description Поповер «как получен»: решено по уровням
@@ -4409,17 +4600,17 @@ export interface components {
              * Modules
              * @description Подтверждённые модули
              */
-            modules?: components["schemas"]["BlindCardModuleOut"][];
+            modules: components["schemas"]["BlindCardModuleOut"][];
             /**
              * Trust
              * @description Доверие: высокое / сниженное
              */
-            trust?: string | null;
+            trust: string | null;
             /**
              * Freshness
              * @description Актуальность
              */
-            freshness?: string | null;
+            freshness: string | null;
             /**
              * Note
              * @description Что работодатель НЕ видит
@@ -4470,7 +4661,7 @@ export interface components {
              * City
              * @description Город (код справочника)
              */
-            city?: string | null;
+            city: string | null;
             /** Salary From */
             salary_from: number;
             /** Salary To */
@@ -4566,17 +4757,17 @@ export interface components {
              * Experience Months
              * @description Стаж из опроса или резюме
              */
-            experience_months?: number | null;
+            experience_months: number | null;
             /**
              * Experience Hint
              * @description Подсказка по стажу (ни к чему не обязывает)
              */
-            experience_hint?: string | null;
+            experience_hint: string | null;
             /**
              * Senior Warning
              * @description Мягкое предупреждение при выборе Senior и стаже < 24 мес.
              */
-            senior_warning?: string | null;
+            senior_warning: string | null;
             /**
              * Rules
              * @description Правила теста для брифинга
@@ -4587,24 +4778,24 @@ export interface components {
             /** @description Можно ли начать сейчас и когда станет можно */
             can_start: components["schemas"]["RuleCheckOut"];
             /** @description Подтверждённый грейд */
-            current_grade?: components["schemas"]["GradeRef"] | null;
+            current_grade: components["schemas"]["GradeRef"] | null;
             /** @description Грейд теста на повышение */
-            upgrade_target?: components["schemas"]["GradeRef"] | null;
+            upgrade_target: components["schemas"]["GradeRef"] | null;
             /**
              * Next Change Allowed At
              * @description Ближайшая возможная смена грейда
              */
-            next_change_allowed_at?: string | null;
+            next_change_allowed_at: string | null;
             /**
              * Next Change In
              * @description То же — относительно («через 90 дней»)
              */
-            next_change_in?: string | null;
+            next_change_in: string | null;
             /**
              * Active Session Id
              * @description Незавершённая сессия (продолжить)
              */
-            active_session_id?: string | null;
+            active_session_id: string | null;
         };
         /** CalibrateIn */
         CalibrateIn: {
@@ -4663,59 +4854,59 @@ export interface components {
              */
             available: boolean;
             /** Note */
-            note?: string | null;
+            note: string | null;
             category: components["schemas"]["CardCategoryOut"] | null;
             /** Grade History */
-            grade_history?: components["schemas"]["app__services__matching__schemas__GradeChangeOut"][];
+            grade_history: components["schemas"]["app__services__matching__schemas__GradeChangeOut"][];
             /** Test Date */
-            test_date?: string | null;
+            test_date: string | null;
             /**
              * Skills
              * @description Модули теста ✓ / ✓✓
              */
-            skills?: components["schemas"]["CardModuleOut"][];
+            skills: components["schemas"]["CardModuleOut"][];
             /**
              * Declared Skills
              * @description Серые чипы «заявлено»
              */
-            declared_skills?: components["schemas"]["DeclaredOut"][];
+            declared_skills: components["schemas"]["DeclaredOut"][];
             /** Tasks */
-            tasks?: components["schemas"]["CardTaskOut"][];
-            freshness?: components["schemas"]["app__services__matching__schemas__FreshnessOut"] | null;
+            tasks: components["schemas"]["CardTaskOut"][];
+            freshness: components["schemas"]["app__services__matching__schemas__FreshnessOut"] | null;
             /** Industries */
-            industries?: string[];
+            industries: string[];
             /** Formats */
-            formats?: string[];
+            formats: string[];
             /** Search Mode */
-            search_mode?: string | null;
+            search_mode: string | null;
             /**
              * Has Fsp
              * @default false
              */
             has_fsp: boolean;
-            test?: components["schemas"]["TestBandOut"] | null;
+            test: components["schemas"]["TestBandOut"] | null;
             /**
              * Fsp
              * @description Обобщённые результаты ФСП
              */
-            fsp?: components["schemas"]["FspPublicOut"][];
+            fsp: components["schemas"]["FspPublicOut"][];
             /** Fsp Line */
-            fsp_line?: string | null;
+            fsp_line: string | null;
             /** Fsp Badges */
-            fsp_badges?: string[];
+            fsp_badges: string[];
             /** Fsp Source */
-            fsp_source?: string | null;
+            fsp_source: string | null;
             /** @description «в вилке ✓ / выше вилки» или число */
-            salary?: components["schemas"]["SalarySignalOut"] | null;
+            salary: components["schemas"]["SalarySignalOut"] | null;
             /**
              * Region
              * @description Код субъекта РФ
              */
-            region?: string | null;
+            region: string | null;
             /** @description Строка текущей версии подборки брифа */
-            selection?: components["schemas"]["SelectionItemOut"] | null;
+            selection: components["schemas"]["SelectionItemOut"] | null;
             /** @description Раскрытые данные (только после «да») */
-            disclosed?: components["schemas"]["DisclosedOut"] | null;
+            disclosed: components["schemas"]["DisclosedOut"] | null;
         };
         /** CandidateFlagOut */
         CandidateFlagOut: {
@@ -4766,12 +4957,12 @@ export interface components {
              * Created Ago
              * @description Когда — относительно
              */
-            created_ago?: string | null;
+            created_ago: string | null;
             /**
              * Dispute Text
              * @description Ваше возражение
              */
-            dispute_text?: string | null;
+            dispute_text: string | null;
             /**
              * Can Dispute
              * @description Можно оспорить
@@ -4872,17 +5063,17 @@ export interface components {
              * N
              * @description Сколько кандидатов в категории (для survey_only — лист ожидания)
              */
-            n?: number | null;
+            n: number | null;
             /**
              * Note
              * @description Пояснение
              */
-            note?: string | null;
+            note: string | null;
             /**
              * Selected
              * @description Выбрана для подборки
              */
-            selected?: boolean | null;
+            selected: boolean | null;
             /**
              * Share Fsp
              * @description Доля с достижениями ФСП
@@ -4934,17 +5125,17 @@ export interface components {
              * N
              * @description Сколько кандидатов в категории (для survey_only — лист ожидания)
              */
-            n?: number | null;
+            n: number | null;
             /**
              * Note
              * @description Пояснение
              */
-            note?: string | null;
+            note: string | null;
             /**
              * Selected
              * @description Выбрана для подборки
              */
-            selected?: boolean | null;
+            selected: boolean | null;
         };
         /** CategoryRefIn */
         CategoryRefIn: {
@@ -5013,7 +5204,7 @@ export interface components {
             /** Pseudonym */
             pseudonym: string;
             /** Candidate Ref */
-            candidate_ref?: string | null;
+            candidate_ref: string | null;
             /** Done */
             done: number;
             /** Total */
@@ -5039,9 +5230,9 @@ export interface components {
         /** CheckSetItemOut */
         CheckSetItemOut: {
             /** Module */
-            module?: string | null;
+            module: string | null;
             /** Module Name */
-            module_name?: string | null;
+            module_name: string | null;
             /** Title */
             title: string;
             /** Status */
@@ -5049,14 +5240,14 @@ export interface components {
             /** Status Label */
             status_label: string;
             /** Is Correct */
-            is_correct?: boolean | null;
+            is_correct: boolean | null;
             /** Finished Text */
-            finished_text?: string | null;
+            finished_text: string | null;
         };
         /** CheckSetRejectedOut */
         CheckSetRejectedOut: {
             /** Ref */
-            ref?: string | null;
+            ref: string | null;
             /** Pseudonym */
             pseudonym: string;
             /** Message */
@@ -5075,7 +5266,7 @@ export interface components {
         /** CheckSetSentOut */
         CheckSetSentOut: {
             /** Ref */
-            ref?: string | null;
+            ref: string | null;
             /** Pseudonym */
             pseudonym: string;
             /** Assignments */
@@ -5233,27 +5424,27 @@ export interface components {
              * Code
              * @description Код
              */
-            code?: string | null;
+            code: string | null;
             /**
              * Language
              * @description Язык
              */
-            language?: string | null;
+            language: string | null;
             /**
              * Options
              * @description Варианты
              */
-            options?: components["schemas"]["OptionOut"][];
+            options: components["schemas"]["OptionOut"][];
             /**
              * Lines
              * @description Строки
              */
-            lines?: string[];
+            lines: string[];
             /**
              * Table
              * @description Таблица
              */
-            table?: {
+            table: {
                 [key: string]: unknown;
             } | null;
             /**
@@ -5265,19 +5456,19 @@ export interface components {
              * Key
              * @description Ключ (только для методиста)
              */
-            key?: string | number | (string | number)[] | {
+            key: string | number | (string | number)[] | {
                 [key: string]: string | number;
             } | null;
             /**
              * Distractor Tags
              * @description Теги дистракторов
              */
-            distractor_tags?: string[];
+            distractor_tags: string[];
             /**
              * Explanation
              * @description Объяснение
              */
-            explanation?: string | null;
+            explanation: string | null;
         };
         /** ClonesOut */
         ClonesOut: {
@@ -5295,7 +5486,7 @@ export interface components {
              * Difficulty
              * @description Общая сложность семейства (одна на все клоны)
              */
-            difficulty?: number | null;
+            difficulty: number | null;
             /**
              * Clones
              * @description Клоны рядом
@@ -5338,7 +5529,7 @@ export interface components {
             /** Name */
             name: string;
             /** Personal Email Label */
-            personal_email_label?: string | null;
+            personal_email_label: string | null;
             /**
              * Reliability
              * @description Строка надёжности для карточки
@@ -5347,7 +5538,7 @@ export interface components {
             /** R */
             r: number;
             /** Discrepancy Badge */
-            discrepancy_badge?: string | null;
+            discrepancy_badge: string | null;
         };
         /**
          * CompanyCardOut
@@ -5362,15 +5553,15 @@ export interface components {
             /** Name */
             name: string;
             /** Field */
-            field?: string | null;
+            field: string | null;
             /** Description */
-            description?: string | null;
+            description: string | null;
             /** Website */
-            website?: string | null;
+            website: string | null;
             /** Personal Email */
             personal_email: boolean;
             /** Personal Email Label */
-            personal_email_label?: string | null;
+            personal_email_label: string | null;
             /** Contact Methods */
             contact_methods: components["schemas"]["ContactMethodOut"][];
             reliability: components["schemas"]["ReliabilityOut"];
@@ -5466,7 +5657,7 @@ export interface components {
              * Field
              * @description Направление деятельности
              */
-            field?: string | null;
+            field: string | null;
             /**
              * Blocked
              * @description Уже в блок-листе
@@ -5561,7 +5752,7 @@ export interface components {
              * Revoked Ago
              * @description Когда отозвано
              */
-            revoked_ago?: string | null;
+            revoked_ago: string | null;
             /**
              * Active
              * @description Действует
@@ -5581,7 +5772,7 @@ export interface components {
              * Scope
              * @description Уточнение (компания для раскрытия)
              */
-            scope?: {
+            scope: {
                 [key: string]: unknown;
             };
         };
@@ -5613,12 +5804,12 @@ export interface components {
              * Revoked At
              * @description Когда отозвано (null — действует)
              */
-            revoked_at?: string | null;
+            revoked_at: string | null;
             /**
              * Scope
              * @description Уточнение (например, компания для раскрытия)
              */
-            scope?: {
+            scope: {
                 [key: string]: unknown;
             };
             /**
@@ -5719,13 +5910,13 @@ export interface components {
         /** CounterOut */
         CounterOut: {
             /** Salary From */
-            salary_from?: number | null;
+            salary_from: number | null;
             /** Format */
-            format?: string | null;
+            format: string | null;
             /** Start Date */
-            start_date?: string | null;
+            start_date: string | null;
             /** Comment */
-            comment?: string | null;
+            comment: string | null;
             /** Auto Disclose */
             auto_disclose: boolean;
             /**
@@ -5736,7 +5927,7 @@ export interface components {
             /** Within Range */
             within_range: boolean;
             /** Countered At */
-            countered_at?: string | null;
+            countered_at: string | null;
         };
         /** CoveredSkillOut */
         CoveredSkillOut: {
@@ -5803,7 +5994,7 @@ export interface components {
              * Quote
              * @description Цитата из резюме (если из резюме)
              */
-            quote?: string | null;
+            quote: string | null;
         };
         /** DeclaredOut */
         DeclaredOut: {
@@ -5836,7 +6027,7 @@ export interface components {
             /** Suggest Counter */
             suggest_counter: boolean;
             /** Hint */
-            hint?: string | null;
+            hint: string | null;
         };
         /** DeclineSummaryOut */
         DeclineSummaryOut: {
@@ -5969,19 +6160,19 @@ export interface components {
              */
             jury_mode: boolean;
             /** Jury Mode Since */
-            jury_mode_since?: string | null;
+            jury_mode_since: string | null;
             /**
              * Autoresponder
              * @description Автоответчик синтетических кандидатов включён
              */
             autoresponder: boolean;
             /** Seeded At */
-            seeded_at?: string | null;
+            seeded_at: string | null;
             /**
              * Scenario Built At
              * @description Автоответчик отвечает только на приглашения, отправленные позже этого момента
              */
-            scenario_built_at?: string | null;
+            scenario_built_at: string | null;
             /** Synthetic Candidates */
             synthetic_candidates: number;
             /**
@@ -6008,26 +6199,218 @@ export interface components {
              */
             fields: string[];
             /** Full Name */
-            full_name?: string | null;
+            full_name: string | null;
             /** Email */
-            email?: string | null;
+            email: string | null;
             /** Phone */
-            phone?: string | null;
+            phone: string | null;
             /** Telegram */
-            telegram?: string | null;
+            telegram: string | null;
             /** Resume */
-            resume?: string | null;
+            resume: string | null;
             /** Current Employer */
-            current_employer?: string | null;
+            current_employer: string | null;
             /** University */
-            university?: string | null;
+            university: string | null;
             /** City */
-            city?: string | null;
+            city: string | null;
             /**
              * Fsp Extract
              * @description Выписка из протокола ФСП с номером ЕКП
              */
-            fsp_extract?: string | null;
+            fsp_extract: string | null;
+        };
+        /** DisclosureInfoOut */
+        DisclosureInfoOut: {
+            /**
+             * Basis
+             * @description invitation | application
+             */
+            basis: string;
+            /**
+             * Fields
+             * @description Какие поля разрешил показать кандидат
+             */
+            fields: string[];
+        };
+        /**
+         * EmployerCandidateBlind
+         * @description CandidateBlind: карточка панели подборки (CandidateCardOut) как есть. В схеме НЕТ полей ПДн вообще — не «пустых»,
+         *     а отсутствующих: контракт концепции §4.5 («0 полей ПДн до взаимного да») проверяется по ключам ответа.
+         */
+        EmployerCandidateBlind: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            view: "blind";
+            /** Pseudonym */
+            pseudonym: string;
+            /** Ref */
+            ref: string;
+            /**
+             * Available
+             * @description Кандидат сейчас виден в подборе
+             */
+            available: boolean;
+            /** Note */
+            note: string | null;
+            category: components["schemas"]["CardCategoryOut"] | null;
+            /** Grade History */
+            grade_history: components["schemas"]["app__services__matching__schemas__GradeChangeOut"][];
+            /** Test Date */
+            test_date: string | null;
+            /**
+             * Skills
+             * @description Модули теста ✓ / ✓✓
+             */
+            skills: components["schemas"]["CardModuleOut"][];
+            /**
+             * Declared Skills
+             * @description Серые чипы «заявлено»
+             */
+            declared_skills: components["schemas"]["DeclaredOut"][];
+            /** Tasks */
+            tasks: components["schemas"]["CardTaskOut"][];
+            freshness: components["schemas"]["app__services__matching__schemas__FreshnessOut"] | null;
+            /** Industries */
+            industries: string[];
+            /** Formats */
+            formats: string[];
+            /** Search Mode */
+            search_mode: string | null;
+            /**
+             * Has Fsp
+             * @default false
+             */
+            has_fsp: boolean;
+            test: components["schemas"]["TestBandOut"] | null;
+            /**
+             * Fsp
+             * @description Обобщённые результаты ФСП
+             */
+            fsp: components["schemas"]["FspPublicOut"][];
+            /** Fsp Line */
+            fsp_line: string | null;
+            /** Fsp Badges */
+            fsp_badges: string[];
+            /** Fsp Source */
+            fsp_source: string | null;
+            /** @description «в вилке ✓ / выше вилки» или число */
+            salary: components["schemas"]["SalarySignalOut"] | null;
+            /**
+             * Region
+             * @description Код субъекта РФ
+             */
+            region: string | null;
+            /** @description Строка текущей версии подборки брифа */
+            selection: components["schemas"]["SelectionItemOut"] | null;
+            /** @description Раскрытые данные (только после «да») */
+            disclosed: components["schemas"]["DisclosedOut"] | null;
+        };
+        /**
+         * EmployerCandidateDisclosed
+         * @description CandidateDisclosed: та же карточка плюс плоские контакты, которые кандидат разрешил показать этой компании
+         *     (nullable: поле, которое он не разрешил, приходит null). Только при действующем ContactDisclosure пары.
+         */
+        EmployerCandidateDisclosed: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            view: "disclosed";
+            /** Pseudonym */
+            pseudonym: string;
+            /** Ref */
+            ref: string;
+            /**
+             * Available
+             * @description Кандидат сейчас виден в подборе
+             */
+            available: boolean;
+            /** Note */
+            note: string | null;
+            category: components["schemas"]["CardCategoryOut"] | null;
+            /** Grade History */
+            grade_history: components["schemas"]["app__services__matching__schemas__GradeChangeOut"][];
+            /** Test Date */
+            test_date: string | null;
+            /**
+             * Skills
+             * @description Модули теста ✓ / ✓✓
+             */
+            skills: components["schemas"]["CardModuleOut"][];
+            /**
+             * Declared Skills
+             * @description Серые чипы «заявлено»
+             */
+            declared_skills: components["schemas"]["DeclaredOut"][];
+            /** Tasks */
+            tasks: components["schemas"]["CardTaskOut"][];
+            freshness: components["schemas"]["app__services__matching__schemas__FreshnessOut"] | null;
+            /** Industries */
+            industries: string[];
+            /** Formats */
+            formats: string[];
+            /** Search Mode */
+            search_mode: string | null;
+            /**
+             * Has Fsp
+             * @default false
+             */
+            has_fsp: boolean;
+            test: components["schemas"]["TestBandOut"] | null;
+            /**
+             * Fsp
+             * @description Обобщённые результаты ФСП
+             */
+            fsp: components["schemas"]["FspPublicOut"][];
+            /** Fsp Line */
+            fsp_line: string | null;
+            /** Fsp Badges */
+            fsp_badges: string[];
+            /** Fsp Source */
+            fsp_source: string | null;
+            /** @description «в вилке ✓ / выше вилки» или число */
+            salary: components["schemas"]["SalarySignalOut"] | null;
+            /**
+             * Region
+             * @description Код субъекта РФ
+             */
+            region: string | null;
+            /** @description Строка текущей версии подборки брифа */
+            selection: components["schemas"]["SelectionItemOut"] | null;
+            /** @description Раскрытые данные (только после «да») */
+            disclosed: components["schemas"]["DisclosedOut"] | null;
+            /**
+             * Full Name
+             * @description Имя, если кандидат разрешил
+             */
+            full_name: string | null;
+            /** Photo Url */
+            photo_url: string | null;
+            /** Email */
+            email: string | null;
+            /** Phone */
+            phone: string | null;
+            /** Telegram */
+            telegram: string | null;
+            /**
+             * Resume
+             * @description Самоописание: заявлено кандидатом, в Score не входит
+             */
+            resume: string | null;
+            /** Current Employer */
+            current_employer: string | null;
+            /** University */
+            university: string | null;
+            /**
+             * City
+             * @description Город — открывается вместе с контактами
+             */
+            city: string | null;
+            /** @description Основание и состав раскрытия */
+            disclosure: components["schemas"]["DisclosureInfoOut"] | null;
         };
         /**
          * ErrorResponse
@@ -6050,7 +6433,7 @@ export interface components {
              * Details
              * @description Подробности (необязательно)
              */
-            details?: {
+            details: {
                 [key: string]: unknown;
             } | unknown[] | null;
         };
@@ -6087,7 +6470,7 @@ export interface components {
             /** Action */
             action: string;
             /** From Status */
-            from_status?: string | null;
+            from_status: string | null;
             /** To Status */
             to_status: string;
             /**
@@ -6101,7 +6484,7 @@ export interface components {
              */
             actor_role: string;
             /** Payload */
-            payload?: {
+            payload: {
                 [key: string]: unknown;
             } | null;
         };
@@ -6157,7 +6540,7 @@ export interface components {
              * Periods
              * @description Найденные периоды работы
              */
-            periods?: components["schemas"]["ExperiencePeriod"][];
+            periods: components["schemas"]["ExperiencePeriod"][];
             /**
              * Overlap Months
              * @description Сколько месяцев пересекались (посчитаны один раз)
@@ -6186,17 +6569,17 @@ export interface components {
              * Title
              * @description Должность (если распознана)
              */
-            title?: string | null;
+            title: string | null;
             /**
              * Company
              * @description Компания (если распознана)
              */
-            company?: string | null;
+            company: string | null;
             /** @description Строка с датами */
             quote: components["schemas"]["Quote"];
         };
         /** ExperiencePeriodIO */
-        ExperiencePeriodIO: {
+        "ExperiencePeriodIO-Input": {
             /**
              * Start
              * @description Начало, ГГГГ-ММ
@@ -6218,6 +6601,29 @@ export interface components {
              */
             company?: string | null;
         };
+        /** ExperiencePeriodIO */
+        "ExperiencePeriodIO-Output": {
+            /**
+             * Start
+             * @description Начало, ГГГГ-ММ
+             */
+            start: string;
+            /**
+             * End
+             * @description Конец, ГГГГ-ММ; пусто — по настоящее время
+             */
+            end: string | null;
+            /**
+             * Title
+             * @description Должность
+             */
+            title: string | null;
+            /**
+             * Company
+             * @description Компания
+             */
+            company: string | null;
+        };
         /** ExtensionIn */
         ExtensionIn: {
             /**
@@ -6237,7 +6643,7 @@ export interface components {
             /** @description Основная сессия после решения */
             session: components["schemas"]["SessionOut"];
             /** @description Сессия добора (при accept) */
-            child?: components["schemas"]["SessionOut"] | null;
+            child: components["schemas"]["SessionOut"] | null;
             /**
              * Message
              * @description Что произошло
@@ -6253,13 +6659,13 @@ export interface components {
             /** Module */
             module: string;
             /** Module Name */
-            module_name?: string | null;
+            module_name: string | null;
             /** Specializations */
             specializations: string[];
             /** Grade */
             grade: string;
             /** Grade Name */
-            grade_name?: string | null;
+            grade_name: string | null;
             /** Minutes */
             minutes: number;
             /** Format */
@@ -6306,7 +6712,7 @@ export interface components {
              * R Pb
              * @description Точечно-бисериальная корреляция
              */
-            r_pb?: number | null;
+            r_pb: number | null;
             /**
              * Cusum
              * @description Статистика CUSUM дрейфа
@@ -6326,7 +6732,7 @@ export interface components {
              * Calibrated At
              * @description Когда уточнено
              */
-            calibrated_at?: string | null;
+            calibrated_at: string | null;
         };
         /** FeedbackLinkOut */
         FeedbackLinkOut: {
@@ -6338,7 +6744,7 @@ export interface components {
             /** Skill */
             skill: string;
             /** Module */
-            module?: string | null;
+            module: string | null;
             /** Text */
             text: string;
         };
@@ -6349,7 +6755,7 @@ export interface components {
             /** Label */
             label: string;
             /** Comment */
-            comment?: string | null;
+            comment: string | null;
             /** Links */
             links: components["schemas"]["FeedbackLinkOut"][];
         };
@@ -6395,7 +6801,7 @@ export interface components {
             /** Code */
             code: string;
             /** Value */
-            value?: unknown;
+            value: unknown;
             /**
              * Label
              * @description Название фильтра
@@ -6451,11 +6857,11 @@ export interface components {
              */
             demo: boolean;
             /** @description Сессия (для logged_in); refresh — в httpOnly-cookie */
-            token?: components["schemas"]["TokenResponse"] | null;
+            token: components["schemas"]["TokenResponse"] | null;
             /** @description Для email_verification_required */
-            verification?: components["schemas"]["VerificationPendingOut"] | null;
+            verification: components["schemas"]["VerificationPendingOut"] | null;
             /** @description Состояние ФСП после привязки */
-            fsp?: components["schemas"]["FspStatusOut"] | null;
+            fsp: components["schemas"]["FspStatusOut"] | null;
         };
         /** FspAvailabilityOut */
         FspAvailabilityOut: {
@@ -6528,18 +6934,18 @@ export interface components {
         /** FspPublicOut */
         FspPublicOut: {
             /** Discipline */
-            discipline?: string | null;
+            discipline: string | null;
             /** Level */
-            level?: string | null;
+            level: string | null;
             /** Year */
-            year?: number | null;
+            year: number | null;
             /** Role */
-            role?: string | null;
+            role: string | null;
             /**
              * Place Band
              * @description Диапазон места: топ-3 / топ-10 / участник
              */
-            place_band?: string | null;
+            place_band: string | null;
         };
         /** FspResultOut */
         FspResultOut: {
@@ -6577,7 +6983,7 @@ export interface components {
              * Role
              * @description Роль в команде / личный зачёт
              */
-            role?: string | null;
+            role: string | null;
             /**
              * Outcome
              * @description Призёр / финалист / участник
@@ -6602,7 +7008,7 @@ export interface components {
              * Employer Text
              * @description Как результат видит работодатель до раскрытия (обобщённо)
              */
-            employer_text?: string | null;
+            employer_text: string | null;
             /**
              * Status Label
              * @description «Подтверждён» / «Ожидает протокол» / «Скрыт»
@@ -6613,10 +7019,10 @@ export interface components {
         FspStatusOut: {
             /**
              * State
-             * @description not_linked / linked_no_results / awaiting_protocol / linked
+             * @description not_linked / linked_no_results / awaiting_protocol / linked; registry_unavailable — реестр ФСП не ответил (причина в sync_error), это НЕ «результатов нет»
              * @enum {string}
              */
-            state: "not_linked" | "linked_no_results" | "awaiting_protocol" | "linked";
+            state: "not_linked" | "linked_no_results" | "awaiting_protocol" | "linked" | "registry_unavailable";
             /**
              * Status Line
              * @description Строка состояния для кандидата
@@ -6637,7 +7043,7 @@ export interface components {
              * Linked Ago
              * @description Когда привязан (относительно)
              */
-            linked_ago?: string | null;
+            linked_ago: string | null;
             /**
              * Consent Fsp Enrichment
              * @description Дано согласие на обогащение профиля данными ФСП
@@ -6663,32 +7069,32 @@ export interface components {
              * Source Label
              * @description Источник: «Демо-реестр ФСП» / «Реестр ФСП»
              */
-            source_label?: string | null;
+            source_label: string | null;
             /**
              * Data Ago
              * @description Когда получены данные реестра (относительно)
              */
-            data_ago?: string | null;
+            data_ago: string | null;
             /**
              * Sync Status
              * @description ok / error / pending — последняя синхронизация
              */
-            sync_status?: string | null;
+            sync_status: string | null;
             /**
              * Sync Error
              * @description Почему не удалось обновить данные
              */
-            sync_error?: string | null;
+            sync_error: string | null;
             /**
              * Results
              * @description Результаты из реестра
              */
-            results?: components["schemas"]["FspResultOut"][];
+            results: components["schemas"]["FspResultOut"][];
             /**
              * Badges
              * @description Разряды и роли: «КМС до 2027», «судья-эксперт (1К)»
              */
-            badges?: string[];
+            badges: string[];
             /**
              * Employer Line
              * @description Строка ФСП в слепой карточке работодателя
@@ -6698,12 +7104,12 @@ export interface components {
              * Strength
              * @description Подтверждённая сила по дисциплинам
              */
-            strength?: components["schemas"]["FspStrengthOut"][];
+            strength: components["schemas"]["FspStrengthOut"][];
             /**
              * Extract
              * @description Выписка из протокола (моноширинный текст) — так её увидит компания после раскрытия
              */
-            extract?: string | null;
+            extract: string | null;
             /**
              * Pending Count
              * @description Сколько результатов ждут протокола
@@ -6740,9 +7146,9 @@ export interface components {
              * Label
              * @description Подпись для человека (например, «Middle», «Москва»)
              */
-            label?: string | null;
+            label: string | null;
             /** @description Откуда взято */
-            quote?: components["schemas"]["Quote"] | null;
+            quote: components["schemas"]["Quote"] | null;
             /**
              * Source
              * @description rules — правила, llm — языковая модель с проверенной цитатой
@@ -6757,7 +7163,7 @@ export interface components {
              */
             confidence: number;
             /** @description Фамилия, имя, отчество */
-            parts?: components["schemas"]["NameParts"];
+            parts: components["schemas"]["NameParts"];
         };
         /** GradeCardOut */
         GradeCardOut: {
@@ -6780,7 +7186,7 @@ export interface components {
              * Anchor
              * @description Поведенческий якорь для карточки
              */
-            anchor?: string | null;
+            anchor: string | null;
             /**
              * Suggested
              * @description Подсказка по стажу указывает на этот грейд
@@ -6987,7 +7393,7 @@ export interface components {
             salary: components["schemas"]["SalaryOut"];
             /** Title */
             title: string;
-            company?: components["schemas"]["CompanyBriefOut"] | null;
+            company: components["schemas"]["CompanyBriefOut"] | null;
             /** Status */
             status: string;
             /** Status Label */
@@ -6995,9 +7401,9 @@ export interface components {
             /** Is New */
             is_new: boolean;
             /** Caution */
-            caution?: string | null;
+            caution: string | null;
             /** Sent Text */
-            sent_text?: string | null;
+            sent_text: string | null;
             timers: components["schemas"]["TimersOut"];
         };
         /** InvitationCandidateDetail */
@@ -7010,7 +7416,7 @@ export interface components {
             salary: components["schemas"]["SalaryOut"];
             /** Title */
             title: string;
-            company?: components["schemas"]["CompanyCardOut"] | null;
+            company: components["schemas"]["CompanyCardOut"] | null;
             /** Status */
             status: string;
             /** Status Label */
@@ -7018,11 +7424,11 @@ export interface components {
             /** Is New */
             is_new: boolean;
             /** Caution */
-            caution?: string | null;
+            caution: string | null;
             /** Caution Reasons */
             caution_reasons: string[];
             /** Sent Text */
-            sent_text?: string | null;
+            sent_text: string | null;
             timers: components["schemas"]["TimersOut"];
             terms: components["schemas"]["TermsOut"];
             /** Terms History */
@@ -7030,9 +7436,9 @@ export interface components {
             /** Why You */
             why_you: string[];
             /** Salary Vs Min */
-            salary_vs_min?: string | null;
-            counter?: components["schemas"]["CounterOut"] | null;
-            counter_limits?: components["schemas"]["CounterLimitsOut"] | null;
+            salary_vs_min: string | null;
+            counter: components["schemas"]["CounterOut"] | null;
+            counter_limits: components["schemas"]["CounterLimitsOut"] | null;
             /** Decline Reasons */
             decline_reasons: components["schemas"]["DeclineReasonOut"][];
             consent: components["schemas"]["ConsentInfoOut"];
@@ -7043,15 +7449,15 @@ export interface components {
             /** Can Dispute */
             can_dispute: boolean;
             /** Outcome */
-            outcome?: string | null;
+            outcome: string | null;
             /** Outcome Label */
-            outcome_label?: string | null;
+            outcome_label: string | null;
             /** Outcome Check Options */
-            outcome_check_options?: {
+            outcome_check_options: {
                 [key: string]: string;
             } | null;
             /** Outcome Check */
-            outcome_check?: string | null;
+            outcome_check: string | null;
             /** Feedback */
             feedback: components["schemas"]["FeedbackOut"][];
             /** Actions */
@@ -7121,11 +7527,11 @@ export interface components {
              * Candidate Ref
              * @description Непрозрачная ссылка на кандидата в рамках компании
              */
-            candidate_ref?: string | null;
+            candidate_ref: string | null;
             /** Need Id */
-            need_id?: string | null;
+            need_id: string | null;
             /** Vacancy Id */
-            vacancy_id?: string | null;
+            vacancy_id: string | null;
             /** Status */
             status: string;
             /** Status Label */
@@ -7139,7 +7545,7 @@ export interface components {
              */
             sent_at: string;
             /** Sent Text */
-            sent_text?: string | null;
+            sent_text: string | null;
             /** Viewed */
             viewed: boolean;
             /** Contacts Open */
@@ -7151,22 +7557,22 @@ export interface components {
             /** Disputed */
             disputed: boolean;
             /** Stage */
-            stage?: string | null;
+            stage: string | null;
             /** Outcome */
-            outcome?: string | null;
+            outcome: string | null;
             /** Flags */
             flags: string[];
             /** Score */
-            score?: number | null;
+            score: number | null;
             /** Rank At Send */
-            rank_at_send?: number | null;
-            counter?: components["schemas"]["CounterOut"] | null;
+            rank_at_send: number | null;
+            counter: components["schemas"]["CounterOut"] | null;
             /** Decline Reason */
-            decline_reason?: string | null;
+            decline_reason: string | null;
             /** Decline Reason Label */
-            decline_reason_label?: string | null;
+            decline_reason_label: string | null;
             /** Decline Comment */
-            decline_comment?: string | null;
+            decline_comment: string | null;
             timers: components["schemas"]["TimersOut"];
             /**
              * Actions
@@ -7187,11 +7593,11 @@ export interface components {
              * Candidate Ref
              * @description Непрозрачная ссылка на кандидата в рамках компании
              */
-            candidate_ref?: string | null;
+            candidate_ref: string | null;
             /** Need Id */
-            need_id?: string | null;
+            need_id: string | null;
             /** Vacancy Id */
-            vacancy_id?: string | null;
+            vacancy_id: string | null;
             /** Status */
             status: string;
             /** Status Label */
@@ -7205,7 +7611,7 @@ export interface components {
              */
             sent_at: string;
             /** Sent Text */
-            sent_text?: string | null;
+            sent_text: string | null;
             /** Viewed */
             viewed: boolean;
             /** Contacts Open */
@@ -7217,22 +7623,22 @@ export interface components {
             /** Disputed */
             disputed: boolean;
             /** Stage */
-            stage?: string | null;
+            stage: string | null;
             /** Outcome */
-            outcome?: string | null;
+            outcome: string | null;
             /** Flags */
             flags: string[];
             /** Score */
-            score?: number | null;
+            score: number | null;
             /** Rank At Send */
-            rank_at_send?: number | null;
-            counter?: components["schemas"]["CounterOut"] | null;
+            rank_at_send: number | null;
+            counter: components["schemas"]["CounterOut"] | null;
             /** Decline Reason */
-            decline_reason?: string | null;
+            decline_reason: string | null;
             /** Decline Reason Label */
-            decline_reason_label?: string | null;
+            decline_reason_label: string | null;
             /** Decline Comment */
-            decline_comment?: string | null;
+            decline_comment: string | null;
             timers: components["schemas"]["TimersOut"];
             /**
              * Actions
@@ -7245,19 +7651,14 @@ export interface components {
             why_you: string[];
             /** Caution */
             caution: string[];
-            /** Score Snapshot */
-            score_snapshot?: {
-                [key: string]: unknown;
-            } | null;
+            score_snapshot: components["schemas"]["ScoreSnapshotOut"] | null;
             /** Events */
             events: components["schemas"]["EventOut"][];
             /**
              * Candidate
              * @description CandidateBlind до взаимного «да», CandidateDisclosed — при действующем согласии
              */
-            candidate: {
-                [key: string]: unknown;
-            };
+            candidate: components["schemas"]["EmployerCandidateBlind"] | components["schemas"]["EmployerCandidateDisclosed"];
         };
         /** InvitationInboxOut */
         InvitationInboxOut: {
@@ -7277,9 +7678,9 @@ export interface components {
             description: string;
             salary: components["schemas"]["SalaryOut"];
             /** Format Label */
-            format_label?: string | null;
+            format_label: string | null;
             /** Contact Method Label */
-            contact_method_label?: string | null;
+            contact_method_label: string | null;
             /** Respond In Days */
             respond_in_days: number;
             company: components["schemas"]["CompanyCardOut"];
@@ -7287,7 +7688,7 @@ export interface components {
              * Caution
              * @description Плашка «Требует осторожности», если сработали стоп-слова
              */
-            caution?: string | null;
+            caution: string | null;
             /** Caution Reasons */
             caution_reasons: string[];
             /** Checks */
@@ -7359,27 +7760,27 @@ export interface components {
              * Code
              * @description Код (моноширинным шрифтом)
              */
-            code?: string | null;
+            code: string | null;
             /**
              * Language
              * @description Язык кода
              */
-            language?: string | null;
+            language: string | null;
             /**
              * Options
              * @description Варианты (выбор) или исправления (клик по строке)
              */
-            options?: components["schemas"]["OptionOut"][];
+            options: components["schemas"]["OptionOut"][];
             /**
              * Lines
              * @description Строки: клик по строке или фрагменты для упорядочивания
              */
-            lines?: string[];
+            lines: string[];
             /**
              * Table
              * @description Мини-таблица для SQL-заданий (NULL — значение None)
              */
-            table?: {
+            table: {
                 [key: string]: unknown;
             } | null;
             /**
@@ -7391,7 +7792,7 @@ export interface components {
              * Answer Hint
              * @description Что именно ввести
              */
-            answer_hint?: string | null;
+            answer_hint: string | null;
             /**
              * Answer Format
              * @description Формат ответа: строка; id варианта; {"line": номер с 1, "fix": id}; список строк или индексов с 0
@@ -7417,7 +7818,7 @@ export interface components {
              * Clip
              * @description Защита от подсказчика: данные для обработчика копирования на странице теста (вариант текста для буфера, карта подмены, render_id). null — защита для этого задания не включена
              */
-            clip?: {
+            clip: {
                 [key: string]: unknown;
             } | null;
         };
@@ -7447,7 +7848,7 @@ export interface components {
              * Answer Text
              * @description Текст верного варианта (для выбора из списка)
              */
-            answer_text?: string | null;
+            answer_text: string | null;
             /** Demo Assisted */
             demo_assisted: boolean;
             /** Note */
@@ -7483,9 +7884,9 @@ export interface components {
             /** Decline Summary */
             decline_summary: components["schemas"]["DeclineSummaryOut"][];
             /** Decline Hint */
-            decline_hint?: string | null;
+            decline_hint: string | null;
             /** Avg Rank At Send */
-            avg_rank_at_send?: number | null;
+            avg_rank_at_send: number | null;
             quota: components["schemas"]["QuotaOut"];
         };
         /** LLMInfo */
@@ -7499,7 +7900,7 @@ export interface components {
              * Provider
              * @description yandexgpt | gigachat
              */
-            provider?: string | null;
+            provider: string | null;
             /**
              * Added
              * @description Сколько полей добавила модель (каждое — с проверенной цитатой)
@@ -7531,12 +7932,12 @@ export interface components {
              * Candidate Id
              * @description Кандидат
              */
-            candidate_id?: string | null;
+            candidate_id: string | null;
             /**
              * Session Status
              * @description Статус сессии
              */
-            session_status?: string | null;
+            session_status: string | null;
             /**
              * Kind
              * @description Вид флага
@@ -7551,7 +7952,7 @@ export interface components {
              * Value
              * @description Значение статистики
              */
-            value?: number | null;
+            value: number | null;
             /**
              * Message
              * @description Описание
@@ -7561,17 +7962,17 @@ export interface components {
              * Family Id
              * @description Семейство (для «чужого ключа»)
              */
-            family_id?: string | null;
+            family_id: string | null;
             /**
              * Source Session Id
              * @description «Чужой ключ» → источник: сессия
              */
-            source_session_id?: string | null;
+            source_session_id: string | null;
             /**
              * Evidence
              * @description Доказательства сигнала защиты от подсказчика (только для методиста)
              */
-            evidence?: {
+            evidence: {
                 [key: string]: unknown;
             } | null;
             /**
@@ -7583,7 +7984,7 @@ export interface components {
              * Dispute Text
              * @description Возражение кандидата
              */
-            dispute_text?: string | null;
+            dispute_text: string | null;
             /**
              * Created At
              * Format: date-time
@@ -7603,7 +8004,7 @@ export interface components {
              * Candidate Id
              * @description Кандидат
              */
-            candidate_id?: string | null;
+            candidate_id: string | null;
             /**
              * Specialization
              * @description Специализация
@@ -7628,7 +8029,7 @@ export interface components {
              * Decision
              * @description Решение
              */
-            decision?: string | null;
+            decision: string | null;
             /**
              * N Items
              * @description Показано заданий
@@ -7638,12 +8039,12 @@ export interface components {
              * Score
              * @description Балл по итогам
              */
-            score?: number | null;
+            score: number | null;
             /**
              * Trust
              * @description Доверие
              */
-            trust?: number | null;
+            trust: number | null;
             /**
              * Flags Open
              * @description Открытых флагов
@@ -7658,17 +8059,17 @@ export interface components {
              * Parent Session Id
              * @description Основная сессия (для добора)
              */
-            parent_session_id?: string | null;
+            parent_session_id: string | null;
             /**
              * Started At
              * @description Начало
              */
-            started_at?: string | null;
+            started_at: string | null;
             /**
              * Finished At
              * @description Окончание
              */
-            finished_at?: string | null;
+            finished_at: string | null;
         };
         /** LabVerificationKitOut */
         LabVerificationKitOut: {
@@ -7746,17 +8147,17 @@ export interface components {
              * Label Ru
              * @description Пометка «не откалибровано»
              */
-            label_ru?: string | null;
+            label_ru: string | null;
             /**
              * Variant Code
              * @description Вариант кандидата, по которому вопрос
              */
-            variant_code?: string | null;
+            variant_code: string | null;
             /**
              * Method
              * @description literal_mutation | family_reseed | template
              */
-            method?: string | null;
+            method: string | null;
             /**
              * Verified By
              * @description execution | generator | none — чем получен ожидаемый ответ
@@ -7766,39 +8167,39 @@ export interface components {
              * Candidate Answer
              * @description Что ответил кандидат (если цитирование безопасно)
              */
-            candidate_answer?: string | null;
+            candidate_answer: string | null;
             /**
              * Changed
              * @description Что изменено: было, стало, строка
              */
-            changed?: {
+            changed: {
                 [key: string]: unknown;
             } | null;
             /**
              * Variant Text
              * @description Текст изменённого задания
              */
-            variant_text?: string | null;
+            variant_text: string | null;
             /**
              * Expected Answer
              * @description Ожидаемый ответ, вычисленный исполнением
              */
-            expected_answer?: string | null;
+            expected_answer: string | null;
             /**
              * Family Id
              * @description Семейство (только методисту)
              */
-            family_id?: string | null;
+            family_id: string | null;
             /**
              * Seed
              * @description Seed экземпляра (только методисту)
              */
-            seed?: number | null;
+            seed: number | null;
             /**
              * Selection Reason
              * @description Почему выбрано это задание (только методисту)
              */
-            selection_reason?: string | null;
+            selection_reason: string | null;
         };
         /** LevelLineOut */
         LevelLineOut: {
@@ -7873,9 +8274,9 @@ export interface components {
             /** Mean */
             mean: number | null;
             /** Ci Low */
-            ci_low?: number | null;
+            ci_low: number | null;
             /** Ci High */
-            ci_high?: number | null;
+            ci_high: number | null;
             /** N Briefs */
             n_briefs: number;
         };
@@ -7967,11 +8368,11 @@ export interface components {
         /** NameParts */
         NameParts: {
             /** Last */
-            last?: string | null;
+            last: string | null;
             /** First */
-            first?: string | null;
+            first: string | null;
             /** Middle */
-            middle?: string | null;
+            middle: string | null;
         };
         /** NeedCreateIn */
         NeedCreateIn: {
@@ -8064,7 +8465,7 @@ export interface components {
              */
             status: string;
             /** Close Reason */
-            close_reason?: string | null;
+            close_reason: string | null;
             /** Specialization */
             specialization: string | null;
             /** Grade */
@@ -8112,12 +8513,12 @@ export interface components {
              * Warnings
              * @description Мягкие предупреждения (широкая вилка)
              */
-            warnings?: components["schemas"]["WarningOut"][];
+            warnings: components["schemas"]["WarningOut"][];
             /**
              * Categories
              * @description Категории брифа и их выбор
              */
-            categories?: components["schemas"]["CategoryRecOut"][];
+            categories: components["schemas"]["CategoryRecOut"][];
         };
         /** NeedPatchIn */
         NeedPatchIn: {
@@ -8226,7 +8627,7 @@ export interface components {
              */
             status: string;
             /** Close Reason */
-            close_reason?: string | null;
+            close_reason: string | null;
             /** Specialization */
             specialization: string | null;
             /** Grade */
@@ -8297,12 +8698,12 @@ export interface components {
             /** @description Состояние сессии */
             session: components["schemas"]["SessionOut"];
             /** @description Текущее задание (null — тест завершён) */
-            item?: components["schemas"]["ItemOut"] | null;
+            item: components["schemas"]["ItemOut"] | null;
             /**
              * Message
              * @description Пояснение («без кнопки „назад“», «тест завершён» и т. п.)
              */
-            message?: string | null;
+            message: string | null;
         };
         /** NotificationListOut */
         NotificationListOut: {
@@ -8327,9 +8728,9 @@ export interface components {
             /** Message */
             message: string;
             /** Entity Type */
-            entity_type?: string | null;
+            entity_type: string | null;
             /** Entity Id */
-            entity_id?: string | null;
+            entity_id: string | null;
             /** Payload */
             payload: {
                 [key: string]: unknown;
@@ -8397,7 +8798,7 @@ export interface components {
             /** Label */
             label: string;
             /** Company */
-            company?: {
+            company: {
                 [key: string]: unknown;
             } | null;
         };
@@ -8426,19 +8827,19 @@ export interface components {
             /** Message */
             message: string;
             /** Correct */
-            correct?: boolean | null;
+            correct: boolean | null;
             /** Timed Out */
-            timed_out?: boolean | null;
+            timed_out: boolean | null;
             /** Explanation */
-            explanation?: string | null;
+            explanation: string | null;
             /** Correct Answer */
-            correct_answer?: unknown | null;
+            correct_answer: unknown | null;
             /** Misconception */
-            misconception?: string | null;
+            misconception: string | null;
             /** Upgrade Hint */
-            upgrade_hint?: string | null;
+            upgrade_hint: string | null;
             /** Paused Until Text */
-            paused_until_text?: string | null;
+            paused_until_text: string | null;
         };
         /** PairsIn */
         PairsIn: {
@@ -8529,7 +8930,7 @@ export interface components {
              * Categories
              * @description Рекомендованные категории (1–3)
              */
-            categories?: components["schemas"]["CategoryRecOut"][];
+            categories: components["schemas"]["CategoryRecOut"][];
         };
         /** PasswordResetConfirmRequest */
         PasswordResetConfirmRequest: {
@@ -8709,7 +9110,7 @@ export interface components {
              * Notes
              * @description Пояснения к превью
              */
-            notes?: string[];
+            notes: string[];
         };
         /** PrivacyOptionsOut */
         PrivacyOptionsOut: {
@@ -8745,7 +9146,7 @@ export interface components {
              * Salary Min
              * @description Минимум зарплаты, ₽/мес
              */
-            salary_min?: number | null;
+            salary_min: number | null;
             /**
              * Salary Type
              * @description net — на руки, gross — до НДФЛ
@@ -8760,16 +9161,16 @@ export interface components {
              * Weekly Invite Limit
              * @description Новых приглашений в неделю: 3/5/10; null — без ограничений
              */
-            weekly_invite_limit?: number | null;
+            weekly_invite_limit: number | null;
             /**
              * Formats
              * @description Подходящие форматы
              */
-            formats?: string[];
+            formats: string[];
             /** @description Субъект РФ (виден до раскрытия) */
-            region?: components["schemas"]["CodeName"] | null;
+            region: components["schemas"]["CodeName"] | null;
             /** @description Город (виден после раскрытия) */
-            city?: components["schemas"]["CodeName"] | null;
+            city: components["schemas"]["CodeName"] | null;
             /**
              * Relocation
              * @description Готов к переезду
@@ -8779,17 +9180,17 @@ export interface components {
              * Available From
              * @description Готов выйти с
              */
-            available_from?: string | null;
+            available_from: string | null;
             /**
              * Blocked Companies
              * @description Блок-лист: эти компании вас не видят
              */
-            blocked_companies?: components["schemas"]["BlockedCompanyOut"][];
+            blocked_companies: components["schemas"]["BlockedCompanyOut"][];
             /**
              * Field Visibility
              * @description Что компания увидит после взаимного «да»
              */
-            field_visibility?: components["schemas"]["FieldVisibilityOut"][];
+            field_visibility: components["schemas"]["FieldVisibilityOut"][];
             /** @description Видны ли вы работодателям */
             bank: components["schemas"]["BankStatusOut"];
             /** @description Справочники для формы */
@@ -8901,7 +9302,7 @@ export interface components {
              * Quotes
              * @description Цитаты-основания
              */
-            quotes?: components["schemas"]["QuoteOut"][];
+            quotes: components["schemas"]["QuoteOut"][];
         };
         /** ProfileOut */
         ProfileOut: {
@@ -8920,90 +9321,90 @@ export interface components {
              * Full Name
              * @description ФИО — раскрывается только после взаимного «да»
              */
-            full_name?: string | null;
+            full_name: string | null;
             /**
              * Contact Email
              * @description Email для связи (по умолчанию — email аккаунта)
              */
-            contact_email?: string | null;
+            contact_email: string | null;
             /**
              * Phone
              * @description Телефон
              */
-            phone?: string | null;
+            phone: string | null;
             /**
              * Telegram
              * @description Telegram
              */
-            telegram?: string | null;
+            telegram: string | null;
             /** @description Город (работодатель видит только субъект РФ до раскрытия) */
-            city?: components["schemas"]["CodeName"] | null;
+            city: components["schemas"]["CodeName"] | null;
             /**
              * City Text
              * @description Город, если его нет в справочнике
              */
-            city_text?: string | null;
+            city_text: string | null;
             /** @description Субъект РФ */
-            region?: components["schemas"]["CodeName"] | null;
+            region: components["schemas"]["CodeName"] | null;
             /**
              * Current Employer
              * @description Текущий работодатель — скрыт до раскрытия
              */
-            current_employer?: string | null;
+            current_employer: string | null;
             /**
              * Education
              * @description Образование (необязательно) — скрыто до раскрытия
              */
-            education?: string | null;
+            education: string | null;
             /**
              * Birth Year
              * @description Год рождения — никогда не показывается, только политика по несовершеннолетним
              */
-            birth_year?: number | null;
+            birth_year: number | null;
             /** @description Грейд «как заявлен» — подсказка, категорию даёт только тест */
-            declared_grade?: components["schemas"]["CodeName"] | null;
+            declared_grade: components["schemas"]["CodeName"] | null;
             /**
              * Roles
              * @description Роли
              */
-            roles?: components["schemas"]["DeclaredItemOut"][];
+            roles: components["schemas"]["DeclaredItemOut"][];
             /**
              * Skills
              * @description Заявленные навыки (серые чипы «заявлено»)
              */
-            skills?: components["schemas"]["DeclaredItemOut"][];
+            skills: components["schemas"]["DeclaredItemOut"][];
             /**
              * Soft Skills
              * @description Софт-скиллы
              */
-            soft_skills?: components["schemas"]["DeclaredItemOut"][];
+            soft_skills: components["schemas"]["DeclaredItemOut"][];
             /**
              * Experience Months
              * @description Стаж в месяцах
              */
-            experience_months?: number | null;
+            experience_months: number | null;
             /**
              * Experience Label
              * @description Стаж словами: «6 лет 2 мес.»
              */
-            experience_label?: string | null;
+            experience_label: string | null;
             /**
              * Experience
              * @description Периоды работы
              */
-            experience?: components["schemas"]["ExperiencePeriodIO"][];
+            experience: components["schemas"]["ExperiencePeriodIO-Output"][];
             /**
              * Industries
              * @description Отрасли интереса
              */
-            industries?: components["schemas"]["CodeName"][];
+            industries: components["schemas"]["CodeName"][];
             /** @description Состояние загруженного резюме */
             resume: components["schemas"]["ResumeStateOut"];
             /**
              * Missing
              * @description Что ещё стоит заполнить
              */
-            missing?: string[];
+            missing: string[];
             /**
              * Note
              * @description Напоминание: заявленное не влияет на категорию и место в подборке
@@ -9048,7 +9449,7 @@ export interface components {
              * Hidden
              * @description Что скрыто в этой версии
              */
-            hidden?: string[];
+            hidden: string[];
         };
         /**
          * ProfileUpdateIn
@@ -9124,7 +9525,7 @@ export interface components {
              * Experience
              * @description Периоды работы
              */
-            experience?: components["schemas"]["ExperiencePeriodIO"][] | null;
+            experience?: components["schemas"]["ExperiencePeriodIO-Input"][] | null;
             /**
              * Industries
              * @description Коды отраслей (config/taxonomy.yaml)
@@ -9159,24 +9560,24 @@ export interface components {
              */
             status_ru: string;
             /** @description Подтверждённый грейд */
-            grade?: components["schemas"]["GradeRef"] | null;
+            grade: components["schemas"]["GradeRef"] | null;
             /** @description Категория */
-            category?: components["schemas"]["CodeLabel"] | null;
+            category: components["schemas"]["CodeLabel"] | null;
             /**
              * Score
              * @description Балл
              */
-            score?: number | null;
+            score: number | null;
             /**
              * Interval80
              * @description 80%-интервал балла с поправкой на давность
              */
-            interval80?: number[];
+            interval80: number[];
             /**
              * Confidence Pct
              * @description Уверенность, %
              */
-            confidence_pct?: number | null;
+            confidence_pct: number | null;
             /**
              * Borderline
              * @description Подтверждён на границе
@@ -9186,7 +9587,7 @@ export interface components {
              * Trust
              * @description Доверие: высокое / сниженное / на проверке
              */
-            trust?: string | null;
+            trust: string | null;
             /**
              * Hidden
              * @description Скрыт из витрины до решения методиста
@@ -9196,39 +9597,39 @@ export interface components {
              * Hidden Message
              * @description «Результат скрыт до решения методиста, ≤ 7 дней»
              */
-            hidden_message?: string | null;
+            hidden_message: string | null;
             /** @description Актуальность */
-            freshness?: components["schemas"]["app__services__testing__schemas__FreshnessOut"] | null;
+            freshness: components["schemas"]["app__services__testing__schemas__FreshnessOut"] | null;
             /**
              * Modules Confirmed
              * @description Подтверждено тестом
              */
-            modules_confirmed?: components["schemas"]["ModuleTagOut"][];
+            modules_confirmed: components["schemas"]["ModuleTagOut"][];
             /**
              * Modules Declared
              * @description Заявлено в опросе (серым)
              */
-            modules_declared?: components["schemas"]["CodeLabel"][];
+            modules_declared: components["schemas"]["CodeLabel"][];
             /**
              * Next Change Allowed At
              * @description Ближайшая смена грейда
              */
-            next_change_allowed_at?: string | null;
+            next_change_allowed_at: string | null;
             /**
              * Next Change In
              * @description То же — относительно
              */
-            next_change_in?: string | null;
+            next_change_in: string | null;
             /**
              * Next Attempt Allowed At
              * @description Ближайшая попытка
              */
-            next_attempt_allowed_at?: string | null;
+            next_attempt_allowed_at: string | null;
             /**
              * Next Attempt In
              * @description То же — относительно
              */
-            next_attempt_in?: string | null;
+            next_attempt_in: string | null;
             /** @description Можно ли начать тест */
             can_start: components["schemas"]["RuleCheckOut"];
             /** @description Можно ли пройти тест на повышение */
@@ -9237,17 +9638,17 @@ export interface components {
              * History
              * @description Смены грейда
              */
-            history?: components["schemas"]["app__services__testing__schemas__GradeChangeOut"][];
+            history: components["schemas"]["app__services__testing__schemas__GradeChangeOut"][];
             /**
              * Attempts
              * @description Попытки и доборы
              */
-            attempts?: components["schemas"]["AttemptOut"][];
+            attempts: components["schemas"]["AttemptOut"][];
             /**
              * Flags
              * @description Свои флаги с кнопкой «оспорить»
              */
-            flags?: components["schemas"]["CandidateFlagOut"][];
+            flags: components["schemas"]["CandidateFlagOut"][];
             /**
              * Is Fullstack
              * @description Есть производная категория Fullstack
@@ -9278,7 +9679,7 @@ export interface components {
              * Options
              * @description Варианты ответа одним нажатием
              */
-            options?: components["schemas"]["QuestionOptionOut"][];
+            options: components["schemas"]["QuestionOptionOut"][];
         };
         /** QuotaOut */
         QuotaOut: {
@@ -9297,12 +9698,12 @@ export interface components {
              * Reduced Reason
              * @description Почему квота снижена ×0,5
              */
-            reduced_reason?: string | null;
+            reduced_reason: string | null;
             /**
              * Next Slot In
              * @description Когда освободится слот (относительно)
              */
-            next_slot_in?: string | null;
+            next_slot_in: string | null;
         };
         /**
          * Quote
@@ -9328,7 +9729,7 @@ export interface components {
              * Page
              * @description Страница PDF (с 1)
              */
-            page?: number | null;
+            page: number | null;
         };
         /** QuoteOut */
         QuoteOut: {
@@ -9443,7 +9844,7 @@ export interface components {
             /** Code */
             code: string;
             /** Component */
-            component?: string | null;
+            component: string | null;
             /** Text */
             text: string;
         };
@@ -9526,7 +9927,7 @@ export interface components {
             /** P75 */
             p75: number | null;
             /** Note */
-            note?: string | null;
+            note: string | null;
         };
         /** ReachPointOut */
         ReachPointOut: {
@@ -9655,7 +10056,7 @@ export interface components {
              * Session Id
              * @description Сессия (для песочницы — нет)
              */
-            session_id?: string | null;
+            session_id: string | null;
             /**
              * Label
              * @description Подпись: «Сессия кандидата Илья К., задание 7, вариант 7F3A»
@@ -9710,7 +10111,7 @@ export interface components {
              * Strength
              * @description exact (ключ копии) | err_twin | token
              */
-            strength?: string | null;
+            strength: string | null;
             /**
              * Headline Ru
              * @description Что нашли, одной фразой
@@ -9750,7 +10151,7 @@ export interface components {
              * Answered At
              * @description Когда ответили
              */
-            answered_at?: string | null;
+            answered_at: string | null;
             /**
              * Demo Assisted
              * @description Сессия жюри: исключена из метрик
@@ -9852,9 +10253,9 @@ export interface components {
             /** Errors */
             errors: components["schemas"]["IssueOut"][];
             /** Warnings */
-            warnings?: components["schemas"]["IssueOut"][];
+            warnings: components["schemas"]["IssueOut"][];
             /** Notes */
-            notes?: components["schemas"]["IssueOut"][];
+            notes: components["schemas"]["IssueOut"][];
         };
         /** ReliabilityOut */
         ReliabilityOut: {
@@ -9877,7 +10278,7 @@ export interface components {
             /** Bad */
             bad: number;
             /** Discrepancy Badge */
-            discrepancy_badge?: string | null;
+            discrepancy_badge: string | null;
             /** Quota Factor */
             quota_factor: number;
         };
@@ -9957,60 +10358,60 @@ export interface components {
              * Message
              * @description Почему результат скрыт / что дальше
              */
-            message?: string | null;
+            message: string | null;
             /**
              * Headline
              * @description «Middle подтверждён · 542 · уверенность 94%»
              */
-            headline?: string | null;
+            headline: string | null;
             /** @description Решение */
-            decision?: components["schemas"]["DecisionOut"] | null;
+            decision: components["schemas"]["DecisionOut"] | null;
             /**
              * Stop Text
              * @description «Тест остановился на 13-м задании: …»
              */
-            stop_text?: string | null;
+            stop_text: string | null;
             /** @description Грейд, который даёт эта сессия */
-            confirmed_grade?: components["schemas"]["GradeRef"] | null;
+            confirmed_grade: components["schemas"]["GradeRef"] | null;
             /** @description Категория */
-            category?: components["schemas"]["CodeLabel"] | null;
+            category: components["schemas"]["CodeLabel"] | null;
             /**
              * Score
              * @description Балл на линейке 300–600
              */
-            score?: number | null;
+            score: number | null;
             /**
              * Interval80
              * @description 80%-интервал балла
              */
-            interval80?: number[];
+            interval80: number[];
             /** @description Линейка с порогами */
-            ruler?: components["schemas"]["RulerOut"] | null;
+            ruler: components["schemas"]["RulerOut"] | null;
             /**
              * Confidence Pct
              * @description Уверенность в решении у порога, %
              */
-            confidence_pct?: number | null;
+            confidence_pct: number | null;
             /**
              * Certainty
              * @description «Насколько мы уверены»: вероятности полос грейдов
              */
-            certainty?: components["schemas"]["CertaintyOut"][];
+            certainty: components["schemas"]["CertaintyOut"][];
             /**
              * By Level
              * @description Решено по уровням
              */
-            by_level?: components["schemas"]["LevelLineOut"][];
+            by_level: components["schemas"]["LevelLineOut"][];
             /**
              * By Level Text
              * @description «Junior 3/3, Middle 6/8, Senior 1/2»
              */
-            by_level_text?: string | null;
+            by_level_text: string | null;
             /**
              * Modules
              * @description Модули ✓/✓✓/~
              */
-            modules?: components["schemas"]["ModuleTagOut"][];
+            modules: components["schemas"]["ModuleTagOut"][];
             /**
              * N Shown
              * @description Показано заданий (вместе с пробными)
@@ -10020,17 +10421,17 @@ export interface components {
              * Offers
              * @description Предложения добора
              */
-            offers?: components["schemas"]["OfferOut"][];
+            offers: components["schemas"]["OfferOut"][];
             /**
              * Offers Expire At
              * @description До когда можно принять добор
              */
-            offers_expire_at?: string | null;
+            offers_expire_at: string | null;
             /**
              * Offers Expire In
              * @description То же — относительно
              */
-            offers_expire_in?: string | null;
+            offers_expire_in: string | null;
             /**
              * Review Available
              * @description Доступен разбор ошибок
@@ -10039,7 +10440,7 @@ export interface components {
             /** @description Согласие на показ слепой карточки: без него кандидата нет в банке */
             blind_card_consent: components["schemas"]["ConsentStateOut"];
             /** @description «Так вас видит работодатель» */
-            blind_card_preview?: components["schemas"]["BlindCardPreviewOut"] | null;
+            blind_card_preview: components["schemas"]["BlindCardPreviewOut"] | null;
         };
         /**
          * ResumeConfirmIn
@@ -10162,23 +10563,23 @@ export interface components {
             text_chars: number;
             llm: components["schemas"]["LLMInfo"];
             /** Sections */
-            sections?: components["schemas"]["SectionOut"][];
-            full_name?: components["schemas"]["FullNameField"] | null;
-            email?: components["schemas"]["ScalarField"] | null;
-            phone?: components["schemas"]["ScalarField"] | null;
-            telegram?: components["schemas"]["ScalarField"] | null;
-            city?: components["schemas"]["ScalarField"] | null;
-            declared_grade?: components["schemas"]["ScalarField"] | null;
-            education?: components["schemas"]["ScalarField"] | null;
+            sections: components["schemas"]["SectionOut"][];
+            full_name: components["schemas"]["FullNameField"] | null;
+            email: components["schemas"]["ScalarField"] | null;
+            phone: components["schemas"]["ScalarField"] | null;
+            telegram: components["schemas"]["ScalarField"] | null;
+            city: components["schemas"]["ScalarField"] | null;
+            declared_grade: components["schemas"]["ScalarField"] | null;
+            education: components["schemas"]["ScalarField"] | null;
             experience: components["schemas"]["ExperienceField"];
             /** Skills */
-            skills?: components["schemas"]["ListItem"][];
+            skills: components["schemas"]["ListItem"][];
             /** Roles */
-            roles?: components["schemas"]["ListItem"][];
+            roles: components["schemas"]["ListItem"][];
             /** Soft Skills */
-            soft_skills?: components["schemas"]["ListItem"][];
+            soft_skills: components["schemas"]["ListItem"][];
             /** Warnings */
-            warnings?: string[];
+            warnings: string[];
         };
         /** ResumeStateOut */
         ResumeStateOut: {
@@ -10192,12 +10593,12 @@ export interface components {
              * Uploaded Ago
              * @description Когда загружено (относительно)
              */
-            uploaded_ago?: string | null;
+            uploaded_ago: string | null;
             /**
              * Pages
              * @description Страниц в PDF
              */
-            pages?: number | null;
+            pages: number | null;
             /**
              * Has Text
              * @description Текст резюме сохранён (его увидит компания после раскрытия, если вы разрешите)
@@ -10240,27 +10641,27 @@ export interface components {
              * Code
              * @description Код вашего экземпляра
              */
-            code?: string | null;
+            code: string | null;
             /**
              * Language
              * @description Язык
              */
-            language?: string | null;
+            language: string | null;
             /**
              * Options
              * @description Варианты
              */
-            options?: components["schemas"]["OptionOut"][];
+            options: components["schemas"]["OptionOut"][];
             /**
              * Lines
              * @description Строки
              */
-            lines?: string[];
+            lines: string[];
             /**
              * Table
              * @description Таблица
              */
-            table?: {
+            table: {
                 [key: string]: unknown;
             } | null;
             /**
@@ -10272,19 +10673,19 @@ export interface components {
              * Your Answer
              * @description Ваш ответ (null — не успели или пропустили)
              */
-            your_answer?: string | number | (string | number)[] | {
+            your_answer: string | number | (string | number)[] | {
                 [key: string]: string | number;
             } | null;
             /**
              * Your Answer Text
              * @description Ваш ответ — текстом
              */
-            your_answer_text?: string | null;
+            your_answer_text: string | null;
             /**
              * Correct Answer
              * @description Верный ответ вашего экземпляра
              */
-            correct_answer?: string | number | (string | number)[] | {
+            correct_answer: string | number | (string | number)[] | {
                 [key: string]: string | number;
             } | null;
             /**
@@ -10301,12 +10702,12 @@ export interface components {
              * Explanation
              * @description Объяснение решения
              */
-            explanation?: string | null;
+            explanation: string | null;
             /**
              * Misconception
              * @description Какое заблуждение выдаёт ваш ответ (если узнали)
              */
-            misconception?: string | null;
+            misconception: string | null;
         };
         /** ReviewOut */
         ReviewOut: {
@@ -10379,12 +10780,12 @@ export interface components {
              * Available At
              * @description Когда станет доступно
              */
-            available_at?: string | null;
+            available_at: string | null;
             /**
              * Available In
              * @description Когда станет доступно — относительно («через 14 дней»)
              */
-            available_in?: string | null;
+            available_in: string | null;
         };
         /** RulerCutOut */
         RulerCutOut: {
@@ -10433,12 +10834,12 @@ export interface components {
              * Message
              * @description Пояснение для работодателя
              */
-            message?: string | null;
+            message: string | null;
             /**
              * Ratio
              * @description Отношение верха вилки к низу
              */
-            ratio?: number | null;
+            ratio: number | null;
         };
         /** SalaryOut */
         SalaryOut: {
@@ -10487,7 +10888,19 @@ export interface components {
              */
             source: string;
             /** Quotes */
-            quotes?: components["schemas"]["QuoteOut"][];
+            quotes: components["schemas"]["QuoteOut"][];
+        };
+        /**
+         * SalaryQuantilesOut
+         * @description Ожидания по зарплате «на руки», ₽/мес, округлены до ступени гистограммы (точные значения людей не показываем).
+         */
+        SalaryQuantilesOut: {
+            /** P25 */
+            p25: number;
+            /** P50 */
+            p50: number;
+            /** P75 */
+            p75: number;
         };
         /** SalarySignalOut */
         SalarySignalOut: {
@@ -10495,14 +10908,14 @@ export interface components {
              * Signal
              * @description «в вилке ✓» или «выше вилки»
              */
-            signal?: string | null;
+            signal: string | null;
             /**
              * Value
              * @description Минимум числом — только если кандидат выбрал «показывать число»
              */
-            value?: number | null;
+            value: number | null;
             /** Net */
-            net?: boolean | null;
+            net: boolean | null;
         };
         /** SandboxAnswersIn */
         SandboxAnswersIn: {
@@ -10595,7 +11008,7 @@ export interface components {
              */
             key_clipboard: string;
             /** @description Акт сверки для пойманного (или со следом) задания */
-            act?: components["schemas"]["ActOut"] | null;
+            act: components["schemas"]["ActOut"] | null;
         };
         /** SandboxItemOut */
         SandboxItemOut: {
@@ -10618,17 +11031,17 @@ export interface components {
              * Code
              * @description Код
              */
-            code?: string | null;
+            code: string | null;
             /**
              * Language
              * @description Язык
              */
-            language?: string | null;
+            language: string | null;
             /**
              * Table
              * @description Таблица для SQL
              */
-            table?: {
+            table: {
                 [key: string]: unknown;
             } | null;
             /**
@@ -10640,7 +11053,7 @@ export interface components {
              * Answer Hint
              * @description Что ввести
              */
-            answer_hint?: string | null;
+            answer_hint: string | null;
             /** @description Данные для обработчика копирования */
             clip: components["schemas"]["SandboxClipOut"];
         };
@@ -10726,9 +11139,9 @@ export interface components {
              * Label
              * @description Подпись для человека (например, «Middle», «Москва»)
              */
-            label?: string | null;
+            label: string | null;
             /** @description Откуда взято */
-            quote?: components["schemas"]["Quote"] | null;
+            quote: components["schemas"]["Quote"] | null;
             /**
              * Source
              * @description rules — правила, llm — языковая модель с проверенной цитатой
@@ -10742,6 +11155,43 @@ export interface components {
              * @default 1
              */
             confidence: number;
+        };
+        /**
+         * ScoreSnapshotOut
+         * @description Строка кандидата в подборке на момент приглашения/отклика (без id кандидата и доказательств — DECISIONS 20).
+         */
+        ScoreSnapshotOut: {
+            /**
+             * Score
+             * @description Score 0–100
+             */
+            score: number | null;
+            /**
+             * Rank
+             * @description Место в подборке брифа
+             */
+            rank: number | null;
+            /**
+             * Category
+             * @description «Специализация × грейд»
+             */
+            category: string | null;
+            /** Spec */
+            spec: string | null;
+            /** Grade */
+            grade: string | null;
+            /**
+             * Parts
+             * @description Вклады компонентов Score
+             */
+            parts: {
+                [key: string]: number;
+            };
+            /**
+             * Why You
+             * @description «Почему вы» — то, что увидел кандидат
+             */
+            why_you: string[];
         };
         /** SectionOut */
         SectionOut: {
@@ -10865,12 +11315,12 @@ export interface components {
              * Invitation Status
              * @description Код статуса активного приглашения этой компании: sent, viewed, countered, accepted
              */
-            invitation_status?: string | null;
+            invitation_status: string | null;
             /**
              * Invitation Label
              * @description Подпись статуса: «Отправлено», «Просмотрено», …
              */
-            invitation_label?: string | null;
+            invitation_label: string | null;
         };
         /** SendResultOut */
         SendResultOut: {
@@ -10947,19 +11397,19 @@ export interface components {
              * Started At
              * @description Начало
              */
-            started_at?: string | null;
+            started_at: string | null;
             /** @description Прогресс */
             progress: components["schemas"]["ProgressOut"];
             /**
              * Parent Session Id
              * @description Для добора — основная сессия
              */
-            parent_session_id?: string | null;
+            parent_session_id: string | null;
             /**
              * Child Session Id
              * @description Принятый добор (продолжение)
              */
-            child_session_id?: string | null;
+            child_session_id: string | null;
             /**
              * Finished
              * @description Ответы больше не принимаются
@@ -11054,35 +11504,35 @@ export interface components {
             /** Ok */
             ok: boolean;
             /** Event Id */
-            event_id?: string | null;
+            event_id: string | null;
             /** Signature Valid */
-            signature_valid?: boolean | null;
+            signature_valid: boolean | null;
         };
         /** SinkEventOut */
         SinkEventOut: {
             /** Received At */
-            received_at?: string | null;
+            received_at: string | null;
             /**
              * Source
              * @description platform — доставка платформы на демо-хост ATS; direct — прямой POST на приёмник
              */
             source: string;
             /** Event Id */
-            event_id?: string | null;
+            event_id: string | null;
             /** Event Type */
-            event_type?: string | null;
+            event_type: string | null;
             /** Company */
-            company?: string | null;
+            company: string | null;
             /**
              * Signature
              * @description Заголовок X-Vzaimno-Signature
              */
-            signature?: string | null;
+            signature: string | null;
             /**
              * Signature Valid
              * @description Подпись совпала с ключом компании (нет данных — null)
              */
-            signature_valid?: boolean | null;
+            signature_valid: boolean | null;
             /**
              * Attempts
              * @default 1
@@ -11094,7 +11544,7 @@ export interface components {
              */
             status: string;
             /** Payload */
-            payload?: unknown;
+            payload: unknown;
         };
         /** SinkOut */
         SinkOut: {
@@ -11140,9 +11590,9 @@ export interface components {
              */
             reason: string;
             /** @description Где навык найден в брифе */
-            quote?: components["schemas"]["QuoteOut"] | null;
+            quote: components["schemas"]["QuoteOut"] | null;
             /** @description Фраза-маркер («будут плюсом») */
-            marker?: components["schemas"]["QuoteOut"] | null;
+            marker: components["schemas"]["QuoteOut"] | null;
             /**
              * Untestable
              * @description Тестом не проверяется — проверьте на интервью
@@ -11152,7 +11602,39 @@ export interface components {
              * Modules
              * @description Модули теста, которые проверяют навык
              */
-            modules?: string[];
+            modules: string[];
+        };
+        /** SkillOut */
+        SkillOut: {
+            /**
+             * Id
+             * @description Идентификатор навыка (его принимают фильтры /api/bank и бриф)
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Category */
+            category: string;
+            /**
+             * Modules
+             * @description Модули теста, которые подтверждают навык
+             */
+            modules: string[];
+            /**
+             * Specs
+             * @description Специализации, в которых навык значим
+             */
+            specs: string[];
+            /**
+             * Testable
+             * @description Навык можно подтвердить тестом (есть модуль; иначе — только «заявлено»)
+             */
+            testable: boolean;
+            /**
+             * Untestable Reason
+             * @description Почему навык не проверяется тестом
+             */
+            untestable_reason: string | null;
         };
         /** SourcedOut */
         SourcedOut: {
@@ -11165,7 +11647,7 @@ export interface components {
              * Name
              * @description Название для показа
              */
-            name?: string | null;
+            name: string | null;
             /**
              * Source
              * @description Источник: «правило» или «вручную»
@@ -11175,7 +11657,7 @@ export interface components {
              * Quotes
              * @description Цитаты из брифа (подсветка)
              */
-            quotes?: components["schemas"]["QuoteOut"][];
+            quotes: components["schemas"]["QuoteOut"][];
         };
         /** SpecOption */
         SpecOption: {
@@ -11231,33 +11713,33 @@ export interface components {
             /** Pseudonym */
             pseudonym: string;
             /** Candidate Ref */
-            candidate_ref?: string | null;
+            candidate_ref: string | null;
             /** Status */
             status: string;
             /** Status Label */
             status_label: string;
             /** Submitted Text */
-            submitted_text?: string | null;
+            submitted_text: string | null;
             /**
              * Answer
              * @description Текст решения типа B
              */
-            answer?: unknown | null;
+            answer: unknown | null;
             /** Is Correct */
-            is_correct?: boolean | null;
+            is_correct: boolean | null;
             /**
              * Score
              * @description Доля 0..1
              */
-            score?: number | null;
+            score: number | null;
             /** Score Text */
-            score_text?: string | null;
+            score_text: string | null;
             /** Rubric Scores */
-            rubric_scores?: {
+            rubric_scores: {
                 [key: string]: number;
             } | null;
             /** Review Comment */
-            review_comment?: string | null;
+            review_comment: string | null;
             /** Can Review */
             can_review: boolean;
         };
@@ -11285,43 +11767,43 @@ export interface components {
              * Industries
              * @description Отрасли
              */
-            industries?: string[];
+            industries: string[];
             /**
              * Actions
              * @description Действия и частоты
              */
-            actions?: {
+            actions: {
                 [key: string]: string;
             };
             /**
              * Technologies
              * @description Технологии и давность
              */
-            technologies?: {
+            technologies: {
                 [key: string]: string;
             };
             /**
              * Experience Months
              * @description Стаж, месяцев
              */
-            experience_months?: number | null;
+            experience_months: number | null;
             /**
              * Roles
              * @description Роли в команде
              */
-            roles?: string[];
+            roles: string[];
             /**
              * Self Assessment
              * @description Самооценка по модулям
              */
-            self_assessment?: {
+            self_assessment: {
                 [key: string]: number;
             };
             /**
              * Chosen Spec
              * @description Выбранная специализация
              */
-            chosen_spec?: string | null;
+            chosen_spec: string | null;
         };
         /** SurveyClassificationOut */
         SurveyClassificationOut: {
@@ -11359,7 +11841,7 @@ export interface components {
              * Hint Text
              * @description Текст подсказки (ни к чему не обязывает)
              */
-            hint_text?: string | null;
+            hint_text: string | null;
             /**
              * Chosen Status
              * @description Статус выбранной специализации: active | survey_only | derived
@@ -11374,24 +11856,24 @@ export interface components {
              * Waitlist Text
              * @description Для survey_only: «Вы в листе ожидания»
              */
-            waitlist_text?: string | null;
+            waitlist_text: string | null;
             /**
              * Derived Text
              * @description Для Fullstack: как присваивается производная категория
              */
-            derived_text?: string | null;
+            derived_text: string | null;
             /**
              * Declared Modules
              * @description Серые чипы «заявлено» по технологиям опроса (в оценку не входят)
              */
             declared_modules: components["schemas"]["CodeLabel"][];
             /** @description Подсказка грейда по стажу */
-            suggested_grade?: components["schemas"]["GradeRef"] | null;
+            suggested_grade: components["schemas"]["GradeRef"] | null;
             /**
              * Suggested Grade Text
              * @description Текст подсказки по стажу
              */
-            suggested_grade_text?: string | null;
+            suggested_grade_text: string | null;
         };
         /** SurveyFormOut */
         SurveyFormOut: {
@@ -11458,37 +11940,37 @@ export interface components {
              * Completed At
              * @description Когда завершена
              */
-            completed_at?: string | null;
+            completed_at: string | null;
             /**
              * Completed Ago
              * @description Когда — относительно
              */
-            completed_ago?: string | null;
+            completed_ago: string | null;
             /**
              * Chosen Spec
              * @description Выбранная специализация
              */
-            chosen_spec?: string | null;
+            chosen_spec: string | null;
             /**
              * Chosen Name
              * @description Её название
              */
-            chosen_name?: string | null;
+            chosen_name: string | null;
             /**
              * Top
              * @description Самая вероятная по ответам
              */
-            top?: string | null;
+            top: string | null;
             /**
              * Top Name
              * @description Её название
              */
-            top_name?: string | null;
+            top_name: string | null;
             /**
              * Experience Months
              * @description Стаж, месяцев
              */
-            experience_months?: number | null;
+            experience_months: number | null;
         };
         /** SurveyIndustriesIn */
         SurveyIndustriesIn: {
@@ -11539,7 +12021,7 @@ export interface components {
              * Survey Id
              * @description Идентификатор анкеты (null — опрос ещё не начат)
              */
-            survey_id?: string | null;
+            survey_id: string | null;
             /**
              * Number
              * @description Порядковый номер анкеты кандидата (1 — первая)
@@ -11564,21 +12046,21 @@ export interface components {
              * Completed At
              * @description Когда завершён
              */
-            completed_at?: string | null;
+            completed_at: string | null;
             /**
              * Next Step
              * @description Какой шаг заполнять дальше (null — всё заполнено)
              */
-            next_step?: number | null;
+            next_step: number | null;
             /** @description Сохранённые ответы (для продолжения после обрыва) */
             answers: components["schemas"]["SurveyAnswersOut"];
             /** @description Итог классификатора после шага 4 */
-            classification?: components["schemas"]["SurveyClassificationOut"] | null;
+            classification: components["schemas"]["SurveyClassificationOut"] | null;
             /**
              * Message
              * @description Сообщение кандидату (лист ожидания и т. п.)
              */
-            message?: string | null;
+            message: string | null;
         };
         /** SyntheticOut */
         SyntheticOut: {
@@ -11654,15 +12136,15 @@ export interface components {
             /** Title */
             title: string;
             /** Family Id */
-            family_id?: string | null;
+            family_id: string | null;
             /** Module */
-            module?: string | null;
+            module: string | null;
             /** Module Name */
-            module_name?: string | null;
+            module_name: string | null;
             /** Prompt */
-            prompt?: string | null;
+            prompt: string | null;
             /** Rubric */
-            rubric?: {
+            rubric: {
                 [key: string]: unknown;
             } | null;
             audience: components["schemas"]["AudienceOut"];
@@ -11675,7 +12157,7 @@ export interface components {
             /** Is Check Set */
             is_check_set: boolean;
             /** Need Id */
-            need_id?: string | null;
+            need_id: string | null;
             /** Not Real Work Label */
             not_real_work_label: string;
             stats: components["schemas"]["TaskStatsOut"];
@@ -11691,7 +12173,7 @@ export interface components {
             /** Skipped */
             skipped: number;
             /** Avg Score */
-            avg_score?: number | null;
+            avg_score: number | null;
         };
         /** TasksLimitsOut */
         TasksLimitsOut: {
@@ -11712,11 +12194,11 @@ export interface components {
             history: components["schemas"]["AssignmentOut"][];
             limits: components["schemas"]["TasksLimitsOut"];
             /** Paused Until Text */
-            paused_until_text?: string | null;
+            paused_until_text: string | null;
             /** Next Offer Text */
-            next_offer_text?: string | null;
+            next_offer_text: string | null;
             /** Empty Text */
-            empty_text?: string | null;
+            empty_text: string | null;
         };
         /** TermsOut */
         TermsOut: {
@@ -11739,15 +12221,15 @@ export interface components {
             /** Text */
             text: string;
             /** Format */
-            format?: string | null;
+            format: string | null;
             /** Format Label */
-            format_label?: string | null;
+            format_label: string | null;
             /** Start Date */
-            start_date?: string | null;
+            start_date: string | null;
             /** Contact Method */
             contact_method: string;
             /** Contact Method Label */
-            contact_method_label?: string | null;
+            contact_method_label: string | null;
             /** Contact Value */
             contact_value: string;
             /** Conditions */
@@ -11768,39 +12250,39 @@ export interface components {
              * Band
              * @description Полоса: топ-10% / топ-25% / топ-50% категории
              */
-            band?: string | null;
+            band: string | null;
             /**
              * Interval
              * @description Интервал на линейке (80%), шаг 10
              */
-            interval?: number[] | null;
+            interval: number[] | null;
             /**
              * Score
              * @description Точный балл — только после раскрытия
              */
-            score?: number | null;
+            score: number | null;
             /**
              * Percentile
              * @description Перцентиль — только после раскрытия
              */
-            percentile?: number | null;
+            percentile: number | null;
         };
         /** TimersOut */
         TimersOut: {
             /** Respond By */
-            respond_by?: string | null;
+            respond_by: string | null;
             /** Respond By Text */
-            respond_by_text?: string | null;
+            respond_by_text: string | null;
             /** Counter Respond By */
-            counter_respond_by?: string | null;
+            counter_respond_by: string | null;
             /** Counter Respond By Text */
-            counter_respond_by_text?: string | null;
+            counter_respond_by_text: string | null;
             /** Contact Due At */
-            contact_due_at?: string | null;
+            contact_due_at: string | null;
             /** Contact Due Text */
-            contact_due_text?: string | null;
+            contact_due_text: string | null;
             /** Outcome Check At */
-            outcome_check_at?: string | null;
+            outcome_check_at: string | null;
         };
         /** TokenResponse */
         TokenResponse: {
@@ -11836,7 +12318,7 @@ export interface components {
              * Candidate Id
              * @description Кандидат
              */
-            candidate_id?: string | null;
+            candidate_id: string | null;
             /**
              * Specialization
              * @description Специализация
@@ -11871,7 +12353,7 @@ export interface components {
              * Decision
              * @description Решение
              */
-            decision?: string | null;
+            decision: string | null;
             /**
              * Labels
              * @description Подписи осей: уровень, погрешность
@@ -11893,14 +12375,14 @@ export interface components {
              * Journal
              * @description Журнал движка (снятие лимита экспозиции и т. п.)
              */
-            journal?: {
+            journal: {
                 [key: string]: unknown;
             }[];
             /**
              * Flags
              * @description Флаги сессии
              */
-            flags?: components["schemas"]["LabFlagOut"][];
+            flags: components["schemas"]["LabFlagOut"][];
         };
         /** TraceStepOut */
         TraceStepOut: {
@@ -11948,12 +12430,12 @@ export interface components {
              * Rt Ms
              * @description Время ответа, мс
              */
-            rt_ms?: number | null;
+            rt_ms: number | null;
             /**
              * Variant Code
              * @description Код варианта экземпляра
              */
-            variant_code?: string | null;
+            variant_code: string | null;
             /**
              * Difficulty
              * @description Сложность семейства на шкале
@@ -11968,27 +12450,27 @@ export interface components {
              * Level
              * @description Уровень после ответа (внутренняя шкала)
              */
-            level?: number | null;
+            level: number | null;
             /**
              * Error
              * @description Погрешность уровня после ответа
              */
-            error?: number | null;
+            error: number | null;
             /**
              * Score
              * @description Балл после ответа
              */
-            score?: number | null;
+            score: number | null;
             /**
              * P Pass
              * @description Вероятность «выше порога» после ответа
              */
-            p_pass?: number | null;
+            p_pass: number | null;
             /**
              * Reason
              * @description Почему выбрано: цель, модуль, дефицит, top-K с информацией
              */
-            reason?: {
+            reason: {
                 [key: string]: unknown;
             };
         };
@@ -12024,7 +12506,7 @@ export interface components {
              * Reason Ru
              * @description Почему двойника нет по форме
              */
-            reason_ru?: string | null;
+            reason_ru: string | null;
             /**
              * Pool Free
              * @description Свободных экземпляров в пуле
@@ -12054,12 +12536,12 @@ export interface components {
              * Share
              * @description Доля готовых двойников среди посчитанных
              */
-            share?: number | null;
+            share: number | null;
             /**
              * Top Reasons
              * @description Частые причины «двойника нет»
              */
-            top_reasons?: {
+            top_reasons: {
                 [key: string]: unknown;
             }[];
         };
@@ -12142,7 +12624,7 @@ export interface components {
              * Company Id
              * @description Компания работодателя (для employer)
              */
-            company_id?: string | null;
+            company_id: string | null;
             /**
              * Created At
              * Format: date-time
@@ -12158,43 +12640,51 @@ export interface components {
              */
             id: string;
             /** Need Id */
-            need_id?: string | null;
+            need_id: string | null;
             /** Title */
             title: string;
             /** Description */
             description: string;
             /** Specialization */
-            specialization?: string | null;
+            specialization: string | null;
             /** Grade */
-            grade?: string | null;
+            grade: string | null;
             salary: components["schemas"]["SalaryOut"];
             /** Format */
-            format?: string | null;
+            format: string | null;
             /** Format Label */
-            format_label?: string | null;
-            /** City */
-            city?: string | null;
+            format_label: string | null;
+            /**
+             * City
+             * @description Город как указан в вакансии (код справочника или текст)
+             */
+            city: string | null;
+            /**
+             * City Name
+             * @description Название города для показа: «Москва», а не moscow
+             */
+            city_name: string | null;
             /** Status */
             status: string;
             /** Published Text */
-            published_text?: string | null;
-            company?: components["schemas"]["CompanyCardOut"] | null;
+            published_text: string | null;
+            company: components["schemas"]["CompanyCardOut"] | null;
             /** Score */
-            score?: number | null;
+            score: number | null;
             /** Parts */
-            parts?: {
+            parts: {
                 [key: string]: number;
             } | null;
             /** Category */
-            category?: string | null;
+            category: string | null;
             /** How We Check */
-            how_we_check?: {
+            how_we_check: {
                 [key: string]: unknown;
             } | null;
             /** Application Status */
-            application_status?: string | null;
+            application_status: string | null;
             /** Application Id */
-            application_id?: string | null;
+            application_id: string | null;
             /** Consent */
             consent: {
                 [key: string]: unknown;
@@ -12210,44 +12700,52 @@ export interface components {
              */
             id: string;
             /** Need Id */
-            need_id?: string | null;
+            need_id: string | null;
             /** Title */
             title: string;
             /** Description */
             description: string;
             /** Specialization */
-            specialization?: string | null;
+            specialization: string | null;
             /** Grade */
-            grade?: string | null;
+            grade: string | null;
             salary: components["schemas"]["SalaryOut"];
             /** Format */
-            format?: string | null;
+            format: string | null;
             /** Format Label */
-            format_label?: string | null;
-            /** City */
-            city?: string | null;
+            format_label: string | null;
+            /**
+             * City
+             * @description Город как указан в вакансии (код справочника или текст)
+             */
+            city: string | null;
+            /**
+             * City Name
+             * @description Название города для показа: «Москва», а не moscow
+             */
+            city_name: string | null;
             /** Status */
             status: string;
             /** Published Text */
-            published_text?: string | null;
-            company?: components["schemas"]["CompanyBriefOut"] | null;
+            published_text: string | null;
+            company: components["schemas"]["CompanyBriefOut"] | null;
             /**
              * Score
              * @description Тот же Score, что видит работодатель в подборке
              */
-            score?: number | null;
+            score: number | null;
             /** Parts */
-            parts?: {
+            parts: {
                 [key: string]: number;
             } | null;
             /** Category */
-            category?: string | null;
+            category: string | null;
             /** Weak Match */
             weak_match: boolean;
             /** Application Status */
-            application_status?: string | null;
+            application_status: string | null;
             /** Application Id */
-            application_id?: string | null;
+            application_id: string | null;
         };
         /** VacancyCreateIn */
         VacancyCreateIn: {
@@ -12280,32 +12778,40 @@ export interface components {
              */
             id: string;
             /** Need Id */
-            need_id?: string | null;
+            need_id: string | null;
             /** Title */
             title: string;
             /** Description */
             description: string;
             /** Specialization */
-            specialization?: string | null;
+            specialization: string | null;
             /** Grade */
-            grade?: string | null;
+            grade: string | null;
             salary: components["schemas"]["SalaryOut"];
             /** Format */
-            format?: string | null;
+            format: string | null;
             /** Format Label */
-            format_label?: string | null;
-            /** City */
-            city?: string | null;
+            format_label: string | null;
+            /**
+             * City
+             * @description Город как указан в вакансии (код справочника или текст)
+             */
+            city: string | null;
+            /**
+             * City Name
+             * @description Название города для показа: «Москва», а не moscow
+             */
+            city_name: string | null;
             /** Status */
             status: string;
             /** Published Text */
-            published_text?: string | null;
+            published_text: string | null;
             /** Applications Total */
             applications_total: number;
             /** Applications New */
             applications_new: number;
             /** How We Check */
-            how_we_check?: {
+            how_we_check: {
                 [key: string]: unknown;
             } | null;
         };
@@ -12317,26 +12823,34 @@ export interface components {
              */
             id: string;
             /** Need Id */
-            need_id?: string | null;
+            need_id: string | null;
             /** Title */
             title: string;
             /** Description */
             description: string;
             /** Specialization */
-            specialization?: string | null;
+            specialization: string | null;
             /** Grade */
-            grade?: string | null;
+            grade: string | null;
             salary: components["schemas"]["SalaryOut"];
             /** Format */
-            format?: string | null;
+            format: string | null;
             /** Format Label */
-            format_label?: string | null;
-            /** City */
-            city?: string | null;
+            format_label: string | null;
+            /**
+             * City
+             * @description Город как указан в вакансии (код справочника или текст)
+             */
+            city: string | null;
+            /**
+             * City Name
+             * @description Название города для показа: «Москва», а не moscow
+             */
+            city_name: string | null;
             /** Status */
             status: string;
             /** Published Text */
-            published_text?: string | null;
+            published_text: string | null;
         };
         /** VacancyPatchIn */
         VacancyPatchIn: {
@@ -12429,7 +12943,7 @@ export interface components {
              * Git Sha
              * @description Коммит
              */
-            git_sha?: string | null;
+            git_sha: string | null;
             /**
              * Created At
              * Format: date-time
@@ -12541,17 +13055,17 @@ export interface components {
              * Label Ru
              * @description Пометка «не откалибровано»
              */
-            label_ru?: string | null;
+            label_ru: string | null;
             /**
              * Variant Code
              * @description Вариант кандидата, по которому вопрос
              */
-            variant_code?: string | null;
+            variant_code: string | null;
             /**
              * Method
              * @description literal_mutation | family_reseed | template
              */
-            method?: string | null;
+            method: string | null;
             /**
              * Verified By
              * @description execution | generator | none — чем получен ожидаемый ответ
@@ -12561,24 +13075,24 @@ export interface components {
              * Candidate Answer
              * @description Что ответил кандидат (если цитирование безопасно)
              */
-            candidate_answer?: string | null;
+            candidate_answer: string | null;
             /**
              * Changed
              * @description Что изменено: было, стало, строка
              */
-            changed?: {
+            changed: {
                 [key: string]: unknown;
             } | null;
             /**
              * Variant Text
              * @description Текст изменённого задания
              */
-            variant_text?: string | null;
+            variant_text: string | null;
             /**
              * Expected Answer
              * @description Ожидаемый ответ, вычисленный исполнением
              */
-            expected_answer?: string | null;
+            expected_answer: string | null;
         };
         /** VerifyCategoryOut */
         VerifyCategoryOut: {
@@ -12586,12 +13100,12 @@ export interface components {
              * Code
              * @description Код категории
              */
-            code?: string | null;
+            code: string | null;
             /**
              * Name
              * @description Категория: специализация · грейд
              */
-            name?: string | null;
+            name: string | null;
             /**
              * Borderline
              * @description Тест сдан на границе грейда
@@ -12641,82 +13155,82 @@ export interface components {
              * Variant
              * @description Версия документа
              */
-            variant?: ("blind" | "full") | null;
+            variant: ("blind" | "full") | null;
             /**
              * Variant Label
              * @description «Слепая версия» / «Полная версия»
              */
-            variant_label?: string | null;
+            variant_label: string | null;
             /**
              * Issued On
              * @description Дата выдачи
              */
-            issued_on?: string | null;
+            issued_on: string | null;
             /**
              * Holder
              * @description Псевдоним (слепая) или инициалы (полная) — без ПДн
              */
-            holder?: {
+            holder: {
                 [key: string]: unknown;
             };
             /** @description Категория из документа */
-            category?: components["schemas"]["VerifyCategoryOut"] | null;
+            category: components["schemas"]["VerifyCategoryOut"] | null;
             /**
              * Confirmed On
              * @description Дата подтверждения категории тестом
              */
-            confirmed_on?: string | null;
+            confirmed_on: string | null;
             /**
              * Confidence
              * @description Уверенность в грейде (0–1)
              */
-            confidence?: number | null;
+            confidence: number | null;
             /**
              * Session Ref
              * @description Номер сессии теста
              */
-            session_ref?: string | null;
+            session_ref: string | null;
             /**
              * Interval
              * @description 80%-интервал балла на линейке 300–600
              */
-            interval?: number[] | null;
+            interval: number[] | null;
             /**
              * Score
              * @description Точный балл (только в полной версии)
              */
-            score?: number | null;
+            score: number | null;
             /**
              * Modules
              * @description Модули теста ✓ / ✓✓
              */
-            modules?: {
+            modules: {
                 [key: string]: unknown;
             }[];
             /**
              * Fsp
              * @description ФСП: привязан ли, источник, дата данных реестра
              */
-            fsp?: {
+            fsp: {
                 [key: string]: unknown;
             };
             /**
              * Freshness
              * @description Актуальность профиля на дату выдачи
              */
-            freshness?: {
+            freshness: {
                 [key: string]: unknown;
             } | null;
             /**
              * Actual
              * @description Совпадает ли категория документа с текущей
              */
-            actual?: boolean | null;
+            actual: boolean | null;
             /**
              * Actual Note
              * @description Пояснение к актуальности
              */
-            actual_note?: string | null;
+            actual_note: string | null;
         };
         /** VersionCreateIn */
         VersionCreateIn: {
@@ -12880,7 +13394,7 @@ export interface components {
              * Build Ms
              * @description Время сборки версии, мс
              */
-            build_ms?: number | null;
+            build_ms: number | null;
         };
         /** VisibilityStatsOut */
         VisibilityStatsOut: {
@@ -12918,7 +13432,7 @@ export interface components {
              * Median Position
              * @description Медианная позиция
              */
-            median_position?: number | null;
+            median_position: number | null;
             /**
              * Profile Views
              * @description Сколько компаний открыли вашу слепую карточку
@@ -12930,12 +13444,12 @@ export interface components {
              */
             invitations: number;
             /** @description Навык, которого чаще всего не хватает */
-            missing_skill?: components["schemas"]["MissingSkillOut"] | null;
+            missing_skill: components["schemas"]["MissingSkillOut"] | null;
             /**
              * Decline Reasons
              * @description Причины отказов компаний
              */
-            decline_reasons?: components["schemas"]["ReasonCount"][];
+            decline_reasons: components["schemas"]["ReasonCount"][];
         };
         /** WarningOut */
         WarningOut: {
@@ -12969,15 +13483,15 @@ export interface components {
             /** Attempts */
             attempts: number;
             /** Response Code */
-            response_code?: number | null;
+            response_code: number | null;
             /** Response Excerpt */
-            response_excerpt?: string | null;
+            response_excerpt: string | null;
             /** Created Text */
-            created_text?: string | null;
+            created_text: string | null;
             /** Last Attempt Text */
-            last_attempt_text?: string | null;
+            last_attempt_text: string | null;
             /** Next Attempt Text */
-            next_attempt_text?: string | null;
+            next_attempt_text: string | null;
         };
         /** WebhookLogOut */
         WebhookLogOut: {
@@ -13100,12 +13614,12 @@ export interface components {
              * From Grade
              * @description Был грейд
              */
-            from_grade?: string | null;
+            from_grade: string | null;
             /**
              * To Grade
              * @description Стал грейд
              */
-            to_grade?: string | null;
+            to_grade: string | null;
             /**
              * Reason
              * @description Основание: тест, тест на повышение, …
@@ -13137,13 +13651,13 @@ export interface components {
              */
             total_minutes: number;
             /** Due Text */
-            due_text?: string | null;
+            due_text: string | null;
             /** Sent */
             sent: components["schemas"]["CheckSetSentOut"][];
             /** Rejected */
             rejected: components["schemas"]["CheckSetRejectedOut"][];
             /** Note */
-            note?: string | null;
+            note: string | null;
         };
         /** BankOut */
         app__services__testing__schemas__BankOut: {
@@ -13151,7 +13665,7 @@ export interface components {
              * Specialization
              * @description Фильтр по специализации
              */
-            specialization?: string | null;
+            specialization: string | null;
             /**
              * Total
              * @description Семейств
@@ -13204,9 +13718,9 @@ export interface components {
         /** GradeChangeOut */
         app__services__testing__schemas__GradeChangeOut: {
             /** @description Было */
-            from_grade?: components["schemas"]["GradeRef"] | null;
+            from_grade: components["schemas"]["GradeRef"] | null;
             /** @description Стало */
-            to_grade?: components["schemas"]["GradeRef"] | null;
+            to_grade: components["schemas"]["GradeRef"] | null;
             /**
              * Reason
              * @description Причина (код)
@@ -13227,7 +13741,7 @@ export interface components {
              * Ago
              * @description Когда — относительно
              */
-            ago?: string | null;
+            ago: string | null;
             /**
              * Counts As Change
              * @description Считается сменой грейда (правило 90 дней)
@@ -13247,12 +13761,12 @@ export interface components {
              */
             kinds: string[];
             /** @description Последний прогон */
-            run?: components["schemas"]["ValidationRunOut"] | null;
+            run: components["schemas"]["ValidationRunOut"] | null;
             /**
              * Message
              * @description Пояснение
              */
-            message?: string | null;
+            message: string | null;
         };
     };
     responses: never;
@@ -15468,6 +15982,135 @@ export interface operations {
             };
         };
     };
+    delete_me_api_companies_me_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AccountDeleteRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountDeleteResponse"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     preview_api_companies_me_preview_get: {
         parameters: {
             query?: never;
@@ -16240,6 +16883,135 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProfileOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    delete_me_api_candidates_me_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AccountDeleteRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountDeleteResponse"];
                 };
             };
             /** @description Некорректный запрос */
@@ -23228,6 +24000,131 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CandidateCardOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    bank_summary_api_bank_summary_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BankSummaryOut"];
                 };
             };
             /** @description Некорректный запрос */
@@ -30683,11 +31580,15 @@ export interface operations {
     };
     callback_api_fsp_callback_get: {
         parameters: {
-            query: {
+            query?: {
                 /** @description Код авторизации из адреса возврата */
-                code: string;
+                code?: string | null;
                 /** @description state из адреса возврата */
-                state: string;
+                state?: string | null;
+                /** @description Код ошибки, если ФСП ID отказал во входе */
+                error?: string | null;
+                /** @description Пояснение ошибки ФСП ID */
+                error_description?: string | null;
             };
             header?: never;
             path?: never;
@@ -30703,6 +31604,13 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["FspAuthResultOut"];
                 };
+            };
+            /** @description Переход браузера: перенаправление на страницу фронтенда */
+            303: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Некорректный запрос */
             400: {
@@ -34670,7 +35578,10 @@ export interface operations {
     clock_shift_api_demo_clock_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Ключ управления демо (VZ_DEMO_CONTROL_KEY) */
+                "X-Demo-Key"?: string | null;
+            };
             path?: never;
             cookie?: never;
         };
@@ -34799,7 +35710,10 @@ export interface operations {
     reset_api_demo_reset_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Ключ управления демо (VZ_DEMO_CONTROL_KEY) */
+                "X-Demo-Key"?: string | null;
+            };
             path?: never;
             cookie?: never;
         };
@@ -34924,7 +35838,10 @@ export interface operations {
     autoresponder_control_api_demo_autoresponder_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Ключ управления демо (VZ_DEMO_CONTROL_KEY) */
+                "X-Demo-Key"?: string | null;
+            };
             path?: never;
             cookie?: never;
         };
@@ -35053,7 +35970,10 @@ export interface operations {
     jury_mode_api_demo_jury_mode_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Ключ управления демо (VZ_DEMO_CONTROL_KEY) */
+                "X-Demo-Key"?: string | null;
+            };
             path?: never;
             cookie?: never;
         };
@@ -36340,6 +37260,136 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["app__api__admin__ValidationOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    skills_list_api_skills_get: {
+        parameters: {
+            query?: {
+                /** @description true — только проверяемые тестом, false — только непроверяемые */
+                testable?: boolean | null;
+                /** @description Только навыки, значимые для специализации */
+                spec?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SkillOut"][];
                 };
             };
             /** @description Некорректный запрос */

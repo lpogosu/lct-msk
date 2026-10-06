@@ -16,6 +16,7 @@ from dataclasses import dataclass
 from fastapi import Request
 
 from app.core.errors import too_many_requests
+from app.core.netutil import resolve_client_ip
 from app.core.settings import RateRule
 
 
@@ -84,8 +85,13 @@ class RateLimiter:
 
 
 def client_ip(request: Request) -> str:
-    """IP клиента. За прокси uvicorn запускается с --proxy-headers и подставляет X-Forwarded-For сам."""
-    return request.client.host if request.client else "unknown"
+    """IP клиента для лимитов и журналов. X-Forwarded-For учитывается только от доверенных прокси
+    (VZ_FORWARDED_ALLOW_IPS, см. app/core/netutil.py); uvicorn запускается с --no-proxy-headers, чтобы
+    правило было одно и проверялось тестами, а не зависело от флагов сервера."""
+    settings = getattr(request.app.state, "settings", None)
+    spec = settings.forwarded_allow_ips if settings is not None else "127.0.0.1"
+    peer = request.client.host if request.client else None
+    return resolve_client_ip(peer, request.headers.get("x-forwarded-for"), spec)
 
 
 def get_rate_limiter(request: Request) -> RateLimiter:

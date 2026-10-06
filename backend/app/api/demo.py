@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import asyncio
+import hmac
 import logging
 import uuid
 from collections.abc import AsyncIterator
@@ -16,13 +17,15 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import Annotated, Any, Literal
 
-from fastapi import APIRouter, Depends, FastAPI, Query, Request
+from fastapi import APIRouter, Depends, FastAPI, Header, Query, Request
+from fastapi.security import HTTPAuthorizationCredentials
 from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 from starlette.concurrency import run_in_threadpool
 
-from app.api.deps import DbSession, SettingsDep, require_roles
-from app.core.errors import error_responses, not_found
+from app.api.deps import DbSession, SettingsDep, bearer_scheme, get_current_user, require_roles
+from app.core.access import ensure_role
+from app.core.errors import error_responses, forbidden, not_found, unauthorized
 from app.db.session import get_sessionmaker
 from app.models.enums import UserRole
 from app.models.matching import CandidateAlias
@@ -74,6 +77,46 @@ router = APIRouter(
 )
 
 AnyUser = Annotated[User, Depends(require_roles(UserRole.candidate, UserRole.employer, UserRole.methodist, UserRole.admin))]
+
+DEMO_KEY_HEADER = "X-Demo-Key"
+_DEMO_ROLES = (UserRole.candidate.value, UserRole.employer.value, UserRole.methodist.value, UserRole.admin.value)
+
+
+def _optional_user(credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)], db: DbSession, settings: SettingsDep) -> User | None:
+    return get_current_user(credentials, db, settings) if credentials is not None else None
+
+
+def demo_controller(
+    user: Annotated[User | None, Depends(_optional_user)],
+    settings: SettingsDep,
+    demo_key: Annotated[str | None, Header(alias=DEMO_KEY_HEADER, description="Ключ управления демо (VZ_DEMO_CONTROL_KEY)")] = None,
+) -> User | None:
+    """Кто может двигать общие часы, сбрасывать мир, включать автоответчик и «режим жюри» (они общие для всех).
+
+    Вне prod (локальный стенд жюри) — любой вошедший, как и раньше: жюри в любой роли пользуется кнопками. В prod
+    (публичный стенд с DEMO_MODE) — только роль «администратор» или заголовок X-Demo-Key = VZ_DEMO_CONTROL_KEY: иначе
+    любой зарегистрировавшийся посетитель сбросил бы мир другим или включил подсказки всем кандидатам. Остальное в демо
+    (состояние, список аккаунтов, подсказка владельцу сессии при включённом режиме) открыто, как прежде.
+    """
+    if not settings.demo_controls_restricted:
+        if user is None:
+            raise unauthorized("not_authenticated", "Требуется вход в систему")
+        ensure_role(user, *_DEMO_ROLES)
+        return user
+    key = settings.demo_control_key
+    if key is not None and demo_key and hmac.compare_digest(demo_key.encode(), key.get_secret_value().encode()):
+        return user
+    if user is None:
+        raise unauthorized("not_authenticated", "Требуется вход в систему")
+    if user.role != UserRole.admin.value:
+        raise forbidden(
+            "demo_controls_restricted",
+            "На этом стенде часы, сброс и режим жюри переключает администратор (или ключ управления демо)",
+        )
+    return user
+
+
+ControlUser = Annotated[User | None, Depends(demo_controller)]
 CandidateUser = Annotated[User, Depends(require_roles(UserRole.candidate))]
 EmployerUser = Annotated[User, Depends(require_roles(UserRole.employer))]
 
@@ -257,10 +300,11 @@ def accounts_list(settings: SettingsDep) -> dict[str, Any]:
     summary="Сдвинуть часы демо",
     description=(
         "«+1 день», «+3 дня» или сброс смещения (app.core.clock). Двигает сроки приглашений, откликов и свежесть тестов; сразу "
-        "применяет сроки (истёкшие приглашения, «нет ответа»), смещение переживает перезапуск. Нужен вход под любой ролью."
+        "применяет сроки (истёкшие приглашения, «нет ответа»), смещение переживает перезапуск. Нужен вход под любой ролью; "
+        "на боевом стенде (VZ_ENV=prod) — только администратор или заголовок X-Demo-Key."
     ),
 )
-def clock_shift(body: ClockShiftIn, _: AnyUser, db: DbSession, settings: SettingsDep) -> dict[str, Any]:
+def clock_shift(body: ClockShiftIn, _: ControlUser, db: DbSession, settings: SettingsDep) -> dict[str, Any]:
     return loop.shift_clock(db, settings, body.preset)
 
 
@@ -271,10 +315,11 @@ def clock_shift(body: ClockShiftIn, _: AnyUser, db: DbSession, settings: Setting
     description=(
         "Быстро (секунды) возвращает мир к состоянию seed: часы, приглашения, отклики, брифы, персоны (Анна, Илья, ступенчатые "
         "аккаунты), «Мария» удаляется, чтобы зарегистрироваться заново. Синтетическая популяция с тестами не пересоздаётся. "
-        "Нужен вход под любой ролью."
+        "Режим жюри сохраняет своё значение (сброс его не выключает). Нужен вход под любой ролью; на боевом стенде "
+        "(VZ_ENV=prod) — только администратор или заголовок X-Demo-Key."
     ),
 )
-def reset(_: AnyUser, db: DbSession, settings: SettingsDep) -> dict[str, Any]:
+def reset(_: ControlUser, db: DbSession, settings: SettingsDep) -> dict[str, Any]:
     out = world.reset_world(settings, db)
     return {
         "seconds": out["seconds"],
@@ -294,10 +339,11 @@ def reset(_: AnyUser, db: DbSession, settings: SettingsDep) -> dict[str, Any]:
     description=(
         "Включить/выключить автоответчик и/или ответить прямо сейчас (`respond_now`). Правила: «Да», если верхняя граница вилки "
         "не ниже минимума и формат подходит; «Да, если: от min», если минимум выше вилки не более чем в 1,2 раза; иначе «Нет» "
-        "с причиной из персоны. В штатном режиме отвечает через 30–90 с после отправки. Нужен вход под любой ролью."
+        "с причиной из персоны. В штатном режиме отвечает через 30–90 с после отправки. Нужен вход под любой ролью; "
+        "на боевом стенде — только администратор или X-Demo-Key."
     ),
 )
-def autoresponder_control(body: AutoresponderIn, _: AnyUser, db: DbSession, settings: SettingsDep) -> dict[str, Any]:
+def autoresponder_control(body: AutoresponderIn, _: ControlUser, db: DbSession, settings: SettingsDep) -> dict[str, Any]:
     st = get_state(db)
     if body.enabled is not None:
         st.autoresponder = body.enabled
@@ -318,10 +364,11 @@ def autoresponder_control(body: AutoresponderIn, _: AnyUser, db: DbSession, sett
     summary="Режим жюри",
     description=(
         "Включает или выключает «режим жюри» (RK2): кандидату доступна подсказка к текущему заданию, сессии, начатые в этом "
-        "режиме, помечаются demo_assisted и исключаются из метрик. Нужен вход под любой ролью."
+        "режиме, помечаются demo_assisted и исключаются из метрик. Нужен вход под любой ролью; на боевом стенде "
+        "(VZ_ENV=prod) переключает только администратор или X-Demo-Key — подсказка при включённом режиме доступна владельцу сессии."
     ),
 )
-def jury_mode(body: JuryModeIn, _: AnyUser, db: DbSession) -> dict[str, Any]:
+def jury_mode(body: JuryModeIn, _: ControlUser, db: DbSession) -> dict[str, Any]:
     jury.set_mode(db, body.enabled)
     db.commit()
     return state(db)

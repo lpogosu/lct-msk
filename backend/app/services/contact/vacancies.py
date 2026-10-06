@@ -295,6 +295,16 @@ def _salary(vac: Vacancy) -> dict[str, Any]:
     }
 
 
+def city_label(city: str | None) -> str | None:
+    """Код города справочника (moscow) → название («Москва»); свободный текст остаётся как есть."""
+    if not city:
+        return None
+    from app.matching.skills import get_catalog
+
+    known = get_catalog().cities.get(city)
+    return known.name if known is not None else city
+
+
 def vacancy_base(vac: Vacancy, at: datetime | None = None) -> dict[str, Any]:
     at = at or now()
     return {
@@ -308,6 +318,7 @@ def vacancy_base(vac: Vacancy, at: datetime | None = None) -> dict[str, Any]:
         "format": vac.format,
         "format_label": cfg().invitation.formats.get(vac.format) if vac.format else None,
         "city": vac.city,
+        "city_name": city_label(vac.city),
         "status": vac.status,
         "published_text": rel(vac.published_at, at),
     }

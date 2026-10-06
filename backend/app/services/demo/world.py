@@ -397,8 +397,8 @@ def reset_world(settings: Settings, db: Session, *, say: Say = _quiet) -> dict[s
         finally:
             accounts.REUSE.clear()
         state = get_state(db)
-        state.jury_mode = bool(section("jury_mode")["default"])
-        state.jury_mode_since = None
+        # «Режим жюри» — выбор человека на стенде, а не часть мира: сброс его не трогает (раньше выключал, и жюри
+        # посреди прохода теряло подсказки). jury_mode и jury_mode_since остаются как были.
         state.autoresponder = bool(section("autoresponder")["enabled"])
         db.commit()
     from app.services.demo import sink

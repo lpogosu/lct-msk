@@ -213,7 +213,7 @@ def test_accept_requires_separate_consent_and_channel(client, make_account, db_s
     view = client.get(f"/api/invitations/{inv['id']}", headers=e1.headers).json()["candidate"]
     # Раскрыто только разрешённое: Telegram и имя, но не email и не телефон
     assert view["telegram"] == cand.telegram and view["full_name"] == cand.full_name
-    assert "email" not in view and "phone" not in view
+    assert not view.get("email") and not view.get("phone")  # не разрешено — null (поле в схеме есть, значения нет)
     from app.models.contact import ContactDisclosure
 
     rows = list(db_session.scalars(select(ContactDisclosure).where(ContactDisclosure.candidate_id == cand.user_id)))

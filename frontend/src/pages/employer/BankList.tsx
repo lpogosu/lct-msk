@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { errorMessage } from '@/api/errors'
-import { useBank, useNeed, usePin, type BankParams } from '@/features/employer/api'
+import { useBank, useNeed, usePin, useSkills, type BankParams } from '@/features/employer/api'
 import { InviteDrawer, type InviteCandidate } from '@/features/employer/components/InviteDrawer'
 import { BankTable } from '@/features/employer/components/bank/BankTable'
 import { BlockTitle, LoadError, PageHead, PageSkeleton } from '@/features/employer/components/common'
 import { ProfileGate } from '@/features/employer/components/ProfileGate'
 import { CandidatePanel } from '@/features/employer/components/selection/CandidatePanel'
-import { GRADE_LABEL, GRADE_ORDER, INDUSTRY_LABEL, MAP_SPECS, SEARCH_MODE_LABEL, SPEC_LABEL, STACK_OPTIONS } from '@/features/employer/dict'
+import { GRADE_LABEL, GRADE_ORDER, INDUSTRY_LABEL, MAP_SPECS, SEARCH_MODE_LABEL, SPEC_LABEL } from '@/features/employer/dict'
 import { cn } from '@/lib/cn'
 import { formatInt } from '@/lib/format'
 import { Button, Checkbox, EmptyState, Panel, Segmented, useToast } from '@/ui'
@@ -25,6 +25,8 @@ export default function BankList() {
   const [showStack, setShowStack] = useState(false)
   const [invite, setInvite] = useState<string | null>(null)
   const [pinBusy, setPinBusy] = useState<string | null>(null)
+  // Навыки для фильтра «стек» — из справочника бэкенда (GET /api/skills?testable=true), а не из зашитого списка
+  const skillDict = useSkills()
 
   // ссылка с карты талантов приходит как ?category=spec:grade — разворачиваем в два фильтра
   useEffect(() => {
@@ -190,7 +192,9 @@ export default function BankList() {
         </div>
         {showStack && (
           <ul className="m-0 flex list-none flex-wrap gap-2 p-0" aria-label="Навыки стека">
-            {STACK_OPTIONS.map((s) => {
+            {skillDict.isPending && <li className="t-small text-ink-3">Загружаем справочник навыков…</li>}
+            {skillDict.isError && <li className="t-small text-danger-text">Не удалось загрузить справочник навыков</li>}
+            {(skillDict.data ?? []).map((s) => {
               const on = skills.includes(s.id)
               return (
                 <li key={s.id}>

@@ -62,3 +62,4 @@ for module in (
     vacancies, tasks, notifications, fsp, verify, lab, anticheat, demo, admin,
 ):
     api_router.include_router(module.router)
+api_router.include_router(bank.skills_router)  # GET /api/skills — справочник навыков для фильтров

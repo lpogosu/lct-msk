@@ -8,14 +8,14 @@ name: vzaimno
 
 services:
   db:
-    image: pgvector/pgvector:pg16
+    image: pgvector/pgvector:0.8.7-pg16  # закреплено по версии (PostgreSQL 16 + pgvector 0.8.7), не плавающий pg16
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${VZ_DB_USER:-vzaimno}
       POSTGRES_PASSWORD: ${VZ_DB_PASSWORD:-vzaimno}
       POSTGRES_DB: ${VZ_DB_NAME:-vzaimno}
     ports:
-      - "${VZ_DB_PORT:-5432}:5432"
+      - "127.0.0.1:${VZ_DB_PORT:-5432}:5432"  # только loopback: БД не должна быть видна из локальной сети
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -28,7 +28,7 @@ services:
 
   mailpit:
     # Перехватчик почты для разработки: письма с кодом видно на http://localhost:8025
-    image: axllent/mailpit:latest
+    image: axllent/mailpit:v1.31.4  # закреплено по версии (было latest)
     restart: unless-stopped
     ports:
       - "${VZ_MAILPIT_UI_PORT:-8025}:8025"
@@ -68,7 +68,7 @@ services:
       VZ_FSP_OIDC_CLIENT_ID: ${VZ_FSP_OIDC_CLIENT_ID:-vzaimno}
       # Демо-секрет конфиденциального client из deploy/keycloak/realm-fsp.json (в prod — свой)
       VZ_FSP_OIDC_CLIENT_SECRET: ${VZ_FSP_OIDC_CLIENT_SECRET:-vzaimno-demo-secret}
-      VZ_FSP_OIDC_REDIRECT_URI: ${VZ_FSP_OIDC_REDIRECT_URI:-http://localhost:5173/auth/fsp/callback}
+      VZ_FSP_OIDC_REDIRECT_URI: ${VZ_FSP_OIDC_REDIRECT_URI:-http://localhost:5173/candidate/fsp/callback}
       VZ_FSP_REGISTRY_URL: http://fsp-mock:8001
       # auto — реестр по сети, при недоступности встроенный снимок (демо не зависит от fsp-mock)
       VZ_FSP_PROVIDER: ${VZ_FSP_PROVIDER:-auto}
@@ -76,7 +76,8 @@ services:
       VZ_FSP_DEMO_LOGIN_ENABLED: ${VZ_FSP_DEMO_LOGIN_ENABLED:-true}
     ports:
       - "${VZ_BACKEND_PORT:-8000}:8000"
-    command: ["sh", "-c", "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --proxy-headers"]
+    # --no-proxy-headers: клиентский IP для лимитов определяет приложение (VZ_FORWARDED_ALLOW_IPS), а не uvicorn
+    command: ["sh", "-c", "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --no-proxy-headers"]
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/api/health/live', timeout=3).status == 200 else 1)"]
       interval: 10s
@@ -101,8 +102,9 @@ services:
   keycloak:
     # ФСП ID (внешний OIDC-провайдер). Только профиль «fsp»: демо не зависит от Keycloak
     # (есть «демо-вход ФСП», см. концепцию §6.5).
-    image: quay.io/keycloak/keycloak:26.0
+    image: quay.io/keycloak/keycloak:26.0.8
     profiles: ["fsp"]
+    # start-dev — ТОЛЬКО для локального стенда. Боевая схема (docker-compose.prod.yml) запускает `start` со своей БД.
     command: ["start-dev", "--import-realm", "--http-port=8080"]
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${VZ_KEYCLOAK_ADMIN:-admin}

@@ -371,12 +371,13 @@ def _profile_from_link(link: FspLink, hidden: Sequence[str]) -> FSPProfile | Non
     """Сырой ответ реестра, сохранённый при синхронизации (FspLink.achievements) → FSPProfile без сети."""
     if not link.achievements:
         return None
-    from app.fsp.models import Achievements, Athlete
+    from app.fsp.models import Achievements
     from app.fsp.provider import normalize_achievements
+    from app.services.fsp_link.minimize import athlete_of
 
     try:
         ach = Achievements.model_validate(link.achievements)
-        athlete = Athlete.model_validate(link.athlete) if link.athlete else None
+        athlete = athlete_of(link.athlete)  # в привязке — только sub и год рождения: Athlete собирается лишь из старых полных строк
     except ValidationError:
         log.warning("Сохранённый ответ реестра ФСП для %s не прошёл проверку контракта", link.user_id)
         return None

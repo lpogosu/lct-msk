@@ -48,10 +48,10 @@
       "rootUrl": "http://localhost:8000",
       "baseUrl": "/",
       "redirectUris": [
-        "http://localhost:8000/api/auth/fsp/callback",
-        "http://localhost:5173/auth/fsp/callback",
-        "https://${VZ_PUBLIC_DOMAIN:vzaimno.example}/api/auth/fsp/callback",
-        "https://${VZ_PUBLIC_DOMAIN:vzaimno.example}/auth/fsp/callback"
+        "http://localhost:5173/candidate/fsp/callback",
+        "http://localhost:8000/api/fsp/callback",
+        "https://${VZ_PUBLIC_DOMAIN:vzaimno.example}/candidate/fsp/callback",
+        "https://${VZ_PUBLIC_DOMAIN:vzaimno.example}/api/fsp/callback"
       ],
       "webOrigins": [
         "+"

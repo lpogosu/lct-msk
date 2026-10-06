@@ -5,6 +5,7 @@ description = "«Взаимно» — платформа обратного по
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.115",
+    "starlette>=0.40",
     "uvicorn[standard]>=0.30",
     "sqlalchemy>=2.0",
     "alembic>=1.13",
@@ -15,10 +16,11 @@ dependencies = [
     "email-validator>=2.2",
     "pyyaml>=6.0",
     "numpy>=1.26",
-    "scipy>=1.13",
     "rapidfuzz>=3.9",
     "pyahocorasick>=2.1",
     "pdfplumber>=0.11",
+    "pdfminer.six>=20231228",
+    "cryptography>=43",
     "argon2-cffi>=23.1",
     "pyjwt[crypto]>=2.9",
     "python-multipart>=0.0.9",
@@ -30,6 +32,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pytest>=8.3",
+    "scipy>=1.13",  # только tests/test_matching_scoring.py (контрольные значения нормального распределения)
     "pytest-asyncio>=0.24",
     "ruff>=0.6",
 ]

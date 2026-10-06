@@ -12,12 +12,15 @@ from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, File, Path, Query, Response, UploadFile, status
 
-from app.api.deps import DbSession, LimiterDep, MetaDep, SettingsDep, require_roles
+from app.api.auth import _clear_refresh_cookie
+from app.api.deps import DbSession, LimiterDep, MailerDep, MetaDep, SettingsDep, require_roles
+from app.api.schemas import AccountDeleteRequest, AccountDeleteResponse
 from app.core.clock import clock
 from app.core.errors import ErrorResponse, error_responses, not_found
 from app.llm.gateway import LLMGateway, get_gateway
 from app.models.enums import UserRole
 from app.models.users import User
+from app.services.account import delete_account
 from app.services.pdf import issue as pdf_issue
 from app.services.pdf.schemas import ProfilePdfInfoOut
 from app.services.profile import service as profiles
@@ -384,3 +387,37 @@ def my_consents(user: CandidateUser, db: DbSession) -> list[ConsentJournalOut]:
 )
 def visibility_stats(user: CandidateUser, db: DbSession) -> VisibilityStatsOut:
     return profiles.visibility_stats(db, user, clock.now())
+
+
+# --------------------------------------------------------------------------- удаление аккаунта (152-ФЗ)
+
+
+@router.delete(
+    "/me",
+    response_model=AccountDeleteResponse,
+    summary="Удалить аккаунт",
+    description=(
+        "Право на удаление (152-ФЗ): подтверждение паролем (для аккаунта без пароля — слово «УДАЛИТЬ» в `confirm`). Стирает "
+        "профиль, резюме, ответы опроса и тестов, приглашения и отклики с раскрытыми контактами, привязку ФСП ID и данные "
+        "реестра, согласия; завершает все сессии. Остаётся запись журнала аудита без персональных данных. Необратимо; "
+        "на адрес аккаунта уходит письмо-подтверждение. 403 `password_invalid` — неверный пароль (аккаунт не тронут); "
+        "400 `confirm_phrase_required`; 429 — не больше 5 попыток в час."
+    ),
+    responses=error_responses(400, 401, 403, 429),
+)
+def delete_me(
+    body: AccountDeleteRequest,
+    response: Response,
+    user: CandidateUser,
+    db: DbSession,
+    settings: SettingsDep,
+    limiter: LimiterDep,
+    mailer: MailerDep,
+    meta: MetaDep,
+) -> AccountDeleteResponse:
+    out = delete_account(
+        db, user, password=body.password, confirm=body.confirm, settings=settings, limiter=limiter, mailer=mailer, ip=meta.ip
+    )
+    _clear_refresh_cookie(response, settings)
+    response.headers["Cache-Control"] = "no-store"
+    return AccountDeleteResponse.model_validate(out)

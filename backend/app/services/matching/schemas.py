@@ -703,3 +703,56 @@ class BankOut(BaseModel):
     hidden: BankHiddenOut = Field(description="«Скрыто фильтрами (N)» — фильтр «есть ФСП» никого не удаляет")
     pin_targets: list[PinTargetOut] = Field(description="Брифы для кнопки «📌 в шортлист брифа X»")
     weights: dict[str, float]
+
+
+# --------------------------------------------------------------------------- сводка банка (карта талантов) и справочник навыков
+
+
+class SalaryQuantilesOut(BaseModel):
+    """Ожидания по зарплате «на руки», ₽/мес, округлены до ступени гистограммы (точные значения людей не показываем)."""
+
+    p25: int
+    p50: int
+    p75: int
+
+
+class BankSummaryCellOut(BaseModel):
+    grade: Grade
+    n: int = Field(description="Подтверждённых тестом кандидатов в категории — столько же в списке `GET /api/bank?category=spec:grade`")
+    with_fsp: int = Field(description="Из них с достижениями ФСП")
+    fsp_share: float | None = Field(default=None, description="Доля с ФСП (0–1); null, если в ячейке никого нет")
+    salary_min: SalaryQuantilesOut | None = Field(
+        default=None,
+        description="P25/P50/P75 ожиданий; null, пока кандидатов с указанным минимумом меньше порога приватности (privacy_min_n)",
+    )
+
+
+class BankSummarySpecOut(BaseModel):
+    spec: str = Field(description="Код специализации (config/taxonomy.yaml)")
+    name: str
+    status: str = Field(description="active — тест есть; derived — собирается из двух квалификаций; survey_only — только опрос")
+    testable: bool = Field(description="По направлению есть собственный тест")
+    n: int = Field(description="Подтверждённых тестом кандидатов по направлению")
+    with_fsp: int
+    survey_only: int = Field(description="Прошли опрос по этому направлению, но теста с подтверждённой категорией ещё нет («ждут теста»)")
+    cells: list[BankSummaryCellOut] = Field(description="Четыре грейда по порядку: intern, junior, middle, senior")
+
+
+class BankSummaryOut(BaseModel):
+    specs: list[BankSummarySpecOut]
+    total: int = Field(description="Уникальных кандидатов в банке (Fullstack-кандидат входит в несколько ячеек, но здесь один раз)")
+    with_fsp: int
+    survey_only: int
+    privacy_min_n: int = Field(description="Минимум кандидатов с указанным минимумом зарплаты, чтобы показать P25/P50/P75")
+    salary_basis: Literal["net"] = Field(description="Ожидания приведены к «на руки»")
+    as_of: datetime = Field(description="Момент расчёта по часам платформы")
+
+
+class SkillOut(BaseModel):
+    id: str = Field(description="Идентификатор навыка (его принимают фильтры /api/bank и бриф)")
+    name: str
+    category: str
+    modules: list[str] = Field(description="Модули теста, которые подтверждают навык")
+    specs: list[str] = Field(description="Специализации, в которых навык значим")
+    testable: bool = Field(description="Навык можно подтвердить тестом (есть модуль; иначе — только «заявлено»)")
+    untestable_reason: str | None = Field(default=None, description="Почему навык не проверяется тестом")

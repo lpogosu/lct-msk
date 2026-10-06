@@ -146,6 +146,15 @@ class ClientCredentialsAuth(httpx.Auth):
 # --------------------------------------------------------------------------- провайдеры
 
 
+def _is_registry_not_found(resp: httpx.Response) -> bool:
+    """404 реестра по контракту (app/fsp/models.ErrorResponse): JSON-объект с полем `detail`."""
+    try:
+        body = resp.json()
+    except ValueError:
+        return False
+    return isinstance(body, dict) and isinstance(body.get("detail"), str)
+
+
 class HttpFSPProvider:
     """Реестр по HTTP (контракт app/fsp/models.py). `client` можно подменить в тестах (TestClient мока)."""
 
@@ -171,7 +180,13 @@ class HttpFSPProvider:
         except httpx.HTTPError as exc:
             raise FSPUnavailable(f"Реестр ФСП недоступен: {exc.__class__.__name__}") from exc
         if resp.status_code == 404:
-            return None
+            if _is_registry_not_found(resp):
+                return None
+            # 404 «не из реестра» (другой сервис на этом порту, прокси, неверный путь) — это не «спортсмена нет»:
+            # иначе привязка молча стала бы «результатов нет» (linked_no_results) вместо понятной недоступности.
+            raise FSPUnavailable(
+                "Реестр ФСП не распознан: по адресу VZ_FSP_REGISTRY_URL ответил другой сервис (404 не в формате контракта)"
+            )
         if resp.status_code in (401, 403):
             raise FSPAuthError(f"Реестр ФСП отказал в доступе: HTTP {resp.status_code}")
         if resp.status_code >= 500:

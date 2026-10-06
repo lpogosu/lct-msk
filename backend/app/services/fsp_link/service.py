@@ -43,6 +43,7 @@ from app.core.access import ensure_role
 from app.core.audit import audit
 from app.core.auth_service import IssuedSession, RequestMeta, SendStatus
 from app.core.clock import relative_ru
+from app.core.configs import load_config
 from app.core.consents import (
     active_consents,
     current_version,
@@ -73,6 +74,7 @@ from app.models.candidate import CandidateProfile
 from app.models.enums import AchievementStatus, ConsentPurpose, FspSyncStatus, UserRole, UserStatus
 from app.models.fsp import FspAchievementCache, FspAuthState, FspLink
 from app.models.users import Consent, User
+from app.services.fsp_link.minimize import athlete_of, birth_year_of, minimal_achievements, minimal_athlete
 from app.services.fsp_link.oidc import (
     OIDCClient,
     OIDCError,
@@ -428,10 +430,11 @@ def registry_birth_year(db: Session, user_id: uuid.UUID) -> int | None:
     link = _raw_link_of(db, user_id)
     if link is None or not link.athlete:
         return None
-    try:
-        return Athlete.model_validate(link.athlete).birth_date.year
-    except ValueError:
-        return None
+    return birth_year_of(link.athlete)
+
+
+def _minimize() -> bool:
+    return bool(load_config("privacy")["fsp_registry"]["minimize_stored_response"])
 
 
 def sync(db: Session, link: FspLink, provider: FSPProvider, now: datetime) -> FSPProfile:
@@ -459,10 +462,13 @@ def sync(db: Session, link: FspLink, provider: FSPProvider, now: datetime) -> FS
         link.registry_as_of = now
     else:
         profile = normalize_achievements(ach, hidden_result_ids=hidden, fetched_at=now, athlete=athlete)
-        link.achievements = ach.model_dump(mode="json")
+        link.achievements = minimal_achievements(ach) if _minimize() else ach.model_dump(mode="json")
         link.data_source = ach.source.value
         link.registry_as_of = ach.as_of
-    link.athlete = athlete.model_dump(mode="json") if athlete is not None else None
+    # В привязке храним только нужные поля ответа реестра (sub, год рождения; app/services/fsp_link/minimize.py)
+    link.athlete = (
+        (minimal_athlete(athlete) if _minimize() else athlete.model_dump(mode="json")) if athlete is not None else None
+    )
     link.fsp_state = profile.state.value
     link.last_sync_at = now
     link.sync_status = FspSyncStatus.ok.value
@@ -486,10 +492,10 @@ def stored_profile(link: FspLink, now: datetime) -> FSPProfile | None:
     if link.achievements is None:
         if link.last_sync_at is None:
             return None
-        athlete = Athlete.model_validate(link.athlete) if link.athlete else None
+        athlete = athlete_of(link.athlete)
         return FSPProfile(sub=link.fsp_id, state=FSPState.linked_no_results, athlete=athlete, fetched_at=link.last_sync_at)
     ach = Achievements.model_validate(link.achievements)
-    athlete = Athlete.model_validate(link.athlete) if link.athlete else None
+    athlete = athlete_of(link.athlete)
     return normalize_achievements(
         ach, hidden_result_ids=link.hidden_result_ids or (), fetched_at=link.last_sync_at or now, athlete=athlete
     )
@@ -935,9 +941,16 @@ def status_view(db: Session, user: User, provider: FSPProvider, now: datetime) -
         except FSPError as e:
             profile, sync_error = None, _registry_error(e)
     if profile is None:
+        # Данных нет. Если причина — сбой реестра (сеть, отказ в доступе, чужой сервис по адресу реестра), говорим
+        # об этом прямо, а не выдаём за «результатов нет»: у спортсмена они могут быть.
+        unavailable = bool(sync_error) and (preview or link.sync_status == FspSyncStatus.error.value)
+        if unavailable:
+            line = "ФСП ID привязан. Реестр ФСП сейчас недоступен — данные обновятся позже"
+        else:
+            line = "ФСП ID привязан. Данные реестра ещё не получены" if consent else "ФСП ID привязан"
         return FspStatusOut(
-            state="linked_no_results",
-            status_line="ФСП ID привязан. Данные реестра ещё не получены" if consent else "ФСП ID привязан",
+            state="registry_unavailable" if unavailable else "linked_no_results",
+            status_line=line,
             linked=True,
             is_demo=link.is_demo,
             linked_ago=relative_ru(link.linked_at, now),

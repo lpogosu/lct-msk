@@ -203,12 +203,16 @@ def candidate_mins(
     return out
 
 
-def _quantile(sorted_vals: Sequence[float], q: float) -> float:
+def quantile(sorted_vals: Sequence[float], q: float) -> float:
+    """Квантиль q ∈ [0, 1] отсортированного списка (линейная интерполяция)."""
     if not sorted_vals:
         return 0.0
     pos = (len(sorted_vals) - 1) * q
     lo, hi = math.floor(pos), math.ceil(pos)
     return sorted_vals[lo] + (sorted_vals[hi] - sorted_vals[lo]) * (pos - lo)
+
+
+_quantile = quantile  # прежнее имя (используется внутри модуля и в тестах)
 
 
 def _thousands(x: int) -> str:

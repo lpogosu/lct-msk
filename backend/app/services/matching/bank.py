@@ -16,11 +16,12 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import and_, func, select
 from sqlalchemy.orm import Session
 
 from app.core.clock import clock
 from app.core.errors import ApiError, not_found
+from app.matching.coverage import candidate_mins, quantile
 from app.matching.scoring import (
     GRADES,
     ScoringConfig,
@@ -33,8 +34,10 @@ from app.matching.scoring import (
 )
 from app.matching.selection import FILTER_LABELS
 from app.matching.skills import get_catalog
-from app.models.enums import NeedStatus, SearchMode
+from app.models.candidate import CandidateProfile, SurveyResponse
+from app.models.enums import NeedStatus, QualificationStatus, SearchMode
 from app.models.matching import Need, Shortlist
+from app.models.testing import Qualification
 from app.models.users import User
 from app.services.matching import features as feat
 from app.services.matching import needs as needs_svc
@@ -229,6 +232,120 @@ def bank_search(db: Session, user: User, q: BankQuery, *, secret: str) -> dict[s
         "pin_targets": pin_targets(db, company_id),
         "weights": {k: float(v) for k, v in w.items()},
     }
+
+
+def bank_summary(db: Session, user: User) -> dict[str, Any]:
+    """Сводка банка «специализация × грейд» ОДНИМ запросом для карты талантов (вместо ~14 вызовов GET /api/bank).
+
+    Те же правила, что у списка банка: видимые работодателям кандидаты, жёсткие фильтры компании (блок-лист, пауза
+    пары). Число в ячейке равно размеру списка банка по этой категории (`GET /api/bank?category=…`): Fullstack-кандидат
+    есть и в своей категории, и в категориях обеих квалификаций; `total` — уникальные кандидаты. Ожидания по зарплате —
+    P25/P50/P75 «на руки» с защитой приватности: пока кандидатов с указанным минимумом меньше
+    coverage.quantiles_min_n, квантилей нет; значения округляются до ступени гистограммы (coverage.histogram_step),
+    как в панели охвата брифа. Ранжировать для сводки не нужно: считаются только размеры категорий.
+    «Ждут теста» — прошли опрос по направлению, но подтверждённой категории нет (только счётчик, без людей)."""
+    company_id = needs_svc._company(user)
+    feat.ensure_fresh(db)
+    cfg = ScoringConfig.load()
+    cc = cfg.section("coverage")
+    min_n, step = int(cc["quantiles_min_n"]), int(cc["histogram_step"])
+    rows = needs_svc._company_hard_filter(db, company_id, feat.load_pool(db, None), is_internship=False, salary_from=None)
+    cells: dict[tuple[str, str], list[Any]] = {}
+    fsp_by_candidate: dict[str, bool] = {}
+    for r in rows:
+        cells.setdefault((r.features.spec, r.features.grade), []).append(r.features)
+        fsp_by_candidate[r.features.candidate_id] = bool(r.features.has_fsp)
+    waiting = _survey_only_counts(db)
+    total, total_fsp = len(fsp_by_candidate), sum(fsp_by_candidate.values())
+
+    specs_out = []
+    total_waiting = 0
+    for s in cfg.taxonomy["specializations"]:
+        code = s["code"]
+        status = s.get("status", "active")
+        cell_out = []
+        for g in GRADES:
+            members = cells.get((code, g), [])
+            n = len(members)
+            with_fsp = sum(1 for f in members if f.has_fsp)
+            mins = sorted(candidate_mins(members, True, cfg))
+            quant = None
+            if len(mins) >= min_n:
+                p25, p50, p75 = (int(round(quantile(mins, q) / step)) * step for q in (0.25, 0.5, 0.75))
+                quant = {"p25": p25, "p50": p50, "p75": p75}
+            cell_out.append(
+                {"grade": g, "n": n, "with_fsp": with_fsp, "fsp_share": round(with_fsp / n, 3) if n else None, "salary_min": quant}
+            )
+        n_spec = sum(c["n"] for c in cell_out)
+        fsp_spec = sum(c["with_fsp"] for c in cell_out)
+        total_waiting += waiting.get(code, 0)
+        specs_out.append(
+            {
+                "spec": code,
+                "name": s["name"],
+                "status": status,
+                "testable": bool(status == "active" and s.get("blueprint")),
+                "n": n_spec,
+                "with_fsp": fsp_spec,
+                "survey_only": waiting.get(code, 0),
+                "cells": cell_out,
+            }
+        )
+    return {
+        "specs": specs_out,
+        "total": total,
+        "with_fsp": total_fsp,
+        "survey_only": total_waiting,
+        "privacy_min_n": min_n,
+        "salary_basis": "net",
+        "as_of": clock.now(),
+    }
+
+
+def _survey_only_counts(db: Session) -> dict[str, int]:
+    """Сколько кандидатов прошли опрос по специализации (последний завершённый опрос), но подтверждённой категории
+    по ней нет. «Не ищу» (скрыт из банка) не считаем: человек просил не показывать его в подборках."""
+    latest = (
+        select(SurveyResponse.candidate_id.label("cid"), SurveyResponse.chosen_spec.label("spec"))
+        .where(SurveyResponse.completed_at.is_not(None), SurveyResponse.chosen_spec.is_not(None))
+        .distinct(SurveyResponse.candidate_id)
+        .order_by(SurveyResponse.candidate_id, SurveyResponse.completed_at.desc())
+        .subquery()
+    )
+    confirmed = (
+        select(Qualification.candidate_id.label("cid"), Qualification.specialization.label("spec"))
+        .where(Qualification.status == QualificationStatus.confirmed.value)
+        .subquery()
+    )
+    q = (
+        select(latest.c.spec, func.count())
+        .select_from(latest)
+        .join(CandidateProfile, CandidateProfile.user_id == latest.c.cid)
+        .outerjoin(confirmed, and_(confirmed.c.cid == latest.c.cid, confirmed.c.spec == latest.c.spec))
+        .where(confirmed.c.cid.is_(None), CandidateProfile.search_mode != SearchMode.hidden.value)
+        .group_by(latest.c.spec)
+    )
+    return {str(spec): int(n) for spec, n in db.execute(q)}
+
+
+def skills_dictionary() -> list[dict[str, Any]]:
+    """Справочник навыков для фильтров банка и брифа: id, название, модули теста, флаг «проверяется тестом»."""
+    cat = get_catalog()
+    out = []
+    for s in cat.skills.values():
+        out.append(
+            {
+                "id": s.id,
+                "name": s.name,
+                "category": s.category,
+                "modules": list(s.modules),
+                "specs": sorted(s.spec_weights),
+                "testable": bool(s.modules) and not s.untestable,
+                "untestable_reason": s.untestable_reason,
+            }
+        )
+    out.sort(key=lambda d: (d["category"], d["name"].lower()))
+    return out
 
 
 def _best_rows(ranked: Sequence[Any]) -> list[Any]:

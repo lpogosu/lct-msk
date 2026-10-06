@@ -13,7 +13,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path, Query
 
-from app.api.deps import DbSession, LimiterDep, SettingsDep, require_roles
+from app.api.deps import CurrentUser, DbSession, LimiterDep, SettingsDep, require_roles
 from app.contact.settings import get_contact_config
 from app.core.errors import error_responses
 from app.core.settings import RateRule
@@ -22,9 +22,10 @@ from app.models.users import User
 from app.services.matching import bank as svc
 from app.services.matching import needs as needs_svc
 from app.services.matching import privacy
-from app.services.matching.schemas import BankOut, CandidateCardOut, Grade
+from app.services.matching.schemas import BankOut, BankSummaryOut, CandidateCardOut, Grade, SkillOut
 
 router = APIRouter(prefix="/bank", tags=["Потребности и подборка"], responses=error_responses())
+skills_router = APIRouter(prefix="/skills", tags=["Потребности и подборка"], responses=error_responses())
 
 Employer = Annotated[User, Depends(require_roles(UserRole.employer))]
 
@@ -36,9 +37,9 @@ def _secret(settings: SettingsDep) -> str:
 Secret = Annotated[str, Depends(_secret)]
 
 
-def _limit(limiter: LimiterDep, user: User) -> None:
+def _limit(limiter: LimiterDep, user: User, scope: str = "matching_bank") -> None:
     per_minute = int(get_contact_config().quotas.rate_limit_per_minute)
-    limiter.check("matching_bank", str(user.id), RateRule(per_minute, 60))
+    limiter.check(scope, str(user.id), RateRule(per_minute, 60))
 
 
 @router.get(
@@ -114,3 +115,45 @@ def bank_card(
     out = CandidateCardOut.model_validate(privacy.card_dto(view))
     db.commit()
     return out
+
+
+@router.get(
+    "/summary",
+    response_model=BankSummaryOut,
+    summary="Сводка банка для карты талантов",
+    description=(
+        "Одним запросом: по каждой специализации и грейду — число подтверждённых тестом кандидатов, доля с ФСП и ожидания "
+        "по зарплате «на руки» (P25/P50/P75); плюс сколько прошли опрос по направлению и ждут теста. Те же правила видимости, "
+        "что у списка банка, каждый кандидат считается один раз — лучшей категорией. Приватность: P25/P50/P75 появляются, "
+        "когда в ячейке не меньше `privacy_min_n` кандидатов с указанным минимумом, и округлены до ступени. Лимит запросов "
+        "отдельный от списка банка: карта не съедает его."
+    ),
+)
+def bank_summary(user: Employer, db: DbSession, limiter: LimiterDep) -> BankSummaryOut:
+    _limit(limiter, user, "matching_bank_summary")
+    out = BankSummaryOut.model_validate(svc.bank_summary(db, user))
+    db.commit()  # ensure_fresh мог пересобрать кэш признаков
+    return out
+
+
+@skills_router.get(
+    "",
+    response_model=list[SkillOut],
+    summary="Справочник навыков",
+    description=(
+        "Навыки справочника (config/skills.yaml) для фильтров банка и брифа: id, название, категория, модули теста, "
+        "специализации и флаг `testable` — навык можно подтвердить тестом. Для фильтра «стек» в банке берутся `testable` навыки "
+        "(остальные в банке будут только «заявлено»). Нужен вход."
+    ),
+)
+def skills_list(
+    _: CurrentUser,
+    testable: Annotated[bool | None, Query(description="true — только проверяемые тестом, false — только непроверяемые")] = None,
+    spec: Annotated[str | None, Query(max_length=32, description="Только навыки, значимые для специализации")] = None,
+) -> list[SkillOut]:
+    items = svc.skills_dictionary()
+    if testable is not None:
+        items = [s for s in items if s["testable"] is testable]
+    if spec is not None:
+        items = [s for s in items if spec in s["specs"]]
+    return [SkillOut.model_validate(s) for s in items]

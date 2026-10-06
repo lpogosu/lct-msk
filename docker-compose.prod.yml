@@ -1,0 +1,172 @@
+# «Взаимно» — боевая схема для VPS в РФ: наружу только Caddy (80/443), БД и бэкенд закрыты от внешней сети.
+#   docker compose -f docker-compose.prod.yml up -d --build
+# Обязательные переменные задаются в .env (docs/DEPLOY.md, п. 5.2): VZ_PUBLIC_DOMAIN, VZ_DB_PASSWORD, VZ_JWT_SECRET,
+# VZ_APP_SECRET, VZ_PSEUDONYM_SECRET, VZ_SMTP_HOST, VZ_MAIL_FROM. Без них compose не поднимется (`:?` ниже).
+#
+# Что отличает от локального docker-compose.yml:
+#   * БД не публикуется ни на каком адресе хоста. Для обслуживания — docker compose exec db …; для генерации пула
+#     заданий с хоста — временный deploy/docker-compose.db-loopback.yml (только 127.0.0.1) или SSH-туннель к контейнеру.
+#   * Образы закреплены по версиям (PostgreSQL+pgvector, Caddy, Keycloak, Mailpit в прод-схему не входит): обновление —
+#     осознанная правка версии здесь, а не «latest» при пересборке.
+#   * Keycloak (профиль `fsp`, только если нужен свой ФСП ID на стенде) запускается в production-режиме `start`, со своей
+#     PostgreSQL, не `start-dev`; наружу его выставляет Caddy (см. deploy/Caddyfile, блок для sso).
+#   * Бэкенд доверяет X-Forwarded-For только от Caddy: подсеть compose зафиксирована (172.29.80.0/24) и указана в
+#     VZ_FORWARDED_ALLOW_IPS; сам бэкенд наружу не публикуется (expose, не ports).
+# Пересборка образа бэкенда после обновления кода: docker compose -f docker-compose.prod.yml build --no-cache backend &&
+#   docker compose -f docker-compose.prod.yml up -d backend  (миграции применяются при старте).
+
+name: vzaimno
+
+services:
+  db:
+    image: pgvector/pgvector:0.8.7-pg16 # PostgreSQL 16 + pgvector 0.8.7; менять версию осознанно
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${VZ_DB_USER:-vzaimno}
+      POSTGRES_PASSWORD: ${VZ_DB_PASSWORD:?задайте VZ_DB_PASSWORD}
+      POSTGRES_DB: ${VZ_DB_NAME:-vzaimno}
+    # ports: нет — БД доступна только соседним контейнерам сети compose
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+    mem_limit: 768m
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      additional_contexts:
+        config: ./config
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      VZ_ENV: prod
+      VZ_DEMO_MODE: ${VZ_DEMO_MODE:-false}
+      # В prod общие демо-кнопки (часы, сброс, режим жюри) — только админ или ключ; ключ необязателен
+      VZ_DEMO_CONTROL_KEY: ${VZ_DEMO_CONTROL_KEY:-}
+      VZ_DATABASE_URL: postgresql+psycopg://${VZ_DB_USER:-vzaimno}:${VZ_DB_PASSWORD}@db:5432/${VZ_DB_NAME:-vzaimno}
+      VZ_PUBLIC_BASE_URL: https://${VZ_PUBLIC_DOMAIN:?задайте VZ_PUBLIC_DOMAIN}
+      VZ_CORS_ORIGINS: https://${VZ_PUBLIC_DOMAIN}
+      VZ_JWT_SECRET: ${VZ_JWT_SECRET:?задайте VZ_JWT_SECRET}
+      VZ_APP_SECRET: ${VZ_APP_SECRET:?задайте VZ_APP_SECRET}
+      VZ_PSEUDONYM_SECRET: ${VZ_PSEUDONYM_SECRET:?задайте VZ_PSEUDONYM_SECRET}
+      VZ_COOKIE_SECURE: "true"
+      VZ_MAIL_BACKEND: smtp
+      VZ_SMTP_HOST: ${VZ_SMTP_HOST:?задайте VZ_SMTP_HOST}
+      VZ_SMTP_PORT: ${VZ_SMTP_PORT:-587}
+      VZ_SMTP_SECURITY: ${VZ_SMTP_SECURITY:-starttls}
+      VZ_SMTP_USERNAME: ${VZ_SMTP_USERNAME:-}
+      VZ_SMTP_PASSWORD: ${VZ_SMTP_PASSWORD:-}
+      VZ_MAIL_FROM: ${VZ_MAIL_FROM:?задайте VZ_MAIL_FROM}
+      VZ_FSP_PROVIDER: ${VZ_FSP_PROVIDER:-inprocess}
+      VZ_FSP_DEMO_LOGIN_ENABLED: ${VZ_FSP_DEMO_LOGIN_ENABLED:-false}
+      # Страница фронтенда, на которую ФСП ID вернёт браузер (она есть в routes.tsx; в realm/у ФСП — тот же адрес)
+      VZ_FSP_OIDC_REDIRECT_URI: ${VZ_FSP_OIDC_REDIRECT_URI:-https://${VZ_PUBLIC_DOMAIN}/candidate/fsp/callback}
+      # Боевой ФСП ID и реестр (docs/FSP_INTEGRATION.md, п. 9): добавьте сюда VZ_FSP_PROVIDER=http, VZ_FSP_OIDC_ISSUER,
+      # VZ_FSP_OIDC_CLIENT_ID, VZ_FSP_OIDC_CLIENT_SECRET, VZ_FSP_REGISTRY_URL, VZ_FSP_TOKEN_URL (пустых значений не задавайте)
+      # X-Forwarded-For принимается только от Caddy из этой подсети (docs/DEPLOY.md, п. 5.3); «*» в prod запрещено
+      VZ_FORWARDED_ALLOW_IPS: 172.29.80.0/24
+    expose:
+      - "8000"
+    # --no-proxy-headers: клиентский IP определяет само приложение (VZ_FORWARDED_ALLOW_IPS), а не uvicorn
+    command: ["sh", "-c", "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --no-proxy-headers"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/api/health/live', timeout=3).status == 200 else 1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    mem_limit: 768m
+
+  caddy:
+    image: caddy:2.10.2-alpine
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      VZ_PUBLIC_DOMAIN: ${VZ_PUBLIC_DOMAIN:?задайте VZ_PUBLIC_DOMAIN}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./frontend/dist:/srv/web:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    mem_limit: 128m
+
+  # --- Свой ФСП ID на стенде (только `--profile fsp`; с настоящим ФСП ID не нужен) -----------------------------------
+  # Для профиля обязательны VZ_KEYCLOAK_DB_PASSWORD, VZ_KEYCLOAK_ADMIN, VZ_KEYCLOAK_ADMIN_PASSWORD, VZ_FSP_KEYCLOAK_PUBLIC_URL
+  # (https://sso.<домен>). Без профиля эти переменные не нужны (compose читает их, но сервисы не запускаются);
+  # пустое значение даёт явный отказ при старте: PostgreSQL без пароля и Keycloak без имени хоста не поднимаются.
+  keycloak-db:
+    image: postgres:16.15-alpine
+    profiles: ["fsp"]
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: ${VZ_KEYCLOAK_DB_PASSWORD:-}
+      POSTGRES_DB: keycloak
+    volumes:
+      - keycloak_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    mem_limit: 256m
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.8
+    profiles: ["fsp"]
+    restart: unless-stopped
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+    # `start` — production-режим (не start-dev): нужны имя хоста и своя БД. TLS завершает Caddy → http-enabled + proxy-headers.
+    command:
+      - start
+      - --import-realm
+      - --http-enabled=true
+      - --http-port=8080
+      - --proxy-headers=xforwarded
+      - --hostname=${VZ_FSP_KEYCLOAK_PUBLIC_URL:-}
+      - --hostname-backchannel-dynamic=true
+      - --health-enabled=true
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${VZ_KEYCLOAK_ADMIN:-}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${VZ_KEYCLOAK_ADMIN_PASSWORD:-}
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${VZ_KEYCLOAK_DB_PASSWORD}
+      # Плейсхолдер ${VZ_PUBLIC_DOMAIN} в redirect URI realm-fsp.json (deploy/keycloak/README.md)
+      VZ_PUBLIC_DOMAIN: ${VZ_PUBLIC_DOMAIN}
+      JAVA_OPTS_KC_HEAP: "-XX:MaxRAMPercentage=65 -XX:InitialRAMPercentage=30"
+    volumes:
+      - ./deploy/keycloak:/opt/keycloak/data/import:ro
+    expose:
+      - "8080"
+    mem_limit: 768m
+
+networks:
+  default:
+    # Подсеть зафиксирована: бэкенд доверяет X-Forwarded-For только от неё (VZ_FORWARDED_ALLOW_IPS выше)
+    ipam:
+      config:
+        - subnet: 172.29.80.0/24
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:
+  keycloak_pgdata:

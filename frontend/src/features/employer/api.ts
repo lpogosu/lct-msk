@@ -1,6 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api, unwrap } from '@/api/client'
-import { ApiException } from '@/api/errors'
 import type { Schemas } from '@/api/types'
 
 // Запросы кабинета работодателя поверх типизированного клиента. Ключи кэша — в одном месте,
@@ -389,46 +388,54 @@ export interface MapCell {
   grade: string
   n: number
   withFsp: number
+  /** P25/P50/P75 ожиданий «на руки», ₽/мес; null, пока кандидатов с минимумом меньше порога приватности */
+  salary: Schemas['SalaryQuantilesOut'] | null
 }
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
-
-async function fetchCell(spec: string, grade: string | null): Promise<MapCell> {
-  const query = grade ? { category: `${spec}:${grade}`, has_fsp: true } : { spec, has_fsp: true }
-  for (let attempt = 0; ; attempt++) {
-    try {
-      const d = await unwrap(api.GET('/api/bank', { params: { query } }))
-      return { spec, grade: grade ?? '*', withFsp: d.total, n: d.total + d.hidden.count }
-    } catch (e) {
-      // лимит запросов в минуту — один раз ждём указанное время
-      if (attempt === 0 && e instanceof ApiException && e.status === 429) {
-        await sleep(Math.min(20, e.retryAfterS ?? 5) * 1000)
-        continue
-      }
-      throw e
-    }
-  }
+export interface MapSpec {
+  spec: string
+  name: string
+  /** Есть собственный тест или собирается из двух квалификаций (Fullstack) — строка карты с ячейками */
+  tested: boolean
+  n: number
+  /** «Ждут теста»: прошли опрос по направлению, подтверждённой категории ещё нет */
+  surveyOnly: number
 }
 
 /**
- * Данные карты талантов: счётчик «специализация × грейд» и доля с ФСП по банку (одна выборка на ячейку).
- * Бэкенд пока не отдаёт сводку одним запросом — это известное ограничение (см. отчёт); запросы идут пачками по 4,
- * чтобы не упереться в лимит 30 в минуту, результат кэшируется на 5 минут.
+ * Данные карты талантов одним запросом GET /api/bank/summary (специализация × грейд: N, ФСП, ожидания, ждут теста).
+ * Раньше карта делала ~14 запросов GET /api/bank и упиралась в лимит 30 в минуту; у сводки лимит свой.
  */
-export function useTalentMap(baseSpecs: readonly string[], probeSpecs: readonly string[], grades: readonly string[]) {
+export function useTalentMap() {
   return useQuery({
-    queryKey: [...qk.bank, 'map'],
+    queryKey: [...qk.bank, 'summary'],
     staleTime: 5 * 60_000,
     queryFn: async () => {
-      const probes = await Promise.all(probeSpecs.map((s) => fetchCell(s, null)))
-      const tested = [...baseSpecs, ...probes.filter((p) => p.n > 0).map((p) => p.spec)]
-      const jobs = tested.flatMap((s) => grades.map((g) => [s, g] as const))
-      const cells: MapCell[] = []
-      for (let i = 0; i < jobs.length; i += 4) {
-        cells.push(...(await Promise.all(jobs.slice(i, i + 4).map(([s, g]) => fetchCell(s, g)))))
-      }
-      return { tested, cells, fetchedAt: Date.now() }
+      const d = await unwrap(api.GET('/api/bank/summary'))
+      const specs: MapSpec[] = d.specs.map((s) => ({
+        spec: s.spec,
+        name: s.name,
+        // направление с тестом, собираемое Fullstack или уже с кандидатами (так подхватываются DevOps и QA после запуска теста)
+        tested: s.testable || s.status === 'derived' || s.n > 0,
+        n: s.n,
+        surveyOnly: s.survey_only,
+      }))
+      const cells: MapCell[] = d.specs.flatMap((s) =>
+        s.cells.map((c) => ({ spec: s.spec, grade: c.grade, n: c.n, withFsp: c.with_fsp, salary: c.salary_min })),
+      )
+      return { specs, cells, total: d.total, withFsp: d.with_fsp, surveyOnly: d.survey_only, privacyMinN: d.privacy_min_n, fetchedAt: Date.now() }
     },
+  })
+}
+
+export type SkillDict = Schemas['SkillOut']
+
+/** Справочник навыков для фильтра «стек» в банке (GET /api/skills): по умолчанию только проверяемые тестом. */
+export function useSkills(testable = true) {
+  return useQuery({
+    queryKey: ['employer', 'skills', testable] as const,
+    staleTime: 60 * 60_000,
+    queryFn: () => unwrap(api.GET('/api/skills', { params: { query: { testable } } })),
   })
 }
 

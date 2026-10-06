@@ -192,3 +192,30 @@ class HealthOut(BaseModel):
 
 class LiveOut(BaseModel):
     status: Literal["ok"] = Field(description="Процесс жив")
+
+
+# --- Удаление аккаунта (152-ФЗ, право на удаление) ---
+
+
+class AccountDeleteRequest(_Strict):
+    password: str | None = Field(
+        default=None,
+        max_length=256,
+        description="Текущий пароль — подтверждение удаления. Для аккаунта без пароля (вход через ФСП ID) не нужен",
+    )
+    confirm: str | None = Field(
+        default=None,
+        max_length=32,
+        description="Только для аккаунта без пароля: слово «УДАЛИТЬ» вместо пароля",
+        examples=["УДАЛИТЬ"],
+    )
+
+
+class AccountDeleteResponse(BaseModel):
+    deleted: Literal[True] = Field(description="Аккаунт удалён безвозвратно")
+    role: Literal["candidate", "employer"]
+    message: str = Field(description="Что произошло, готовый текст на русском")
+    removed: list[str] = Field(description="Что стёрто")
+    kept: list[str] = Field(description="Что остаётся и почему (без персональных данных)")
+    company_closed: bool = Field(default=False, description="Работодатель был последним в компании: компания закрыта")
+    invitations_withdrawn: int = Field(default=0, description="Сколько ждущих ответа приглашений отозвано (работодатель)")

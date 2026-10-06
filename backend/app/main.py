@@ -1,20 +1,24 @@
 """Точка входа FastAPI: фабрика приложения, CORS, обработчики ошибок, роутеры, документация.
 
 Запуск: `uvicorn app.main:app` (в compose — после `alembic upgrade head`).
-Документация: /api/docs (Swagger UI), /api/redoc (ReDoc без Google Fonts), /api/openapi.json.
+Документация: /api/docs (Swagger UI), /api/redoc (ReDoc), /api/openapi.json. Скрипты и стили документации лежат
+в app/static/docs и отдаются самим бэкендом (/api/docs-assets): ни cdn.jsdelivr.net, ни Google Fonts.
 """
 
 from __future__ import annotations
 
 import logging
+import mimetypes
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from fastapi.responses import HTMLResponse
 from starlette.responses import Response
+from starlette.staticfiles import StaticFiles
 
 from app.api.router import API_PREFIX, OPENAPI_TAGS, api_router
 from app.core.clock import clock
@@ -22,8 +26,17 @@ from app.core.errors import install_error_handlers, internal_error_response
 from app.core.rate_limit import RateLimiter
 from app.core.settings import Settings, get_settings
 from app.mail.sender import Mailer, make_mailer
+from app.services.scheduler import scheduler_lifespan
 
 log = logging.getLogger("vzaimno")
+
+# На Windows реестр может отдать .js как text/plain, а при X-Content-Type-Options: nosniff браузер не выполнит такой
+# скрипт: тип фиксируем сами, не полагаясь на ОС.
+mimetypes.add_type("text/javascript", ".js")
+mimetypes.add_type("text/css", ".css")
+
+DOCS_ASSETS_DIR = Path(__file__).resolve().parent / "static" / "docs"
+DOCS_ASSETS_URL = f"{API_PREFIX}/docs-assets"
 
 DESCRIPTION = """
 **«Взаимно»** — платформа обратного подбора ИТ-специалистов с верифицированным профилем ФСП.
@@ -80,10 +93,13 @@ def create_app(settings: Settings | None = None, mailer: Mailer | None = None) -
     logging.basicConfig(level=settings.log_level)
 
     @asynccontextmanager
-    async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    async def lifespan(application: FastAPI) -> AsyncIterator[None]:
         if settings.demo_mode:
             _load_demo_clock()
-        yield
+        # Фоновые задачи: sweep сроков приглашений раз в минуту, ночные калибровка/CUSUM и чистка по срокам хранения.
+        # Не запускается в тестах (VZ_ENV=test) и при VZ_SCHEDULER_ENABLED=false (config/scheduler.yaml).
+        async with scheduler_lifespan(application, settings):
+            yield
 
     app = FastAPI(
         title="Взаимно API",
@@ -112,18 +128,31 @@ def create_app(settings: Settings | None = None, mailer: Mailer | None = None) -
     install_error_handlers(app)
     app.include_router(api_router)
 
+    # Ассеты Swagger UI и ReDoc отдаём сами: документация работает без интернета и не сообщает адрес
+    # посетителя внешним CDN и сервисам шрифтов (152-ФЗ: данные посетителей не уходят третьим сторонам).
+    app.mount(DOCS_ASSETS_URL, StaticFiles(directory=DOCS_ASSETS_DIR), name="docs-assets")
+
     @app.get(f"{API_PREFIX}/docs", include_in_schema=False)
     def swagger_ui() -> HTMLResponse:
         return get_swagger_ui_html(
             openapi_url=app.openapi_url or "",
             title="Взаимно API — Swagger UI",
+            swagger_js_url=f"{DOCS_ASSETS_URL}/swagger-ui-bundle.js",
+            swagger_css_url=f"{DOCS_ASSETS_URL}/swagger-ui.css",
+            swagger_favicon_url=f"{DOCS_ASSETS_URL}/favicon-32x32.png",
+            oauth2_redirect_url=None,
             swagger_ui_parameters={"persistAuthorization": True, "displayRequestDuration": True},
         )
 
     @app.get(f"{API_PREFIX}/redoc", include_in_schema=False)
     def redoc() -> HTMLResponse:
-        # Google Fonts отключены: документация не тянет внешние шрифты (152-ФЗ, работа без внешних CDN шрифтов)
-        return get_redoc_html(openapi_url=app.openapi_url or "", title="Взаимно API — ReDoc", with_google_fonts=False)
+        return get_redoc_html(
+            openapi_url=app.openapi_url or "",
+            title="Взаимно API — ReDoc",
+            redoc_js_url=f"{DOCS_ASSETS_URL}/redoc.standalone.js",
+            redoc_favicon_url=f"{DOCS_ASSETS_URL}/favicon-32x32.png",
+            with_google_fonts=False,
+        )
 
     return app
 

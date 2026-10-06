@@ -9,9 +9,11 @@ from __future__ import annotations
 
 import uuid
 from datetime import date, datetime
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
+
+from app.services.matching.schemas import CandidateCardOut
 
 # --- общее -------------------------------------------------------------------------------------
 
@@ -275,13 +277,60 @@ class InvitationEmployerCard(BaseModel):
     actions: list[str] = Field(description="Доступные работодателю действия (пути после /invitations/{id}/)")
 
 
+class ScoreSnapshotOut(BaseModel):
+    """Строка кандидата в подборке на момент приглашения/отклика (без id кандидата и доказательств — DECISIONS 20)."""
+
+    score: float | None = Field(default=None, description="Score 0–100")
+    rank: int | None = Field(default=None, description="Место в подборке брифа")
+    category: str | None = Field(default=None, description="«Специализация × грейд»")
+    spec: str | None = None
+    grade: str | None = None
+    parts: dict[str, float] = Field(default_factory=dict, description="Вклады компонентов Score")
+    why_you: list[str] = Field(default_factory=list, description="«Почему вы» — то, что увидел кандидат")
+
+
+class DisclosureInfoOut(BaseModel):
+    basis: str = Field(description="invitation | application")
+    fields: list[str] = Field(description="Какие поля разрешил показать кандидат")
+
+
+class EmployerCandidateBlind(CandidateCardOut):
+    """CandidateBlind: карточка панели подборки (CandidateCardOut) как есть. В схеме НЕТ полей ПДн вообще — не «пустых»,
+    а отсутствующих: контракт концепции §4.5 («0 полей ПДн до взаимного да») проверяется по ключам ответа."""
+
+    view: Literal["blind"] = "blind"
+
+
+class EmployerCandidateDisclosed(CandidateCardOut):
+    """CandidateDisclosed: та же карточка плюс плоские контакты, которые кандидат разрешил показать этой компании
+    (nullable: поле, которое он не разрешил, приходит null). Только при действующем ContactDisclosure пары."""
+
+    view: Literal["disclosed"] = "disclosed"
+    full_name: str | None = Field(default=None, description="Имя, если кандидат разрешил")
+    photo_url: str | None = None
+    email: str | None = None
+    phone: str | None = None
+    telegram: str | None = None
+    resume: str | None = Field(default=None, description="Самоописание: заявлено кандидатом, в Score не входит")
+    current_employer: str | None = None
+    university: str | None = None
+    city: str | None = Field(default=None, description="Город — открывается вместе с контактами")
+    disclosure: DisclosureInfoOut | None = Field(default=None, description="Основание и состав раскрытия")
+
+
+# Одна форма карточки для панели подборки, приглашений и откликов; вид определяет `view`.
+EmployerCandidateOut = Annotated[
+    EmployerCandidateBlind | EmployerCandidateDisclosed, Field(discriminator="view")
+]
+
+
 class InvitationEmployerDetail(InvitationEmployerCard):
     terms: list[TermsOut]
     why_you: list[str]
     caution: list[str]
-    score_snapshot: dict[str, Any] | None = None
+    score_snapshot: ScoreSnapshotOut | None = None
     events: list[EventOut]
-    candidate: dict[str, Any] = Field(
+    candidate: EmployerCandidateOut = Field(
         description="CandidateBlind до взаимного «да», CandidateDisclosed — при действующем согласии"
     )
 
@@ -508,7 +557,8 @@ class VacancyOut(BaseModel):
     salary: SalaryOut
     format: str | None = None
     format_label: str | None = None
-    city: str | None = None
+    city: str | None = Field(default=None, description="Город как указан в вакансии (код справочника или текст)")
+    city_name: str | None = Field(default=None, description="Название города для показа: «Москва», а не moscow")
     status: str
     published_text: str | None = None
 
@@ -586,8 +636,8 @@ class ApplicationEmployerCard(BaseModel):
 
 class ApplicationEmployerDetail(ApplicationEmployerCard):
     vacancy: VacancyOut
-    score_snapshot: dict[str, Any] | None = None
-    candidate: dict[str, Any] = Field(description="Карточка кандидата: контакты видны — он откликнулся сам")
+    score_snapshot: ScoreSnapshotOut | None = None
+    candidate: EmployerCandidateOut = Field(description="Карточка кандидата: контакты видны — он откликнулся сам")
     events: list[EventOut]
     reject_reasons: dict[str, str]
 

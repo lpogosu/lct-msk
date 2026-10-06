@@ -2211,6 +2211,139 @@
             "Bearer": []
           }
         ]
+      },
+      "delete": {
+        "tags": [
+          "Компании"
+        ],
+        "summary": "Удалить аккаунт работодателя",
+        "description": "Право на удаление (152-ФЗ): подтверждение паролем. Удаляется аккаунт работодателя (email, сессии). Если он был последним в компании, её ждущие приглашения отзываются («позиция закрыта»), брифы и вакансии закрываются, контакты связи и вебхук ATS стираются; название компании остаётся в истории приглашений кандидатов. Необратимо; на адрес аккаунта уходит письмо-подтверждение. 403 `password_invalid`; 429 — не больше 5 попыток в час.",
+        "operationId": "delete_me_api_companies_me_delete",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountDeleteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountDeleteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
       }
     },
     "/api/companies/me/preview": {
@@ -2998,6 +3131,139 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProfileOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Кандидат"
+        ],
+        "summary": "Удалить аккаунт",
+        "description": "Право на удаление (152-ФЗ): подтверждение паролем (для аккаунта без пароля — слово «УДАЛИТЬ» в `confirm`). Стирает профиль, резюме, ответы опроса и тестов, приглашения и отклики с раскрытыми контактами, привязку ФСП ID и данные реестра, согласия; завершает все сессии. Остаётся запись журнала аудита без персональных данных. Необратимо; на адрес аккаунта уходит письмо-подтверждение. 403 `password_invalid` — неверный пароль (аккаунт не тронут); 400 `confirm_phrase_required`; 429 — не больше 5 попыток в час.",
+        "operationId": "delete_me_api_candidates_me_delete",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountDeleteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountDeleteResponse"
                 }
               }
             }
@@ -10966,6 +11232,131 @@
             }
           }
         }
+      }
+    },
+    "/api/bank/summary": {
+      "get": {
+        "tags": [
+          "Потребности и подборка"
+        ],
+        "summary": "Сводка банка для карты талантов",
+        "description": "Одним запросом: по каждой специализации и грейду — число подтверждённых тестом кандидатов, доля с ФСП и ожидания по зарплате «на руки» (P25/P50/P75); плюс сколько прошли опрос по направлению и ждут теста. Те же правила видимости, что у списка банка, каждый кандидат считается один раз — лучшей категорией. Приватность: P25/P50/P75 появляются, когда в ячейке не меньше `privacy_min_n` кандидатов с указанным минимумом, и округлены до ступени. Лимит запросов отдельный от списка банка: карта не съедает его.",
+        "operationId": "bank_summary_api_bank_summary_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BankSummaryOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
       }
     },
     "/api/invitations": {
@@ -19033,7 +19424,7 @@
           "ФСП"
         ],
         "summary": "Завершить вход через ФСП ID",
-        "description": "Фронтенд передаёт `code` и `state`, которые ФСП ID вернул в адрес возврата. Бэкенд меняет код на токены (PKCE), проверяет подпись id_token по JWKS, issuer, audience и nonce. Привязка (`mode=link`) завершается только тем же аккаунтом, что её начал (Bearer). Результат: `linked`, `logged_in` (сессия, refresh — в cookie) или `email_verification_required` (первый вход: аккаунт создан, код отправлен на email из ФСП ID — DECISIONS п. 12; согласие на обогащение применится после подтверждения email). Ошибки: 400 `fsp_state_invalid` / `fsp_state_mismatch` / `fsp_code_invalid` / `fsp_token_invalid` / `consent_required` / `fsp_email_missing`; 403 `fsp_state_foreign`; 409 `fsp_id_taken` / `fsp_already_linked` / `email_taken` / `email_pending`; 503 — ФСП ID недоступен.",
+        "description": "Фронтенд передаёт `code` и `state`, которые ФСП ID вернул в адрес возврата. Бэкенд меняет код на токены (PKCE), проверяет подпись id_token по JWKS, issuer, audience и nonce. Привязка (`mode=link`) завершается только тем же аккаунтом, что её начал (Bearer). Результат: `linked`, `logged_in` (сессия, refresh — в cookie) или `email_verification_required` (первый вход: аккаунт создан, код отправлен на email из ФСП ID — DECISIONS п. 12; согласие на обогащение применится после подтверждения email). Ошибки: 400 `fsp_state_invalid` / `fsp_state_mismatch` / `fsp_code_invalid` / `fsp_token_invalid` / `consent_required` / `fsp_email_missing`; 403 `fsp_state_foreign`; 409 `fsp_id_taken` / `fsp_already_linked` / `email_taken` / `email_pending`; 503 — ФСП ID недоступен. Переход браузера на этот адрес (redirect URI = адрес бэкенда) отвечает 303 на страницу фронтенда `/candidate/fsp/callback` с теми же `code`, `state` (и `error`, если ФСП ID отказал).",
         "operationId": "callback_api_fsp_callback_get",
         "security": [
           {
@@ -19044,11 +19435,17 @@
           {
             "name": "code",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 2048,
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 2048
+                },
+                {
+                  "type": "null"
+                }
+              ],
               "description": "Код авторизации из адреса возврата",
               "title": "Code"
             },
@@ -19057,15 +19454,59 @@
           {
             "name": "state",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
-              "type": "string",
-              "minLength": 16,
-              "maxLength": 256,
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                {
+                  "type": "null"
+                }
+              ],
               "description": "state из адреса возврата",
               "title": "State"
             },
             "description": "state из адреса возврата"
+          },
+          {
+            "name": "error",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Код ошибки, если ФСП ID отказал во входе",
+              "title": "Error"
+            },
+            "description": "Код ошибки, если ФСП ID отказал во входе"
+          },
+          {
+            "name": "error_description",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 512
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Пояснение ошибки ФСП ID",
+              "title": "Error Description"
+            },
+            "description": "Пояснение ошибки ФСП ID"
           }
         ],
         "responses": {
@@ -19078,6 +19519,9 @@
                 }
               }
             }
+          },
+          "303": {
+            "description": "Переход браузера: перенаправление на страницу фронтенда"
           },
           "400": {
             "description": "Некорректный запрос",
@@ -23387,17 +23831,42 @@
           "Администрирование"
         ],
         "summary": "Сдвинуть часы демо",
-        "description": "«+1 день», «+3 дня» или сброс смещения (app.core.clock). Двигает сроки приглашений, откликов и свежесть тестов; сразу применяет сроки (истёкшие приглашения, «нет ответа»), смещение переживает перезапуск. Нужен вход под любой ролью.",
+        "description": "«+1 день», «+3 дня» или сброс смещения (app.core.clock). Двигает сроки приглашений, откликов и свежесть тестов; сразу применяет сроки (истёкшие приглашения, «нет ответа»), смещение переживает перезапуск. Нужен вход под любой ролью; на боевом стенде (VZ_ENV=prod) — только администратор или заголовок X-Demo-Key.",
         "operationId": "clock_shift_api_demo_clock_post",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-Demo-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Ключ управления демо (VZ_DEMO_CONTROL_KEY)",
+              "title": "X-Demo-Key"
+            },
+            "description": "Ключ управления демо (VZ_DEMO_CONTROL_KEY)"
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ClockShiftIn"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
@@ -23414,12 +23883,12 @@
             "description": "Некорректный запрос",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "bad_request",
                   "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23428,12 +23897,12 @@
             "description": "Требуется вход или токен недействителен",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "unauthorized",
                   "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23442,12 +23911,12 @@
             "description": "Недостаточно прав",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "forbidden",
                   "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23456,12 +23925,12 @@
             "description": "Не найдено",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "not_found",
                   "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23470,12 +23939,12 @@
             "description": "Конфликт состояния",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "conflict",
                   "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23484,12 +23953,12 @@
             "description": "Ошибка валидации полей",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "validation_error",
                   "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23498,22 +23967,17 @@
             "description": "Слишком много запросов",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "rate_limited",
                   "message": "Слишком много запросов. Повторите через 30 с"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
           }
-        },
-        "security": [
-          {
-            "Bearer": []
-          }
-        ]
+        }
       }
     },
     "/api/demo/reset": {
@@ -23522,8 +23986,33 @@
           "Администрирование"
         ],
         "summary": "Сбросить демо-мир",
-        "description": "Быстро (секунды) возвращает мир к состоянию seed: часы, приглашения, отклики, брифы, персоны (Анна, Илья, ступенчатые аккаунты), «Мария» удаляется, чтобы зарегистрироваться заново. Синтетическая популяция с тестами не пересоздаётся. Нужен вход под любой ролью.",
+        "description": "Быстро (секунды) возвращает мир к состоянию seed: часы, приглашения, отклики, брифы, персоны (Анна, Илья, ступенчатые аккаунты), «Мария» удаляется, чтобы зарегистрироваться заново. Синтетическая популяция с тестами не пересоздаётся. Режим жюри сохраняет своё значение (сброс его не выключает). Нужен вход под любой ролью; на боевом стенде (VZ_ENV=prod) — только администратор или заголовок X-Demo-Key.",
         "operationId": "reset_api_demo_reset_post",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-Demo-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Ключ управления демо (VZ_DEMO_CONTROL_KEY)",
+              "title": "X-Demo-Key"
+            },
+            "description": "Ключ управления демо (VZ_DEMO_CONTROL_KEY)"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -23539,12 +24028,12 @@
             "description": "Некорректный запрос",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "bad_request",
                   "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23553,12 +24042,12 @@
             "description": "Требуется вход или токен недействителен",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "unauthorized",
                   "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23567,12 +24056,12 @@
             "description": "Недостаточно прав",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "forbidden",
                   "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23581,12 +24070,12 @@
             "description": "Не найдено",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "not_found",
                   "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23595,12 +24084,12 @@
             "description": "Конфликт состояния",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "conflict",
                   "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23609,12 +24098,12 @@
             "description": "Ошибка валидации полей",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "validation_error",
                   "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23623,22 +24112,17 @@
             "description": "Слишком много запросов",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "rate_limited",
                   "message": "Слишком много запросов. Повторите через 30 с"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
           }
-        },
-        "security": [
-          {
-            "Bearer": []
-          }
-        ]
+        }
       }
     },
     "/api/demo/autoresponder": {
@@ -23647,17 +24131,42 @@
           "Администрирование"
         ],
         "summary": "Автоответчик синтетических кандидатов",
-        "description": "Включить/выключить автоответчик и/или ответить прямо сейчас (`respond_now`). Правила: «Да», если верхняя граница вилки не ниже минимума и формат подходит; «Да, если: от min», если минимум выше вилки не более чем в 1,2 раза; иначе «Нет» с причиной из персоны. В штатном режиме отвечает через 30–90 с после отправки. Нужен вход под любой ролью.",
+        "description": "Включить/выключить автоответчик и/или ответить прямо сейчас (`respond_now`). Правила: «Да», если верхняя граница вилки не ниже минимума и формат подходит; «Да, если: от min», если минимум выше вилки не более чем в 1,2 раза; иначе «Нет» с причиной из персоны. В штатном режиме отвечает через 30–90 с после отправки. Нужен вход под любой ролью; на боевом стенде — только администратор или X-Demo-Key.",
         "operationId": "autoresponder_control_api_demo_autoresponder_post",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-Demo-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Ключ управления демо (VZ_DEMO_CONTROL_KEY)",
+              "title": "X-Demo-Key"
+            },
+            "description": "Ключ управления демо (VZ_DEMO_CONTROL_KEY)"
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/AutoresponderIn"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
@@ -23674,12 +24183,12 @@
             "description": "Некорректный запрос",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "bad_request",
                   "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23688,12 +24197,12 @@
             "description": "Требуется вход или токен недействителен",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "unauthorized",
                   "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23702,12 +24211,12 @@
             "description": "Недостаточно прав",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "forbidden",
                   "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23716,12 +24225,12 @@
             "description": "Не найдено",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "not_found",
                   "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23730,12 +24239,12 @@
             "description": "Конфликт состояния",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "conflict",
                   "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23744,12 +24253,12 @@
             "description": "Ошибка валидации полей",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "validation_error",
                   "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23758,22 +24267,17 @@
             "description": "Слишком много запросов",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "rate_limited",
                   "message": "Слишком много запросов. Повторите через 30 с"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
           }
-        },
-        "security": [
-          {
-            "Bearer": []
-          }
-        ]
+        }
       }
     },
     "/api/demo/jury-mode": {
@@ -23782,17 +24286,42 @@
           "Администрирование"
         ],
         "summary": "Режим жюри",
-        "description": "Включает или выключает «режим жюри» (RK2): кандидату доступна подсказка к текущему заданию, сессии, начатые в этом режиме, помечаются demo_assisted и исключаются из метрик. Нужен вход под любой ролью.",
+        "description": "Включает или выключает «режим жюри» (RK2): кандидату доступна подсказка к текущему заданию, сессии, начатые в этом режиме, помечаются demo_assisted и исключаются из метрик. Нужен вход под любой ролью; на боевом стенде (VZ_ENV=prod) переключает только администратор или X-Demo-Key — подсказка при включённом режиме доступна владельцу сессии.",
         "operationId": "jury_mode_api_demo_jury_mode_post",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-Demo-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Ключ управления демо (VZ_DEMO_CONTROL_KEY)",
+              "title": "X-Demo-Key"
+            },
+            "description": "Ключ управления демо (VZ_DEMO_CONTROL_KEY)"
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/JuryModeIn"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
@@ -23809,12 +24338,12 @@
             "description": "Некорректный запрос",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "bad_request",
                   "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23823,12 +24352,12 @@
             "description": "Требуется вход или токен недействителен",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "unauthorized",
                   "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23837,12 +24366,12 @@
             "description": "Недостаточно прав",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "forbidden",
                   "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23851,12 +24380,12 @@
             "description": "Не найдено",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "not_found",
                   "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23865,12 +24394,12 @@
             "description": "Конфликт состояния",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "conflict",
                   "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23879,12 +24408,12 @@
             "description": "Ошибка валидации полей",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "validation_error",
                   "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -23893,22 +24422,17 @@
             "description": "Слишком много запросов",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                },
                 "example": {
                   "code": "rate_limited",
                   "message": "Слишком много запросов. Повторите через 30 с"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
           }
-        },
-        "security": [
-          {
-            "Bearer": []
-          }
-        ]
+        }
       }
     },
     "/api/demo/jury/hint": {
@@ -25224,6 +25748,174 @@
           }
         ]
       }
+    },
+    "/api/skills": {
+      "get": {
+        "tags": [
+          "Потребности и подборка"
+        ],
+        "summary": "Справочник навыков",
+        "description": "Навыки справочника (config/skills.yaml) для фильтров банка и брифа: id, название, категория, модули теста, специализации и флаг `testable` — навык можно подтвердить тестом. Для фильтра «стек» в банке берутся `testable` навыки (остальные в банке будут только «заявлено»). Нужен вход.",
+        "operationId": "skills_list_api_skills_get",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "testable",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "true — только проверяемые тестом, false — только непроверяемые",
+              "title": "Testable"
+            },
+            "description": "true — только проверяемые тестом, false — только непроверяемые"
+          },
+          {
+            "name": "spec",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 32
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Только навыки, значимые для специализации",
+              "title": "Spec"
+            },
+            "description": "Только навыки, значимые для специализации"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SkillOut"
+                  },
+                  "title": "Response Skills List Api Skills Get"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -25257,6 +25949,104 @@
           "consent"
         ],
         "title": "AcceptIn"
+      },
+      "AccountDeleteRequest": {
+        "properties": {
+          "password": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password",
+            "description": "Текущий пароль — подтверждение удаления. Для аккаунта без пароля (вход через ФСП ID) не нужен"
+          },
+          "confirm": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confirm",
+            "description": "Только для аккаунта без пароля: слово «УДАЛИТЬ» вместо пароля",
+            "examples": [
+              "УДАЛИТЬ"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "AccountDeleteRequest"
+      },
+      "AccountDeleteResponse": {
+        "properties": {
+          "deleted": {
+            "type": "boolean",
+            "const": true,
+            "title": "Deleted",
+            "description": "Аккаунт удалён безвозвратно"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "candidate",
+              "employer"
+            ],
+            "title": "Role"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Что произошло, готовый текст на русском"
+          },
+          "removed": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Removed",
+            "description": "Что стёрто"
+          },
+          "kept": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Kept",
+            "description": "Что остаётся и почему (без персональных данных)"
+          },
+          "company_closed": {
+            "type": "boolean",
+            "title": "Company Closed",
+            "description": "Работодатель был последним в компании: компания закрыта",
+            "default": false
+          },
+          "invitations_withdrawn": {
+            "type": "integer",
+            "title": "Invitations Withdrawn",
+            "description": "Сколько ждущих ответа приглашений отозвано (работодатель)",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "deleted",
+          "role",
+          "message",
+          "removed",
+          "kept",
+          "company_closed",
+          "invitations_withdrawn"
+        ],
+        "title": "AccountDeleteResponse"
       },
       "ActLineOut": {
         "properties": {
@@ -25316,7 +26106,9 @@
           "no",
           "shown",
           "clipboard",
-          "changed"
+          "changed",
+          "shown_span",
+          "clipboard_span"
         ],
         "title": "ActLineOut"
       },
@@ -25621,6 +26413,7 @@
         "required": [
           "id",
           "source",
+          "session_id",
           "label",
           "headline_ru",
           "lead_ru",
@@ -25639,19 +26432,27 @@
           "kind",
           "matched",
           "matched_ru",
+          "strength",
           "verdict_ru",
           "phase",
           "phase_ru",
+          "copy_at",
+          "answered_at",
+          "warned_at",
           "p_honest",
           "p_honest_text",
           "stats",
           "checklist",
           "means_title",
           "means_ru",
+          "session",
           "review_status",
           "review_status_ru",
+          "review_note",
+          "reviewed_at",
           "actions",
-          "demo_assisted"
+          "demo_assisted",
+          "auto_ban"
         ],
         "title": "ActOut"
       },
@@ -25688,7 +26489,8 @@
         "required": [
           "id",
           "value",
-          "caption"
+          "caption",
+          "tone"
         ],
         "title": "ActStatOut"
       },
@@ -25875,8 +26677,12 @@
         "type": "object",
         "required": [
           "id",
+          "vacancy",
+          "company",
           "status",
           "status_label",
+          "submitted_text",
+          "score",
           "contacts_shared",
           "timers",
           "actions"
@@ -26001,11 +26807,17 @@
         "type": "object",
         "required": [
           "id",
+          "vacancy",
+          "company",
           "status",
           "status_label",
+          "submitted_text",
+          "score",
           "contacts_shared",
           "timers",
           "actions",
+          "reject_reason",
+          "reject_reason_label",
           "feedback",
           "disclosure_fields",
           "events"
@@ -26155,10 +26967,16 @@
           "id",
           "vacancy_id",
           "pseudonym",
+          "candidate_ref",
           "status",
           "status_label",
+          "score",
+          "category",
+          "submitted_text",
           "viewed",
           "contacts_visible",
+          "reject_reason",
+          "reject_reason_label",
           "timers",
           "actions"
         ],
@@ -26278,20 +27096,31 @@
           "score_snapshot": {
             "anyOf": [
               {
-                "additionalProperties": true,
-                "type": "object"
+                "$ref": "#/components/schemas/ScoreSnapshotOut"
               },
               {
                 "type": "null"
               }
-            ],
-            "title": "Score Snapshot"
+            ]
           },
           "candidate": {
-            "additionalProperties": true,
-            "type": "object",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/EmployerCandidateBlind"
+              },
+              {
+                "$ref": "#/components/schemas/EmployerCandidateDisclosed"
+              }
+            ],
             "title": "Candidate",
-            "description": "Карточка кандидата: контакты видны — он откликнулся сам"
+            "description": "Карточка кандидата: контакты видны — он откликнулся сам",
+            "discriminator": {
+              "propertyName": "view",
+              "mapping": {
+                "blind": "#/components/schemas/EmployerCandidateBlind",
+                "disclosed": "#/components/schemas/EmployerCandidateDisclosed"
+              }
+            }
           },
           "events": {
             "items": {
@@ -26313,13 +27142,20 @@
           "id",
           "vacancy_id",
           "pseudonym",
+          "candidate_ref",
           "status",
           "status_label",
+          "score",
+          "category",
+          "submitted_text",
           "viewed",
           "contacts_visible",
+          "reject_reason",
+          "reject_reason_label",
           "timers",
           "actions",
           "vacancy",
+          "score_snapshot",
           "candidate",
           "events",
           "reject_reasons"
@@ -26353,6 +27189,10 @@
           }
         },
         "type": "object",
+        "required": [
+          "sla_due_at",
+          "sla_due_text"
+        ],
         "title": "ApplicationTimersOut"
       },
       "ApplyIn": {
@@ -26507,13 +27347,18 @@
           "kind",
           "kind_label",
           "title",
+          "module",
+          "module_name",
           "minutes",
           "effect",
           "origin",
           "source",
           "status",
           "status_label",
+          "due_text",
+          "solve_until_text",
           "not_real_work_label",
+          "result",
           "outcome"
         ],
         "title": "AssignmentActionOut"
@@ -26632,13 +27477,18 @@
           "kind",
           "kind_label",
           "title",
+          "module",
+          "module_name",
           "minutes",
           "effect",
           "origin",
           "source",
           "status",
           "status_label",
-          "not_real_work_label"
+          "due_text",
+          "solve_until_text",
+          "not_real_work_label",
+          "result"
         ],
         "title": "AssignmentOut"
       },
@@ -26704,6 +27554,13 @@
           }
         },
         "type": "object",
+        "required": [
+          "score",
+          "score_text",
+          "is_correct",
+          "rubric_scores",
+          "review_comment"
+        ],
         "title": "AssignmentResultOut"
       },
       "AssignmentStartOut": {
@@ -26868,13 +27725,22 @@
           "kind",
           "kind_label",
           "title",
+          "module",
+          "module_name",
           "minutes",
           "effect",
           "origin",
           "source",
           "status",
           "status_label",
-          "not_real_work_label"
+          "due_text",
+          "solve_until_text",
+          "not_real_work_label",
+          "result",
+          "item",
+          "prompt",
+          "rubric",
+          "answer_max_len"
         ],
         "title": "AssignmentStartOut"
       },
@@ -26979,7 +27845,12 @@
           "kind_ru",
           "status",
           "status_ru",
-          "claimed_grade"
+          "claimed_grade",
+          "decision",
+          "decision_ru",
+          "score",
+          "started_at",
+          "started_ago"
         ],
         "title": "AttemptOut"
       },
@@ -27036,6 +27907,10 @@
         },
         "type": "object",
         "required": [
+          "specialization",
+          "specialization_name",
+          "grade",
+          "grade_name",
           "window"
         ],
         "title": "AudienceOut"
@@ -27105,7 +27980,13 @@
         },
         "type": "object",
         "required": [
-          "enabled"
+          "enabled",
+          "answered",
+          "accepted",
+          "countered",
+          "declined",
+          "skipped",
+          "errors"
         ],
         "title": "AutoresponderOut"
       },
@@ -27324,6 +28205,7 @@
         "required": [
           "count",
           "page",
+          "label",
           "items"
         ],
         "title": "BankHiddenOut"
@@ -27540,7 +28422,10 @@
           "search_mode",
           "region",
           "shortlisted_in",
-          "shortlisted"
+          "shortlisted",
+          "invitation_status",
+          "invitation_label",
+          "hidden_by"
         ],
         "title": "BankItemOut"
       },
@@ -27585,9 +28470,175 @@
         },
         "type": "object",
         "required": [
-          "visible"
+          "visible",
+          "reasons"
         ],
         "title": "BankStatusOut"
+      },
+      "BankSummaryCellOut": {
+        "properties": {
+          "grade": {
+            "type": "string",
+            "enum": [
+              "intern",
+              "junior",
+              "middle",
+              "senior"
+            ],
+            "title": "Grade"
+          },
+          "n": {
+            "type": "integer",
+            "title": "N",
+            "description": "Подтверждённых тестом кандидатов в категории — столько же в списке `GET /api/bank?category=spec:grade`"
+          },
+          "with_fsp": {
+            "type": "integer",
+            "title": "With Fsp",
+            "description": "Из них с достижениями ФСП"
+          },
+          "fsp_share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fsp Share",
+            "description": "Доля с ФСП (0–1); null, если в ячейке никого нет"
+          },
+          "salary_min": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SalaryQuantilesOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "P25/P50/P75 ожиданий; null, пока кандидатов с указанным минимумом меньше порога приватности (privacy_min_n)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "grade",
+          "n",
+          "with_fsp",
+          "fsp_share",
+          "salary_min"
+        ],
+        "title": "BankSummaryCellOut"
+      },
+      "BankSummaryOut": {
+        "properties": {
+          "specs": {
+            "items": {
+              "$ref": "#/components/schemas/BankSummarySpecOut"
+            },
+            "type": "array",
+            "title": "Specs"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "Уникальных кандидатов в банке (Fullstack-кандидат входит в несколько ячеек, но здесь один раз)"
+          },
+          "with_fsp": {
+            "type": "integer",
+            "title": "With Fsp"
+          },
+          "survey_only": {
+            "type": "integer",
+            "title": "Survey Only"
+          },
+          "privacy_min_n": {
+            "type": "integer",
+            "title": "Privacy Min N",
+            "description": "Минимум кандидатов с указанным минимумом зарплаты, чтобы показать P25/P50/P75"
+          },
+          "salary_basis": {
+            "type": "string",
+            "const": "net",
+            "title": "Salary Basis",
+            "description": "Ожидания приведены к «на руки»"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time",
+            "title": "As Of",
+            "description": "Момент расчёта по часам платформы"
+          }
+        },
+        "type": "object",
+        "required": [
+          "specs",
+          "total",
+          "with_fsp",
+          "survey_only",
+          "privacy_min_n",
+          "salary_basis",
+          "as_of"
+        ],
+        "title": "BankSummaryOut"
+      },
+      "BankSummarySpecOut": {
+        "properties": {
+          "spec": {
+            "type": "string",
+            "title": "Spec",
+            "description": "Код специализации (config/taxonomy.yaml)"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "active — тест есть; derived — собирается из двух квалификаций; survey_only — только опрос"
+          },
+          "testable": {
+            "type": "boolean",
+            "title": "Testable",
+            "description": "По направлению есть собственный тест"
+          },
+          "n": {
+            "type": "integer",
+            "title": "N",
+            "description": "Подтверждённых тестом кандидатов по направлению"
+          },
+          "with_fsp": {
+            "type": "integer",
+            "title": "With Fsp"
+          },
+          "survey_only": {
+            "type": "integer",
+            "title": "Survey Only",
+            "description": "Прошли опрос по этому направлению, но теста с подтверждённой категорией ещё нет («ждут теста»)"
+          },
+          "cells": {
+            "items": {
+              "$ref": "#/components/schemas/BankSummaryCellOut"
+            },
+            "type": "array",
+            "title": "Cells",
+            "description": "Четыре грейда по порядку: intern, junior, middle, senior"
+          }
+        },
+        "type": "object",
+        "required": [
+          "spec",
+          "name",
+          "status",
+          "testable",
+          "n",
+          "with_fsp",
+          "survey_only",
+          "cells"
+        ],
+        "title": "BankSummarySpecOut"
       },
       "BatchOut": {
         "properties": {
@@ -27756,8 +28807,15 @@
         "type": "object",
         "required": [
           "pseudonym",
+          "category",
           "badge",
+          "score",
+          "interval80",
+          "confidence_pct",
           "how_obtained",
+          "modules",
+          "trust",
+          "freshness",
           "note"
         ],
         "title": "BlindCardPreviewOut"
@@ -27863,6 +28921,7 @@
           "must",
           "nice",
           "formats",
+          "city",
           "salary_from",
           "salary_to",
           "salary_net"
@@ -28182,9 +29241,17 @@
           "survey_done",
           "mode",
           "grades",
+          "experience_months",
+          "experience_hint",
+          "senior_warning",
           "rules",
           "consent",
-          "can_start"
+          "can_start",
+          "current_grade",
+          "upgrade_target",
+          "next_change_allowed_at",
+          "next_change_in",
+          "active_session_id"
         ],
         "title": "BriefingOut"
       },
@@ -28476,7 +29543,27 @@
           "pseudonym",
           "ref",
           "available",
-          "category"
+          "note",
+          "category",
+          "grade_history",
+          "test_date",
+          "skills",
+          "declared_skills",
+          "tasks",
+          "freshness",
+          "industries",
+          "formats",
+          "search_mode",
+          "has_fsp",
+          "test",
+          "fsp",
+          "fsp_line",
+          "fsp_badges",
+          "fsp_source",
+          "salary",
+          "region",
+          "selection",
+          "disclosed"
         ],
         "title": "CandidateCardOut"
       },
@@ -28565,6 +29652,8 @@
           "status",
           "status_ru",
           "created_at",
+          "created_ago",
+          "dispute_text",
           "can_dispute"
         ],
         "title": "CandidateFlagOut"
@@ -28813,6 +29902,9 @@
           "p",
           "kind",
           "status",
+          "n",
+          "note",
+          "selected",
           "share_fsp",
           "share_active",
           "reach"
@@ -28916,7 +30008,10 @@
           "name",
           "p",
           "kind",
-          "status"
+          "status",
+          "n",
+          "note",
+          "selected"
         ],
         "title": "CategoryRecOut"
       },
@@ -29082,6 +30177,7 @@
         "type": "object",
         "required": [
           "pseudonym",
+          "candidate_ref",
           "done",
           "total",
           "correct",
@@ -29176,9 +30272,13 @@
         },
         "type": "object",
         "required": [
+          "module",
+          "module_name",
           "title",
           "status",
-          "status_label"
+          "status_label",
+          "is_correct",
+          "finished_text"
         ],
         "title": "CheckSetItemOut"
       },
@@ -29206,6 +30306,7 @@
         },
         "type": "object",
         "required": [
+          "ref",
           "pseudonym",
           "message"
         ],
@@ -29257,6 +30358,7 @@
         },
         "type": "object",
         "required": [
+          "ref",
           "pseudonym",
           "assignments"
         ],
@@ -29626,7 +30728,15 @@
           "seed",
           "variant_code",
           "prompt",
-          "answer_mode"
+          "code",
+          "language",
+          "options",
+          "lines",
+          "table",
+          "answer_mode",
+          "key",
+          "distractor_tags",
+          "explanation"
         ],
         "title": "CloneOut"
       },
@@ -29667,6 +30777,7 @@
         "required": [
           "family_id",
           "title",
+          "difficulty",
           "clones"
         ],
         "title": "ClonesOut"
@@ -29758,8 +30869,10 @@
         "required": [
           "id",
           "name",
+          "personal_email_label",
           "reliability",
-          "r"
+          "r",
+          "discrepancy_badge"
         ],
         "title": "CompanyBriefOut"
       },
@@ -29837,7 +30950,11 @@
         "required": [
           "id",
           "name",
+          "field",
+          "description",
+          "website",
           "personal_email",
+          "personal_email_label",
           "contact_methods",
           "reliability"
         ],
@@ -30106,6 +31223,7 @@
         "required": [
           "id",
           "name",
+          "field",
           "blocked"
         ],
         "title": "CompanySearchOut"
@@ -30284,9 +31402,11 @@
           "title",
           "text_version",
           "granted_ago",
+          "revoked_ago",
           "active",
           "revocable",
-          "effect_of_revoke"
+          "effect_of_revoke",
+          "scope"
         ],
         "title": "ConsentJournalOut"
       },
@@ -30345,6 +31465,8 @@
           "purpose",
           "text_version",
           "granted_at",
+          "revoked_at",
+          "scope",
           "active"
         ],
         "title": "ConsentOut"
@@ -30668,9 +31790,14 @@
         },
         "type": "object",
         "required": [
+          "salary_from",
+          "format",
+          "start_date",
+          "comment",
           "auto_disclose",
           "summary",
-          "within_range"
+          "within_range",
+          "countered_at"
         ],
         "title": "CounterOut"
       },
@@ -30790,7 +31917,8 @@
         "required": [
           "id",
           "name",
-          "source"
+          "source",
+          "quote"
         ],
         "title": "DeclaredItemOut"
       },
@@ -30875,7 +32003,8 @@
         "required": [
           "code",
           "label",
-          "suggest_counter"
+          "suggest_counter",
+          "hint"
         ],
         "title": "DeclineReasonOut"
       },
@@ -31159,7 +32288,10 @@
           "demo_mode",
           "clock",
           "jury_mode",
+          "jury_mode_since",
           "autoresponder",
+          "seeded_at",
+          "scenario_built_at",
           "synthetic_candidates",
           "presets"
         ],
@@ -31284,10 +32416,659 @@
         "type": "object",
         "required": [
           "basis",
-          "fields"
+          "fields",
+          "full_name",
+          "email",
+          "phone",
+          "telegram",
+          "resume",
+          "current_employer",
+          "university",
+          "city",
+          "fsp_extract"
         ],
         "title": "DisclosedOut",
         "description": "Только при действующем согласии кандидата на эту компанию (ContactDisclosure)."
+      },
+      "DisclosureInfoOut": {
+        "properties": {
+          "basis": {
+            "type": "string",
+            "title": "Basis",
+            "description": "invitation | application"
+          },
+          "fields": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Fields",
+            "description": "Какие поля разрешил показать кандидат"
+          }
+        },
+        "type": "object",
+        "required": [
+          "basis",
+          "fields"
+        ],
+        "title": "DisclosureInfoOut"
+      },
+      "EmployerCandidateBlind": {
+        "properties": {
+          "view": {
+            "type": "string",
+            "const": "blind",
+            "title": "View",
+            "default": "blind"
+          },
+          "pseudonym": {
+            "type": "string",
+            "title": "Pseudonym"
+          },
+          "ref": {
+            "type": "string",
+            "title": "Ref"
+          },
+          "available": {
+            "type": "boolean",
+            "title": "Available",
+            "description": "Кандидат сейчас виден в подборе"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CardCategoryOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "grade_history": {
+            "items": {
+              "$ref": "#/components/schemas/app__services__matching__schemas__GradeChangeOut"
+            },
+            "type": "array",
+            "title": "Grade History"
+          },
+          "test_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Date"
+          },
+          "skills": {
+            "items": {
+              "$ref": "#/components/schemas/CardModuleOut"
+            },
+            "type": "array",
+            "title": "Skills",
+            "description": "Модули теста ✓ / ✓✓"
+          },
+          "declared_skills": {
+            "items": {
+              "$ref": "#/components/schemas/DeclaredOut"
+            },
+            "type": "array",
+            "title": "Declared Skills",
+            "description": "Серые чипы «заявлено»"
+          },
+          "tasks": {
+            "items": {
+              "$ref": "#/components/schemas/CardTaskOut"
+            },
+            "type": "array",
+            "title": "Tasks"
+          },
+          "freshness": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/app__services__matching__schemas__FreshnessOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "industries": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Industries"
+          },
+          "formats": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Formats"
+          },
+          "search_mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Search Mode"
+          },
+          "has_fsp": {
+            "type": "boolean",
+            "title": "Has Fsp",
+            "default": false
+          },
+          "test": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TestBandOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fsp": {
+            "items": {
+              "$ref": "#/components/schemas/FspPublicOut"
+            },
+            "type": "array",
+            "title": "Fsp",
+            "description": "Обобщённые результаты ФСП"
+          },
+          "fsp_line": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fsp Line"
+          },
+          "fsp_badges": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Fsp Badges"
+          },
+          "fsp_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fsp Source"
+          },
+          "salary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SalarySignalOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "«в вилке ✓ / выше вилки» или число"
+          },
+          "region": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Region",
+            "description": "Код субъекта РФ"
+          },
+          "selection": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SelectionItemOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Строка текущей версии подборки брифа"
+          },
+          "disclosed": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DisclosedOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Раскрытые данные (только после «да»)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "view",
+          "pseudonym",
+          "ref",
+          "available",
+          "note",
+          "category",
+          "grade_history",
+          "test_date",
+          "skills",
+          "declared_skills",
+          "tasks",
+          "freshness",
+          "industries",
+          "formats",
+          "search_mode",
+          "has_fsp",
+          "test",
+          "fsp",
+          "fsp_line",
+          "fsp_badges",
+          "fsp_source",
+          "salary",
+          "region",
+          "selection",
+          "disclosed"
+        ],
+        "title": "EmployerCandidateBlind",
+        "description": "CandidateBlind: карточка панели подборки (CandidateCardOut) как есть. В схеме НЕТ полей ПДн вообще — не «пустых»,\nа отсутствующих: контракт концепции §4.5 («0 полей ПДн до взаимного да») проверяется по ключам ответа."
+      },
+      "EmployerCandidateDisclosed": {
+        "properties": {
+          "view": {
+            "type": "string",
+            "const": "disclosed",
+            "title": "View",
+            "default": "disclosed"
+          },
+          "pseudonym": {
+            "type": "string",
+            "title": "Pseudonym"
+          },
+          "ref": {
+            "type": "string",
+            "title": "Ref"
+          },
+          "available": {
+            "type": "boolean",
+            "title": "Available",
+            "description": "Кандидат сейчас виден в подборе"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CardCategoryOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "grade_history": {
+            "items": {
+              "$ref": "#/components/schemas/app__services__matching__schemas__GradeChangeOut"
+            },
+            "type": "array",
+            "title": "Grade History"
+          },
+          "test_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Date"
+          },
+          "skills": {
+            "items": {
+              "$ref": "#/components/schemas/CardModuleOut"
+            },
+            "type": "array",
+            "title": "Skills",
+            "description": "Модули теста ✓ / ✓✓"
+          },
+          "declared_skills": {
+            "items": {
+              "$ref": "#/components/schemas/DeclaredOut"
+            },
+            "type": "array",
+            "title": "Declared Skills",
+            "description": "Серые чипы «заявлено»"
+          },
+          "tasks": {
+            "items": {
+              "$ref": "#/components/schemas/CardTaskOut"
+            },
+            "type": "array",
+            "title": "Tasks"
+          },
+          "freshness": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/app__services__matching__schemas__FreshnessOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "industries": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Industries"
+          },
+          "formats": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Formats"
+          },
+          "search_mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Search Mode"
+          },
+          "has_fsp": {
+            "type": "boolean",
+            "title": "Has Fsp",
+            "default": false
+          },
+          "test": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TestBandOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fsp": {
+            "items": {
+              "$ref": "#/components/schemas/FspPublicOut"
+            },
+            "type": "array",
+            "title": "Fsp",
+            "description": "Обобщённые результаты ФСП"
+          },
+          "fsp_line": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fsp Line"
+          },
+          "fsp_badges": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Fsp Badges"
+          },
+          "fsp_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fsp Source"
+          },
+          "salary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SalarySignalOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "«в вилке ✓ / выше вилки» или число"
+          },
+          "region": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Region",
+            "description": "Код субъекта РФ"
+          },
+          "selection": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SelectionItemOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Строка текущей версии подборки брифа"
+          },
+          "disclosed": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DisclosedOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Раскрытые данные (только после «да»)"
+          },
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name",
+            "description": "Имя, если кандидат разрешил"
+          },
+          "photo_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Photo Url"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          },
+          "telegram": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Telegram"
+          },
+          "resume": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resume",
+            "description": "Самоописание: заявлено кандидатом, в Score не входит"
+          },
+          "current_employer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Employer"
+          },
+          "university": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "University"
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City",
+            "description": "Город — открывается вместе с контактами"
+          },
+          "disclosure": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DisclosureInfoOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Основание и состав раскрытия"
+          }
+        },
+        "type": "object",
+        "required": [
+          "view",
+          "pseudonym",
+          "ref",
+          "available",
+          "note",
+          "category",
+          "grade_history",
+          "test_date",
+          "skills",
+          "declared_skills",
+          "tasks",
+          "freshness",
+          "industries",
+          "formats",
+          "search_mode",
+          "has_fsp",
+          "test",
+          "fsp",
+          "fsp_line",
+          "fsp_badges",
+          "fsp_source",
+          "salary",
+          "region",
+          "selection",
+          "disclosed",
+          "full_name",
+          "photo_url",
+          "email",
+          "phone",
+          "telegram",
+          "resume",
+          "current_employer",
+          "university",
+          "city",
+          "disclosure"
+        ],
+        "title": "EmployerCandidateDisclosed",
+        "description": "CandidateDisclosed: та же карточка плюс плоские контакты, которые кандидат разрешил показать этой компании\n(nullable: поле, которое он не разрешил, приходит null). Только при действующем ContactDisclosure пары."
       },
       "ErrorResponse": {
         "properties": {
@@ -31328,7 +33109,8 @@
         "type": "object",
         "required": [
           "code",
-          "message"
+          "message",
+          "details"
         ],
         "title": "ErrorResponse",
         "description": "Тело любой ошибки API."
@@ -31460,9 +33242,11 @@
           "seq",
           "at",
           "action",
+          "from_status",
           "to_status",
           "label",
-          "actor_role"
+          "actor_role",
+          "payload"
         ],
         "title": "EventOut"
       },
@@ -31575,7 +33359,9 @@
         },
         "type": "object",
         "required": [
-          "value"
+          "value",
+          "periods",
+          "overlap_months"
         ],
         "title": "ExperienceField"
       },
@@ -31637,11 +33423,13 @@
           "start",
           "end",
           "months",
+          "title",
+          "company",
           "quote"
         ],
         "title": "ExperiencePeriod"
       },
-      "ExperiencePeriodIO": {
+      "ExperiencePeriodIO-Input": {
         "properties": {
           "start": {
             "type": "string",
@@ -31692,6 +33480,63 @@
         "type": "object",
         "required": [
           "start"
+        ],
+        "title": "ExperiencePeriodIO"
+      },
+      "ExperiencePeriodIO-Output": {
+        "properties": {
+          "start": {
+            "type": "string",
+            "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
+            "title": "Start",
+            "description": "Начало, ГГГГ-ММ"
+          },
+          "end": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End",
+            "description": "Конец, ГГГГ-ММ; пусто — по настоящее время"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title",
+            "description": "Должность"
+          },
+          "company": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Company",
+            "description": "Компания"
+          }
+        },
+        "type": "object",
+        "required": [
+          "start",
+          "end",
+          "title",
+          "company"
         ],
         "title": "ExperiencePeriodIO"
       },
@@ -31756,6 +33601,7 @@
         "type": "object",
         "required": [
           "session",
+          "child",
           "message"
         ],
         "title": "ExtensionOut"
@@ -31826,8 +33672,10 @@
           "family_id",
           "title",
           "module",
+          "module_name",
           "specializations",
           "grade",
+          "grade_name",
           "minutes",
           "format",
           "calibrated"
@@ -31915,9 +33763,11 @@
           "difficulty_sd",
           "source",
           "n_responses",
+          "r_pb",
           "cusum",
           "exposure_30d",
-          "params_version"
+          "params_version",
+          "calibrated_at"
         ],
         "title": "FamilyScaleParamsOut"
       },
@@ -31952,6 +33802,7 @@
         "required": [
           "kind",
           "skill",
+          "module",
           "text"
         ],
         "title": "FeedbackLinkOut"
@@ -31989,6 +33840,7 @@
         "required": [
           "reason",
           "label",
+          "comment",
           "links"
         ],
         "title": "FeedbackOut"
@@ -32076,6 +33928,7 @@
         "type": "object",
         "required": [
           "code",
+          "value",
           "label"
         ],
         "title": "FilterOut"
@@ -32197,7 +34050,11 @@
         },
         "type": "object",
         "required": [
-          "result"
+          "result",
+          "demo",
+          "token",
+          "verification",
+          "fsp"
         ],
         "title": "FspAuthResultOut"
       },
@@ -32370,6 +34227,13 @@
           }
         },
         "type": "object",
+        "required": [
+          "discipline",
+          "level",
+          "year",
+          "role",
+          "place_band"
+        ],
         "title": "FspPublicOut"
       },
       "FspResultOut": {
@@ -32462,10 +34326,12 @@
           "level",
           "year",
           "place",
+          "role",
           "outcome",
           "confirmed",
           "hidden",
           "counted",
+          "employer_text",
           "status_label"
         ],
         "title": "FspResultOut"
@@ -32478,10 +34344,11 @@
               "not_linked",
               "linked_no_results",
               "awaiting_protocol",
-              "linked"
+              "linked",
+              "registry_unavailable"
             ],
             "title": "State",
-            "description": "not_linked / linked_no_results / awaiting_protocol / linked"
+            "description": "not_linked / linked_no_results / awaiting_protocol / linked; registry_unavailable — реестр ФСП не ответил (причина в sync_error), это НЕ «результатов нет»"
           },
           "status_line": {
             "type": "string",
@@ -32638,10 +34505,22 @@
           "state",
           "status_line",
           "linked",
+          "is_demo",
+          "linked_ago",
           "consent_fsp_enrichment",
           "consent_text_version",
+          "enrichment_requested",
           "preview_only",
+          "source_label",
+          "data_ago",
+          "sync_status",
+          "sync_error",
+          "results",
+          "badges",
           "employer_line",
+          "strength",
+          "extract",
+          "pending_count",
           "note"
         ],
         "title": "FspStatusOut"
@@ -32731,7 +34610,12 @@
         },
         "type": "object",
         "required": [
-          "value"
+          "value",
+          "label",
+          "quote",
+          "source",
+          "confidence",
+          "parts"
         ],
         "title": "FullNameField"
       },
@@ -32775,6 +34659,7 @@
           "code",
           "name",
           "score",
+          "anchor",
           "suggested"
         ],
         "title": "GradeCardOut"
@@ -33307,9 +35192,12 @@
           "id",
           "salary",
           "title",
+          "company",
           "status",
           "status_label",
           "is_new",
+          "caution",
+          "sent_text",
           "timers"
         ],
         "title": "InvitationCandidateCard"
@@ -33538,19 +35426,29 @@
           "id",
           "salary",
           "title",
+          "company",
           "status",
           "status_label",
           "is_new",
+          "caution",
           "caution_reasons",
+          "sent_text",
           "timers",
           "terms",
           "terms_history",
           "why_you",
+          "salary_vs_min",
+          "counter",
+          "counter_limits",
           "decline_reasons",
           "consent",
           "contacts_open",
           "contacted",
           "can_dispute",
+          "outcome",
+          "outcome_label",
+          "outcome_check_options",
+          "outcome_check",
           "feedback",
           "actions",
           "reported",
@@ -33940,17 +35838,29 @@
         "required": [
           "id",
           "pseudonym",
+          "candidate_ref",
+          "need_id",
+          "vacancy_id",
           "status",
           "status_label",
           "title",
           "salary",
           "sent_at",
+          "sent_text",
           "viewed",
           "contacts_open",
           "contacted",
           "contact_overdue",
           "disputed",
+          "stage",
+          "outcome",
           "flags",
+          "score",
+          "rank_at_send",
+          "counter",
+          "decline_reason",
+          "decline_reason_label",
+          "decline_comment",
           "timers",
           "actions"
         ],
@@ -34183,14 +36093,12 @@
           "score_snapshot": {
             "anyOf": [
               {
-                "additionalProperties": true,
-                "type": "object"
+                "$ref": "#/components/schemas/ScoreSnapshotOut"
               },
               {
                 "type": "null"
               }
-            ],
-            "title": "Score Snapshot"
+            ]
           },
           "events": {
             "items": {
@@ -34200,32 +36108,58 @@
             "title": "Events"
           },
           "candidate": {
-            "additionalProperties": true,
-            "type": "object",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/EmployerCandidateBlind"
+              },
+              {
+                "$ref": "#/components/schemas/EmployerCandidateDisclosed"
+              }
+            ],
             "title": "Candidate",
-            "description": "CandidateBlind до взаимного «да», CandidateDisclosed — при действующем согласии"
+            "description": "CandidateBlind до взаимного «да», CandidateDisclosed — при действующем согласии",
+            "discriminator": {
+              "propertyName": "view",
+              "mapping": {
+                "blind": "#/components/schemas/EmployerCandidateBlind",
+                "disclosed": "#/components/schemas/EmployerCandidateDisclosed"
+              }
+            }
           }
         },
         "type": "object",
         "required": [
           "id",
           "pseudonym",
+          "candidate_ref",
+          "need_id",
+          "vacancy_id",
           "status",
           "status_label",
           "title",
           "salary",
           "sent_at",
+          "sent_text",
           "viewed",
           "contacts_open",
           "contacted",
           "contact_overdue",
           "disputed",
+          "stage",
+          "outcome",
           "flags",
+          "score",
+          "rank_at_send",
+          "counter",
+          "decline_reason",
+          "decline_reason_label",
+          "decline_comment",
           "timers",
           "actions",
           "terms",
           "why_you",
           "caution",
+          "score_snapshot",
           "events",
           "candidate"
         ],
@@ -34329,8 +36263,11 @@
           "title",
           "description",
           "salary",
+          "format_label",
+          "contact_method_label",
           "respond_in_days",
           "company",
+          "caution",
           "caution_reasons",
           "checks",
           "quota"
@@ -34551,11 +36488,18 @@
           "seq",
           "variant_code",
           "prompt",
+          "code",
+          "language",
+          "options",
+          "lines",
+          "table",
           "answer_mode",
+          "answer_hint",
           "answer_format",
           "time_limit_s",
           "deadline_at",
-          "seconds_left"
+          "seconds_left",
+          "clip"
         ],
         "title": "ItemOut"
       },
@@ -34607,6 +36551,7 @@
           "seq",
           "answer_mode",
           "answer",
+          "answer_text",
           "demo_assisted",
           "note"
         ],
@@ -34711,6 +36656,8 @@
           "columns",
           "funnel",
           "decline_summary",
+          "decline_hint",
+          "avg_rank_at_send",
           "quota"
         ],
         "title": "KanbanOut"
@@ -34749,7 +36696,10 @@
         },
         "type": "object",
         "required": [
-          "used"
+          "used",
+          "provider",
+          "added",
+          "rejected"
         ],
         "title": "LLMInfo"
       },
@@ -34885,10 +36835,17 @@
         "required": [
           "id",
           "session_id",
+          "candidate_id",
+          "session_status",
           "kind",
           "severity",
+          "value",
           "message",
+          "family_id",
+          "source_session_id",
+          "evidence",
           "status",
+          "dispute_text",
           "created_at"
         ],
         "title": "LabFlagOut"
@@ -35028,13 +36985,20 @@
         "type": "object",
         "required": [
           "id",
+          "candidate_id",
           "specialization",
           "kind",
           "status",
           "claimed_grade",
+          "decision",
           "n_items",
+          "score",
+          "trust",
           "flags_open",
-          "demo_assisted"
+          "demo_assisted",
+          "parent_session_id",
+          "started_at",
+          "finished_at"
         ],
         "title": "LabSessionOut"
       },
@@ -35266,7 +37230,17 @@
           "rubric",
           "listen_for_ru",
           "calibrated",
-          "verified_by"
+          "label_ru",
+          "variant_code",
+          "method",
+          "verified_by",
+          "candidate_answer",
+          "changed",
+          "variant_text",
+          "expected_answer",
+          "family_id",
+          "seed",
+          "selection_reason"
         ],
         "title": "LabVerificationQuestionOut"
       },
@@ -35333,7 +37307,8 @@
         "required": [
           "id",
           "name",
-          "quote"
+          "quote",
+          "source"
         ],
         "title": "ListItem"
       },
@@ -35419,6 +37394,8 @@
         "type": "object",
         "required": [
           "mean",
+          "ci_low",
+          "ci_high",
           "n_briefs"
         ],
         "title": "MetricOut"
@@ -35590,6 +37567,11 @@
           }
         },
         "type": "object",
+        "required": [
+          "last",
+          "first",
+          "middle"
+        ],
         "title": "NameParts"
       },
       "NeedCreateIn": {
@@ -35925,6 +37907,7 @@
           "id",
           "title",
           "status",
+          "close_reason",
           "specialization",
           "grade",
           "category",
@@ -35938,7 +37921,9 @@
           "updated_at",
           "text",
           "brief",
-          "parse"
+          "parse",
+          "warnings",
+          "categories"
         ],
         "title": "NeedOut"
       },
@@ -36189,7 +38174,8 @@
         "type": "object",
         "required": [
           "need",
-          "version"
+          "version",
+          "withdrawn_invitations"
         ],
         "title": "NeedPatchOut"
       },
@@ -36303,6 +38289,7 @@
           "id",
           "title",
           "status",
+          "close_reason",
           "specialization",
           "grade",
           "category",
@@ -36426,7 +38413,9 @@
         },
         "type": "object",
         "required": [
-          "session"
+          "session",
+          "item",
+          "message"
         ],
         "title": "NextOut"
       },
@@ -36517,6 +38506,8 @@
           "kind",
           "kind_label",
           "message",
+          "entity_type",
+          "entity_id",
           "payload",
           "created_at",
           "created_text",
@@ -36614,7 +38605,8 @@
         "type": "object",
         "required": [
           "kind",
-          "label"
+          "label",
+          "company"
         ],
         "title": "OriginOut"
       },
@@ -36752,7 +38744,14 @@
         },
         "type": "object",
         "required": [
-          "message"
+          "message",
+          "correct",
+          "timed_out",
+          "explanation",
+          "correct_answer",
+          "misconception",
+          "upgrade_hint",
+          "paused_until_text"
         ],
         "title": "OutcomeOut"
       },
@@ -36973,6 +38972,7 @@
         "type": "object",
         "required": [
           "parser_version",
+          "llm_used",
           "salary",
           "salary_check",
           "skills",
@@ -36982,7 +38982,8 @@
           "city",
           "relocation",
           "experience_years",
-          "question"
+          "question",
+          "categories"
         ],
         "title": "ParseOut"
       },
@@ -37141,6 +39142,7 @@
           "total",
           "free",
           "issued",
+          "legacy_free",
           "key_collision_rate"
         ],
         "title": "PoolOut"
@@ -37332,7 +39334,8 @@
           "blind",
           "disclosed",
           "pii_in_blind",
-          "in_bank"
+          "in_bank",
+          "notes"
         ],
         "title": "PreviewOut"
       },
@@ -37504,9 +39507,17 @@
         "type": "object",
         "required": [
           "search_mode",
+          "salary_min",
           "salary_type",
           "salary_visibility",
+          "weekly_invite_limit",
+          "formats",
+          "region",
+          "city",
           "relocation",
+          "available_from",
+          "blocked_companies",
+          "field_visibility",
           "bank",
           "options"
         ],
@@ -37762,7 +39773,8 @@
           "top",
           "top_name",
           "probs",
-          "source"
+          "source",
+          "quotes"
         ],
         "title": "ProbsOut"
       },
@@ -37958,7 +39970,7 @@
           },
           "experience": {
             "items": {
-              "$ref": "#/components/schemas/ExperiencePeriodIO"
+              "$ref": "#/components/schemas/ExperiencePeriodIO-Output"
             },
             "type": "array",
             "title": "Experience",
@@ -37994,7 +40006,26 @@
         "required": [
           "user_id",
           "account_email",
+          "full_name",
+          "contact_email",
+          "phone",
+          "telegram",
+          "city",
+          "city_text",
+          "region",
+          "current_employer",
+          "education",
+          "birth_year",
+          "declared_grade",
+          "roles",
+          "skills",
+          "soft_skills",
+          "experience_months",
+          "experience_label",
+          "experience",
+          "industries",
           "resume",
+          "missing",
           "note"
         ],
         "title": "ProfileOut"
@@ -38055,7 +40086,8 @@
           "verify_url",
           "issued_on",
           "download_url",
-          "includes"
+          "includes",
+          "hidden"
         ],
         "title": "ProfilePdfInfoOut"
       },
@@ -38250,7 +40282,7 @@
             "anyOf": [
               {
                 "items": {
-                  "$ref": "#/components/schemas/ExperiencePeriodIO"
+                  "$ref": "#/components/schemas/ExperiencePeriodIO-Input"
                 },
                 "type": "array",
                 "maxItems": 30
@@ -38529,10 +40561,28 @@
           "specialization",
           "status",
           "status_ru",
+          "grade",
+          "category",
+          "score",
+          "interval80",
+          "confidence_pct",
           "borderline",
+          "trust",
           "hidden",
+          "hidden_message",
+          "freshness",
+          "modules_confirmed",
+          "modules_declared",
+          "next_change_allowed_at",
+          "next_change_in",
+          "next_attempt_allowed_at",
+          "next_attempt_in",
           "can_start",
-          "can_upgrade"
+          "can_upgrade",
+          "history",
+          "attempts",
+          "flags",
+          "is_fullstack"
         ],
         "title": "QualificationOut"
       },
@@ -38578,7 +40628,8 @@
         "type": "object",
         "required": [
           "field",
-          "text"
+          "text",
+          "options"
         ],
         "title": "QuestionOut"
       },
@@ -38631,7 +40682,9 @@
           "used",
           "limit",
           "remaining",
-          "label"
+          "label",
+          "reduced_reason",
+          "next_slot_in"
         ],
         "title": "QuotaOut"
       },
@@ -38669,7 +40722,8 @@
         "required": [
           "text",
           "start",
-          "end"
+          "end",
+          "page"
         ],
         "title": "Quote",
         "description": "Цитата для подсветки: text == извлечённый_текст[start:end]."
@@ -38912,6 +40966,7 @@
         "required": [
           "kind",
           "code",
+          "component",
           "text"
         ],
         "title": "RankReasonOut"
@@ -39119,7 +41174,8 @@
           "hint",
           "p25",
           "p50",
-          "p75"
+          "p75",
+          "note"
         ],
         "title": "ReachOut"
       },
@@ -39515,6 +41571,7 @@
         "required": [
           "id",
           "source",
+          "session_id",
           "label",
           "seq",
           "variant_code",
@@ -39525,6 +41582,7 @@
           "kind",
           "matched",
           "matched_ru",
+          "strength",
           "headline_ru",
           "phase",
           "phase_ru",
@@ -39532,6 +41590,7 @@
           "session_state_ru",
           "review_status",
           "review_status_ru",
+          "answered_at",
           "demo_assisted"
         ],
         "title": "ReconciliationRowOut"
@@ -39725,7 +41784,9 @@
         "required": [
           "ref",
           "pseudonym",
-          "errors"
+          "errors",
+          "warnings",
+          "notes"
         ],
         "title": "RejectedOut"
       },
@@ -39784,6 +41845,7 @@
           "breakdown",
           "good",
           "bad",
+          "discrepancy_badge",
           "quota_factor"
         ],
         "title": "ReliabilityOut"
@@ -40119,9 +42181,27 @@
         "required": [
           "session",
           "visible",
+          "message",
+          "headline",
+          "decision",
+          "stop_text",
+          "confirmed_grade",
+          "category",
+          "score",
+          "interval80",
+          "ruler",
+          "confidence_pct",
+          "certainty",
+          "by_level",
+          "by_level_text",
+          "modules",
           "n_shown",
+          "offers",
+          "offers_expire_at",
+          "offers_expire_in",
           "review_available",
-          "blind_card_consent"
+          "blind_card_consent",
+          "blind_card_preview"
         ],
         "title": "ResultOut"
       },
@@ -40344,6 +42424,7 @@
         },
         "type": "object",
         "required": [
+          "status",
           "parse",
           "text",
           "sha256",
@@ -40485,7 +42566,19 @@
           "pages",
           "text_chars",
           "llm",
-          "experience"
+          "sections",
+          "full_name",
+          "email",
+          "phone",
+          "telegram",
+          "city",
+          "declared_grade",
+          "education",
+          "experience",
+          "skills",
+          "roles",
+          "soft_skills",
+          "warnings"
         ],
         "title": "ResumeParse"
       },
@@ -40534,7 +42627,10 @@
         },
         "type": "object",
         "required": [
-          "status"
+          "status",
+          "uploaded_ago",
+          "pages",
+          "has_text"
         ],
         "title": "ResumeStateOut"
       },
@@ -40782,9 +42878,19 @@
           "variant_code",
           "module",
           "prompt",
+          "code",
+          "language",
+          "options",
+          "lines",
+          "table",
           "answer_mode",
+          "your_answer",
+          "your_answer_text",
+          "correct_answer",
           "correct_answer_text",
-          "timed_out"
+          "timed_out",
+          "explanation",
+          "misconception"
         ],
         "title": "ReviewItemOut"
       },
@@ -40913,7 +43019,9 @@
         "required": [
           "ok",
           "code",
-          "message"
+          "message",
+          "available_at",
+          "available_in"
         ],
         "title": "RuleCheckOut"
       },
@@ -41006,7 +43114,9 @@
         },
         "type": "object",
         "required": [
-          "status"
+          "status",
+          "message",
+          "ratio"
         ],
         "title": "SalaryCheckOut"
       },
@@ -41107,9 +43217,34 @@
           "salary_to",
           "net",
           "yearly",
-          "source"
+          "source",
+          "quotes"
         ],
         "title": "SalaryParsedOut"
+      },
+      "SalaryQuantilesOut": {
+        "properties": {
+          "p25": {
+            "type": "integer",
+            "title": "P25"
+          },
+          "p50": {
+            "type": "integer",
+            "title": "P50"
+          },
+          "p75": {
+            "type": "integer",
+            "title": "P75"
+          }
+        },
+        "type": "object",
+        "required": [
+          "p25",
+          "p50",
+          "p75"
+        ],
+        "title": "SalaryQuantilesOut",
+        "description": "Ожидания по зарплате «на руки», ₽/мес, округлены до ступени гистограммы (точные значения людей не показываем)."
       },
       "SalarySignalOut": {
         "properties": {
@@ -41150,6 +43285,11 @@
           }
         },
         "type": "object",
+        "required": [
+          "signal",
+          "value",
+          "net"
+        ],
         "title": "SalarySignalOut"
       },
       "SandboxAnswersIn": {
@@ -41287,7 +43427,8 @@
           "copied",
           "diagnosis_ru",
           "key_shown",
-          "key_clipboard"
+          "key_clipboard",
+          "act"
         ],
         "title": "SandboxDiagnosisOut"
       },
@@ -41372,7 +43513,11 @@
           "no",
           "variant_code",
           "prompt",
+          "code",
+          "language",
+          "table",
           "answer_mode",
+          "answer_hint",
           "clip"
         ],
         "title": "SandboxItemOut"
@@ -41538,9 +43683,103 @@
         },
         "type": "object",
         "required": [
-          "value"
+          "value",
+          "label",
+          "quote",
+          "source",
+          "confidence"
         ],
         "title": "ScalarField"
+      },
+      "ScoreSnapshotOut": {
+        "properties": {
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score",
+            "description": "Score 0–100"
+          },
+          "rank": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rank",
+            "description": "Место в подборке брифа"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category",
+            "description": "«Специализация × грейд»"
+          },
+          "spec": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spec"
+          },
+          "grade": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grade"
+          },
+          "parts": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Parts",
+            "description": "Вклады компонентов Score"
+          },
+          "why_you": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Why You",
+            "description": "«Почему вы» — то, что увидел кандидат"
+          }
+        },
+        "type": "object",
+        "required": [
+          "score",
+          "rank",
+          "category",
+          "spec",
+          "grade",
+          "parts",
+          "why_you"
+        ],
+        "title": "ScoreSnapshotOut",
+        "description": "Строка кандидата в подборке на момент приглашения/отклика (без id кандидата и доказательств — DECISIONS 20)."
       },
       "SectionOut": {
         "properties": {
@@ -41834,7 +44073,9 @@
           "badge",
           "shortlisted",
           "weak_match",
-          "neighbor_below"
+          "neighbor_below",
+          "invitation_status",
+          "invitation_label"
         ],
         "title": "SelectionItemOut"
       },
@@ -42022,7 +44263,10 @@
           "target_grade",
           "status",
           "status_ru",
+          "started_at",
           "progress",
+          "parent_session_id",
+          "child_session_id",
           "finished"
         ],
         "title": "SessionOut"
@@ -42223,7 +44467,9 @@
         },
         "type": "object",
         "required": [
-          "ok"
+          "ok",
+          "event_id",
+          "signature_valid"
         ],
         "title": "SinkAckOut"
       },
@@ -42319,7 +44565,16 @@
         },
         "type": "object",
         "required": [
-          "source"
+          "received_at",
+          "source",
+          "event_id",
+          "event_type",
+          "company",
+          "signature",
+          "signature_valid",
+          "attempts",
+          "status",
+          "payload"
         ],
         "title": "SinkEventOut"
       },
@@ -42425,9 +44680,73 @@
           "kind",
           "source",
           "reason",
-          "untestable"
+          "quote",
+          "marker",
+          "untestable",
+          "modules"
         ],
         "title": "SkillChipOut"
+      },
+      "SkillOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Идентификатор навыка (его принимают фильтры /api/bank и бриф)"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "modules": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Modules",
+            "description": "Модули теста, которые подтверждают навык"
+          },
+          "specs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Specs",
+            "description": "Специализации, в которых навык значим"
+          },
+          "testable": {
+            "type": "boolean",
+            "title": "Testable",
+            "description": "Навык можно подтвердить тестом (есть модуль; иначе — только «заявлено»)"
+          },
+          "untestable_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Untestable Reason",
+            "description": "Почему навык не проверяется тестом"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "category",
+          "modules",
+          "specs",
+          "testable",
+          "untestable_reason"
+        ],
+        "title": "SkillOut"
       },
       "SourcedOut": {
         "properties": {
@@ -42464,7 +44783,9 @@
         "type": "object",
         "required": [
           "value",
-          "source"
+          "name",
+          "source",
+          "quotes"
         ],
         "title": "SourcedOut"
       },
@@ -42645,8 +44966,16 @@
         "required": [
           "assignment_id",
           "pseudonym",
+          "candidate_ref",
           "status",
           "status_label",
+          "submitted_text",
+          "answer",
+          "is_correct",
+          "score",
+          "score_text",
+          "rubric_scores",
+          "review_comment",
           "can_review"
         ],
         "title": "SubmissionOut",
@@ -42757,6 +45086,15 @@
           }
         },
         "type": "object",
+        "required": [
+          "industries",
+          "actions",
+          "technologies",
+          "experience_months",
+          "roles",
+          "self_assessment",
+          "chosen_spec"
+        ],
         "title": "SurveyAnswersOut"
       },
       "SurveyClassificationOut": {
@@ -42880,9 +45218,14 @@
           "chosen",
           "chosen_name",
           "hint",
+          "hint_text",
           "chosen_status",
           "testable",
-          "declared_modules"
+          "waitlist_text",
+          "derived_text",
+          "declared_modules",
+          "suggested_grade",
+          "suggested_grade_text"
         ],
         "title": "SurveyClassificationOut"
       },
@@ -43071,7 +45414,14 @@
         "required": [
           "survey_id",
           "number",
-          "version"
+          "version",
+          "completed_at",
+          "completed_ago",
+          "chosen_spec",
+          "chosen_name",
+          "top",
+          "top_name",
+          "experience_months"
         ],
         "title": "SurveyHistoryItemOut"
       },
@@ -43239,11 +45589,16 @@
         },
         "type": "object",
         "required": [
+          "survey_id",
           "number",
           "version",
           "step",
           "completed",
-          "answers"
+          "completed_at",
+          "next_step",
+          "answers",
+          "classification",
+          "message"
         ],
         "title": "SurveyStateOut"
       },
@@ -43499,11 +45854,17 @@
           "kind",
           "kind_label",
           "title",
+          "family_id",
+          "module",
+          "module_name",
+          "prompt",
+          "rubric",
           "audience",
           "tags",
           "minutes",
           "status",
           "is_check_set",
+          "need_id",
           "not_real_work_label",
           "stats"
         ],
@@ -43544,7 +45905,8 @@
           "offered",
           "submitted",
           "awaiting_review",
-          "skipped"
+          "skipped",
+          "avg_score"
         ],
         "title": "TaskStatsOut"
       },
@@ -43633,7 +45995,10 @@
         "required": [
           "active",
           "history",
-          "limits"
+          "limits",
+          "paused_until_text",
+          "next_offer_text",
+          "empty_text"
         ],
         "title": "TasksOverviewOut"
       },
@@ -43754,7 +46119,11 @@
           "salary_type",
           "salary_type_label",
           "text",
+          "format",
+          "format_label",
+          "start_date",
           "contact_method",
+          "contact_method_label",
           "contact_value",
           "conditions",
           "sha256",
@@ -43817,6 +46186,12 @@
           }
         },
         "type": "object",
+        "required": [
+          "band",
+          "interval",
+          "score",
+          "percentile"
+        ],
         "title": "TestBandOut"
       },
       "TimersOut": {
@@ -43904,6 +46279,15 @@
           }
         },
         "type": "object",
+        "required": [
+          "respond_by",
+          "respond_by_text",
+          "counter_respond_by",
+          "counter_respond_by_text",
+          "contact_due_at",
+          "contact_due_text",
+          "outcome_check_at"
+        ],
         "title": "TimersOut"
       },
       "TokenResponse": {
@@ -43933,6 +46317,7 @@
         "type": "object",
         "required": [
           "access_token",
+          "token_type",
           "expires_in",
           "user"
         ],
@@ -44043,15 +46428,19 @@
         "type": "object",
         "required": [
           "session_id",
+          "candidate_id",
           "specialization",
           "kind",
           "status",
           "claimed_grade",
           "target_grade",
           "target_level",
+          "decision",
           "labels",
           "seed",
-          "steps"
+          "steps",
+          "journal",
+          "flags"
         ],
         "title": "TraceOut"
       },
@@ -44196,8 +46585,15 @@
           "is_pretest",
           "correct",
           "timed_out",
+          "rt_ms",
+          "variant_code",
           "difficulty",
-          "target_grade"
+          "target_grade",
+          "level",
+          "error",
+          "score",
+          "p_pass",
+          "reason"
         ],
         "title": "TraceStepOut"
       },
@@ -44299,11 +46695,14 @@
           "format",
           "language",
           "mechanism",
+          "reason_ru",
           "pool_free",
           "twins_ok",
           "twins_none",
           "pending",
-          "shown"
+          "shown",
+          "share",
+          "top_reasons"
         ],
         "title": "TwinCoverageFamilyOut"
       },
@@ -44468,6 +46867,7 @@
           "role",
           "status",
           "email_verified",
+          "company_id",
           "created_at"
         ],
         "title": "UserOut"
@@ -44555,7 +46955,20 @@
                 "type": "null"
               }
             ],
-            "title": "City"
+            "title": "City",
+            "description": "Город как указан в вакансии (код справочника или текст)"
+          },
+          "city_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City Name",
+            "description": "Название города для показа: «Москва», а не moscow"
           },
           "status": {
             "type": "string",
@@ -44666,10 +47079,25 @@
         "type": "object",
         "required": [
           "id",
+          "need_id",
           "title",
           "description",
+          "specialization",
+          "grade",
           "salary",
+          "format",
+          "format_label",
+          "city",
+          "city_name",
           "status",
+          "published_text",
+          "company",
+          "score",
+          "parts",
+          "category",
+          "how_we_check",
+          "application_status",
+          "application_id",
           "consent",
           "response_days"
         ],
@@ -44758,7 +47186,20 @@
                 "type": "null"
               }
             ],
-            "title": "City"
+            "title": "City",
+            "description": "Город как указан в вакансии (код справочника или текст)"
+          },
+          "city_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City Name",
+            "description": "Название города для показа: «Москва», а не moscow"
           },
           "status": {
             "type": "string",
@@ -44853,11 +47294,25 @@
         "type": "object",
         "required": [
           "id",
+          "need_id",
           "title",
           "description",
+          "specialization",
+          "grade",
           "salary",
+          "format",
+          "format_label",
+          "city",
+          "city_name",
           "status",
-          "weak_match"
+          "published_text",
+          "company",
+          "score",
+          "parts",
+          "category",
+          "weak_match",
+          "application_status",
+          "application_id"
         ],
         "title": "VacancyCandidateItem"
       },
@@ -45047,7 +47502,20 @@
                 "type": "null"
               }
             ],
-            "title": "City"
+            "title": "City",
+            "description": "Город как указан в вакансии (код справочника или текст)"
+          },
+          "city_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City Name",
+            "description": "Название города для показа: «Москва», а не moscow"
           },
           "status": {
             "type": "string",
@@ -45088,12 +47556,21 @@
         "type": "object",
         "required": [
           "id",
+          "need_id",
           "title",
           "description",
+          "specialization",
+          "grade",
           "salary",
+          "format",
+          "format_label",
+          "city",
+          "city_name",
           "status",
+          "published_text",
           "applications_total",
-          "applications_new"
+          "applications_new",
+          "how_we_check"
         ],
         "title": "VacancyEmployerOut"
       },
@@ -45180,7 +47657,20 @@
                 "type": "null"
               }
             ],
-            "title": "City"
+            "title": "City",
+            "description": "Город как указан в вакансии (код справочника или текст)"
+          },
+          "city_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City Name",
+            "description": "Название города для показа: «Москва», а не moscow"
           },
           "status": {
             "type": "string",
@@ -45201,10 +47691,18 @@
         "type": "object",
         "required": [
           "id",
+          "need_id",
           "title",
           "description",
+          "specialization",
+          "grade",
           "salary",
-          "status"
+          "format",
+          "format_label",
+          "city",
+          "city_name",
+          "status",
+          "published_text"
         ],
         "title": "VacancyOut"
       },
@@ -45430,6 +47928,7 @@
           "config",
           "seeds",
           "metrics",
+          "git_sha",
           "created_at"
         ],
         "title": "ValidationRunOut"
@@ -45664,7 +48163,14 @@
           "rubric",
           "listen_for_ru",
           "calibrated",
-          "verified_by"
+          "label_ru",
+          "variant_code",
+          "method",
+          "verified_by",
+          "candidate_answer",
+          "changed",
+          "variant_text",
+          "expected_answer"
         ],
         "title": "VerificationQuestionOut"
       },
@@ -45702,6 +48208,11 @@
           }
         },
         "type": "object",
+        "required": [
+          "code",
+          "name",
+          "borderline"
+        ],
         "title": "VerifyCategoryOut"
       },
       "VerifyEmailRequest": {
@@ -45938,7 +48449,22 @@
         "required": [
           "valid",
           "code",
-          "message"
+          "message",
+          "variant",
+          "variant_label",
+          "issued_on",
+          "holder",
+          "category",
+          "confirmed_on",
+          "confidence",
+          "session_ref",
+          "interval",
+          "score",
+          "modules",
+          "fsp",
+          "freshness",
+          "actual",
+          "actual_note"
         ],
         "title": "VerifyOut"
       },
@@ -46314,7 +48840,8 @@
           "items",
           "hidden",
           "shortlist",
-          "compared_to"
+          "compared_to",
+          "build_ms"
         ],
         "title": "VersionViewOut"
       },
@@ -46400,8 +48927,11 @@
           "impressions",
           "selections",
           "top10",
+          "median_position",
           "profile_views",
-          "invitations"
+          "invitations",
+          "missing_skill",
+          "decline_reasons"
         ],
         "title": "VisibilityStatsOut"
       },
@@ -46511,7 +49041,12 @@
           "event_type",
           "target_url",
           "status",
-          "attempts"
+          "attempts",
+          "response_code",
+          "response_excerpt",
+          "created_text",
+          "last_attempt_text",
+          "next_attempt_text"
         ],
         "title": "WebhookDeliveryOut"
       },
@@ -46830,6 +49365,8 @@
         },
         "type": "object",
         "required": [
+          "from_grade",
+          "to_grade",
           "reason",
           "when"
         ],
@@ -46905,8 +49442,10 @@
           "slots",
           "untestable",
           "total_minutes",
+          "due_text",
           "sent",
-          "rejected"
+          "rejected",
+          "note"
         ],
         "title": "CheckSetOut"
       },
@@ -46948,6 +49487,7 @@
         },
         "type": "object",
         "required": [
+          "specialization",
           "total",
           "by_status",
           "families"
@@ -47063,9 +49603,12 @@
         },
         "type": "object",
         "required": [
+          "from_grade",
+          "to_grade",
           "reason",
           "reason_ru",
           "at",
+          "ago",
           "counts_as_change"
         ],
         "title": "GradeChangeOut"
@@ -47112,7 +49655,9 @@
         "type": "object",
         "required": [
           "available",
-          "kinds"
+          "kinds",
+          "run",
+          "message"
         ],
         "title": "ValidationOut"
       }

@@ -392,15 +392,28 @@ def _g_not_contacted_yet(inv: Invitation, ctx: _Ctx) -> str | None:
     return "Контакт уже отмечен" if inv.contacted_at is not None else None
 
 
-def _g_dispute_allowed(inv: Invitation, ctx: _Ctx) -> str | None:
+def _dispute_blocker(inv: Invitation, now: datetime) -> str | None:
+    """Почему «со мной не связались» пока нельзя отправить (None — можно). Один источник правды для guard
+    перехода и для флага can_dispute в карточке: иначе кнопка горела сразу после «да», а ответом было 409."""
     if inv.disputed:
         return "Вы уже сообщили, что с вами не связались"
     if inv.contact_due_at is None:
         return "Контакты ещё не открыты"
     # После закрытия итога ждать срока незачем: компания уже решила, что связываться не будет.
-    if inv.status == S.ACCEPTED and inv.contacted_at is None and ctx.now < inv.contact_due_at:
-        return f"У компании ещё есть время связаться с вами — срок истекает {relative(inv.contact_due_at, ctx.now)}"
+    if inv.status == S.ACCEPTED and inv.contacted_at is None and now < inv.contact_due_at:
+        return f"У компании ещё есть время связаться с вами — срок истекает {relative(inv.contact_due_at, now)}"
     return None
+
+
+def _g_dispute_allowed(inv: Invitation, ctx: _Ctx) -> str | None:
+    return _dispute_blocker(inv, ctx.now)
+
+
+def can_dispute(inv: Invitation, clock: Clock | datetime) -> bool:
+    """Кандидат может отправить «со мной не связались» прямо сейчас (статус допускает действие и срок контакта прошёл)."""
+    if (inv.status, A.DISPUTE_CONTACT, R.CANDIDATE) not in TRANSITIONS:
+        return False
+    return _dispute_blocker(inv, now_of(clock)) is None
 
 
 def _g_contact_deadline_passed(inv: Invitation, ctx: _Ctx) -> str | None:

@@ -27,14 +27,16 @@ REALM = "fsp"
 # client id — как VZ_FSP_OIDC_CLIENT_ID по умолчанию в app/core/settings.py, .env.example и docker-compose.yml.
 CLIENT_ID = "vzaimno"
 CLIENT_SECRET = "vzaimno-demo-secret"  # только демо; в проде — из секрета окружения
-# Куда Keycloak может вернуть код: бэкенд-обработчик (/api/auth/fsp/callback) и страница фронтенда
-# (/auth/fsp/callback, VZ_FSP_OIDC_REDIRECT_URI по умолчанию), локально и на домене стенда.
+# Куда Keycloak может вернуть код. Основной адрес — страница фронтенда /candidate/fsp/callback
+# (VZ_FSP_OIDC_REDIRECT_URI по умолчанию): она вызывает GET /api/fsp/callback с code и state. Адрес бэкенда
+# /api/fsp/callback тоже разрешён: при переходе браузера (а не запросе страницы) он перенаправляет на страницу
+# фронтенда с теми же параметрами. Локально и на домене стенда; шаблонов (*) нет — open redirect не нужен.
 _PUBLIC = "https://${VZ_PUBLIC_DOMAIN:vzaimno.example}"
 REDIRECT_URIS = [
-    "http://localhost:8000/api/auth/fsp/callback",
-    "http://localhost:5173/auth/fsp/callback",
-    f"{_PUBLIC}/api/auth/fsp/callback",
-    f"{_PUBLIC}/auth/fsp/callback",
+    "http://localhost:5173/candidate/fsp/callback",
+    "http://localhost:8000/api/fsp/callback",
+    f"{_PUBLIC}/candidate/fsp/callback",
+    f"{_PUBLIC}/api/fsp/callback",
 ]
 DEMO_PASSWORD = "Demo-FSP-2026"
 EMAIL_DOMAIN = "demo.example.org"  # зарезервированный домен (RFC 2606): письма никуда не уходят

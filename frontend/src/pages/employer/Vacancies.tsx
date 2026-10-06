@@ -112,7 +112,7 @@ export default function Vacancies() {
                   <p className="mt-1 t-body text-ink-2">
                     {v.salary.text}
                     {v.format_label ? ` · ${v.format_label}` : ''}
-                    {v.city ? ` · ${cityLabel(v.city)}` : ''}
+                    {v.city ? ` · ${v.city_name ?? cityLabel(v.city)}` : ''}
                   </p>
                   <p className="t-small text-ink-3">
                     {v.published_text ? `Опубликована ${v.published_text}` : ''} · откликов: {v.applications_total}

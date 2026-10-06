@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 from typing import Annotated, Literal
 
-from pydantic import Field, SecretStr, field_validator, model_validator
+from pydantic import AliasChoices, Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 _RATE_RE = re.compile(r"^\s*(\d+)\s*/\s*(\d+)\s*$")
@@ -38,6 +38,14 @@ class RateRule:
         return self.capacity / self.period_s
 
 
+def parse_rate(spec: str) -> RateRule:
+    """'5/300' → RateRule(5, 300) (то же правило формата, что у VZ_RL_*; для лимитов из YAML-конфигов)."""
+    m = _RATE_RE.match(spec)
+    if not m or int(m.group(1)) <= 0 or int(m.group(2)) <= 0:
+        raise ValueError("ожидается формат 'N/секунд', например '5/300'")
+    return RateRule(int(m.group(1)), int(m.group(2)))
+
+
 def _split_csv(value: object) -> object:
     """'a, b' → ['a', 'b']; JSON-массив тоже принимаем (для совместимости)."""
     if isinstance(value, str):
@@ -51,7 +59,7 @@ def _split_csv(value: object) -> object:
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="VZ_", env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_prefix="VZ_", env_file=".env", extra="ignore", populate_by_name=True)
 
     # --- Общее ---
     env: Literal["dev", "test", "prod"] = "dev"
@@ -59,6 +67,14 @@ class Settings(BaseSettings):
     version: str = "0.1.0"
     log_level: str = "INFO"
     demo_mode: bool = False
+    # Кто может «глобально» управлять демо (часы, сброс мира, автоответчик, переключатель «режима жюри»), когда
+    # DEMO_MODE включён. None — по среде: в VZ_ENV=prod (публичный стенд) только роль «администратор» или заголовок
+    # X-Demo-Key; вне prod (локальный стенд жюри) — любой вошедший. Подсказка кандидату в режиме жюри — всегда владельцу сессии.
+    demo_controls_admin_only: bool | None = None
+    demo_control_key: SecretStr | None = None  # ключ для заголовка X-Demo-Key (curl/скрипты жюри); пусто — только админ
+    # Встроенный планировщик (app/services/scheduler, config/scheduler.yaml): None — как в конфиге, False — выключить
+    # (например, когда те же задачи гоняет внешний cron), True — включить, даже если в конфиге выключен.
+    scheduler_enabled: bool | None = None
 
     # --- База данных ---
     database_url: str = "postgresql+psycopg://vzaimno:vzaimno@localhost:5432/vzaimno"
@@ -87,6 +103,16 @@ class Settings(BaseSettings):
     cookie_secure: bool = False
     cookie_samesite: Literal["lax", "strict", "none"] = "lax"
     cookie_domain: str | None = None
+
+    # --- Обратный прокси (Caddy) и клиентский IP для лимитов запросов ---
+    # Заголовку X-Forwarded-For верим только от этих адресов/подсетей (через запятую) — как у uvicorn
+    # (переменная FORWARDED_ALLOW_IPS читается и без префикса VZ_). Иначе любой клиент подставил бы
+    # чужой IP и обошёл лимит входа, а за прокси без настройки все пользователи делили бы один лимит.
+    # "*" — доверять любому соседу (только dev/test: в prod это подмена IP для всех, кто достучится до порта).
+    forwarded_allow_ips: str = Field(
+        default="127.0.0.1",
+        validation_alias=AliasChoices("VZ_FORWARDED_ALLOW_IPS", "FORWARDED_ALLOW_IPS", "forwarded_allow_ips"),
+    )
 
     # --- Пароли (argon2id) ---
     password_min_length: int = 8
@@ -129,7 +155,7 @@ class Settings(BaseSettings):
     fsp_oidc_internal_url: str | None = None  # как его видит бэкенд внутри compose (JWKS, token)
     fsp_oidc_client_id: str = "vzaimno"
     fsp_oidc_client_secret: SecretStr | None = None
-    fsp_oidc_redirect_uri: str = "http://localhost:5173/auth/fsp/callback"
+    fsp_oidc_redirect_uri: str = "http://localhost:5173/candidate/fsp/callback"  # страница из routes.tsx, см. app/api/fsp.py
     fsp_registry_url: str = "http://localhost:8001"
     fsp_demo_login_enabled: bool = True
 
@@ -140,6 +166,20 @@ class Settings(BaseSettings):
     @classmethod
     def _csv(cls, v: object) -> object:
         return _split_csv(v)
+
+    @field_validator("demo_control_key", mode="before")
+    @classmethod
+    def _empty_key_is_none(cls, v: object) -> object:
+        """Пустая переменная в compose (VZ_DEMO_CONTROL_KEY=) — «ключа нет», а не ключ из пустой строки."""
+        return None if isinstance(v, str) and not v.strip() else v
+
+    @field_validator("forwarded_allow_ips")
+    @classmethod
+    def _forwarded_format(cls, v: str) -> str:
+        from app.core.netutil import parse_trusted_proxies
+
+        parse_trusted_proxies(v)  # ValueError → понятная ошибка запуска
+        return v.strip()
 
     @field_validator("rl_login_email", "rl_login_ip", "rl_verify_email", "rl_register_ip", "rl_resend_ip", "rl_refresh_ip")
     @classmethod
@@ -161,9 +201,18 @@ class Settings(BaseSettings):
                     raise ValueError(f"VZ_{name.upper()} в prod — не короче {_MIN_SECRET_LEN} символов")
             if not self.cookie_secure:
                 raise ValueError("В prod refresh-cookie должна быть Secure (VZ_COOKIE_SECURE=true)")
+            if self.forwarded_allow_ips.strip() == "*":
+                raise ValueError(
+                    "В prod VZ_FORWARDED_ALLOW_IPS не может быть «*»: укажите адреса или подсеть обратного прокси"
+                )
         if self.cookie_samesite == "none" and not self.cookie_secure:
             raise ValueError("SameSite=None требует Secure-cookie")
         return self
+
+    @property
+    def demo_controls_restricted(self) -> bool:
+        """Глобальные демо-кнопки закрыты для не-админов: явная настройка, а по умолчанию — в prod."""
+        return self.env == "prod" if self.demo_controls_admin_only is None else self.demo_controls_admin_only
 
     def rate(self, name: str) -> RateRule:
         """settings.rate("login_email") → RateRule(5, 300)."""

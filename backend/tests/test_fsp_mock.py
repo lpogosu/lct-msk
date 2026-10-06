@@ -287,9 +287,16 @@ def test_realm_contents() -> None:
     assert cl["standardFlowEnabled"] and not cl["implicitFlowEnabled"] and not cl["directAccessGrantsEnabled"]
     assert cl["serviceAccountsEnabled"]
     assert cl["attributes"]["pkce.code.challenge.method"] == "S256"
-    assert "http://localhost:8000/api/auth/fsp/callback" in cl["redirectUris"]
-    assert "http://localhost:5173/auth/fsp/callback" in cl["redirectUris"]  # фронтенд, VZ_FSP_OIDC_REDIRECT_URI
-    assert any(u.startswith("https://") and u.endswith("/api/auth/fsp/callback") for u in cl["redirectUris"])
+    # Адреса возврата согласованы сквозь всю цепочку: страница фронтенда /candidate/fsp/callback
+    # (VZ_FSP_OIDC_REDIRECT_URI по умолчанию, она есть в routes.tsx) и реальный GET /api/fsp/callback бэкенда
+    from app.fsp.settings import FSPSettings
+
+    assert FSPSettings().redirect_uri in cl["redirectUris"]
+    assert "http://localhost:5173/candidate/fsp/callback" in cl["redirectUris"]
+    assert "http://localhost:8000/api/fsp/callback" in cl["redirectUris"]
+    assert any(u.startswith("https://") and u.endswith("/candidate/fsp/callback") for u in cl["redirectUris"])
+    assert any(u.startswith("https://") and u.endswith("/api/fsp/callback") for u in cl["redirectUris"])
+    assert not any("/auth/fsp/callback" in u for u in cl["redirectUris"])  # старых путей (/auth/…, /api/auth/…) нет
     assert not any("*" in u for u in cl["redirectUris"])  # без шаблонов: open redirect не нужен
     users = realm["users"]
     assert len(users) == 30

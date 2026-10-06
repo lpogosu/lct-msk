@@ -103,7 +103,7 @@ C4Container
   title Контейнеры «Взаимно» (docker-compose.yml и рекомендуемый прод)
   Person(user, "Пользователь", "Кандидат, работодатель, методист")
   System_Boundary(vz, "Взаимно") {
-    Container(proxy, "Caddy", "Caddy 2", "HTTPS, статика фронтенда, прокси /api, только в проде, в compose пока нет")
+    Container(proxy, "Caddy", "Caddy 2", "HTTPS, статика фронтенда, прокси /api; только в проде (docker-compose.prod.yml), в локальном compose нет")
     Container(web, "Frontend", "React 18, Vite, TypeScript, Tailwind", "SPA, типы API генерируются из OpenAPI")
     Container(api, "Backend", "FastAPI, SQLAlchemy 2, uvicorn", "Модульный монолит: тест, антиподсказчик, подбор, контакт, ФСП, платформа")
     ContainerDb(db, "PostgreSQL", "PostgreSQL 16 + pgvector", "Вся доменная и служебная информация")
@@ -128,7 +128,7 @@ C4Container
 | Сервис | Образ / сборка | Порт | Лимит памяти | Назначение |
 |---|---|---|---|---|
 | `db` | `pgvector/pgvector:pg16` | 5432 | 512 МБ | PostgreSQL 16; расширение `vector` создаёт миграция `0001` |
-| `backend` | сборка `backend/Dockerfile` (python:3.12-slim, uv, непривилегированный пользователь) | 8000 | 768 МБ | Миграции `alembic upgrade head`, затем `uvicorn app.main:app --proxy-headers` |
+| `backend` | сборка `backend/Dockerfile` (python:3.12-slim, uv, непривилегированный пользователь) | 8000 | 768 МБ | Миграции `alembic upgrade head`, затем `uvicorn app.main:app --no-proxy-headers` (клиентский IP определяет приложение) |
 | `fsp-mock` | сборка `services/fsp-mock` (python:3.12-slim) | 8001 | 256 МБ | Демо-реестр ФСП, 60 синтетических спортсменов |
 | `mailpit` | `axllent/mailpit:latest` | 8025 (веб), 1025 (SMTP) | 128 МБ | Письма с кодом видны на http://localhost:8025 |
 | `keycloak` | `quay.io/keycloak/keycloak:26.0`, профиль `fsp` | 8080 | 768 МБ | ФСП ID: realm `fsp` с 30 демо-пользователями |
@@ -640,7 +640,7 @@ sequenceDiagram
   A-->>W: authorization_url и cookie vz_fsp_flow
   W->>KC: Редирект: response_type=code, scope=openid profile email, code_challenge S256, state, nonce
   K->>KC: Вход в ФСП ID
-  KC-->>W: Редирект на /auth/fsp/callback?code&state
+  KC-->>W: Редирект на /candidate/fsp/callback?code&state
   W->>A: GET /api/fsp/callback?code&state (Bearer, cookie)
   A->>A: state одноразовый, совпадает с cookie и аккаунтом
   A->>KC: Обмен кода на токены (code_verifier, client secret), внутренний адрес
@@ -716,11 +716,12 @@ stateDiagram-v2
 |---|---|
 | Конфигурация | `app/core/configs.py` читает `config/*.yaml` (каталог переопределяется `VZ_CONFIG_DIR`); инфраструктура и секреты — `VZ_*` из окружения (`app/core/settings.py`, `.env.example`). В `VZ_ENV=prod` бэкенд не стартует с dev-секретами, секретами короче 32 символов и без Secure-cookie |
 | Время | `app.core.clock.clock`: заморозка в тестах, смещение «+1 день» в демо-режиме (смещение хранится в `demo_clock` и переживает перезапуск). Подпись access-JWT — по настенным часам |
-| Сроки без планировщика | Сроки приглашений, откликов и пауз применяются лениво при чтении. `services.contact.sweep()` — фоновый проход (напоминания, повтор вебхуков); периодический запуск и ночная калибровка — в разработке (запуск вручную: кнопка демо, `POST /api/lab/calibrate`) |
-| Фоновые задачи | `BackgroundTasks` FastAPI: долив пула клонов после выдачи задания (`pool.top_up_background`). Своей очереди задач нет |
+| Сроки и планировщик | Сроки приглашений, откликов и пауз применяются лениво при чтении — это источник истины. **Планировщик** (`app/services/scheduler`, `config/scheduler.yaml`): asyncio-цикл в lifespan приложения (в тестах не запускается, `VZ_SCHEDULER_ENABLED=false` выключает) раз в минуту вызывает `services.contact.sweep()` (напоминания, «истекло», «нет ответа», повтор вебхуков ATS), ночью (00:00 UTC) — калибровку заданий с CUSUM дрейфа (то же, что `POST /api/lab/calibrate`), в 00:30 UTC — чистку по срокам хранения (`config/privacy.yaml`). Между процессами задачу берёт держатель рекомендательной блокировки PostgreSQL; итог суточных задач пишется в `audit_log` (`scheduler.*`) — после перезапуска в ту же ночь повторного прогона нет |
+| Фоновые задачи | `BackgroundTasks` FastAPI: долив пула клонов после выдачи задания (`pool.top_up_background`); периодические задачи — планировщик (строка выше). Отдельной очереди задач нет |
 | Ошибки | Единый формат `{code, message, details}`; сообщения на русском; 500 перехватывается внутри CORS, чтобы фронтенд мог прочитать тело (см. [API.md](API.md)) |
 | Аудит и согласия | `audit_log` (вход, токены, согласия, раскрытия; без ПДн в payload), журнал `consents` с версией текста и отзывом без удаления |
-| Rate limit | Токен-корзина в памяти процесса (`app/core/rate_limit.py`); для нескольких воркеров корзины нужно вынести в Redis или PostgreSQL |
+| Rate limit | Токен-корзина в памяти процесса (`app/core/rate_limit.py`); для нескольких воркеров корзины нужно вынести в Redis или PostgreSQL. Клиентский IP за Caddy — `X-Forwarded-For` только от доверенных прокси (`VZ_FORWARDED_ALLOW_IPS`, `app/core/netutil.py`) |
+| Удаление аккаунта и сроки хранения | `DELETE /api/candidates/me`, `DELETE /api/companies/me` (`app/services/account/erasure.py`): строка `users` удаляется, каскады БД убирают всё персональное; ночная чистка по срокам (`retention.py`, `config/privacy.yaml`) — подробности в [SECURITY.md](SECURITY.md) п. 1.3 |
 | Почта | `app/mail`: SMTP (STARTTLS или SSL) или консоль; сбой SMTP не ломает действие пользователя (`send_mail_safe`) |
 | Вебхуки ATS | HMAC-SHA256 в `X-Vzaimno-Signature`, идемпотентный `X-Vzaimno-Event-Id`, повторы с экспоненциальной паузой, защита от SSRF (внутренние адреса запрещены), журнал последних 20 доставок |
 | Метаданные безопасности HTTP | `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Cache-Control: no-store` на `/api/auth/*`; HSTS и TLS — на уровне Caddy |
@@ -741,5 +742,6 @@ stateDiagram-v2
 | Фабрика семейств (LLM пишет черновик генератора офлайн) | В разработке |
 | Эмбеддинги и колонки `vector` | В разработке |
 | ATS: исходящие вебхуки | Готово. Pull-API (`GET /ats/invitations`, `POST /ats/status`) — в разработке |
-| Ночная калибровка и периодический `sweep()` | В разработке (нужен планировщик); ручной запуск есть |
-| Caddy и HTTPS в `docker-compose.yml` | В разработке; рекомендуемая схема — в [DEPLOY.md](DEPLOY.md) |
+| Ночная калибровка с CUSUM и периодический `sweep()` | Готово: встроенный планировщик (`app/services/scheduler`, `config/scheduler.yaml`); ручной запуск остался |
+| Удаление аккаунта, сроки хранения ПДн, минимизация ответа реестра ФСП | Готово (`app/services/account`, `config/privacy.yaml`); согласие законного представителя 14–17 лет — плановый ручной процесс без интерфейса ([SECURITY.md](SECURITY.md) п. 1.4) |
+| Caddy и HTTPS | Готово в `docker-compose.prod.yml` и `deploy/Caddyfile` (в локальный `docker-compose.yml` не входят) — [DEPLOY.md](DEPLOY.md) |

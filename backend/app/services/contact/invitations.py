@@ -34,6 +34,7 @@ from app.contact.invitation import (
     status_label,
     withdraw_for_closed_need,
 )
+from app.contact.invitation import can_dispute as domain_can_dispute
 from app.contact.quotas import CandidateState
 from app.contact.quotas import Cooldown as DCooldown
 from app.contact.statuses import PENDING_STATUSES
@@ -543,6 +544,23 @@ def withdraw_pending_for_need(ctx: Ctx, need_id: uuid.UUID, actor_id: uuid.UUID 
     return n
 
 
+def withdraw_pending_for_company(ctx: Ctx, company_id: uuid.UUID, actor_id: uuid.UUID | None) -> int:
+    """Компания прекращает работу (удалён последний аккаунт работодателя): ждущие ответа приглашения отзываются
+    так же, как при закрытии брифа («позиция закрыта») — кандидат получает уведомление, надёжность компании не страдает."""
+    rows = list(
+        ctx.db.scalars(
+            select(Invitation).where(Invitation.company_id == company_id, Invitation.status.in_(tuple(PENDING_STATUSES)))
+        )
+    )
+    n = 0
+    for row in rows:
+        inv = to_domain(ctx.db, row)
+        out = withdraw_for_closed_need([inv], now(), actor_id=str(actor_id) if actor_id else None, cfg=cfg())
+        persist(ctx, row, inv, out)
+        n += 1 if inv.status == S.WITHDRAWN else 0
+    return n
+
+
 # --- чтение -----------------------------------------------------------------------------------------
 
 
@@ -733,6 +751,7 @@ def employer_detail(ctx: Ctx, row: Invitation) -> dict[str, Any]:
         at=at,
         offer_salary_to=inv.current_terms.salary_to,
         need_id=row.need_id,
+        ref=card.get("candidate_ref"),
     )
     return card
 
@@ -884,7 +903,8 @@ def candidate_detail(ctx: Ctx, row: Invitation) -> dict[str, Any]:
     }
     card["contacts_open"] = inv.contacts_open(at)
     card["contacted"] = inv.contacted_at is not None
-    card["can_dispute"] = "dispute" in actions_for(inv, "candidate") and not inv.disputed and inv.contact_due_at is not None
+    # Флаг совпадает с guard перехода (срок первого контакта прошёл): раньше горел сразу после «да», а запрос давал 409
+    card["can_dispute"] = domain_can_dispute(inv, at)
     card["outcome"] = inv.outcome
     card["outcome_label"] = c.reasons.outcome.get(inv.outcome) if inv.outcome else None
     card["outcome_check_options"] = dict(c.reasons.outcome_check) if inv.accepted_at else None

@@ -1,0 +1,9 @@
+# Временная публикация БД на loopback хоста (только 127.0.0.1) — для генерации пула заданий и обслуживания с хоста:
+#   docker compose -f docker-compose.prod.yml -f deploy/docker-compose.db-loopback.yml up -d db
+# После работы вернуть закрытую схему (пересоздать контейнер БД без этого файла):
+#   docker compose -f docker-compose.prod.yml up -d db
+# Основная прод-схема БД наружу не публикует вообще (docs/DEPLOY.md, п. 5).
+services:
+  db:
+    ports:
+      - "127.0.0.1:5432:5432"

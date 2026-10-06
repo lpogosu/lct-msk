@@ -1,6 +1,6 @@
 # Сборка, развёртывание и запуск
 
-Пошаговая инструкция: локальный запуск для разработки и проверки, сборка образов, развёртывание на VPS в РФ с HTTPS через Caddy, переменные окружения, требования к ресурсам, обслуживание. Команды сверены с `docker-compose.yml`, `backend/Dockerfile`, `Makefile`, `.env.example` и скриптами `backend/scripts`. Конфигурации раздела 5 (`docker-compose.prod.yml`, `Caddyfile`) — **рекомендуемые шаблоны**: файл compose проверен командой `docker compose config`, Caddyfile на стенде не запускался; в репозитории этих файлов пока нет («в разработке»).
+Пошаговая инструкция: локальный запуск для разработки и проверки, сборка образов, развёртывание на VPS в РФ с HTTPS через Caddy, переменные окружения, требования к ресурсам, обслуживание. Команды сверены с `docker-compose.yml`, `backend/Dockerfile`, `Makefile`, `.env.example` и скриптами `backend/scripts`. Файлы раздела 5 (`docker-compose.prod.yml`, `deploy/Caddyfile`) лежат в репозитории: compose проверен командой `docker compose config`, Caddyfile на стенде не запускался.
 
 Содержание: [1. Требования](#1-требования-и-ресурсы) · [2. Локальный запуск](#2-локальный-запуск) · [3. Переменные окружения](#3-переменные-окружения) · [4. Сборка образов](#4-сборка-образов) · [5. VPS в РФ, HTTPS через Caddy](#5-развёртывание-на-vps-в-рф-с-https-через-caddy) · [6. Обслуживание](#6-обслуживание) · [7. Диагностика](#7-диагностика) · [8. В разработке](#8-в-разработке)
 
@@ -75,7 +75,7 @@ VZ_DEMO_MODE=true docker compose up -d --build     # db, mailpit, backend, fsp-m
 make seed                                          # демо-мир наполняется с хоста в ту же БД (VZ_DATABASE_URL по умолчанию указывает на localhost:5432)
 ```
 
-Бэкенд в контейнере выполняет `alembic upgrade head`, затем `uvicorn app.main:app --proxy-headers`. Пул клонов в образ не входит (в нём нет `scripts/` и Node.js): его создают с хоста (`make gen-pool`) с тем же `VZ_APP_SECRET`, что у контейнера, — по умолчанию в `docker-compose.yml` и `.env.example` он совпадает.
+Бэкенд в контейнере выполняет `alembic upgrade head`, затем `uvicorn app.main:app --no-proxy-headers` (клиентский IP определяет приложение по `VZ_FORWARDED_ALLOW_IPS`). Пул клонов в образ не входит (в нём нет `scripts/` и Node.js): его создают с хоста (`make gen-pool`) с тем же `VZ_APP_SECRET`, что у контейнера, — по умолчанию в `docker-compose.yml` и `.env.example` он совпадает.
 
 ### 2.4. Тесты и валидация
 
@@ -105,7 +105,9 @@ make validate    # симуляция и подбор → docs/VALIDATION.md, ba
 | ФСП ID и реестр | `VZ_FSP_OIDC_ISSUER`, `VZ_FSP_OIDC_INTERNAL_URL`, `VZ_FSP_OIDC_CLIENT_ID` (`vzaimno`), `VZ_FSP_OIDC_CLIENT_SECRET`, `VZ_FSP_OIDC_REDIRECT_URI`, `VZ_FSP_SCOPES`, `VZ_FSP_REGISTRY_URL`, `VZ_FSP_PROVIDER` (`auto`; `http`, `inprocess`), `VZ_FSP_REGISTRY_TOKEN`, `VZ_FSP_TOKEN_URL`, `VZ_FSP_REGISTRY_SCOPE`, `VZ_FSP_TIMEOUT_S` (5), `VZ_FSP_DEMO_LOGIN_ENABLED` (`true`), `VZ_FSP_STATE_TTL_S` (600), `VZ_FSP_RL_*` | Переход на настоящий ФСП ID — [FSP_INTEGRATION.md](FSP_INTEGRATION.md) п. 9. Keycloak: `VZ_KEYCLOAK_ADMIN`, `VZ_KEYCLOAK_ADMIN_PASSWORD`, `VZ_KEYCLOAK_PORT`, `VZ_FSP_KEYCLOAK_PUBLIC_URL`, `VZ_PUBLIC_DOMAIN` |
 | Резюме и PDF | `VZ_RESUME_MAX_BYTES` (5 МБ), `VZ_RESUME_MAX_PAGES` (10), `VZ_RESUME_MIN_TEXT_CHARS` (40), `VZ_RESUME_RL_UPLOAD`, `VZ_PROFILE_RL_PDF`, `VZ_PROFILE_RL_PREVIEW`, `VZ_PROFILE_RL_SEARCH`, `VZ_PROFILE_RL_VERIFY` | |
 | LLM (необязательно) | `VZ_LLM_PROVIDER` (`none`; `auto`, `yandexgpt`, `gigachat`), `VZ_LLM_MODE` (`none`, `live`, `record`, `replay`), `VZ_LLM_CASSETTE_PATH`, `VZ_LLM_TIMEOUT_S` (20), `VZ_LLM_MIN_QUOTE_RATIO` (90), `VZ_LLM_YANDEX_API_KEY`, `VZ_LLM_YANDEX_FOLDER_ID`, `VZ_LLM_GIGACHAT_AUTH_KEY` и др. | По умолчанию выключена. Включать только с реальными ключами; ПДн маскируются до вызова |
-| За обратным прокси | `FORWARDED_ALLOW_IPS` (переменная самого uvicorn, не `VZ_`) | **Обязательна за Caddy** (п. 5.3) |
+| За обратным прокси | `VZ_FORWARDED_ALLOW_IPS` (или `FORWARDED_ALLOW_IPS`, как у uvicorn; по умолчанию `127.0.0.1`) | **Обязательна за Caddy**: адреса или подсеть прокси (п. 5.3); `*` в prod запрещено |
+| Демо на боевом стенде | `VZ_DEMO_CONTROLS_ADMIN_ONLY` (по умолчанию: `true` в `VZ_ENV=prod`), `VZ_DEMO_CONTROL_KEY` | При `VZ_DEMO_MODE=true` общие кнопки демо (часы, сброс, автоответчик, режим жюри) в prod — только админ или заголовок `X-Demo-Key`; вне prod — любая роль |
+| Планировщик | `VZ_SCHEDULER_ENABLED` (по умолчанию — `config/scheduler.yaml`) | Фоновые задачи внутри бэкенда (п. 6); в тестах не запускается |
 
 ## 4. Сборка образов
 
@@ -126,14 +128,14 @@ cd frontend && npm ci && npm run build
 
 ## 5. Развёртывание на VPS в РФ с HTTPS через Caddy
 
-Схема: наружу открыты только 80 и 443 (Caddy); бэкенд и БД доступны лишь внутри сети compose (PostgreSQL дополнительно на `127.0.0.1` для обслуживания по SSH-туннелю). Caddy раздаёт статику фронтенда и проксирует `/api/*` в бэкенд, сам получает и продлевает сертификаты (ACME).
+Схема: наружу открыты только 80 и 443 (Caddy); бэкенд и БД доступны лишь внутри сети compose (БД не публикуется вообще). Caddy раздаёт статику фронтенда и проксирует `/api/*` в бэкенд, сам получает и продлевает сертификаты (ACME).
 
 ### 5.1. Подготовка сервера
 
 1. Арендовать VPS в дата-центре РФ (параметры — п. 1), установить Debian или Ubuntu LTS, обновить систему.
 2. Создать DNS-запись `A` для домена (например, `vzaimno.example`) на адрес VPS; подождать распространения.
 3. Установить Docker Engine и плагин Compose v2 (по инструкции дистрибутива или проекта Docker).
-4. Открыть в межсетевом экране только 22 (SSH), 80 и 443. Помните: порты, опубликованные Docker, **обходят `ufw`** — поэтому в шаблоне ниже `db` публикуется только на `127.0.0.1`, а бэкенд не публикуется вообще.
+4. Открыть в межсетевом экране только 22 (SSH), 80 и 443. Помните: порты, опубликованные Docker, **обходят `ufw`** — поэтому в прод-схеме БД и бэкенд не публикуются вовсе.
 5. Настроить доступ по SSH-ключам, отключить вход по паролю.
 
 ### 5.2. Код, секреты, фронтенд
@@ -169,137 +171,41 @@ cd frontend && npm ci && npm run build && cd ..
 
 ### 5.3. Файлы развёртывания
 
-Сохраните в корне репозитория `docker-compose.prod.yml`:
+В репозитории лежат готовые файлы (они проверены `docker compose config`; Caddyfile на стенде не запускался):
 
-```yaml
-# «Взаимно» — рекомендуемая схема для VPS: наружу только Caddy (80/443), БД и бэкенд закрыты.
-# Сохраните как docker-compose.prod.yml в корне репозитория; запуск: docker compose -f docker-compose.prod.yml up -d --build
-name: vzaimno
+- `docker-compose.prod.yml` — боевая схема: `db`, `backend`, `caddy`; профиль `fsp` добавляет свой ФСП ID (`keycloak-db` + `keycloak`);
+- `deploy/Caddyfile` — HTTPS, заголовки безопасности, проксирование `/api/*`, статика фронтенда с SPA-маршрутами;
+- `deploy/docker-compose.db-loopback.yml` — временная публикация БД на `127.0.0.1` для генерации пула с хоста.
 
-services:
-  db:
-    image: pgvector/pgvector:pg16
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${VZ_DB_USER:-vzaimno}
-      POSTGRES_PASSWORD: ${VZ_DB_PASSWORD:?задайте VZ_DB_PASSWORD}
-      POSTGRES_DB: ${VZ_DB_NAME:-vzaimno}
-    ports:
-      - "127.0.0.1:5432:5432"   # только loopback: для SSH-туннеля при генерации пула и обслуживании
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
-      start_period: 5s
-    mem_limit: 768m
+Запуск: `docker compose -f docker-compose.prod.yml up -d --build`. Что отличает схему от локального `docker-compose.yml`:
 
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-      additional_contexts:
-        config: ./config
-    restart: unless-stopped
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      VZ_ENV: prod
-      VZ_DEMO_MODE: ${VZ_DEMO_MODE:-false}
-      VZ_DATABASE_URL: postgresql+psycopg://${VZ_DB_USER:-vzaimno}:${VZ_DB_PASSWORD}@db:5432/${VZ_DB_NAME:-vzaimno}
-      VZ_PUBLIC_BASE_URL: https://${VZ_PUBLIC_DOMAIN:?задайте VZ_PUBLIC_DOMAIN}
-      VZ_CORS_ORIGINS: https://${VZ_PUBLIC_DOMAIN}
-      VZ_JWT_SECRET: ${VZ_JWT_SECRET:?задайте VZ_JWT_SECRET}
-      VZ_APP_SECRET: ${VZ_APP_SECRET:?задайте VZ_APP_SECRET}
-      VZ_PSEUDONYM_SECRET: ${VZ_PSEUDONYM_SECRET:?задайте VZ_PSEUDONYM_SECRET}
-      VZ_COOKIE_SECURE: "true"
-      VZ_MAIL_BACKEND: smtp
-      VZ_SMTP_HOST: ${VZ_SMTP_HOST:?задайте VZ_SMTP_HOST}
-      VZ_SMTP_PORT: ${VZ_SMTP_PORT:-587}
-      VZ_SMTP_SECURITY: ${VZ_SMTP_SECURITY:-starttls}
-      VZ_SMTP_USERNAME: ${VZ_SMTP_USERNAME:-}
-      VZ_SMTP_PASSWORD: ${VZ_SMTP_PASSWORD:-}
-      VZ_MAIL_FROM: ${VZ_MAIL_FROM:?задайте VZ_MAIL_FROM}
-      VZ_FSP_PROVIDER: ${VZ_FSP_PROVIDER:-inprocess}
-      VZ_FSP_DEMO_LOGIN_ENABLED: ${VZ_FSP_DEMO_LOGIN_ENABLED:-false}
-      # uvicorn доверяет X-Forwarded-For только от этих адресов; бэкенд виден лишь Caddy внутри сети compose
-      FORWARDED_ALLOW_IPS: "*"
-    expose:
-      - "8000"
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/api/health/live', timeout=3).status == 200 else 1)"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 20s
-    mem_limit: 768m
+| Мера | Как сделано |
+|---|---|
+| БД не публикуется | У `db` нет `ports`: PostgreSQL виден только соседним контейнерам. Для обслуживания — `docker compose -f docker-compose.prod.yml exec db psql -U vzaimno`; для генерации пула с хоста — временный `deploy/docker-compose.db-loopback.yml` (только `127.0.0.1`, после работы пересоздать `db` без него) или `exec` внутри контейнера |
+| Бэкенд не публикуется | `expose: 8000`, наружу только `caddy` (80, 443, 443/udp) |
+| Версии закреплены | `pgvector/pgvector:0.8.7-pg16`, `caddy:2.10.2-alpine`, `postgres:16.15-alpine`, `quay.io/keycloak/keycloak:26.0.8` — вместо плавающих `pg16`/`latest`. Обновление — осознанная правка версии в файле. Mailpit в прод-схему не входит (локальный compose закрепляет `axllent/mailpit:v1.31.4`). Для жёсткого закрепления можно дописать `@sha256:<digest>` к тегу (`docker buildx imagetools inspect <образ>`) |
+| Keycloak не `start-dev` | В профиле `fsp` — production-режим `start` (с `--hostname`, `--proxy-headers=xforwarded`, своей PostgreSQL). `start-dev` остался только в локальном compose. Обязательные переменные профиля: `VZ_KEYCLOAK_DB_PASSWORD`, `VZ_KEYCLOAK_ADMIN`, `VZ_KEYCLOAK_ADMIN_PASSWORD`, `VZ_FSP_KEYCLOAK_PUBLIC_URL` (`https://sso.<домен>`); для доступа браузера раскомментируйте блок `{$VZ_KEYCLOAK_DOMAIN}` в `deploy/Caddyfile` (админ-консоль наружу не отдавать) |
+| Клиентский IP за Caddy | Подсеть compose зафиксирована (`172.29.80.0/24`), бэкенд доверяет `X-Forwarded-For` только от неё (`VZ_FORWARDED_ALLOW_IPS`), Caddy перезаписывает заголовок адресом клиента, uvicorn запущен с `--no-proxy-headers` (см. ниже) |
+| Демо-кнопки | `VZ_DEMO_CONTROL_KEY` (необязателен): в prod при `VZ_DEMO_MODE=true` часы, сброс, автоответчик и переключатель режима жюри — только роль `admin` или заголовок `X-Demo-Key` |
 
-  caddy:
-    image: caddy:2
-    restart: unless-stopped
-    depends_on:
-      backend:
-        condition: service_healthy
-    environment:
-      VZ_PUBLIC_DOMAIN: ${VZ_PUBLIC_DOMAIN}
-    ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
-    volumes:
-      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./frontend/dist:/srv/web:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    mem_limit: 128m
+Замечания:
 
-volumes:
-  pgdata:
-  caddy_data:
-  caddy_config:
+- **`VZ_FORWARDED_ALLOW_IPS`** (читается и `FORWARDED_ALLOW_IPS`, как у uvicorn): список адресов и подсетей через запятую, по умолчанию `127.0.0.1`. Приложение (`app/core/netutil.py`) верит заголовку `X-Forwarded-For` только от этих соседей и читает цепочку справа налево. Caddy стоит в соседнем контейнере, поэтому без этой переменной все пользователи выглядят как один IP прокси и **делят общие лимиты** (вход, регистрация, обновление сессии); в prod значение `*` запрещено — иначе любой, кто дотянется до порта бэкенда, подставлял бы себе IP. Если в compose используется другая подсеть — поменяйте её в `networks.default.ipam` и в этой переменной одновременно.
+- **`VZ_PUBLIC_BASE_URL`** должен совпадать с публичным адресом: он попадает в письма, QR и адрес возврата из ФСП ID.
+- **SPA-маршруты**: `try_files … /index.html` нужен для адресов вида `/candidate/fsp/callback`.
+- **Реестр ФСП**: по умолчанию `VZ_FSP_PROVIDER=inprocess` (встроенный демо-снимок, `fsp-mock` не нужен). Для боевого режима — переменные из [FSP_INTEGRATION.md](FSP_INTEGRATION.md) п. 9 (`VZ_FSP_PROVIDER=http`, адреса и учётные данные ФСП ID): добавьте их в `environment` сервиса `backend` (пустых значений не задавайте).
+- Mailpit и `fsp-mock` из локального compose в прод-схему **не входят**.
+
+**Пересборка образа бэкенда** (после `git pull`, смены зависимостей или кода; образ собирается заново, старый контейнер не «подхватывает» новые разделы API):
+
+```bash
+docker compose -f docker-compose.prod.yml build --no-cache backend     # зависимости строго по uv.lock
+docker compose -f docker-compose.prod.yml up -d backend                # миграции применяются при старте
+docker compose -f docker-compose.prod.yml ps                           # backend должен стать healthy
+curl -s https://vzaimno.example/api/openapi.json | head -c 200         # новая схема: проверьте, что есть нужные маршруты
 ```
 
-и `deploy/Caddyfile`:
-
-```caddyfile
-{$VZ_PUBLIC_DOMAIN} {
-	encode zstd gzip
-
-	header {
-		Strict-Transport-Security "max-age=31536000; includeSubDomains"
-		X-Content-Type-Options "nosniff"
-		Referrer-Policy "strict-origin-when-cross-origin"
-		Permissions-Policy "camera=(), microphone=(), geolocation=()"
-		-Server
-	}
-
-	# API: проксируем в бэкенд (uvicorn --proxy-headers подставит клиентский IP из X-Forwarded-For)
-	handle /api/* {
-		reverse_proxy backend:8000
-	}
-
-	# Статика фронтенда (Vite build): хешированные файлы кэшируем надолго, index.html не кэшируем
-	handle {
-		root * /srv/web
-		@assets path /assets/* /fonts/* /3d/*
-		header @assets Cache-Control "public, max-age=31536000, immutable"
-		header /index.html Cache-Control "no-cache"
-		try_files {path} /index.html
-		file_server
-	}
-}
-```
-
-Замечания к шаблону:
-
-- **`FORWARDED_ALLOW_IPS`**: uvicorn учитывает `X-Forwarded-For` только от доверенных адресов (по умолчанию `127.0.0.1`). Caddy стоит в соседнем контейнере, поэтому без этой переменной все пользователи выглядят как один IP прокси и **делят общие лимиты** (вход, регистрация, обновление сессии). Бэкенд не публикуется наружу, так что `*` безопасен; при желании укажите подсеть compose.
-- **`VZ_PUBLIC_BASE_URL`** должен совпадать с публичным адресом: он попадает в письма и QR.
-- **SPA-маршруты**: `try_files … /index.html` нужен для адресов вида `/auth/fsp/callback`.
-- **Реестр ФСП**: в шаблоне `VZ_FSP_PROVIDER=inprocess` (встроенный демо-снимок, `fsp-mock` и Keycloak не нужны). Для боевого режима — переменные из [FSP_INTEGRATION.md](FSP_INTEGRATION.md) п. 9 (`VZ_FSP_PROVIDER=http`, адреса и учётные данные ФСП ID).
-- Mailpit, `fsp-mock`, Keycloak из локального compose в прод-схему **не входят**.
+Локально (`docker-compose.yml`): `docker compose build --no-cache backend && docker compose up -d backend`; если на `:8000` отвечает старый образ без новых разделов (например, `GET /api/bank/summary` даёт 404), причина — устаревший образ, а не код: пересоберите его, как выше.
 
 ### 5.4. Запуск, миграции, пул клонов, демо-мир
 
@@ -309,10 +215,13 @@ docker compose -f docker-compose.prod.yml ps                   # backend дол�
 curl -s https://vzaimno.example/api/health                     # {"status":"ok","db":"ok",...}
 ```
 
-**Пул клонов обязателен**: без него тест не стартует (банк пуст). Скрипт не входит в образ и использует Node.js для JavaScript-семейств, поэтому его запускают с машины, где есть репозиторий, `uv` и Node.js 22, **через SSH-туннель** к PostgreSQL VPS и с боевым `VZ_APP_SECRET`:
+**Пул клонов обязателен**: без него тест не стартует (банк пуст). Скрипт не входит в образ и использует Node.js для JavaScript-семейств, поэтому его запускают с машины, где есть репозиторий, `uv` и Node.js 22, **через SSH-туннель** к PostgreSQL VPS и с боевым `VZ_APP_SECRET`. В прод-схеме БД не публикуется, поэтому на время работы на VPS поднимается loopback-вариант (порт только на `127.0.0.1` самого VPS, наружу не виден):
 
 ```bash
-# терминал 1: туннель к БД на VPS
+# на VPS: временно открыть БД на 127.0.0.1:5432
+docker compose -f docker-compose.prod.yml -f deploy/docker-compose.db-loopback.yml up -d db
+
+# терминал 1 (на своей машине): туннель к БД на VPS
 ssh -N -L 5433:127.0.0.1:5432 user@vzaimno.example
 
 # терминал 2: из репозитория (той же версии, что на сервере)
@@ -321,6 +230,9 @@ export VZ_DATABASE_URL='postgresql+psycopg://vzaimno:<VZ_DB_PASSWORD>@localhost:
 export VZ_APP_SECRET='<тот же секрет, что в .env на сервере>'
 uv run python scripts/generate_pool.py                    # 200 клонов на семейство, идемпотентно
 uv run python scripts/generate_pool.py --stats            # проверить состояние пула
+
+# на VPS после работы: вернуть закрытую схему (БД снова не публикуется)
+docker compose -f docker-compose.prod.yml up -d db
 ```
 
 Для семейств Backend скрипт можно запустить и внутри контейнера без Node.js (нужен смонтированный `scripts/`): `docker compose -f docker-compose.prod.yml run --rm --no-deps -v "$PWD/backend/scripts:/app/scripts:ro" backend python scripts/generate_pool.py --spec backend_python` (команда не прогонялась автоматически). Семейства Frontend исполняют JavaScript и требуют Node.js.
@@ -356,7 +268,8 @@ VZ_ENV=dev uv run python scripts/seed_demo.py              # пароли — в
 | Обновление версии | `git pull && cd frontend && npm ci && npm run build && cd .. && docker compose -f docker-compose.prod.yml up -d --build` (миграции применяются автоматически); при новых семействах — повторить `generate_pool.py` |
 | Откат | `git checkout <прежний тег>` и тот же `up -d --build`; миграции Alembic вниз (`alembic downgrade`) выполняются только вручную и осознанно |
 | Долив пула | Идёт автоматически в фоне после выдачи заданий (когда свободных меньше 50); вручную — `generate_pool.py` |
-| Калибровка сложности | `POST /api/lab/calibrate` (роль методист); ночная задача — в разработке |
+| Калибровка сложности | Ночью — планировщик (`config/scheduler.yaml`, 00:00 UTC = 03:00 МСК); вручную — `POST /api/lab/calibrate` (роль методист) |
+| Фоновые задачи | Встроенный планировщик (asyncio в процессе бэкенда): раз в минуту — сроки приглашений и откликов и повтор вебхуков, ночью — калибровка с CUSUM и чистка по срокам хранения. Итог суточных задач — в `audit_log` (`scheduler.calibration`, `scheduler.retention`); отключить — `VZ_SCHEDULER_ENABLED=false` |
 | Логи | `docker compose -f docker-compose.prod.yml logs -f backend`; уровень — `VZ_LOG_LEVEL` |
 | Здоровье | `GET /api/health` (БД), `GET /api/health/live` (процесс); у контейнеров есть healthcheck |
 | Смена секретов | `VZ_JWT_SECRET` — пользователи выйдут; `VZ_APP_SECRET` — пул клонов придётся пересоздать; `VZ_PSEUDONYM_SECRET` — новые псевдонимы для новых показов |
@@ -366,8 +279,8 @@ VZ_ENV=dev uv run python scripts/seed_demo.py              # пароли — в
 | Симптом | Причина и решение |
 |---|---|
 | Бэкенд падает при старте: «VZ_…_SECRET обязательно задать в prod» или «не короче 32 символов» | В `VZ_ENV=prod` запрещены dev-секреты; задайте три секрета в `.env` |
-| «В prod refresh-cookie должна быть Secure» | Задайте `VZ_COOKIE_SECURE=true` (в шаблоне уже есть) |
-| 429 у всех пользователей, в логах один IP | Не задан `FORWARDED_ALLOW_IPS` за прокси (п. 5.3) |
+| «В prod refresh-cookie должна быть Secure» | Задайте `VZ_COOKIE_SECURE=true` (в `docker-compose.prod.yml` уже есть) |
+| 429 у всех пользователей, в логах один IP | Не задан `VZ_FORWARDED_ALLOW_IPS` за прокси (п. 5.3) |
 | Пользователь не остаётся залогиненным | Нет HTTPS при `VZ_COOKIE_SECURE=true`, неверный `VZ_PUBLIC_DOMAIN` или `VZ_CORS_ORIGINS` |
 | Письма не приходят | Порт 25 закрыт у провайдера: используйте 587 или 465; проверьте SPF, DKIM, DMARC; смотрите `logs backend` на «SMTP: письмо … не отправлено»; ответ 503 `mail_unavailable` |
 | Тест не стартует, «банк исчерпан» или нет заданий | Не создан пул: `generate_pool.py` (п. 5.4) |
@@ -375,12 +288,9 @@ VZ_ENV=dev uv run python scripts/seed_demo.py              # пароли — в
 | `generate_pool.py`: «node не найден» | Нужен Node.js в `PATH` для семейств Frontend |
 | Windows: ошибки кодировки в консоли | `PYTHONUTF8=1` (`make` выставляет сам) |
 | `additional_contexts` не поддерживается | Обновите Docker Compose до v2.17+ |
-| Swagger UI пустой без интернета | Скрипты интерфейса грузятся с `cdn.jsdelivr.net`; используйте `openapi.json` ([API.md](API.md)) |
 
 ## 8. В разработке
 
-- Файлы `docker-compose.prod.yml` и `deploy/Caddyfile` в репозитории (сейчас — шаблоны этого документа).
 - Образ и compose-сервис фронтенда; готовый скрипт долива пула внутри контейнера с Node.js.
-- Планировщик: периодический `sweep()` (напоминания, повтор вебхуков) и ночная калибровка.
 - Мониторинг, алерты и автоматическое резервное копирование.
-- Закрепление образов по digest (`pg16`, `3.12-slim`, `mailpit:latest` — плавающие теги).
+- Закрепление образов по digest (сейчас — по версиям; `python:3.12-slim` в Dockerfile остаётся плавающим тегом минорной линии).

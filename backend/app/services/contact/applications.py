@@ -385,6 +385,7 @@ def employer_detail(ctx: Ctx, row: Application) -> dict[str, Any]:
         at=at,
         offer_salary_to=vac.salary_to,
         need_id=vac.need_id,
+        ref=card.get("candidate_ref"),
     )
     card["events"] = [
         {"seq": e.seq, "at": e.at, "action": e.action, "from_status": e.from_status, "to_status": e.to_status,

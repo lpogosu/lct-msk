@@ -150,8 +150,12 @@ def candidate_for_employer(
     at: datetime,
     offer_salary_to: int | None = None,
     need_id: uuid.UUID | None = None,
+    ref: str | None = None,
 ) -> dict[str, Any]:
     """CandidateBlind или CandidateDisclosed — решает действующее согласие пары, а не вызывающий код.
+
+    Форма результата одна — EmployerCandidateOut (app/services/contact/schemas.py): карточка панели подбора
+    (CandidateCardOut) плюс плоские контакты после раскрытия. ref — непрозрачная ссылка кандидата в рамках компании.
 
     Карточку строит сервис подбора (та же, что в панели Р6), если он доступен; иначе — проекция по матрице
     видимости config/contact.yaml из фактов профиля. В обоих случаях слепая карточка проверяется на ПДн.
@@ -190,7 +194,7 @@ def candidate_for_employer(
         except Exception:  # noqa: BLE001 — карточка подбора не собралась (нет признаков): своя проекция
             raw = None
     if raw is None:
-        return own
+        return _minimal_card(own, pseudonym=pseudonym, ref=ref)
     view = dict(raw)
     view.pop("candidate_id", None)
     if disclosure is None:
@@ -200,11 +204,41 @@ def candidate_for_employer(
     # Контакты после взаимного «да» гарантирует модуль контакта: разрешённые кандидатом поля берём из своей
     # проекции, даже если у подбора нет признаков кандидата (тогда его карточка минимальная).
     for name, rule in cfg().visibility.fields.items():
-        if rule.disclosed == "if_allowed" and name in own and name not in view:
+        if _opens_with_disclosure(rule) and name in own and name not in view:
             view[name] = own[name]
     view["view"] = "disclosed"
     view.setdefault("disclosure", own.get("disclosure"))
     return view
+
+
+_MINIMAL_PUBLIC_KEYS = ("industries", "formats", "search_mode", "has_fsp", "region")
+
+
+def _opens_with_disclosure(rule: Any) -> bool:
+    """Поле контакта по выбору кандидата (if_allowed) или ПДн, которое открывается вместе с ними (город: blind=hide, disclosed=show)."""
+    return rule.disclosed == "if_allowed" or (rule.disclosed == "show" and rule.blind == "hide")
+
+
+def _minimal_card(own: dict[str, Any], *, pseudonym: str, ref: str | None) -> dict[str, Any]:
+    """Карточка, когда у подбора нет признаков кандидата (не подтверждён тестом, данные сброшены): форма та же,
+    что у панели подбора, но без категории и подробностей — только то, что есть в проекции по матрице видимости."""
+    out: dict[str, Any] = {
+        "view": own.get("view", "blind"),
+        "pseudonym": pseudonym,
+        "ref": ref or "",
+        "available": False,
+        "note": "Подробной карточки нет: кандидат ещё не подтверждён тестом или его данные обновляются",
+        "category": None,
+    }
+    for key in _MINIMAL_PUBLIC_KEYS:
+        if key in own:
+            out[key] = own[key]
+    if own.get("view") == "disclosed":
+        out["disclosure"] = own.get("disclosure")
+        for name, rule in cfg().visibility.fields.items():
+            if _opens_with_disclosure(rule) and name in own:
+                out[name] = own[name]
+    return out
 
 
 # --- компания глазами кандидата -----------------------------------------------------------------

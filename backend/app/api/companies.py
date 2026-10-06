@@ -10,13 +10,16 @@ import re
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 
-from app.api.deps import CurrentUser, DbSession, LimiterDep, require_roles
+from app.api.auth import _clear_refresh_cookie
+from app.api.deps import CurrentUser, DbSession, LimiterDep, MailerDep, MetaDep, SettingsDep, require_roles
+from app.api.schemas import AccountDeleteRequest, AccountDeleteResponse
 from app.core.errors import bad_request, conflict, error_responses, not_found
 from app.models.company import Company, WebhookDelivery
 from app.models.enums import UserRole
 from app.models.users import User
+from app.services.account import delete_account
 from app.services.contact import webhooks
 from app.services.contact.common import cfg, check_rate, now, rel
 from app.services.contact.company import company_of, missing_fields, quota_dict, sync_completion
@@ -261,3 +264,36 @@ def reliability(company_id: uuid.UUID, user: CurrentUser, db: DbSession) -> Reli
     if company is None:
         raise not_found("company_not_found", "Компания не найдена")
     return ReliabilityOut.model_validate(reliability_dict(company_reliability(db, company.id, now())))
+
+
+# --------------------------------------------------------------------------- удаление аккаунта работодателя (152-ФЗ)
+
+
+@router.delete(
+    "/me",
+    response_model=AccountDeleteResponse,
+    summary="Удалить аккаунт работодателя",
+    description=(
+        "Право на удаление (152-ФЗ): подтверждение паролем. Удаляется аккаунт работодателя (email, сессии). Если он был "
+        "последним в компании, её ждущие приглашения отзываются («позиция закрыта»), брифы и вакансии закрываются, контакты "
+        "связи и вебхук ATS стираются; название компании остаётся в истории приглашений кандидатов. Необратимо; на адрес "
+        "аккаунта уходит письмо-подтверждение. 403 `password_invalid`; 429 — не больше 5 попыток в час."
+    ),
+    responses=error_responses(400, 401, 403, 429),
+)
+def delete_me(
+    body: AccountDeleteRequest,
+    response: Response,
+    user: EmployerUser,
+    db: DbSession,
+    settings: SettingsDep,
+    limiter: LimiterDep,
+    mailer: MailerDep,
+    meta: MetaDep,
+) -> AccountDeleteResponse:
+    out = delete_account(
+        db, user, password=body.password, confirm=body.confirm, settings=settings, limiter=limiter, mailer=mailer, ip=meta.ip
+    )
+    _clear_refresh_cookie(response, settings)
+    response.headers["Cache-Control"] = "no-store"
+    return AccountDeleteResponse.model_validate(out)

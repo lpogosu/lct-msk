@@ -17,8 +17,10 @@
 | `email-validator` | 2.3.0 | Unlicense | Проверка адресов email |
 | `fastapi` | 0.142.2 | MIT | HTTP-фреймворк API |
 | `httpx` | 0.28.1 | BSD-3-Clause | HTTP-клиент: реестр ФСП, OIDC, LLM, вебхуки ATS |
+| `cryptography` | 50.0.2 | Apache-2.0 OR BSD-3-Clause | Fernet: шифрование ключей заданий (`app/services/testing/keystore.py`); объявлена напрямую |
 | `numpy` | 2.4.6 (Python 3.11) | BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0 | Расчёты IRT/CAT (сетка EAP, калибровка) |
 | `numpy` | 2.5.3 (Python ≥ 3.12, образ Docker) | BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0 | Расчёты IRT/CAT (сетка EAP, калибровка) |
+| `pdfminer.six` | 20260107 | MIT | Исключения разбора PDF (`PDFSyntaxError`); объявлена напрямую |
 | `pdfplumber` | 0.11.10 | MIT | Извлечение текста из PDF-резюме |
 | `pgvector` | 0.5.0 | MIT | Клиент pgvector (расширение в БД включено; в коде пока не импортируется) |
 | `psycopg` | 3.3.6 | LGPL-3.0-only | Драйвер PostgreSQL (psycopg 3, extra `binary`) |
@@ -31,9 +33,8 @@
 | `qrcode` | 8.2 | BSD | QR-код сверки в PDF-профиле (extra `pil`: Pillow) |
 | `rapidfuzz` | 3.14.6 | MIT | Нечёткое сравнение: навыки с опечатками, проверка цитат LLM |
 | `reportlab` | 5.0.1 | BSD (лицензия ReportLab Inc.) | Генерация PDF-профиля |
-| `scipy` | 1.17.1 (Python 3.11) | BSD | Используется только в тестах (`tests/test_matching_scoring.py`), в рантайме не нужен |
-| `scipy` | 1.18.1 (Python ≥ 3.12, образ Docker) | BSD | Используется только в тестах (`tests/test_matching_scoring.py`), в рантайме не нужен |
 | `sqlalchemy` | 2.1.3 | MIT | ORM и доступ к PostgreSQL |
+| `starlette` | 1.7.0 | BSD-3-Clause | ASGI-основа FastAPI: статика документации, ответы, конкурентность (`app/main.py`, `app/api/demo.py`); объявлена напрямую |
 | `uvicorn` | 0.54.0 | BSD-3-Clause | ASGI-сервер (extra `standard`: httptools, uvloop, watchfiles, websockets, python-dotenv) |
 
 ### 1.2. Транзитивные зависимости времени выполнения
@@ -51,7 +52,7 @@
 | `charset-normalizer` | 3.5.2 | MIT | `pdfplumber`, `reportlab` |
 | `click` | 8.5.0 | BSD-3-Clause | `uvicorn` |
 | `colorama` | 0.4.6 | BSD | `qrcode` |
-| `cryptography` | 50.0.2 | Apache-2.0 OR BSD-3-Clause | `pdfplumber`, `pyjwt` |
+| `cryptography` | 50.0.2 | Apache-2.0 OR BSD-3-Clause | прямая; также `pdfplumber`, `pyjwt` |
 | `dnspython` | 2.8.0 | ISC | `email-validator` |
 | `h11` | 0.16.0 | MIT | `httpx`, `uvicorn` |
 | `httpcore` | 1.0.9 | BSD-3-Clause | `httpx` |
@@ -60,14 +61,14 @@
 | `mako` | 1.4.3 | MIT | `alembic` |
 | `markupsafe` | 3.0.4 | BSD-3-Clause | `alembic` |
 | `opentelemetry-api` | 1.45.0 | Apache-2.0 | `fastapi` |
-| `pdfminer-six` | 20260107 | MIT | `pdfplumber` |
+| `pdfminer-six` | 20260107 | MIT | прямая (`pdfminer.six`); также `pdfplumber` |
 | `pillow` | 12.3.0 | MIT-CMU | `pdfplumber`, `qrcode`, `reportlab` |
 | `psycopg-binary` | 3.3.6 | LGPL-3.0-only | `psycopg` |
 | `pycparser` | 3.0 | BSD-3-Clause | `argon2-cffi`, `pdfplumber`, `pyjwt` |
 | `pydantic-core` | 2.46.5 | MIT | `fastapi`, `pydantic`, `pydantic-settings` |
 | `pypdfium2` | 5.14.0 | BSD-3-Clause или Apache-2.0 (плюс лицензии вложенных библиотек PDFium) | `pdfplumber` |
 | `python-dotenv` | 1.2.4 | BSD-3-Clause | `pydantic-settings`, `uvicorn` |
-| `starlette` | 1.7.0 | BSD-3-Clause | `fastapi` |
+| `starlette` | 1.7.0 | BSD-3-Clause | прямая; также `fastapi` |
 | `typing-extensions` | 4.16.0 | PSF-2.0 | `alembic`, `fastapi`, `httpx`, `psycopg`, `pydantic`, `pydantic-settings`, `sqlalchemy`, `uvicorn` |
 | `typing-inspection` | 0.4.4 | MIT | `fastapi`, `pydantic`, `pydantic-settings` |
 | `tzdata` | 2026.5 | Apache-2.0 | `psycopg` |
@@ -87,6 +88,7 @@
 | `pygments` | 2.21.0 | BSD-2-Clause | транзитивная |
 | `pytest` | 9.1.1 | MIT | прямая |
 | `pytest-asyncio` | 1.4.0 | Apache-2.0 | прямая |
+| `scipy` | 1.17.1 (Python 3.11), 1.18.1 (Python ≥ 3.12) | BSD | прямая (группа `dev`): только `tests/test_matching_scoring.py`, в образ не входит |
 | `ruff` | 0.16.10 | MIT | прямая |
 
 ## 2. Фронтенд (JavaScript)
@@ -151,16 +153,19 @@
 
 | Компонент | Версия (источник) | Лицензия | Назначение |
 |---|---|---|---|
-| PostgreSQL 16 с расширением pgvector | `pgvector/pgvector:pg16` (`docker-compose.yml`, плавающий тег) | PostgreSQL License (PostgreSQL и pgvector) | База данных |
-| Keycloak | `quay.io/keycloak/keycloak:26.0` (профиль `fsp`) | Apache-2.0 | ФСП ID на демо-стенде |
-| Mailpit | `axllent/mailpit:latest` (плавающий тег; для релиза зафиксировать) | MIT | Перехват писем в разработке |
+| PostgreSQL 16 с расширением pgvector | `pgvector/pgvector:0.8.7-pg16` (`docker-compose.yml`, `docker-compose.prod.yml`) | PostgreSQL License (PostgreSQL и pgvector) | База данных |
+| PostgreSQL 16 (Keycloak) | `postgres:16.15-alpine` (`docker-compose.prod.yml`, профиль `fsp`) | PostgreSQL License | БД Keycloak на боевой схеме |
+| Keycloak | `quay.io/keycloak/keycloak:26.0.8` (профиль `fsp`; локально `start-dev`, в prod `start`) | Apache-2.0 | ФСП ID на демо-стенде |
+| Mailpit | `axllent/mailpit:v1.31.4` (`docker-compose.yml`) | MIT | Перехват писем в разработке |
 | Python | `python:3.12-slim` (`backend/Dockerfile`, `services/fsp-mock/Dockerfile`) | PSF-2.0 (CPython); базовый образ Debian содержит пакеты под своими лицензиями | Среда выполнения бэкенда и `fsp-mock` |
 | uv | `ghcr.io/astral-sh/uv:0.11.12` (`backend/Dockerfile`) | MIT или Apache-2.0 | Установка зависимостей по `uv.lock` |
-| Caddy 2 | Не входит в `docker-compose.yml`; рекомендуется для HTTPS ([DEPLOY.md](DEPLOY.md)) | Apache-2.0 | Обратный прокси, TLS |
+| Caddy 2 | `caddy:2.10.2-alpine` (`docker-compose.prod.yml`, [DEPLOY.md](DEPLOY.md)) | Apache-2.0 | Обратный прокси, TLS |
+| Swagger UI (swagger-ui-dist) | 5.33.1, файлы в `backend/app/static/docs` | Apache-2.0 (лицензия и NOTICE рядом) | Интерактивная документация `/api/docs`, без внешних CDN |
+| ReDoc | 2.5.4 (`redoc.standalone.js`), файлы в `backend/app/static/docs` | MIT (лицензия рядом) | Документация `/api/redoc`, без внешних CDN и шрифтов |
 | Node.js | 22 LTS на машине сборки и при генерации пула клонов (семейства JavaScript исполняются `node -e`) | MIT-подобная (Node.js license) | Сборка фронтенда, ключи JS-заданий |
 | SQLite | Встроен в Python (`sqlite3`) | Public Domain | Исполнение SQL-семейств при генерации ключей заданий |
 
-Версии плавающих тегов (`pg16`, `3.12-slim`, `latest`) определяются при сборке; для воспроизводимого релиза их нужно закрепить по digest.
+Образы compose закреплены по версиям (БД, Caddy, Keycloak, Mailpit); плавающим остаётся только `python:3.12-slim` в Dockerfile — для воспроизводимого релиза его нужно закрепить по digest.
 
 ## 4. Шрифты
 
@@ -192,7 +197,7 @@
 - **MIT-CMU: `pillow`**, **PSF-2.0: `typing-extensions`**, **ISC: `dnspython`**, **Unlicense: `email-validator`** — разрешительные лицензии.
 - **`pypdfium2`** включает бинарную сборку PDFium (BSD-3-Clause и Apache-2.0) и её собственные зависимости под своими лицензиями; **`numpy`** содержит части под 0BSD, MIT, Zlib и CC0-1.0.
 - **Фронтенд, dev-зависимости:** пакеты `@img/sharp-libvips-*` под LGPL-3.0-or-later (бинарная libvips для `sharp`) нужны только скрипту оптимизации изображений `npm run optimize:3d` и в сборку (`dist/`) не попадают.
-- **Python-пакеты, импортируемые напрямую, но не объявленные в `pyproject.toml`:** `cryptography` (Fernet для ключей заданий; приходит через `pyjwt[crypto]`), `pdfminer.six` (исключения разбора PDF; через `pdfplumber`), `starlette` (через `fastapi`). Пакет `pgvector` объявлен, но в коде не импортируется; `scipy` объявлен как зависимость, а используется только в тестах. Это не влияет на лицензии, но при следующей чистке `pyproject.toml` стоит объявить первые три явно.
+- **Прямые импорты и `pyproject.toml`:** `cryptography`, `pdfminer.six` и `starlette` объявлены явно (раньше приходили транзитивно); `scipy` перенесён в группу `dev`, потому что нужен только тестам. Пакет `pgvector` объявлен намеренно: расширение в БД уже включено, клиент понадобится для эмбеддингов (план NLP), в коде пока не импортируется.
 - Образы `latest` и плавающие теги не воспроизводимы; закрепить перед релизом.
 - Автоматическая проверка лицензий и уязвимостей зависимостей в CI — в разработке.
 

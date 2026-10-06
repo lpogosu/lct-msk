@@ -168,32 +168,6 @@ export function categoryName(spec: string, grade: string): string {
   return `${specLabel(spec)} · ${gradeLabel(grade)}`
 }
 
-/** Навыки для фильтра «стек» в банке: только те, что подтверждает тест (config/skills.yaml — у них есть модули). */
-export const STACK_OPTIONS: { id: string; name: string }[] = [
-  { id: 'python', name: 'Python' },
-  { id: 'fastapi', name: 'FastAPI' },
-  { id: 'django', name: 'Django' },
-  { id: 'flask', name: 'Flask' },
-  { id: 'asyncio', name: 'asyncio' },
-  { id: 'sqlalchemy', name: 'SQLAlchemy' },
-  { id: 'pytest', name: 'pytest' },
-  { id: 'sql', name: 'SQL' },
-  { id: 'postgresql', name: 'PostgreSQL' },
-  { id: 'rest', name: 'REST API' },
-  { id: 'graphql', name: 'GraphQL' },
-  { id: 'javascript', name: 'JavaScript' },
-  { id: 'typescript', name: 'TypeScript' },
-  { id: 'react', name: 'React' },
-  { id: 'nextjs', name: 'Next.js' },
-  { id: 'vue', name: 'Vue' },
-  { id: 'nodejs', name: 'Node.js' },
-  { id: 'html', name: 'HTML' },
-  { id: 'css', name: 'CSS' },
-  { id: 'git', name: 'Git' },
-  { id: 'linux', name: 'Linux' },
-  { id: 'algorithms', name: 'Алгоритмы' },
-]
-
 /** Города из справочника брифа (config/skills.yaml → cities): код → название. Остальные показываем как есть. */
 export const CITY_LABEL: Record<string, string> = {
   moscow: 'Москва',

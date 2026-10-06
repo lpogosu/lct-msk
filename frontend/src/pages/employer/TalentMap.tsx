@@ -7,23 +7,22 @@ import {
   useTalentMap,
   type BankItem,
   type MapCell,
+  type MapSpec,
 } from '@/features/employer/api'
 import { LoadError, Tag } from '@/features/employer/components/common'
 import { ReachHistogram } from '@/features/employer/components/ReachHistogram'
-import { GRADE_LABEL, GRADE_ORDER, MAP_SPECS, SPEC_LABEL } from '@/features/employer/dict'
+import { GRADE_LABEL, GRADE_ORDER, SPEC_LABEL } from '@/features/employer/dict'
 import { cn } from '@/lib/cn'
 import { countWord, formatInt, formatRubRangeK } from '@/lib/format'
 import { Button, HeatCell, HeatLegend, heatLevel, Identicon, Illustration, Panel, Skeleton } from '@/ui'
 
-// Направления, у которых тест есть всегда (config/taxonomy.yaml: active и derived). Остальные считаются «с тестом»,
-// только если в банке уже есть подтверждённые тестом кандидаты (так подхватываются DevOps и QA после запуска теста).
-const BASE_SPECS = ['backend_python', 'frontend_js', 'fullstack'] as const
-const PROBE_SPECS = ['devops', 'qa'] as const
 const SUBLABEL: Record<string, string> = { fullstack: 'обе квалификации' }
+const specName = (s: MapSpec) => SPEC_LABEL[s.spec] ?? s.name
 
-/** «Карта талантов» (Figma 33:2): специализация × грейд, цвет — число кандидатов, мини-трасса — доля с ФСП. */
+/** «Карта талантов» (Figma 33:2): специализация × грейд, цвет — число кандидатов, мини-трасса — доля с ФСП.
+ *  Все числа — одним запросом GET /api/bank/summary (раньше ~14 запросов к /api/bank и лимит 30 в минуту). */
 export default function TalentMap() {
-  const map = useTalentMap(BASE_SPECS, PROBE_SPECS, GRADE_ORDER)
+  const map = useTalentMap()
   const [sel, setSel] = useState<{ spec: string; grade: string } | null>(null)
 
   const data = map.data
@@ -32,12 +31,12 @@ export default function TalentMap() {
     for (const c of data?.cells ?? []) m.set(`${c.spec}:${c.grade}`, c)
     return m
   }, [data])
-  const total = (data?.cells ?? []).reduce((s, c) => s + c.n, 0)
-  const withFsp = (data?.cells ?? []).reduce((s, c) => s + c.withFsp, 0)
+  // Уникальных кандидатов считает бэкенд: Fullstack входит в несколько ячеек, но в итоге — один раз
+  const total = data?.total ?? 0
+  const withFsp = data?.withFsp ?? 0
   const max = Math.max(1, ...(data?.cells ?? []).map((c) => c.n))
-  // Кандидат в банке показывается один раз — лучшей категорией, поэтому сумма ячеек = число специалистов с подтверждённым тестом
-  const testedSpecs = data?.tested ?? [...BASE_SPECS]
-  const waiting = MAP_SPECS.filter((s) => !testedSpecs.includes(s))
+  const testedSpecs = (data?.specs ?? []).filter((s) => s.tested)
+  const waiting = (data?.specs ?? []).filter((s) => !s.tested)
   const updated = data ? new Date(data.fetchedAt).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }) : null
 
   return (
@@ -78,19 +77,22 @@ export default function TalentMap() {
                 </span>
               ))}
               {testedSpecs.map((spec) => (
-                <Row key={spec} spec={spec} cellOf={cellOf} max={max} sel={sel} onSelect={setSel} />
+                <Row key={spec.spec} spec={spec} cellOf={cellOf} max={max} sel={sel} onSelect={setSel} />
               ))}
             </div>
             {waiting.length > 0 && (
               <div className="flex flex-col gap-2">
                 {waiting.map((spec) => (
-                  <div key={spec} className="grid grid-cols-[minmax(110px,150px)_minmax(0,1fr)] items-center gap-x-2 sm:gap-x-3 xl:grid-cols-[minmax(130px,200px)_minmax(0,1fr)]">
+                  <div key={spec.spec} className="grid grid-cols-[minmax(110px,150px)_minmax(0,1fr)] items-center gap-x-2 sm:gap-x-3 xl:grid-cols-[minmax(130px,200px)_minmax(0,1fr)]">
                     <div>
-                      <p className="t-body text-ink">{SPEC_LABEL[spec]}</p>
+                      <p className="t-body text-ink">{specName(spec)}</p>
                       <p className="t-small text-ink-3">опрос, теста пока нет</p>
                     </div>
                     <p className="rounded-cell border border-dashed border-steel px-4 py-3 t-small text-ink-3">
-                      Ждут теста. Подборки по этому направлению появятся после запуска теста.
+                      {spec.surveyOnly > 0
+                        ? `Ждут теста: ${countWord(spec.surveyOnly, ['кандидат', 'кандидата', 'кандидатов'])} прошли опрос. `
+                        : 'Ждут теста. '}
+                      Подборки по этому направлению появятся после запуска теста.
                     </p>
                   </div>
                 ))}
@@ -107,22 +109,23 @@ export default function TalentMap() {
 }
 
 function Row({
-  spec,
+  spec: specRow,
   cellOf,
   max,
   sel,
   onSelect,
 }: {
-  spec: string
+  spec: MapSpec
   cellOf: Map<string, MapCell>
   max: number
   sel: { spec: string; grade: string } | null
   onSelect: (s: { spec: string; grade: string }) => void
 }) {
+  const spec = specRow.spec
   return (
     <>
       <div className="self-center">
-        <p className="t-name text-ink">{SPEC_LABEL[spec] ?? spec}</p>
+        <p className="t-name text-ink">{specName(specRow)}</p>
         <p className="t-small text-ink-3">{SUBLABEL[spec] ?? 'тест работает'}</p>
       </div>
       {GRADE_ORDER.map((g) => {
@@ -137,7 +140,7 @@ function Row({
             fspShare={n > 0 && c ? c.withFsp / n : undefined}
             selected={isSel}
             disabled={n === 0}
-            label={`${SPEC_LABEL[spec]}, ${GRADE_LABEL[g]}: ${countWord(n, ['кандидат', 'кандидата', 'кандидатов'])}`}
+            label={`${specName(specRow)}, ${GRADE_LABEL[g]}: ${countWord(n, ['кандидат', 'кандидата', 'кандидатов'])}`}
             onClick={() => onSelect({ spec, grade: g })}
             className={cn(n === 0 && 'cursor-default')}
           />
@@ -201,9 +204,19 @@ function CategoryPanel({ sel, cell }: { sel: { spec: string; grade: string } | n
             </p>
           )}
         </section>
+      ) : cell?.salary ? (
+        <section aria-label="Ожидания кандидатов" className="flex flex-col gap-2">
+          <p className="t-small text-ink-3">Ожидания кандидатов «на руки», тыс. ₽ в месяц</p>
+          <p className="t-body text-ink-2">
+            <span className="t-num-m mr-2 text-brand">{formatRubRangeK(cell.salary.p25, cell.salary.p75)}</span>
+            половина кандидатов; медиана {Math.round(cell.salary.p50 / 1000)}
+          </p>
+          <p className="t-small text-ink-3">Охват под вашу вилку покажем, когда вы опишете потребность для этой категории.</p>
+        </section>
       ) : (
         <p className="t-small text-ink-3">
           Ожидания по зарплате покажем под вилку вашей потребности: опишите её для этой категории — и здесь появится охват.
+          Общую картину по категории показываем, когда в ней достаточно кандидатов с указанным минимумом.
         </p>
       )}
 

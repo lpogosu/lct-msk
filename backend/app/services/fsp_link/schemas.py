@@ -10,6 +10,9 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from app.api.schemas import TokenResponse
 
 FspStateCode = Literal["not_linked", "linked_no_results", "awaiting_protocol", "linked"]
+# Состояние экрана К14 — те же коды плюс «реестр недоступен»: данных нет не потому, что у спортсмена нет
+# результатов, а потому, что реестр не ответил. Это не штраф: F = 0, привязка и согласие остаются.
+FspStatusStateCode = Literal["not_linked", "linked_no_results", "awaiting_protocol", "linked", "registry_unavailable"]
 
 
 class _In(BaseModel):
@@ -72,7 +75,12 @@ class FspStrengthOut(BaseModel):
 
 
 class FspStatusOut(BaseModel):
-    state: FspStateCode = Field(description="not_linked / linked_no_results / awaiting_protocol / linked")
+    state: FspStatusStateCode = Field(
+        description=(
+            "not_linked / linked_no_results / awaiting_protocol / linked; registry_unavailable — реестр ФСП не ответил "
+            "(причина в sync_error), это НЕ «результатов нет»"
+        )
+    )
     status_line: str = Field(description="Строка состояния для кандидата")
     linked: bool = Field(description="ФСП ID привязан")
     is_demo: bool = Field(default=False, description="Привязка сделана «демо-входом ФСП»")

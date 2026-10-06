@@ -242,7 +242,27 @@ def test_http_errors_are_mapped(handler, exc) -> None:
 
 
 def test_http_404_is_none() -> None:
-    assert HttpFSPProvider(client=_client(lambda r: httpx.Response(404))).get_athlete("s-1") is None
+    # 404 по контракту реестра (ErrorResponse: {"detail": ...}) — спортсмена в реестре нет
+    reply = httpx.Response(404, json={"detail": "Спортсмен с таким sub не найден в реестре"})
+    assert HttpFSPProvider(client=_client(lambda r: reply)).get_athlete("s-1") is None
+
+
+@pytest.mark.parametrize(
+    "response",
+    [
+        httpx.Response(404),
+        httpx.Response(404, text="<html>Not Found</html>"),
+        # дев-бэкенд «Взаимно» на порту реестра: его 404 — {code, message, details}, не контракт реестра
+        httpx.Response(404, json={"code": "not_found", "message": "Ресурс не найден", "details": None}),
+    ],
+)
+def test_http_404_from_foreign_service_is_unavailable_not_none(response: httpx.Response) -> None:
+    # Раньше такой ответ превращался в None → «результатов нет» (linked_no_results) без единого признака сбоя
+    provider = HttpFSPProvider(client=_client(lambda r: response))
+    with pytest.raises(FSPUnavailable, match="не распознан"):
+        provider.get_athlete("s-1")
+    with pytest.raises(FSPUnavailable):
+        provider.get_achievements("s-1")
 
 
 def test_fallback_uses_snapshot_when_registry_down(inproc: InProcessFSPProvider) -> None:
