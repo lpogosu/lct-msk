@@ -204,7 +204,7 @@ def test_calibrate_updates_difficulty_only_with_consent(api, bank, make_account,
     # Повтор: новых ответов нет — ничего не меняется (ответы до calibrated_at не учитываются)
     out2 = api.post("/api/lab/calibrate", methodist, {"specialization": SPEC})
     assert out2["families_updated"] == 0
-    assert api.post("/api/lab/calibrate", methodist, {"specialization": "devops"}, expect=400)["code"] == (
+    assert api.post("/api/lab/calibrate", methodist, {"specialization": "data_ml"}, expect=400)["code"] == (
         "specialization_not_testable"
     )
 

@@ -83,6 +83,22 @@ SPEC_SKILLS: dict[str, tuple[tuple[str, float], ...]] = {
         ("material_ui", 0.15), ("mobx", 0.1), ("zustand", 0.1), ("algorithms", 0.1), ("docker", 0.15),
     ),
 }
+SPEC_SKILLS["qa"] = (
+    ("python", 0.85), ("git", 0.95), ("pytest", 0.8), ("sql", 0.75), ("api_testing", 0.75), ("manual_testing", 0.7),
+    ("postman", 0.65), ("http", 0.6), ("rest", 0.6), ("test_automation", 0.6), ("linux", 0.55), ("json", 0.5),
+    ("unit_testing", 0.5), ("selenium", 0.5), ("jira", 0.5), ("postgresql", 0.45), ("integration_testing", 0.4),
+    ("ci_cd", 0.4), ("playwright", 0.35), ("docker", 0.35), ("allure", 0.3), ("bash", 0.3), ("gitlab", 0.3),
+    ("cypress", 0.2), ("load_testing", 0.2), ("jmeter", 0.2), ("jenkins", 0.2), ("tdd", 0.2), ("locust", 0.1),
+    ("javascript", 0.15),
+)
+SPEC_SKILLS["devops"] = (
+    ("linux", 1.0), ("git", 0.95), ("docker", 0.95), ("bash", 0.9), ("ci_cd", 0.8), ("nginx", 0.7), ("ssh", 0.6),
+    ("kubernetes", 0.6), ("gitlab", 0.5), ("gitlab_ci", 0.5), ("ansible", 0.5), ("prometheus", 0.5), ("cron", 0.5),
+    ("python", 0.5), ("systemd", 0.5), ("grafana", 0.5), ("terraform", 0.4), ("github_actions", 0.35),
+    ("observability", 0.35), ("helm", 0.35), ("jenkins", 0.3), ("postgresql", 0.3), ("tcp_ip", 0.3),
+    ("networking_ops", 0.3), ("elk", 0.25), ("redis", 0.25), ("github", 0.25), ("argocd", 0.2), ("aws", 0.2),
+    ("yandex_cloud", 0.15), ("vault", 0.15),
+)
 # Fullstack: обе базы обязательно, остальное — с пониженной вероятностью.
 FULLSTACK_CORE = ("python", "javascript", "react", "sql", "git", "rest", "html", "css")
 FULLSTACK_FACTOR = 0.7
@@ -97,6 +113,8 @@ ROLE_TEXT = {
     "backend_python": "Backend-разработчик на Python",
     "frontend_js": "Frontend-разработчик",
     "fullstack": "Fullstack-разработчик",
+    "qa": "QA-инженер",
+    "devops": "DevOps-инженер",
 }
 
 TASK_TITLES: dict[str, tuple[str, ...]] = {
@@ -108,6 +126,8 @@ TASK_TITLES: dict[str, tuple[str, ...]] = {
     "js_core": ("Дебаунс поиска", "Очередь промисов"),
     "react": ("Форма с валидацией", "Виртуальный список"),
     "html_css": ("Адаптивная карточка товара", "Доступное модальное окно"),
+    "qa_testing": ("Тест-кейсы для формы заказа", "Автотесты API на pytest", "Проверка данных после миграции"),
+    "devops_core": ("Dockerfile для сервиса", "Пайплайн сборки и выкладки", "Конфигурация nginx для двух сервисов"),
 }
 
 FORMAT_PRESETS: tuple[tuple[tuple[str, ...], float], ...] = (
@@ -126,8 +146,22 @@ FSP_DISCIPLINES: dict[str, tuple[tuple[str, float], ...]] = {
     "backend_python": (("algo", 0.5), ("product", 0.35), ("infosec", 0.1), ("bas", 0.05)),
     "frontend_js": (("product", 0.65), ("algo", 0.3), ("robotics", 0.05)),
     "fullstack": (("product", 0.6), ("algo", 0.35), ("infosec", 0.05)),
+    "qa": (("product", 0.55), ("algo", 0.25), ("infosec", 0.2)),
+    "devops": (("product", 0.4), ("infosec", 0.35), ("algo", 0.15), ("robotics", 0.1)),
 }
-TEAM_FUNCTION = {"backend_python": "backend", "frontend_js": "frontend", "fullstack": "fullstack"}
+TEAM_FUNCTION = {"backend_python": "backend", "frontend_js": "frontend", "fullstack": "fullstack", "devops": "devops"}
+
+# Специализации, у которых модули теста в популяции считались всегда (порядок розыгрыша случайных чисел зафиксирован,
+# чтобы кандидаты с прежними долями специализаций не менялись). Модули новых специализаций (qa, devops) —
+# из отдельного потока: добавление специализации не сдвигает уже созданных людей.
+LEGACY_SPECS: tuple[str, ...] = ("backend_python", "frontend_js")
+# Чужая специализация при ошибке заявки (mismatch): у Backend и Frontend — друг друга; QA и DevOps выбирают Backend.
+MISMATCH_TARGET = {"backend_python": "frontend_js", "frontend_js": "backend_python", "qa": "backend_python",
+                   "devops": "backend_python"}
+# Популяция с QA и DevOps (по 15%): прежняя по умолчанию не меняется, чтобы не сдвигать опубликованные числа валидации.
+SPEC_MIX_WITH_QA_DEVOPS: tuple[tuple[str, float], ...] = (
+    ("backend_python", 0.35), ("frontend_js", 0.30), ("fullstack", 0.05), ("qa", 0.15), ("devops", 0.15),
+)
 
 
 # --------------------------------------------------------------------------- конфигурация
@@ -330,7 +364,7 @@ def _by_id(bank: Sequence[FamilyMeta]) -> dict[str, FamilyMeta]:
 class Truth:
     """Скрытая истина — только для валидации, в продукт и в слепые признаки не попадает."""
 
-    spec: str  # backend_python | frontend_js | fullstack
+    spec: str  # backend_python | frontend_js | fullstack | qa | devops
     grade: str  # below_intern | intern | junior | middle | senior
     theta: float
     module_theta: Mapping[str, float]
@@ -708,15 +742,22 @@ def generate_candidate(i: int, cfg: PopulationConfig, *, bank: Sequence[FamilyMe
     grade = _choice(rng, cfg.grade_mix)
     lo, hi = grade_band(grade)
     theta = rng.uniform(lo, hi)
-    own_specs = ("backend_python", "frontend_js") if spec == "fullstack" else (spec,)
+    own_specs = LEGACY_SPECS if spec == "fullstack" else (spec,)
     own_modules = {m for s in own_specs for m in load_blueprint(s)}
-    all_modules = {m for s in ("backend_python", "frontend_js") for m in load_blueprint(s)}
+    legacy_modules = {m for s in LEGACY_SPECS for m in load_blueprint(s)}
     module_theta = {
         m: theta + rng.gauss(0.0, cfg.module_sd_own)
         if m in own_modules
         else theta + cfg.module_offset_other + rng.gauss(0.0, cfg.module_sd_other)
-        for m in sorted(all_modules)
+        for m in sorted(legacy_modules)
     }
+    # Модули QA и DevOps (qa_testing, devops_core) — из отдельного генератора: поток rng кандидатов Backend/Frontend
+    # остаётся прежним. Свои — уровень + N(0; 0,35²); чужие — как у остальных чужих модулей.
+    extra_modules = sorted({m for s in own_specs for m in load_blueprint(s)} - legacy_modules)
+    if extra_modules:
+        rng_x = random.Random(f"{cfg.seed}:cand:{i}:modules")
+        for m in extra_modules:
+            module_theta[m] = theta + rng_x.gauss(0.0, cfg.module_sd_own)
     skills = _true_skills(rng, spec, grade)
     # Заявленная специализация: Fullstack проходит один из своих тестов; у 10% — чужая специализация.
     mismatched = rng.random() < cfg.mismatch_rate
@@ -724,7 +765,7 @@ def generate_candidate(i: int, cfg: PopulationConfig, *, bank: Sequence[FamilyMe
         claimed_spec = rng.choice(("backend_python", "frontend_js"))
         mismatched = False
     elif mismatched:
-        claimed_spec = "frontend_js" if spec == "backend_python" else "backend_python"
+        claimed_spec = MISMATCH_TARGET[spec]
     else:
         claimed_spec = spec
     claimed_grade = sample_claimed_grade(grade if grade in scale.grades else scale.grades[0], rng, scale)

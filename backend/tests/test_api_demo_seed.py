@@ -32,6 +32,7 @@ from app.services.testing import qualification as qual
 from app.services.testing import sessions
 from app.services.testing.keystore import decrypt_key
 from app.services.testing.pool import families_for, generate_rows, pool_seeds, seed_family_params
+from app.testing.cat import load_blueprint
 
 N_SYNTHETIC = 14
 POOL_K = 14
@@ -255,3 +256,56 @@ def test_reset_restores_seed_state(seeded, client, db_session, test_settings, ma
     assert qual.get_row(db_session, anna_id, "backend_python").status == "TESTING"
     assert client.get("/api/invitations/inbox", headers=anna_h).status_code == 200  # тот же токен всё ещё действует
     assert db_session.scalar(select(func.count()).select_from(Need)) == len(section("needs"))
+
+
+# --------------------------------------------------------------------------- добавочные кандидаты QA и DevOps
+
+
+@pytest.fixture
+def pool_qa_devops(db_session):
+    """Пул 14 клонов на семейство для тестов QA и DevOps (общие семейства — по одному разу)."""
+    fams = {f.id: f for spec in ("qa", "devops") for f in families_for(spec)}
+    rows = [row for f in fams.values() for row in generate_rows(f, pool_seeds(f.id, range(POOL_K)))]
+    db_session.execute(pg_insert(ItemInstance).values(rows).on_conflict_do_nothing(index_elements=["family_id", "seed"]))
+    for spec in ("qa", "devops"):
+        seed_family_params(db_session, spec=spec)
+    db_session.flush()
+
+
+def test_extra_ranges_are_disjoint_from_the_eval_population():
+    qa, ops = population.extra_indices("qa"), population.extra_indices("devops")
+    assert len(qa) == len(ops) == 40 and not set(qa) & set(ops)
+    assert min(qa + ops) >= 2000  # префикс популяции eval — не больше 2000 человек
+    assert population.extra_indices("qa", 5) == qa[:5]
+    with pytest.raises(KeyError):
+        population.extra_indices("mobile")
+    cfg = population.extra_config("devops")
+    assert cfg.spec_mix == (("devops", 1.0),) and cfg.mismatch_rate == 0.0 and not cfg.run_tests
+
+
+@pytest.mark.parametrize("spec", ["qa", "devops"])
+def test_extra_candidates_take_their_own_test_and_get_a_category(db_session, test_settings, pool_qa_devops, spec):
+    """seed_candidate для добавочных кандидатов: опрос со своей специализацией, настоящая сессия QA/DevOps, категория;
+    повторный seed идемпотентен; кандидаты видны как синтетические (ключ cNNNN в диапазоне добавочных номеров)."""
+    cfg = population.extra_config(spec)
+    indices = population.extra_indices(spec, 4)
+    made = []
+    for i in indices:
+        cand = population.generate_candidate(i, cfg)
+        assert cand.truth.spec == spec and cand.claimed_spec == spec
+        uid = population.seed_candidate(db_session, test_settings, i, cand)
+        assert uid is not None
+        made.append(uid)
+    assert population.seed_candidate(db_session, test_settings, indices[0], population.generate_candidate(indices[0], cfg)) is None
+    assert set(population.synthetic_ids(db_session)) == set(indices)
+    sessions_ = list(db_session.scalars(select(SessionRow).where(SessionRow.candidate_id.in_(made))))
+    assert sessions_ and all(s.specialization == spec for s in sessions_)
+    assert all(s.status in ("FINAL", "DECIDED", "EXTENSION_OFFERED") for s in sessions_)
+    quals = [qual.get_row(db_session, uid, spec) for uid in made]
+    assert all(q is not None and q.status in ("CONFIRMED", "NOT_CONFIRMED") for q in quals)
+    assert any(q.status == "CONFIRMED" for q in quals)
+    modules = set(db_session.scalars(
+        select(TestResponse.module).where(TestResponse.session_id.in_([s.id for s in sessions_])).distinct()
+    ))
+    own = "qa_testing" if spec == "qa" else "devops_core"
+    assert own in modules and modules <= set(load_blueprint(spec))  # задания только из blueprint своей специализации

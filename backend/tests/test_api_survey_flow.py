@@ -29,9 +29,12 @@ def test_form_lists_steps_and_specializations(api, make_account):
     assert [x["code"] for x in f["frequency_levels"]] == ["never", "sometimes", "regularly"]
     specs = {s["code"]: s for s in f["specializations"]}
     assert specs["backend_python"]["testable"] and specs["frontend_js"]["testable"]
-    assert specs["devops"]["status"] == "survey_only" and not specs["devops"]["testable"]
+    # QA и DevOps — действующие специализации с тестом (модули qa_testing и devops_core); без теста остаётся Data/ML
+    assert specs["qa"]["status"] == "active" and specs["qa"]["testable"]
+    assert specs["devops"]["status"] == "active" and specs["devops"]["testable"]
+    assert specs["data_ml"]["status"] == "survey_only" and not specs["data_ml"]["testable"]
     assert specs["fullstack"]["status"] == "derived" and not specs["fullstack"]["testable"]
-    assert {m["code"] for m in f["modules"]} >= {"python_core", "sql", "react"}
+    assert {m["code"] for m in f["modules"]} >= {"python_core", "sql", "react", "qa_testing", "devops_core"}
     emp = make_account(role="employer")
     assert api.get("/api/survey/form", emp, expect=403)["code"] == "role_forbidden"
     api.get("/api/survey/current", None, expect=401)
@@ -101,30 +104,43 @@ def test_hint_when_answers_point_elsewhere(api, make_account):
         acc,
         {"technologies": {"react": "now"}, "experience_months": 12, "roles": [], "self_assessment": {}},
     )
-    res = api.post("/api/survey/hint", acc, {"chosen_spec": "qa"})
-    assert res["top"] == "frontend_js" and res["chosen"] == "qa"
+    res = api.post("/api/survey/hint", acc, {"chosen_spec": "data_ml"})
+    assert res["top"] == "frontend_js" and res["chosen"] == "data_ml"
     assert res["hint"] is True and "Frontend (JS/TS)" in res["hint_text"]
     assert res["waitlist_text"] == "Тест по этому направлению появится позже. Вы в листе ожидания"
     assert [m["code"] for m in res["declared_modules"]] == ["react"]
     same = api.post("/api/survey/hint", acc, {"chosen_spec": "frontend_js"})
     assert same["hint"] is False and same["hint_text"] is None
-    st = api.put("/api/survey/steps/specialization", acc, {"chosen_spec": "qa"})
-    assert st["classification"]["chosen"] == "qa" and st["classification"]["hint"] is True
+    st = api.put("/api/survey/steps/specialization", acc, {"chosen_spec": "data_ml"})
+    assert st["classification"]["chosen"] == "data_ml" and st["classification"]["hint"] is True
 
 
 def test_survey_only_goes_to_waitlist_and_fullstack_opens_both(api, make_account, db_session):
     acc = make_account()
-    st = do_survey(api, acc, spec="devops")
+    st = do_survey(api, acc, spec="data_ml")
     assert st["completed"] and st["message"] == "Тест по этому направлению появится позже. Вы в листе ожидания"
     assert st["classification"]["chosen_status"] == "survey_only" and not st["classification"]["testable"]
     assert _quals(db_session, acc.user_id) == {}
-    brief = api.get("/api/tests/briefing?specialization=devops", acc)
+    brief = api.get("/api/tests/briefing?specialization=data_ml", acc)
     assert brief["testable"] is False and brief["can_start"]["code"] == "specialization_not_testable"
 
     fs = make_account()
     st = do_survey(api, fs, spec="fullstack")
     assert st["classification"]["derived_text"] and "меньший из двух" in st["classification"]["derived_text"]
     assert _quals(db_session, fs.user_id) == {"backend_python": "SURVEY_DONE", "frontend_js": "SURVEY_DONE"}
+
+
+@pytest.mark.parametrize("spec,module", [("qa", "qa_testing"), ("devops", "devops_core")])
+def test_qa_and_devops_surveys_open_the_test(api, make_account, db_session, spec, module):
+    """QA и DevOps больше не лист ожидания: опрос даёт SURVEY_DONE, брифинг теста доступен, модуль теста — в справочнике."""
+    acc = make_account()
+    st = do_survey(api, acc, spec=spec)
+    assert st["completed"] and st["classification"]["chosen_status"] == "active" and st["classification"]["testable"]
+    assert st["classification"]["waitlist_text"] is None
+    assert _quals(db_session, acc.user_id) == {spec: "SURVEY_DONE"}
+    brief = api.get(f"/api/tests/briefing?specialization={spec}", acc)
+    assert brief["testable"] is True and brief["can_start"]["code"] != "specialization_not_testable"
+    assert module in {m["code"] for m in api.get("/api/survey/form", acc)["modules"]}
 
 
 def test_new_version_after_completion_and_history(api, make_account, db_session):

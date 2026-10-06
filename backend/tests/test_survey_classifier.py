@@ -72,8 +72,41 @@ def test_fullstack_and_language_specific_backends():
     go = classify(SurveyAnswers("backend_go", actions={"server_api": R, "sql_db": R}, technologies={"go": "now"}))
     assert go.top == "backend_go"
     devops = classify(SurveyAnswers("devops", actions={"ci_cd": R, "containers_infra": R, "monitoring": R}))
-    assert devops.top == "devops" and devops.chosen_status == "survey_only"
-    assert devops.waitlist_text_ru is not None
+    assert devops.top == "devops" and devops.chosen_status == "active"  # у DevOps есть тест (модуль devops_core)
+    assert devops.waitlist_text_ru is None
+    ds = classify(SurveyAnswers("data_ml", actions={"data_analysis": R, "ml_models": R}))
+    assert ds.top == "data_ml" and ds.chosen_status == "survey_only"  # лист ожидания остаётся у направлений без теста
+    assert ds.waitlist_text_ru is not None
+
+
+def test_qa_devops_and_backend_are_told_apart():
+    """Классификатор различает QA, DevOps и Backend по действиям и технологиям: веса qa у server_api / sql_db малы."""
+    qa = classify(SurveyAnswers(
+        "qa",
+        actions={"manual_testing": R, "autotests": R, "sql_db": S, "server_api": S},
+        technologies={"python": "now", "test_frameworks": "now", "postgresql": "now"},
+    ))
+    assert qa.top == "qa" and qa.chosen_status == "active" and qa.waitlist_text_ru is None
+    assert not qa.hint  # выбор совпал с выводом классификатора
+    be = classify(SurveyAnswers(
+        "backend_python",
+        actions={"server_api": R, "sql_db": R, "autotests": S, "ci_cd": S},
+        technologies={"python": "now", "django_fastapi": "now", "postgresql": "now", "docker": "now"},
+    ))
+    assert be.top == "backend_python" and be.probs["backend_python"] > 0.7 and be.probs["qa"] < 0.02
+    ops = classify(SurveyAnswers(
+        "devops",
+        actions={"ci_cd": R, "containers_infra": R, "server_api": S},
+        technologies={"docker": "now", "kubernetes": "now", "linux_git": "now", "python": "now"},
+    ))
+    assert ops.top == "devops" and not ops.hint and ops.probs["devops"] > 0.9
+    # Тестировщик, заявивший Backend, получает подсказку про QA; DevOps-инженер, заявивший Backend, — про DevOps
+    wrong = classify(SurveyAnswers("backend_python", actions={"manual_testing": R, "autotests": R},
+                                   technologies={"test_frameworks": "now", "python": "now"}))
+    assert wrong.top == "qa" and wrong.hint and "QA / тестирование" in wrong.hint_text_ru
+    wrong_ops = classify(SurveyAnswers("backend_python", actions={"ci_cd": R, "containers_infra": R, "monitoring": R},
+                                       technologies={"docker": "now", "kubernetes": "now"}))
+    assert wrong_ops.top == "devops" and wrong_ops.hint
 
 
 def test_formula_exact_on_custom_config():

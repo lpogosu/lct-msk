@@ -231,8 +231,38 @@ def accuracy_section(pop: Population) -> dict[str, Any]:
             "share_confirmed_at_true_grade_or_higher": M.mean([float(x) for x in mism_over]),
             "share_confirmed_any": M.mean([float(c.test.final_grade is not None) for c in mism]),
         },
+        "by_spec": accuracy_by_spec(pop),
         "scale_cuts": {g: scale.cut(g) for g in scale.grades},
     }
+
+
+def _specs_present(pop: Population) -> list[str]:
+    """Специализации, по которым в популяции есть сданные тесты: Backend и Frontend первыми, остальные по алфавиту."""
+    present = {c.test.spec for c in pop.candidates if c.test is not None}
+    head = [s for s in ("backend_python", "frontend_js") if s in present]
+    return head + sorted(present - set(head))
+
+
+def accuracy_by_spec(pop: Population) -> dict[str, Any]:
+    """Те же метрики точности по специализации теста (кандидаты с совпавшей заявкой): n, решение, грейд, длина."""
+    out: dict[str, Any] = {}
+    for spec in _specs_present(pop):
+        rows = [c for c in _matched(pop) if c.test is not None and c.test.spec == spec]
+        if not rows:
+            continue
+        dec = [_correct_decision(c, c.test.passed) for c in rows]
+        gm = _grade_metrics([grade_index(c.truth.grade) for c in rows], [_final_idx(c.test.final_grade) for c in rows])
+        out[spec] = {
+            "n": len(rows),
+            "decision_accuracy": M.mean([float(x) for x in dec]),
+            "grade": gm,
+            "confirmed_share": M.mean([float(c.test.final_grade is not None) for c in rows]),
+            "borderline_share": M.mean([float(c.test.borderline) for c in rows]),
+            "main_mean": M.mean([c.test.n_main for c in rows]),
+            "total_mean": M.mean([c.test.n_total for c in rows]),
+            "total_p95": M.percentile([c.test.n_total for c in rows], 95),
+        }
+    return out
 
 
 def _gname(idx: int) -> str:
@@ -823,7 +853,7 @@ def tags_section(pop: Population) -> dict[str, Any]:
 def discrimination_section(pop: Population, min_n: int = 30, min_group: int = 10) -> dict[str, Any]:
     scale = load_scale()
     per_spec: dict[str, Any] = {}
-    for spec in ("backend_python", "frontend_js"):
+    for spec in _specs_present(pop):
         data: dict[str, list[tuple[bool, float]]] = {}
         for c in pop.candidates:
             if c.test is None or c.test.spec != spec:

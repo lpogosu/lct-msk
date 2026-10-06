@@ -3,6 +3,9 @@
     cd backend
     uv run python scripts/seed_demo.py                    # полная идемпотентная сборка (первый раз — несколько минут)
     uv run python scripts/seed_demo.py --candidates 40    # малый мир для проверки
+    uv run python scripts/seed_demo.py --add-specs qa,devops --candidates 40
+                                                          # ДОБАВИТЬ по 40 кандидатов QA и DevOps к собранному миру
+                                                          # (аддитивно: популяция, персоны и сценарий не пересобираются)
     uv run python scripts/seed_demo.py --force            # пересобрать сценарий (персоны, брифы, приглашения)
     uv run python scripts/seed_demo.py --reset            # быстрый сброс к состоянию seed (то же, что POST /api/demo/reset)
     uv run python scripts/seed_demo.py --credentials-only # пересоздать backend/var/demo_accounts.md
@@ -30,7 +33,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # запуск к�
 
 def _parse(argv: list[str] | None) -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Демо-мир «Взаимно»: seed и сброс")
-    p.add_argument("--candidates", type=int, default=None, help="Сколько синтетических кандидатов (по умолчанию из config/demo.yaml)")
+    p.add_argument("--candidates", type=int, default=None,
+                   help="Сколько синтетических кандидатов (по умолчанию из config/demo.yaml); с --add-specs — на каждую специализацию")
+    p.add_argument("--add-specs", default=None, metavar="СПЕЦ[,СПЕЦ]",
+                   help="Только добавить кандидатов этих специализаций (например qa,devops); --candidates — сколько "
+                        "на каждую (по умолчанию из config/demo.yaml → population.extra_specs); мир не пересобирается")
     p.add_argument("--workers", type=int, default=None,
                    help="Процессов-воркеров для создания кандидатов (по умолчанию — половина ядер, 2–8; 1 — в этом процессе)")
     p.add_argument("--force", action="store_true", help="Пересобрать сценарий, даже если он уже собран")
@@ -75,6 +82,7 @@ def main(argv: list[str] | None = None) -> int:
             out = world.seed_world(
                 settings, db, candidates=args.candidates, workers=workers, say=say,
                 force_scenario=args.force, skip_pool=args.skip_pool,
+                add_specs=tuple(x.strip() for x in args.add_specs.split(",") if x.strip()) if args.add_specs else (),
             )
         print()
         print(f"Готово за {out['seconds']} с")

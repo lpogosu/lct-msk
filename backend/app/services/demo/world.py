@@ -8,7 +8,7 @@ seed_world идемпотентен: уже созданные кандидат�
 from __future__ import annotations
 
 import logging
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from concurrent.futures import ProcessPoolExecutor
 from datetime import UTC, datetime
 from multiprocessing import get_context
@@ -111,6 +111,46 @@ def seed_population(
         total["skipped"] += r["skipped"]
         total["failed"] += r["failed"]
         total["errors"].extend(r["errors"])
+    return total
+
+
+def seed_extra_population(
+    settings: Settings, db: Session, specs: Sequence[str], workers: int, say: Say = _quiet, count: int | None = None
+) -> dict[str, Any]:
+    """Добавить кандидатов отдельных специализаций (QA, DevOps) к уже собранному миру, ничего не пересобирая.
+
+    Аддитивно: свои диапазоны номеров (config/demo.yaml → population.extra_specs), уже созданные пропускаются,
+    персоны, компании и сценарий не трогаются. ФСП-привязок нет: мок-реестр (60 спортсменов) уже занят основной
+    популяцией, а отсутствие ФСП — не штраф (F = 0). count — сколько на каждую специализацию (по умолчанию из конфига)."""
+    from app.services.demo import population
+
+    total: dict[str, Any] = {"done": 0, "skipped": 0, "failed": 0, "errors": [], "by_spec": {}}
+    existing = set(population.synthetic_ids(db))
+    for spec in specs:
+        indices = population.extra_indices(spec, count)
+        todo = [i for i in indices if i not in existing]
+        say(f"{spec}: {len(indices) - len(todo)} уже есть, создаю {len(todo)}")
+        res = {"done": 0, "skipped": len(indices) - len(todo), "failed": 0, "errors": []}
+        if todo:
+            db.commit()
+            if workers <= 1:
+                parts = [population.worker_chunk((todo, max(indices) + 1, {}, spec))]
+            else:
+                ctx = get_context("spawn")
+                chunks = [todo[w::workers] for w in range(workers)]
+                with ProcessPoolExecutor(max_workers=workers, mp_context=ctx) as ex:
+                    parts = list(ex.map(population.worker_chunk, [(c, max(indices) + 1, {}, spec) for c in chunks if c]))
+            for r in parts:
+                res["done"] += r["done"]
+                res["skipped"] += r["skipped"]
+                res["failed"] += r["failed"]
+                res["errors"].extend(r["errors"])
+        for k in ("done", "skipped", "failed"):
+            total[k] += res[k]
+        total["errors"].extend(res["errors"])
+        total["by_spec"][spec] = res
+    matching_features.ensure_fresh(db)  # новые подтверждённые категории попадают в кэш признаков подбора
+    db.commit()
     return total
 
 
@@ -295,11 +335,24 @@ def seed_world(
     say: Say = _quiet,
     force_scenario: bool = False,
     skip_pool: bool = False,
+    add_specs: Sequence[str] = (),
 ) -> dict[str, Any]:
-    """Полная идемпотентная сборка. Возвращает счётчики для отчёта."""
+    """Полная идемпотентная сборка. Возвращает счётчики для отчёта.
+
+    add_specs (например, ("qa", "devops")) — аддитивный режим: только добавить кандидатов этих специализаций (пул
+    для них доливается, популяция, персоны и сценарий не трогаются); candidates здесь — сколько на каждую специализацию."""
     t0 = datetime.now(UTC)
-    n = int(candidates if candidates is not None else section("population")["size"])
     out: dict[str, Any] = {}
+    if add_specs:
+        if not skip_pool:
+            say("пул одноразовых экземпляров")
+            out["pool"] = ensure_pool(db, say)
+        out["population"] = seed_extra_population(settings, db, add_specs, workers, say, count=candidates)
+        out["counts"] = counts(db)
+        out["credentials_file"] = str(write_credentials_file(settings))
+        out["seconds"] = round((datetime.now(UTC) - t0).total_seconds(), 1)
+        return out
+    n = int(candidates if candidates is not None else section("population")["size"])
     if not skip_pool:
         say("пул одноразовых экземпляров")
         out["pool"] = ensure_pool(db, say)

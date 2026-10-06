@@ -82,7 +82,7 @@ skills:
   pydantic: { name: Pydantic, cat: python_lib, modules: [python_core], aliases: [pydantic, пидантик] }
   marshmallow: { name: marshmallow, cat: python_lib, modules: [python_core], aliases: [marshmallow] }
   celery: { name: Celery, cat: python_lib, modules: [python_core], aliases: [celery, селери, сельдерей] }
-  pytest: { name: pytest, cat: python_lib, modules: [python_core], aliases: [pytest] }
+  pytest: { name: pytest, cat: python_lib, modules: [python_core, qa_testing], spec: { qa: 2.0, backend_python: 1.0, data_ml: 0.5, fullstack: 0.4 }, aliases: [pytest] }
   unittest: { name: unittest, cat: python_lib, modules: [python_core], aliases: [unittest] }
   mypy: { name: Типизация Python, cat: python_lib, modules: [python_core], aliases: [mypy, type hints, тайпхинты, аннотации типов] }
   python_linters: { name: Линтеры Python, cat: python_lib, modules: [python_core], aliases: [flake8, pylint, ruff, isort] }
@@ -289,31 +289,31 @@ skills:
   git: { name: Git, cat: os_vcs, modules: [git_linux], aliases: [git, гит, гитом, git flow, gitflow, системы контроля версий, vcs] }
   github: { name: GitHub, cat: os_vcs, modules: [git_linux], aliases: [github, гитхаб] }
   gitlab: { name: GitLab, cat: os_vcs, modules: [git_linux], aliases: [gitlab, гитлаб, bitbucket] }
-  linux: { name: Linux, cat: os_vcs, modules: [git_linux], aliases: [linux, линукс, unix, юникс, ubuntu, убунту, debian, centos, rhel, astra linux, астра линукс, alt linux, "*nix"] }
-  bash: { name: Bash, cat: os_vcs, modules: [git_linux], aliases: [bash, баш, shell, shell-скрипты, shell-скриптов, zsh, sh] }
+  linux: { name: Linux, cat: os_vcs, modules: [git_linux, devops_core], aliases: [linux, линукс, unix, юникс, ubuntu, убунту, debian, centos, rhel, astra linux, астра линукс, alt linux, "*nix"] }
+  bash: { name: Bash, cat: os_vcs, modules: [git_linux, devops_core], aliases: [bash, баш, shell, shell-скрипты, shell-скриптов, zsh, sh] }
   ssh: { name: SSH, cat: os_vcs, modules: [git_linux], aliases: [ssh] }
-  cron: { name: cron, cat: os_vcs, modules: [git_linux], aliases: [cron, крон, crontab] }
+  cron: { name: cron, cat: os_vcs, modules: [git_linux, devops_core], aliases: [cron, крон, crontab] }
   systemd: { name: systemd, cat: os_vcs, modules: [git_linux], aliases: [systemd, systemctl, journalctl] }
   unix_tools: { name: Утилиты Unix, cat: os_vcs, modules: [git_linux], aliases: [awk, sed, grep, утилиты командной строки, командная строка, командной строки, cli] }
   vim: { name: Vim, cat: os_vcs, modules: [git_linux], aliases: [vim, neovim, tmux] }
   makefile: { name: Make, cat: os_vcs, modules: [git_linux], aliases: [makefile, cmake] }
 
   # ---------------------------------------------------------------- DevOps (не тестируется)
-  docker: { name: Docker, cat: devops, untestable: true, aliases: [docker, докер, докером, докере, dockerfile, docker-compose, docker compose, контейнеризация, контейнеризации, контейнеры, контейнеров, podman] }
-  kubernetes: { name: Kubernetes, cat: devops, untestable: true, aliases: [kubernetes, k8s, k3s, кубернетес, кубернетис, кубер, кубера, кубере, кубы, кубах] }
+  docker: { name: Docker, cat: devops, modules: [devops_core], aliases: [docker, докер, докером, докере, dockerfile, docker-compose, docker compose, контейнеризация, контейнеризации, контейнеры, контейнеров, podman] }
+  kubernetes: { name: Kubernetes, cat: devops, modules: [devops_core], aliases: [kubernetes, k8s, k3s, кубернетес, кубернетис, кубер, кубера, кубере, кубы, кубах] }
   helm: { name: Helm, cat: devops, untestable: true, aliases: [helm, хелм, kustomize] }
   openshift: { name: OpenShift, cat: devops, untestable: true, aliases: [openshift, docker swarm, nomad] }
   terraform: { name: Terraform, cat: devops, untestable: true, aliases: [terraform, терраформ, pulumi, iac, infrastructure as code] }
   ansible: { name: Ansible, cat: devops, untestable: true, aliases: [ansible, ансибл, saltstack] }
   puppet: { name: Puppet, cat: devops, untestable: true, aliases: [puppet] }
   vagrant: { name: Vagrant, cat: devops, untestable: true, aliases: [vagrant, packer] }
-  ci_cd: { name: CI/CD, cat: devops, untestable: true, aliases: [ci/cd, ci cd, ci, cicd, continuous integration, непрерывная интеграция, пайплайны, пайплайнов, pipelines] }
+  ci_cd: { name: CI/CD, cat: devops, modules: [devops_core], aliases: [ci/cd, ci cd, ci, cicd, continuous integration, непрерывная интеграция, пайплайны, пайплайнов, pipelines] }
   jenkins: { name: Jenkins, cat: devops, untestable: true, aliases: [jenkins, дженкинс] }
-  gitlab_ci: { name: GitLab CI, cat: devops, untestable: true, aliases: [gitlab ci, gitlab-ci, gitlab ci/cd] }
-  github_actions: { name: GitHub Actions, cat: devops, untestable: true, aliases: [github actions] }
+  gitlab_ci: { name: GitLab CI, cat: devops, modules: [devops_core], aliases: [gitlab ci, gitlab-ci, gitlab ci/cd] }
+  github_actions: { name: GitHub Actions, cat: devops, modules: [devops_core], aliases: [github actions] }
   teamcity: { name: TeamCity, cat: devops, untestable: true, aliases: [teamcity, тимсити] }
   argocd: { name: Argo CD, cat: devops, untestable: true, aliases: [argocd, argo cd, gitops] }
-  nginx: { name: Nginx, cat: devops, untestable: true, aliases: [nginx, нгинкс, энджинкс, энжинкс, traefik, caddy] }
+  nginx: { name: Nginx, cat: devops, modules: [devops_core], aliases: [nginx, нгинкс, энджинкс, энжинкс, traefik, caddy] }
   haproxy: { name: HAProxy, cat: devops, untestable: true, aliases: [haproxy, балансировка нагрузки, балансировщик нагрузки, load balancing, load balancer] }
   consul: { name: Consul, cat: devops, untestable: true, aliases: [consul, etcd, zookeeper] }
   vault: { name: Vault, cat: devops, untestable: true, aliases: [vault, hashicorp vault] }
@@ -402,8 +402,8 @@ skills:
   react_native: { name: React Native, cat: mobile, modules: [react, js_core], spec: { mobile: 3.0, frontend_js: 1.0 }, aliases: [react native, react-native, реакт нейтив, expo] }
   firebase: { name: Firebase, cat: mobile, untestable: true, spec: { mobile: 1.5 }, aliases: [firebase, файрбейс, push-уведомления] }
   # ---------------------------------------------------------------- QA
-  manual_testing: { name: Ручное тестирование, cat: qa, untestable: true, aliases: [ручное тестирование, ручного тестирования, тест-кейсы, тест-кейсов, тест-дизайн, чек-листы, баг-репорты, test cases, test design] }
-  test_automation: { name: Автоматизация тестирования, cat: qa, untestable: true, aliases: [автотесты, автотестов, автотестами, автоматизация тестирования, автоматизации тестирования, test automation] }
+  manual_testing: { name: Ручное тестирование, cat: qa, modules: [qa_testing], aliases: [ручное тестирование, ручного тестирования, тест-кейсы, тест-кейсов, тест-дизайн, чек-листы, баг-репорты, test cases, test design] }
+  test_automation: { name: Автоматизация тестирования, cat: qa, modules: [qa_testing], aliases: [автотесты, автотестов, автотестами, автоматизация тестирования, автоматизации тестирования, test automation] }
   selenium: { name: Selenium, cat: qa, untestable: true, aliases: [selenium, селениум, selenide, webdriver] }
   cypress: { name: Cypress, cat: qa, untestable: true, aliases: [cypress] }
   playwright: { name: Playwright, cat: qa, untestable: true, aliases: [playwright, puppeteer] }
@@ -411,10 +411,10 @@ skills:
   jmeter: { name: JMeter, cat: qa, untestable: true, aliases: [jmeter, джиметр, gatling, k6] }
   locust: { name: Locust, cat: qa, untestable: true, aliases: [locust] }
   allure: { name: Allure, cat: qa, untestable: true, aliases: [allure, testrail, testit, test it, zephyr] }
-  unit_testing: { name: Модульные тесты, cat: qa, untestable: true, spec: { qa: 1.0 }, aliases: [юнит-тесты, юнит-тестов, юнит тесты, unit-тесты, unit-тестов, unit tests, unit testing, модульное тестирование, модульные тесты, покрытие тестами] }
+  unit_testing: { name: Модульные тесты, cat: qa, modules: [qa_testing], spec: { qa: 1.0 }, aliases: [юнит-тесты, юнит-тестов, юнит тесты, unit-тесты, unit-тестов, unit tests, unit testing, модульное тестирование, модульные тесты, покрытие тестами] }
   load_testing: { name: Нагрузочное тестирование, cat: qa, untestable: true, aliases: [нагрузочное тестирование, нагрузочного тестирования, load testing, performance testing] }
   tdd: { name: TDD/BDD, cat: qa, untestable: true, spec: { qa: 1.0 }, aliases: [tdd, bdd, cucumber, gherkin] }
-  api_testing: { name: Тестирование API, cat: qa, modules: [http_api], aliases: [тестирование api, тестирования api, api testing, api-тесты, api-тестов] }
+  api_testing: { name: Тестирование API, cat: qa, modules: [http_api, qa_testing], aliases: [тестирование api, тестирования api, api testing, api-тесты, api-тестов] }
   integration_testing: { name: Интеграционное тестирование, cat: qa, untestable: true, aliases: [интеграционное тестирование, интеграционные тесты, интеграционных тестов, e2e, e2e-тесты, end-to-end] }
   # ---------------------------------------------------------------- Безопасность
   owasp: { name: OWASP, cat: security, untestable: true, aliases: [owasp, owasp top 10, xss, csrf, sql-инъекции, sql injection] }
@@ -456,8 +456,8 @@ roles:
   go_dev: { name: Go-разработчик, aliases: [go-разработчик, golang-разработчик, golang developer, go developer, гофер], spec: { backend_go: 1.0 } }
   java_dev: { name: Java-разработчик, aliases: [java-разработчик, джава-разработчик, java developer, kotlin-разработчик], spec: { backend_java: 1.0 } }
   mobile_dev: { name: Мобильный разработчик, aliases: [мобильный разработчик, мобильного разработчика, ios-разработчик, android-разработчик, mobile developer, mobile-разработчик, flutter-разработчик], spec: { mobile: 1.0 } }
-  devops_eng: { name: DevOps-инженер, aliases: [devops-инженер, devops engineer, sre-инженер, site reliability engineer, системный администратор, сисадмин, администратор linux], spec: { devops: 1.0 } }
-  qa_eng: { name: QA-инженер, aliases: [qa-инженер, qa engineer, тестировщик, тестировщика, автотестировщик, инженер по тестированию, aqa, sdet], spec: { qa: 1.0 } }
+  devops_eng: { name: DevOps-инженер, aliases: [devops-инженер, devops engineer, sre-инженер, site reliability engineer, системный администратор, сисадмин, администратор linux, инженер по инфраструктуре, platform engineer, платформенный инженер, релиз-инженер], spec: { devops: 1.0 } }
+  qa_eng: { name: QA-инженер, aliases: [qa-инженер, qa engineer, тестировщик, тестировщика, автотестировщик, инженер по тестированию, aqa, sdet, qa automation, qa-автоматизатор, ручной тестировщик, инженер по качеству], spec: { qa: 1.5 } }
   data_scientist: { name: Data Scientist, aliases: [data scientist, дата-сайентист, дата сайентист, датасайентист, дата-саентист], spec: { data_ml: 1.0 } }
   ml_engineer: { name: ML-инженер, aliases: [ml-инженер, ml engineer, ml-разработчик, инженер машинного обучения, mle], spec: { data_ml: 1.0 } }
   data_analyst: { name: Аналитик данных, aliases: [аналитик данных, data analyst, bi-аналитик, продуктовый аналитик], spec: { data_ml: 0.8 } }
@@ -478,6 +478,8 @@ spec_cues:
   - { aliases: [data science, дата сайенс, data-science, ml-команда, ml-модели, ml-моделей, модели машинного обучения], spec: { data_ml: 1.0 } }
   - { aliases: [devops, девопс, sre, эксплуатация инфраструктуры, администрирование серверов], spec: { devops: 1.0 } }
   - { aliases: [qa, обеспечение качества, отдел тестирования], spec: { qa: 1.0 } }
+  - { aliases: [регрессионное тестирование, регрессионного тестирования, функциональное тестирование, функционального тестирования, ручной тестировщик, ручного тестировщика, автоматизатор тестирования, автоматизатора тестирования, тест-план, тест-планы, тестовая документация, тестовой документации, обеспечение качества по], spec: { qa: 1.0 } }
+  - { aliases: [инфраструктурный инженер, инженер по инфраструктуре, платформенный инженер, platform engineer, release engineer, релиз-инженер, инженер эксплуатации, сопровождение инфраструктуры, поддержка инфраструктуры, развертывание сервисов, развертывания сервисов], spec: { devops: 1.0 } }
   - { aliases: [мобильная разработка, мобильной разработки, мобильные приложения ios], spec: { mobile: 1.0 } }
   - { aliases: [информационная безопасность, информационной безопасности, кибербезопасность, кибербезопасности, иб], spec: { infosec: 1.0 } }
 

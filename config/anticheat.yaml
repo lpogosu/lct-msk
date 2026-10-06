@@ -117,6 +117,19 @@ verification:
     http: [http]
     css: [css]
     html: [html]
+    docker: [devops_core]
+    kubernetes: [devops_core]
+    nginx: [devops_core]
+    ci_cd: [devops_core]
+    gitlab_ci: [devops_core]
+    github_actions: [devops_core]
+    cron: [devops_core, git_linux]
+    bash: [devops_core, git_linux]
+    pytest: [qa_testing, python_core]
+    manual_testing: [qa_testing]
+    unit_testing: [qa_testing]
+    test_automation: [qa_testing]
+    api_testing: [qa_testing, http_api]
 
 # ----------------------------------------------------------------------------- песочница «Попробуй списать»
 sandbox:

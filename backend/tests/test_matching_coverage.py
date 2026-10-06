@@ -8,6 +8,7 @@ from app.matching.coverage import (
     candidate_mins,
     category_cards,
     coarsen,
+    family_catalog_from_registry,
     how_we_check,
     module_weights,
     plan_check_set,
@@ -54,10 +55,19 @@ def test_adjacent_suggested_when_primary_small(demo):
 
 def test_survey_only_category_note():
     recs = recommend_categories(
-        {"devops": 0.9, "backend_python": 0.1}, {"middle": 1.0}, counts={("devops", "middle"): 12}
+        {"data_ml": 0.9, "backend_python": 0.1}, {"middle": 1.0}, counts={("data_ml", "middle"): 12}
     )
     assert recs[0].status == "survey_only"
     assert recs[0].note == "Категория пока не тестируется. 12 кандидатов прошли опрос и ждут теста"
+
+
+def test_devops_and_qa_categories_are_active_without_waitlist_note():
+    """DevOps и QA — действующие специализации: в рекомендации нет «пока не тестируется», счётчик — настоящий N."""
+    for spec in ("devops", "qa"):
+        recs = recommend_categories({spec: 1.0}, {"middle": 1.0}, counts={(spec, "middle"): 12})
+        assert recs[0].status == "active" and recs[0].note is None and recs[0].n == 12
+    near = recommend_categories({"devops": 1.0}, {"middle": 1.0}, counts={("devops", "middle"): 3, ("devops", "senior"): 20})
+    assert [(r.spec, r.grade, r.kind) for r in near if r.kind == "adjacent"] == [("devops", "senior", "adjacent")]
 
 
 def test_histogram_step_and_reach():
@@ -126,7 +136,8 @@ def test_how_we_check_demo(demo):
     assert by["postgresql"].text == "PostgreSQL ✓ через модуль «SQL и базы данных»"
     assert by["fastapi"].covered and {m for m, _ in by["fastapi"].modules} == {"python_core", "http_api"}
     gray = {i.skill_id for i in cov.untestable}
-    assert gray == {"kafka", "docker"}
+    assert gray == {"kafka"}  # Docker теперь проверяется модулем devops_core, Kafka тестом по-прежнему не проверяется
+    assert by["docker"].covered and by["docker"].text == "Docker ✓ через модуль «DevOps и инфраструктура»"
     assert "проверьте на интервью" in by["kafka"].text
     assert sum(cov.module_weights.values()) == pytest.approx(1.0)
 
@@ -164,9 +175,18 @@ def test_check_set_plan_with_catalog_is_deterministic():
 
 
 def test_check_set_go_vacancy_untestable():
-    plan = plan_check_set(["go", "kubernetes"])
-    assert plan.slots == () and set(plan.untestable) == {"go", "kubernetes"}
+    plan = plan_check_set(["go", "kafka"])
+    assert plan.slots == () and set(plan.untestable) == {"go", "kafka"}
     assert "проверьте на интервью" in plan.note
+
+
+def test_check_set_kubernetes_is_testable_by_devops_module():
+    """Kubernetes проверяет модуль devops_core (семейства ops.k8s.*, ops.res.limits): набор строится, серого списка нет."""
+    plan = plan_check_set(["kubernetes", "docker", "nginx"], family_catalog=family_catalog_from_registry(), seed=1)
+    assert plan.untestable == () and set(plan.modules) == {"devops_core"}
+    assert 3 <= len(plan.slots) <= 5 and all(s.family_id and s.family_id.startswith("ops.") for s in plan.slots)
+    mixed = plan_check_set(["go", "kubernetes"])
+    assert mixed.untestable == ("go",) and set(mixed.modules) == {"devops_core"}
 
 
 @pytest.mark.parametrize(
@@ -179,11 +199,58 @@ def test_check_set_go_vacancy_untestable():
     ],
 )
 def test_survey_only_note_plural(n, text):
-    recs = recommend_categories({"devops": 1.0}, {"middle": 1.0}, counts={("devops", "middle"): n})
+    recs = recommend_categories({"data_ml": 1.0}, {"middle": 1.0}, counts={("data_ml", "middle"): n})
     assert recs[0].note.endswith(text)
 
 
 def test_untestable_line_reads_as_one_sentence(demo):
     by = {i.skill_id: i for i in how_we_check(demo.must, demo.nice).items}
-    assert by["docker"].text.startswith("Docker ✗ ")
-    assert by["docker"].text.count("—") == 1
+    assert by["kafka"].text.startswith("Kafka ✗ ")
+    assert by["kafka"].text.count("—") == 1
+
+
+# --------------------------------------------------------------------------- бриф тестировщика и бриф DevOps
+
+QA_BRIEF = "Ищем тестировщика: pytest, API, SQL, опыт от года, удалёнка, 120–160 тыс."
+DEVOPS_BRIEF = "DevOps: Docker, Kubernetes, CI/CD, nginx, Linux, от 3 лет, Москва, 250–320 тыс."
+
+
+def test_qa_brief_recommends_qa_categories_and_checks_pytest():
+    p = parse_brief(QA_BRIEF)
+    assert p.top_spec == "qa" and p.spec_probs.value["qa"] > 0.5 and p.question is None
+    recs = recommend_categories(p.spec_probs.value, p.grade_probs.value)
+    assert (recs[0].spec, recs[0].grade, recs[0].kind, recs[0].status) == ("qa", "junior", "primary", "active")
+    assert recs[0].name == "QA / тестирование · Junior" and recs[0].note is None and recs[0].p >= 0.4
+    cov = how_we_check(p.must, p.nice)
+    by = {i.skill_id: i for i in cov.items}
+    assert cov.untestable == ()  # pytest, API и SQL проверяются тестом QA
+    assert {m for m, _ in by["pytest"].modules} == {"python_core", "qa_testing"}
+    assert by["pytest"].text == "pytest ✓ через модули «Python», «Тестирование ПО»"
+    assert {m for m, _ in by["api_design"].modules} == {"http_api"} and {m for m, _ in by["sql"].modules} == {"sql"}
+    assert cov.module_weights["qa_testing"] > 0 and sum(cov.module_weights.values()) == pytest.approx(1.0)
+    plan = plan_check_set(p.must, family_catalog=family_catalog_from_registry(), seed=3)
+    assert "qa_testing" in plan.modules and plan.untestable == () and plan.total_minutes <= 15
+    assert any(s.family_id and s.family_id.startswith("qa.") for s in plan.slots)
+
+
+def test_devops_brief_recommends_devops_categories_and_checks_infrastructure():
+    p = parse_brief(DEVOPS_BRIEF)
+    assert p.top_spec == "devops" and p.spec_probs.value["devops"] > 0.9 and p.question is None
+    assert p.must == ("docker", "kubernetes", "ci_cd", "nginx", "linux") and p.top_grade == "middle"
+    recs = recommend_categories(p.spec_probs.value, p.grade_probs.value)
+    assert (recs[0].spec, recs[0].grade, recs[0].kind, recs[0].status) == ("devops", "middle", "primary", "active")
+    assert recs[0].name == "DevOps / SRE · Middle" and recs[0].note is None
+    cov = how_we_check(p.must, p.nice)
+    assert cov.untestable == () and len(cov.covered) == 5
+    by = {i.skill_id: i for i in cov.items}
+    for sid in ("docker", "kubernetes", "nginx", "ci_cd"):
+        assert by[sid].text.endswith("✓ через модуль «DevOps и инфраструктура»"), sid
+    assert {m for m, _ in by["linux"].modules} == {"git_linux", "devops_core"}
+    assert list(cov.module_weights)[0] == "devops_core"
+    # cron — тоже проверяется (ops.cron.next_runs); Terraform и Ansible — по-прежнему только на интервью
+    extra = how_we_check(["cron", "docker"], ["terraform", "ansible"])
+    assert {i.skill_id for i in extra.covered} == {"cron", "docker"}
+    assert {i.skill_id for i in extra.untestable} == {"terraform", "ansible"}
+    plan = plan_check_set(p.must, family_catalog=family_catalog_from_registry(), seed=3)
+    assert "devops_core" in plan.modules and plan.untestable == () and plan.total_minutes <= 15
+    assert any(s.family_id and s.family_id.startswith("ops.") for s in plan.slots)

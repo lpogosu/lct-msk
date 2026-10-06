@@ -28,7 +28,7 @@ import sys
 import time
 from collections.abc import Callable, Mapping
 from concurrent.futures import ProcessPoolExecutor
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -38,6 +38,7 @@ from eval import testing_eval as T
 from eval import vcat
 from eval.common import MASTER_SEED, REF_DATE, bank_for, real_bank
 from eval.population import (
+    SPEC_MIX_WITH_QA_DEVOPS,
     Population,
     PopulationConfig,
     generate_chunk,
@@ -58,6 +59,7 @@ class RunConfig:
 
     quick: bool
     seed: int = MASTER_SEED
+    with_qa_devops: bool = False  # популяция с QA и DevOps по 15% (прежняя по умолчанию: Backend 50 / Frontend 40 / Fullstack 10)
     n_pop: int = 2000
     n_hyst: int = 400
     n_s2: int = 400
@@ -78,10 +80,10 @@ class RunConfig:
     n_boot: int = 2000
 
     @classmethod
-    def make(cls, quick: bool, seed: int = MASTER_SEED) -> RunConfig:
+    def make(cls, quick: bool, seed: int = MASTER_SEED, with_qa_devops: bool = False) -> RunConfig:
         if not quick:
-            return cls(quick=False, seed=seed)
-        return cls(quick=True, seed=seed, n_pop=300, n_hyst=60, n_s2=60, n_cheaters=60, collision_instances=40,
+            return cls(quick=False, seed=seed, with_qa_devops=with_qa_devops)
+        return cls(quick=True, seed=seed, with_qa_devops=with_qa_devops, n_pop=300, n_hyst=60, n_s2=60, n_cheaters=60, collision_instances=40,
                    n_base=60, cusum_reps=3, cusum_sessions=1000, calib_reps=2, n_boot=300)
 
     def b3_variants(self) -> list[tuple[str, float, float, bool]]:
@@ -213,6 +215,8 @@ def _log(msg: str, t0: float) -> None:
 def build_population(rc: RunConfig, workers: int, say: Callable[[str], None] = lambda _m: None) -> Population:
     """Популяция с тестом и пересдачей; при workers > 1 — по кускам в процессах (результат тот же)."""
     cfg = PopulationConfig(n=rc.n_pop, seed=rc.seed)
+    if rc.with_qa_devops:
+        cfg = replace(cfg, spec_mix=SPEC_MIX_WITH_QA_DEVOPS)
     idx = list(range(cfg.n))
     if workers <= 1:
         cands = generate_chunk(cfg, idx, True)
@@ -449,6 +453,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--quick", action="store_true", help="дымовой прогон: те же процедуры на меньших выборках")
     ap.add_argument("--workers", type=int, default=None, help="число процессов (1 — без параллельности)")
     ap.add_argument("--seed", type=int, default=MASTER_SEED)
+    ap.add_argument("--with-qa-devops", action="store_true",
+                    help="популяция с QA и DevOps (по 15%%): точность и длина теста по специализациям; "
+                         "числа основного отчёта при этом меняются, поэтому для публикации — без флага")
     ap.add_argument("--out", type=Path, default=None, help="каталог для всех файлов прогона (по умолчанию eval/out)")
     ap.add_argument("--docs", type=Path, default=None, help="куда писать отчёт Markdown")
     ap.add_argument("--no-pairs", action="store_true", help="не выгружать набор пар для жюри")
@@ -465,7 +472,7 @@ def main(argv: list[str] | None = None) -> int:
             ap.error(f"{args.from_json}: это не результат eval.validate (нет meta/tiles)")
         print(f"db_rows: {_save_db(data)}")
         return 0
-    rc = RunConfig.make(args.quick, args.seed)
+    rc = RunConfig.make(args.quick, args.seed, args.with_qa_devops)
     custom = args.out is not None
     out_dir = args.out or DEFAULT_OUT
     if custom or rc.quick:

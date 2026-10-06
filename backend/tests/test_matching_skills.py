@@ -32,8 +32,19 @@ def test_skill_module_graph_examples():
     assert set(CAT.modules_of("query_optimization")) == {"sql", "algo"}
     assert CAT.modules_of("postgresql") == ("sql",)
     assert CAT.modules_of("react") == ("react", "js_core")
-    for sid in ("docker", "kafka", "kubernetes", "go", "redis"):
-        assert CAT.skill(sid).untestable
+    # DevOps и QA: тест проверяет Docker, Kubernetes, nginx, cron, CI, pytest, API-тесты (модули devops_core и qa_testing)
+    for sid in ("docker", "kubernetes", "nginx", "ci_cd", "gitlab_ci", "github_actions"):
+        assert CAT.modules_of(sid) == ("devops_core",), sid
+        assert not CAT.skill(sid).untestable
+    assert CAT.modules_of("cron") == ("git_linux", "devops_core")
+    assert CAT.modules_of("bash") == ("git_linux", "devops_core") and CAT.modules_of("linux") == ("git_linux", "devops_core")
+    assert CAT.modules_of("pytest") == ("python_core", "qa_testing")
+    assert CAT.modules_of("api_testing") == ("http_api", "qa_testing")
+    for sid in ("manual_testing", "test_automation", "unit_testing"):
+        assert CAT.modules_of(sid) == ("qa_testing",), sid
+    # Не покрыто модулями теста: брокеры, Go, NoSQL и инфраструктура, для которой в банке нет семейств
+    for sid in ("kafka", "go", "redis", "terraform", "ansible", "helm", "prometheus", "selenium", "playwright"):
+        assert CAT.skill(sid).untestable, sid
 
 
 @pytest.mark.parametrize(

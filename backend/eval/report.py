@@ -425,6 +425,13 @@ def _testing_section(r: Mapping[str, Any], cm: Mapping[str, Path], doc_dir: Path
         L += ["Матрица «истинный грейд → итоговый грейд» (строки — истина):", ""]
         L += table(["Истина \\ итог", *cols], [(k, *[conf[k].get(c, 0) for c in cols]) for k in cols if k in conf])
         L += [""]
+    bs = a.get("by_spec") or {}
+    if bs:
+        L += ["Точность по специализациям теста (кандидаты с верной заявкой):", ""]
+        L += table(["Специализация", "n", "Верное решение", "Точный грейд", "±1", "Подтверждено", "Заданий в тесте: среднее / p95"],
+                   [(k, v["n"], num(v["decision_accuracy"]), num(v["grade"]["exact"]), num(v["grade"]["within1"]),
+                     pct(v["confirmed_share"]), f"{num(v['total_mean'], 1)} / {num(v['total_p95'], 0)}") for k, v in bs.items()])
+        L += [""]
     mm = a["mismatched"]
     L += [f"Кандидаты, ошибившиеся со специализацией (проходят чужой тест, n = {mm['n']}): категорию получают "
           f"{pct(mm['share_confirmed_any'])}, на уровне своего истинного грейда или выше — {pct(mm['share_confirmed_at_true_grade_or_higher'])}. "

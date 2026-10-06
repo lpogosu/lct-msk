@@ -73,6 +73,8 @@ EXTRA_NICE = {
     "backend_python": ("redis", "docker", "git", "linux", "celery"),
     "frontend_js": ("jest", "git", "sass", "webpack", "typescript"),
     "fullstack": ("docker", "git", "redis", "jest"),
+    "qa": ("docker", "git", "linux", "jenkins", "bash"),
+    "devops": ("python", "git", "redis", "aws", "grafana"),
 }
 
 
@@ -136,7 +138,11 @@ def skill_covered(c: Candidate, skill: str, threshold: float, cat: SkillCatalog)
     modules = cat.modules_of(skill) if sk is not None else ()
     if sk is None or sk.untestable or not modules:
         return True
-    return max(c.truth.module_theta.get(m, -9.0) for m in modules) >= threshold
+    # Модули QA и DevOps (qa_testing, devops_core) есть в истине только у кандидатов этих специализаций. У остальных
+    # уровень такого модуля не определён, и навык (Docker у Backend-разработчика) покрывается истинным стеком, как и
+    # раньше, когда Docker не тестировался: иначе подключение теста DevOps сдвинуло бы релевантность по Backend/Frontend.
+    levels = [c.truth.module_theta[m] for m in modules if m in c.truth.module_theta]
+    return max(levels) >= threshold if levels else True
 
 
 def oracle_rel(c: Candidate, gold: Mapping[str, Any], cfg: ScoringConfig, cat: SkillCatalog) -> int:
@@ -973,7 +979,7 @@ def pairs_schema() -> dict[str, Any]:
                      "declared_skills", "salary_min", "salary_net", "formats", "city", "relocation"],
         "properties": {
             "candidate_id": {"type": "string"},
-            "spec": {"type": "string", "enum": ["backend_python", "frontend_js", "fullstack"]},
+            "spec": {"type": "string", "enum": ["backend_python", "frontend_js", "fullstack", "qa", "devops"]},
             "grade": {"type": "string", "enum": list(GRADES)},
             "theta": {"type": ["number", "null"], "description": "Оценка уровня по шкале теста (порог Middle = 0)"},
             "se": {"type": "number"},

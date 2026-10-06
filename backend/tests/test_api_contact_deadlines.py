@@ -152,7 +152,7 @@ def test_contact_overdue_and_dispute(client, make_account, db_session, frozen_cl
     assert r.status_code == 400 and "каких навыков" in r.json()["message"]
     r = client.post(
         f"/api/invitations/{inv['id']}/outcome",
-        json={"outcome": "not_matched", "reason": "skills_missing", "skill_ids": ["docker", "postgresql"]},
+        json={"outcome": "not_matched", "reason": "skills_missing", "skill_ids": ["docker", "kafka", "postgresql"]},
         headers=emp.headers,
     )
     assert r.status_code == 200 and r.json()["status"] == "closed"
@@ -160,7 +160,8 @@ def test_contact_overdue_and_dispute(client, make_account, db_session, frozen_cl
     fb = detail["feedback"][0]
     assert fb["label"] == "Не хватило навыков из брифа"
     kinds = {link["skill"]: link["kind"] for link in fb["links"]}
-    assert kinds["postgresql"] == "task" and kinds["docker"] == "interview"
+    # Docker проверяет модуль devops_core, PostgreSQL — sql: для них задача по модулю; Kafka тестом не проверяется
+    assert kinds["postgresql"] == "task" and kinds["docker"] == "task" and kinds["kafka"] == "interview"
     assert reliability_kinds(db_session, emp.company_id) == ["contact_overdue", "outcome_reported"]
 
 

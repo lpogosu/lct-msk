@@ -21,10 +21,15 @@ population:
     open: 0.60
     hidden: 0.05
   weekly_invite_limit_mix: [3, 5, 5, 5, 10]   # лимит новых приглашений в неделю (выбор по кругу)
+  # Добавочные кандидаты отдельных специализаций (seed_demo.py --add-specs qa,devops): свои диапазоны номеров, чтобы не
+  # пересекаться с префиксом популяции eval (size ≤ 2000) и не сдвигать уже созданных людей. Все проходят свой тест.
+  extra_specs:
+    qa: { index_base: 5000, count: 40 }
+    devops: { index_base: 6000, count: 40 }
 
 # --- Пул одноразовых экземпляров ---------------------------------------------------------------------------
 pool:
-  specs: [backend_python, frontend_js]   # только тестируемые специализации: остальные семейства демо не нужны
+  specs: [backend_python, frontend_js, qa, devops]   # только тестируемые специализации: остальные семейства демо не нужны
   n_per_family: 200
   min_free: 50
   threads: 4
@@ -355,6 +360,8 @@ survey:
   actions:                   # действие → частота за 12 месяцев (коды из config/testing.yaml → survey)
     backend_python: { server_api: regularly, sql_db: regularly, queues_cache: sometimes, ci_cd: sometimes }
     frontend_js: { ui_layout: regularly, spa_components: regularly, browser_debug: regularly, ci_cd: sometimes }
+    qa: { manual_testing: regularly, autotests: regularly, sql_db: sometimes, ci_cd: sometimes }
+    devops: { ci_cd: regularly, containers_infra: regularly, monitoring: regularly, queues_cache: sometimes }
   technology_by_skill:       # навык справочника → технология опроса (серые чипы «заявлено», в оценку не входят)
     python: python
     django: django_fastapi
@@ -375,4 +382,8 @@ survey:
     linux: linux_git
     pytest: test_frameworks
     jest: test_frameworks
+    selenium: test_frameworks
+    playwright: test_frameworks
+    cypress: test_frameworks
+    bash: linux_git
   recency: now

@@ -141,10 +141,10 @@ survey:
   actions:
     - code: server_api
       label: Писал серверные обработчики и HTTP API (REST, gRPC)
-      weights: { backend_python: 1.0, backend_go: 1.0, backend_java: 1.0, fullstack: 0.6, devops: 0.1, mobile: 0.1, qa: 0.1 }
+      weights: { backend_python: 1.0, backend_go: 1.0, backend_java: 1.0, fullstack: 0.6, devops: 0.1, mobile: 0.1, qa: 0.2 }
     - code: sql_db
       label: Писал SQL-запросы, проектировал схемы и миграции БД
-      weights: { backend_python: 0.8, backend_go: 0.8, backend_java: 0.8, fullstack: 0.5, data_ml: 0.5, devops: 0.1, qa: 0.1 }
+      weights: { backend_python: 0.8, backend_go: 0.8, backend_java: 0.8, fullstack: 0.5, data_ml: 0.5, devops: 0.1, qa: 0.3 }
     - code: queues_cache
       label: Работал с очередями и кешами (Kafka, RabbitMQ, Redis)
       weights: { backend_python: 0.7, backend_go: 0.7, backend_java: 0.7, fullstack: 0.3, devops: 0.3, data_ml: 0.1 }
@@ -168,7 +168,7 @@ survey:
       weights: { devops: 1.0, qa: 0.3, backend_python: 0.2, backend_go: 0.2, backend_java: 0.2, fullstack: 0.2 }
     - code: containers_infra
       label: Разворачивал сервисы в Docker или Kubernetes, описывал инфраструктуру кодом
-      weights: { devops: 1.0, backend_go: 0.3, backend_python: 0.2, backend_java: 0.2, fullstack: 0.2 }
+      weights: { devops: 1.0, backend_go: 0.3, backend_python: 0.2, backend_java: 0.2, fullstack: 0.2, qa: 0.1 }
     - code: monitoring
       label: Настраивал мониторинг и алерты, разбирал инциденты
       weights: { devops: 0.9, backend_python: 0.2, backend_go: 0.2, backend_java: 0.2, infosec: 0.2 }
@@ -189,7 +189,7 @@ survey:
       weights: { infosec: 1.0, devops: 0.2 }
   # Технологии с давностью использования; modules — для серых чипов «заявлено» (в оценку не входят)
   technologies:
-    - { code: python, label: Python, modules: [python_core], weights: { backend_python: 1.0, data_ml: 0.6, qa: 0.2, devops: 0.2, infosec: 0.2 } }
+    - { code: python, label: Python, modules: [python_core], weights: { backend_python: 1.0, data_ml: 0.6, qa: 0.4, devops: 0.2, infosec: 0.2 } }
     - { code: django_fastapi, label: "Django / FastAPI / Flask", modules: [python_core, http_api], weights: { backend_python: 1.0, fullstack: 0.4 } }
     - { code: go, label: Go, modules: [], weights: { backend_go: 1.0, devops: 0.3 } }
     - { code: java_kotlin, label: "Java / Kotlin (Spring)", modules: [], weights: { backend_java: 1.0, mobile: 0.4 } }
@@ -199,14 +199,14 @@ survey:
     - { code: vue_angular, label: "Vue / Angular", modules: [], weights: { frontend_js: 1.0, fullstack: 0.5 } }
     - { code: html_css, label: "HTML / CSS", modules: [html_css], weights: { frontend_js: 0.8, fullstack: 0.5, mobile: 0.1 } }
     - { code: nodejs, label: Node.js, modules: [js_core, http_api], weights: { fullstack: 0.8, frontend_js: 0.3, backend_python: 0.1 } }
-    - { code: postgresql, label: "PostgreSQL / MySQL", modules: [sql], weights: { backend_python: 0.5, backend_go: 0.5, backend_java: 0.5, fullstack: 0.4, data_ml: 0.3 } }
-    - { code: docker, label: Docker, modules: [], weights: { devops: 0.6, backend_python: 0.3, backend_go: 0.3, backend_java: 0.3, fullstack: 0.2 } }
-    - { code: kubernetes, label: Kubernetes, modules: [], weights: { devops: 1.0, backend_go: 0.2 } }
-    - { code: linux_git, label: "Linux / Git", modules: [git_linux], weights: { devops: 0.5, backend_python: 0.2, backend_go: 0.2, backend_java: 0.2, infosec: 0.3 } }
+    - { code: postgresql, label: "PostgreSQL / MySQL", modules: [sql], weights: { backend_python: 0.5, backend_go: 0.5, backend_java: 0.5, fullstack: 0.4, data_ml: 0.3, qa: 0.3 } }
+    - { code: docker, label: Docker, modules: [devops_core], weights: { devops: 0.8, backend_python: 0.3, backend_go: 0.3, backend_java: 0.3, fullstack: 0.2 } }
+    - { code: kubernetes, label: Kubernetes, modules: [devops_core], weights: { devops: 1.0, backend_go: 0.2 } }
+    - { code: linux_git, label: "Linux / Git", modules: [git_linux, devops_core], weights: { devops: 0.7, backend_python: 0.2, backend_go: 0.2, backend_java: 0.2, infosec: 0.3, qa: 0.2 } }
     - { code: mobile_sdk, label: "Swift / Android SDK / Flutter", modules: [], weights: { mobile: 1.0 } }
     - { code: pandas_numpy, label: "pandas / NumPy", modules: [], weights: { data_ml: 1.0, backend_python: 0.1 } }
     - { code: ml_frameworks, label: "scikit-learn / PyTorch", modules: [], weights: { data_ml: 1.0 } }
-    - { code: test_frameworks, label: "Selenium / Playwright / pytest", modules: [], weights: { qa: 1.0, frontend_js: 0.1, backend_python: 0.1 } }
+    - { code: test_frameworks, label: "Selenium / Playwright / pytest", modules: [qa_testing], weights: { qa: 1.0, frontend_js: 0.1, backend_python: 0.1 } }
     - { code: security_tools, label: "Burp Suite / Nmap / OWASP", modules: [], weights: { infosec: 1.0 } }
   # Подсказка по стажу при выборе грейда (ни к чему не обязывает)
   grade_hint:

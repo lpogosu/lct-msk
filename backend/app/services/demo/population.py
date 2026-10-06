@@ -15,6 +15,7 @@ import logging
 import random
 import uuid
 from collections.abc import Mapping
+from dataclasses import replace
 from datetime import timedelta
 from typing import Any
 
@@ -39,12 +40,26 @@ from eval.population import Candidate, PopulationConfig, generate_candidate
 
 log = logging.getLogger("vzaimno.demo.population")
 
-TESTED_SPECS = ("backend_python", "frontend_js")
+TESTED_SPECS = ("backend_python", "frontend_js")  # две составляющие Fullstack; QA и DevOps — отдельные специализации
 
 
 def population_config(n: int | None = None) -> PopulationConfig:
     c = section("population")
     return PopulationConfig(n=int(n if n is not None else c["size"]), seed=int(c["seed"]), run_tests=False)
+
+
+def extra_config(spec: str) -> PopulationConfig:
+    """Добавочные кандидаты одной специализации (QA, DevOps): тот же генератор, но все с верной заявкой и своим тестом."""
+    x = extra_indices(spec)
+    return replace(population_config(max(x) + 1 if x else 1), spec_mix=((spec, 1.0),), mismatch_rate=0.0)
+
+
+def extra_indices(spec: str, count: int | None = None) -> list[int]:
+    """Номера добавочных кандидатов специализации: отдельный диапазон от index_base (config/demo.yaml → extra_specs)."""
+    ex = section("population")["extra_specs"]
+    if spec not in ex:
+        raise KeyError(f"Для специализации {spec!r} нет диапазона в config/demo.yaml → population.extra_specs")
+    return [int(ex[spec]["index_base"]) + j for j in range(int(count if count is not None else ex[spec]["count"]))]
 
 
 def candidate_email(index: int) -> str:
@@ -229,14 +244,18 @@ def synthetic_ids(db: Session) -> dict[int, uuid.UUID]:
     return out
 
 
-def worker_chunk(args: tuple[list[int], int, dict[int, str]]) -> dict[str, Any]:
-    """Точка входа процесса-воркера: свой движок БД, кандидаты своего куска. Возвращает счётчики."""
-    indices, n_total, fsp_map = args
+def worker_chunk(args: tuple[list[int], int, dict[int, str]] | tuple[list[int], int, dict[int, str], str | None]) -> dict[str, Any]:
+    """Точка входа процесса-воркера: свой движок БД, кандидаты своего куска. Возвращает счётчики.
+
+    Четвёртый элемент args (необязателен) — специализация добавочных кандидатов (extra_config); без него — основная
+    популяция."""
+    indices, n_total, fsp_map = args[:3]
+    extra_spec = args[3] if len(args) > 3 else None
     from app.core.settings import get_settings
     from app.db.session import get_sessionmaker
 
     settings = get_settings()
-    cfg = population_config(n_total)
+    cfg = extra_config(extra_spec) if extra_spec else population_config(n_total)
     done = skipped = failed = 0
     errors: list[str] = []
     for i in indices:

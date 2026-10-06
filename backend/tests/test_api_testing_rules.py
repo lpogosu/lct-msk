@@ -223,7 +223,7 @@ def test_start_errors_and_consent(api, bank, make_account, client):
     assert start(api, acc, None, expect=400)["code"] == "grade_required"
     assert start(api, acc, "middle", spec="nope", expect=400)["code"] == "unknown_specialization"
     assert start(api, acc, "middle", spec="fullstack", expect=400)["code"] == "derived_specialization"
-    assert start(api, acc, "middle", spec="devops", expect=409)["code"] == "specialization_not_testable"
+    assert start(api, acc, "middle", spec="data_ml", expect=409)["code"] == "specialization_not_testable"
 
     s = start(api, acc, "middle")
     consents = client.get("/api/consents", headers=acc.headers).json()
@@ -232,7 +232,7 @@ def test_start_errors_and_consent(api, bank, make_account, client):
     assert err["code"] == "active_session_exists" and err["details"]["session_id"] == s["id"]
     brief = api.get("/api/tests/briefing?specialization=backend_python", acc)
     assert brief["active_session_id"] == s["id"] and brief["consent"]["given"] is True
-    assert api.get("/api/tests/briefing?specialization=devops", acc)["can_start"]["code"] == (
+    assert api.get("/api/tests/briefing?specialization=data_ml", acc)["can_start"]["code"] == (
         "specialization_not_testable"
     )
 

@@ -35,6 +35,8 @@ modules:
   js_core: { name: JavaScript / TypeScript }
   react: { name: React }
   html_css: { name: HTML и CSS }
+  qa_testing: { name: Тестирование ПО }
+  devops_core: { name: DevOps и инфраструктура }
 
 # status: active — тест работает; survey_only — опрос доступен, теста пока нет (лист ожидания).
 specializations:
@@ -64,8 +66,23 @@ specializations:
     status: derived       # подтверждены обе квалификации; грейд = минимальный из двух
     derived_from: [backend_python, frontend_js]
   - { code: data_ml, name: Data Science / ML, direction: data, status: survey_only }
-  - { code: devops, name: DevOps / SRE, direction: devops, status: survey_only }
-  - { code: qa, name: QA / тестирование, direction: qa, status: survey_only }
+  - code: devops
+    name: DevOps / SRE
+    direction: devops
+    status: active
+    blueprint:
+      devops_core: 0.55     # Docker, compose, YAML, cron, nginx, k8s, CI, bash, права: 11 семейств
+      git_linux: 0.25       # Linux и Git: 5 общих семейств
+      http_api: 0.20        # коды ответа, кеш, rate limit: 3 общих семейства
+  - code: qa
+    name: QA / тестирование
+    direction: qa
+    status: active
+    blueprint:
+      qa_testing: 0.50      # тест-дизайн, pytest, моки, покрытие, данные, API-проверки: 11 семейств
+      http_api: 0.20        # 6 общих семейств (пагинация, коды, REST, идемпотентность, JWT, rate limit)
+      sql: 0.20             # 7 общих семейств
+      git_linux: 0.10       # 3 общих семейства
   - { code: mobile, name: Mobile, direction: mobile, status: survey_only }
   - { code: infosec, name: Информационная безопасность, direction: security, status: survey_only }
   - { code: backend_go, name: Backend (Go), direction: backend, status: survey_only }

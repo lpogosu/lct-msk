@@ -73,7 +73,8 @@ def test_demo_brief_every_field_has_source_and_quote(demo):
 
 
 def test_demo_brief_untestable_flags(demo):
-    assert demo.chip("kafka").untestable and demo.chip("docker").untestable
+    assert demo.chip("kafka").untestable
+    assert not demo.chip("docker").untestable  # Docker проверяет модуль devops_core (тест DevOps)
     assert not demo.chip("fastapi").untestable
 
 
@@ -233,6 +234,52 @@ def test_middle_plus_shifts_to_senior():
     ],
 )
 def test_specialization_top1(text, spec):
+    assert parse_brief(text).top_spec == spec
+
+
+QA_BRIEF = "Ищем тестировщика: pytest, API, SQL, опыт от года, удалёнка, 120–160 тыс."
+DEVOPS_BRIEF = "DevOps: Docker, Kubernetes, CI/CD, nginx, Linux, от 3 лет, Москва, 250–320 тыс."
+
+
+def test_qa_brief_chips_spec_and_conditions():
+    p = parse_brief(QA_BRIEF)
+    assert p.top_spec == "qa" and p.spec_probs.value["qa"] > 0.5 and p.question is None
+    assert p.must == ("pytest", "api_design", "sql") and p.nice == ()
+    assert p.top_grade == "junior" and p.grade_probs.value["junior"] > 0.8 and p.experience_years.value == 1
+    assert [f.value for f in p.formats] == ["remote"] and p.city is None
+    s = p.salary.value
+    assert (s.from_, s.to) == (120_000, 160_000) and p.salary_check.status == "ok"
+    assert any(q.text == "тестировщика" for q in p.spec_probs.quotes)  # сигнал специализации — с цитатой
+    assert all(QA_BRIEF[c.quote.start : c.quote.end] == c.quote.text for c in p.skills)
+    spec = to_brief_spec(p, "need-qa")
+    assert spec.spec == "qa" and spec.grade == "junior" and spec.formats == frozenset({"remote"})
+
+
+def test_devops_brief_chips_spec_and_conditions():
+    p = parse_brief(DEVOPS_BRIEF)
+    assert p.top_spec == "devops" and p.spec_probs.value["devops"] > 0.9 and p.question is None
+    assert p.must == ("docker", "kubernetes", "ci_cd", "nginx", "linux") and p.nice == ()
+    assert p.top_grade == "middle" and p.city.value == "moscow"
+    s = p.salary.value
+    assert (s.from_, s.to) == (250_000, 320_000) and p.salary_check.status == "ok"
+    assert not any(c.untestable for c in p.skills)  # весь стек проверяется тестом DevOps
+    assert to_brief_spec(p, "need-ops").spec == "devops"
+
+
+@pytest.mark.parametrize(
+    "text,spec",
+    [
+        ("QA-инженер: pytest, Selenium, Postman, SQL. Middle. 180–240 тыс.", "qa"),
+        ("Ищем ручного тестировщика: тест-кейсы, баг-репорты, Jira. 100–140 тыс.", "qa"),
+        ("Автоматизатор тестирования: pytest, Allure, Selenium. 150–200 тыс.", "qa"),
+        ("Нужен специалист по функциональному и регрессионному тестированию, тест-планы, SQL. 110–150 тыс.", "qa"),
+        ("Инженер по инфраструктуре: Linux, Terraform, Ansible. 200–280 тыс.", "devops"),
+        ("Platform engineer: Kubernetes, Helm, GitLab CI. 300–400 тыс.", "devops"),
+        ("Релиз-инженер: CI/CD, Docker, Jenkins. 200–260 тыс.", "devops"),
+        ("Системный администратор: Linux, Bash, nginx, Zabbix. 120–160 тыс.", "devops"),
+    ],
+)
+def test_qa_and_devops_roles_and_cues_give_top_spec(text, spec):
     assert parse_brief(text).top_spec == spec
 
 
