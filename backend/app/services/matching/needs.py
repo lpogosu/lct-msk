@@ -425,7 +425,19 @@ def list_needs(db: Session, user: User, status: str | None = None) -> list[dict[
     q = select(Need).where(Need.company_id == company_id)
     if status is not None:
         q = q.where(Need.status == status)
-    return [need_summary(db, n) for n in db.scalars(q.order_by(Need.created_at.desc(), Need.id))]
+    needs = list(db.scalars(q.order_by(Need.created_at.desc(), Need.id)))
+    # Два запроса на весь список вместо двух на каждый бриф (N+1: 90 брифов — 183 запроса, ≈ 0,5 с; docs/LOAD_TEST.md).
+    # Версию берём только номером: снимок подборки тяжёлый, а в списке нужен лишь n
+    version_n = dict(db.execute(
+        select(NeedVersion.id, NeedVersion.n).where(NeedVersion.id.in_([n.current_version_id for n in needs if n.current_version_id]))
+    ).all()) if needs else {}
+    pins = dict(db.execute(
+        select(Shortlist.need_id, func.count()).where(Shortlist.need_id.in_([n.id for n in needs])).group_by(Shortlist.need_id)
+    ).all()) if needs else {}
+    return [
+        need_summary(db, n, version_n=version_n.get(n.current_version_id), pins=int(pins.get(n.id, 0)), batched=True)
+        for n in needs
+    ]
 
 
 def get_need(db: Session, user: User, need_id: uuid.UUID) -> Need:
@@ -1401,9 +1413,14 @@ def score_snapshot(db: Session, need_id: uuid.UUID, candidate_id: uuid.UUID) -> 
     }
 
 
-def need_summary(db: Session, need: Need) -> dict[str, Any]:
-    nv = current_version(db, need)
-    pins = db.scalar(select(func.count()).select_from(Shortlist).where(Shortlist.need_id == need.id)) or 0
+def need_summary(
+    db: Session, need: Need, *, version_n: int | None = None, pins: int | None = None, batched: bool = False
+) -> dict[str, Any]:
+    """Сводка брифа. `batched=True` — номер версии и число закреплённых уже посчитаны списком (list_needs)."""
+    if not batched:
+        nv = current_version(db, need)
+        version_n = nv.n if nv else None
+        pins = db.scalar(select(func.count()).select_from(Shortlist).where(Shortlist.need_id == need.id)) or 0
     return {
         "id": need.id,
         "title": need.title,
@@ -1416,8 +1433,8 @@ def need_summary(db: Session, need: Need) -> dict[str, Any]:
         "salary_to": need.salary_to,
         "salary_net": need.salary_net,
         "is_internship": need.is_internship,
-        "current_version": nv.n if nv else None,
-        "shortlist_count": int(pins),
+        "current_version": version_n,
+        "shortlist_count": int(pins or 0),
         "created_at": need.created_at,
         "updated_at": need.updated_at,
     }

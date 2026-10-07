@@ -36,3 +36,5 @@ Thumbs.db
 
 # Артефакты Playwright MCP
 .playwright-mcp/
+loadtest/accounts.json
+loadtest/out/

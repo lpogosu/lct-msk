@@ -1,6 +1,6 @@
 # Сборка, развёртывание и запуск
 
-Пошаговая инструкция: локальный запуск для разработки и проверки, сборка образов, развёртывание на VPS в РФ с HTTPS через Caddy, переменные окружения, требования к ресурсам, обслуживание. Команды сверены с `docker-compose.yml`, `backend/Dockerfile`, `Makefile`, `.env.example` и скриптами `backend/scripts`. Файлы раздела 5 (`docker-compose.prod.yml`, `deploy/Caddyfile`) лежат в репозитории: compose проверен командой `docker compose config`, Caddyfile на стенде не запускался.
+Пошаговая инструкция: локальный запуск для разработки и проверки, сборка образов, развёртывание на VPS в РФ с HTTPS через Caddy, переменные окружения, требования к ресурсам, обслуживание. Команды сверены с `docker-compose.yml`, `backend/Dockerfile`, `Makefile`, `.env.example` и скриптами `backend/scripts`. Файлы раздела 5 (`docker-compose.prod.yml`, `deploy/Caddyfile`) лежат в репозитории: compose проверен `docker compose config`, Caddyfile — `caddy validate`; локальная схема (п. 2.3) собрана и проверена с нуля в отдельном проекте compose, замеры — в п. 2.5.
 
 Содержание: [1. Требования](#1-требования-и-ресурсы) · [2. Локальный запуск](#2-локальный-запуск) · [3. Переменные окружения](#3-переменные-окружения) · [4. Сборка образов](#4-сборка-образов) · [5. VPS в РФ, HTTPS через Caddy](#5-развёртывание-на-vps-в-рф-с-https-через-caddy) · [6. Обслуживание](#6-обслуживание) · [7. Диагностика](#7-диагностика) · [8. В разработке](#8-в-разработке)
 
@@ -10,22 +10,22 @@
 |---|---|
 | ПО на машине разработки | Docker Engine 24+ с Compose v2.17+ (в `docker-compose.yml` используется `additional_contexts`), [uv](https://docs.astral.sh/uv/) 0.11+, Node.js 22 LTS и npm (фронтенд, а также ключи JavaScript-заданий при генерации пула), GNU make (на Windows — команды PowerShell из п. 2.2) |
 | Python | 3.11 и выше для локального запуска (`requires-python`); в образе — 3.12 |
-| Порты на хосте (локально) | 5432 (PostgreSQL), 8000 (бэкенд), 8001 (`fsp-mock`), 8025 и 1025 (Mailpit), 8080 (Keycloak, профиль `fsp`), 5173 (Vite) — переопределяются `VZ_*_PORT` |
-| Память под ограничения контейнеров | Локальный compose: `db` 512 МБ + `backend` 768 МБ + `fsp-mock` 256 МБ + `mailpit` 128 МБ = 1 664 МБ; с Keycloak (+768 МБ) — 2 432 МБ. Прод-шаблон (`db` 768, `backend` 768, `caddy` 128) — 1 664 МБ |
-| Рекомендуемый VPS | 2 vCPU, 4 ГБ ОЗУ (сборка образов и пик Argon2: каждое хеширование занимает 64 МБ, одновременно не больше 4), 20–40 ГБ SSD. С собственным Keycloak — 6–8 ГБ ОЗУ. Это оценка по лимитам контейнеров; нагрузочное измерение на VPS не проводилось |
+| Порты на хосте (локально) | 80 (интерфейс, `VZ_WEB_PORT`), 5432 (PostgreSQL), 8000 (бэкенд), 8001 (`fsp-mock`), 8025 и 1025 (Mailpit), 8080 (Keycloak, профиль `fsp`), 5173 (Vite) — переопределяются `VZ_*_PORT` |
+| Память под ограничения контейнеров | Локальный compose: `db` 1 ГБ + `backend` 2 ГБ + `pool` 1 ГБ (только на время генерации пула) + `web` 128 МБ + `fsp-mock` 256 МБ + `mailpit` 128 МБ; в покое около 0,5 ГБ, под нагрузкой 100 пользователей около 2 ГБ (п. 2.5). С Keycloak (+768 МБ). Прод-шаблон: `db` 1 ГБ, `backend` 2 ГБ, `web` 128 МБ, `caddy` 128 МБ |
+| Рекомендуемый VPS | 4 vCPU, 8 ГБ ОЗУ для 4 процессов бэкенда (стенд жюри ~8 CPU / 32–64 ГБ — с запасом; при 2 vCPU и 4 ГБ — `VZ_WORKERS=1`–`2`). Исходно: 2 vCPU, 4 ГБ ОЗУ (сборка образов и пик Argon2: каждое хеширование занимает 64 МБ, одновременно не больше 4), 20–40 ГБ SSD. С собственным Keycloak — 6–8 ГБ ОЗУ. Это оценка по лимитам контейнеров; нагрузочное измерение на VPS не проводилось |
 | Диск | Образы порядка 1–2 ГБ (оценка); данные PostgreSQL: пул клонов (около 14 тысяч экземпляров для 69 семейств) и демо-мир — десятки мегабайт (оценка) |
 | Домен и сеть (прод) | Доменное имя с A-записью на VPS; открытые порты 80 и 443 (выпуск сертификата Caddy и HTTPS); исходящий доступ к SMTP-серверу |
 | Размещение | VPS с центром обработки данных **в РФ** (требование локализации ПДн, см. [SECURITY.md](SECURITY.md)) |
 
 ## 2. Локальный запуск
 
-### 2.1. Быстрый старт (с `make`)
+### 2.1. Разработка: бэкенд на хосте (с `make`)
 
 ```bash
 git clone <репозиторий> vzaimno && cd vzaimno
 cp .env.example .env            # необязательно: значения по умолчанию подходят для локальной работы
 
-make up                         # PostgreSQL, Mailpit, fsp-mock (docker compose up -d db mailpit fsp-mock)
+make up-infra                   # PostgreSQL, Mailpit, fsp-mock (docker compose up -d db mailpit fsp-mock)
 make migrate                    # alembic upgrade head
 make gen-pool                   # пул одноразовых клонов заданий (идемпотентно; нужен node для JS-семейств)
 make seed                       # демо-мир: ~300 кандидатов с настоящими тестами, персоны, компании (пароли в backend/var/demo_accounts.md)
@@ -40,7 +40,7 @@ cd frontend && npm ci && npm run dev    # интерфейс: http://localhost:5
 | http://localhost:8000/api/health | Готовность (БД) |
 | http://localhost:8025 | Mailpit: письма с кодами подтверждения |
 | http://localhost:8001/docs | Демо-реестр ФСП (`fsp-mock`) |
-| http://localhost:5173 | Frontend (в разработке) |
+| http://localhost:5173 | Frontend (Vite, разработка); в контейнерной схеме интерфейс — http://localhost |
 
 Минимальная проверка без `make seed`: зарегистрироваться (`POST /api/auth/register`), прочитать код из Mailpit, подтвердить email, пройти опрос и тест (нужен пул из `make gen-pool`).
 
@@ -57,7 +57,7 @@ docker compose --profile fsp up -d keycloak        # http://localhost:8080 (admi
 ### 2.2. Без `make` (Windows, PowerShell)
 
 ```powershell
-docker compose up -d db mailpit fsp-mock                       # make up
+docker compose up -d db mailpit fsp-mock                       # make up-infra
 cd backend
 uv run alembic upgrade head                                    # make migrate
 uv run python scripts/generate_pool.py                         # make gen-pool
@@ -68,14 +68,35 @@ uv run ruff check .                                            # make lint
 uv run python -m eval.validate                                 # make validate
 ```
 
-### 2.3. Всё в контейнерах
+### 2.3. Всё в контейнерах (стенд для жюри, из чистого клона)
+
+Нужен только Docker (Compose v2.17+); `make` необязателен (эквиваленты в комментариях).
 
 ```bash
-VZ_DEMO_MODE=true docker compose up -d --build     # db, mailpit, backend, fsp-mock; миграции применяются при старте backend
-make seed                                          # демо-мир наполняется с хоста в ту же БД (VZ_DATABASE_URL по умолчанию указывает на localhost:5432)
+git clone <репозиторий> vzaimno && cd vzaimno
+docker compose up -d --build                                   # make up
+docker compose exec -T backend python scripts/seed_demo.py     # make demo (сам ждёт конца pool)
+docker compose exec -T backend cat var/demo_accounts.md        # make creds: логины и пароли демо-аккаунтов
 ```
 
-Бэкенд в контейнере выполняет `alembic upgrade head`, затем `uvicorn app.main:app --no-proxy-headers` (клиентский IP определяет приложение по `VZ_FORWARDED_ALLOW_IPS`). Пул клонов в образ не входит (в нём нет `scripts/` и Node.js): его создают с хоста (`make gen-pool`) с тем же `VZ_APP_SECRET`, что у контейнера, — по умолчанию в `docker-compose.yml` и `.env.example` он совпадает.
+| Сервис | Что делает | Адрес на хосте |
+|---|---|---|
+| `web` | nginx: статика Vite (SPA-fallback, gzip, `immutable` для хешированных файлов, заголовки безопасности) и прокси `/api` в `backend` | http://localhost (`VZ_WEB_PORT`) |
+| `backend` | FastAPI; при старте `alembic upgrade head`, затем `uvicorn --workers $VZ_WORKERS` (по умолчанию 4) | http://localhost:8000 |
+| `pool` | одноразовая задача: `scripts/generate_pool.py` (пул заданий, 18 200 экземпляров, идемпотентно); в образе есть Node.js для JS-семейств | — |
+| `db` | PostgreSQL 16 + pgvector (`max_connections=200`) | 127.0.0.1:5432 |
+| `mailpit`, `fsp-mock` | письма с кодами, мок реестра ФСП | :8025, :8001 |
+| `keycloak` | только `--profile fsp` | :8080 |
+
+Что важно:
+
+- Локальный compose — стенд для жюри: `VZ_DEMO_MODE` по умолчанию `true`, секреты демонстрационные (в `docker-compose.prod.yml` обязательны свои).
+- `pool` стартует, когда `backend` стал healthy; тест кандидата заработает после его окончания (`docker compose logs -f pool`; `docker compose ps -a pool` — Exited (0)).
+- Клиентский IP за nginx: nginx перезаписывает `X-Forwarded-For` адресом клиента (`VZ_REAL_IP_FROM` — кому nginx верит), бэкенд доверяет частным подсетям docker (`VZ_FORWARDED_ALLOW_IPS`).
+- `restart: unless-stopped` поднимет упавший контейнер сам; healthcheck есть у всех сервисов, кроме одноразового `pool`.
+- Другие порты (80 занят): `VZ_WEB_PORT=8088 VZ_PUBLIC_BASE_URL=http://localhost:8088 VZ_CORS_ORIGINS=http://localhost:8088 docker compose up -d --build`.
+- Несколько процессов бэкенда и демо-режим: смещение демо-часов (`/api/demo/clock`) хранится в БД и подхватывается всеми процессами раз в секунду; счётчики лимитов запросов ведутся в памяти каждого процесса (эффективный лимит до `VZ_WORKERS` раз выше), буфер прямых POST на `/api/demo/webhook-sink` — тоже по процессу. Для строгих лимитов и показа вебхуков — `VZ_WORKERS=1`.
+- `docker compose down` сохраняет данные в томе, `docker compose down -v` стирает БД и демо-мир. Сброс демо к seed без пересборки: `make reset-demo-stack`.
 
 ### 2.4. Тесты и валидация
 
@@ -86,6 +107,19 @@ make validate    # симуляция и подбор → docs/VALIDATION.md, ba
 ```
 
 Для тестов создаётся отдельная база `<имя>_<pid>_<rand>` на сервере из `VZ_TEST_DATABASE_URL` и удаляется после прогона.
+
+### 2.5. Замеры контейнерного стенда
+
+Окружение: Windows 11, Docker Desktop (WSL2), 20 логических ядер, 11 ГБ памяти, отдельный проект compose `vzcheck` на других портах; базовые образы (python, node, nginx, postgres) уже были в кэше Docker (на пустом кэше добавится скачивание порядка 1–2 ГБ). Нагрузка — [LOAD_TEST.md](LOAD_TEST.md).
+
+| Шаг | Время |
+|---|---|
+| `docker compose up -d --build` (сборка backend, pool, web, fsp-mock и старт до `backend` healthy) | ≈ 50–60 с |
+| `pool`: 91 семейство × 200 = 18 200 экземпляров, 0 ошибок | 142 с |
+| `seed_demo.py` (300 кандидатов с настоящими тестами, персоны, 6 компаний, сценарий) | 64 с |
+| От клона до готового демо | около 4–5 минут |
+
+Ресурсы (`docker stats`), в покое: backend ≈ 70 МБ на процесс, db ≈ 180–300 МБ, web ≈ 16 МБ, fsp-mock ≈ 37 МБ, mailpit ≈ 10–20 МБ. Под нагрузкой — LOAD_TEST.md. Образы: backend ≈ 800 МБ, web ≈ 77 МБ.
 
 ## 3. Переменные окружения
 
@@ -120,15 +154,15 @@ cd backend && docker build --build-context config=../config -t vzaimno-backend .
 # Мок реестра ФСП
 docker build -t vzaimno/fsp-mock services/fsp-mock
 
-# Фронтенд: статика в frontend/dist (в образ compose не входит; раздаёт Caddy)
-cd frontend && npm ci && npm run build
+# Фронтенд: multi-stage (node 22 → nginx 1.27), статика и прокси /api внутри образа
+docker compose build web
 ```
 
-В образ бэкенда входят `app/`, `alembic/`, `alembic.ini` и `config/*.yaml`; не входят тесты, `eval/`, `scripts/` и Node.js. Healthcheck образа — `GET /api/health/live`.
+В образ бэкенда входят `app/`, `alembic/`, `alembic.ini`, `config/*.yaml`, `eval/` (нужен демо-модулям), `scripts/` (пул, seed) и бинарник Node.js (песочница JS-заданий); тесты не входят. Healthcheck образа — `GET /api/health/live`.
 
 ## 5. Развёртывание на VPS в РФ с HTTPS через Caddy
 
-Схема: наружу открыты только 80 и 443 (Caddy); бэкенд и БД доступны лишь внутри сети compose (БД не публикуется вообще). Caddy раздаёт статику фронтенда и проксирует `/api/*` в бэкенд, сам получает и продлевает сертификаты (ACME).
+Схема: наружу открыты только 80 и 443 (Caddy); бэкенд и БД доступны лишь внутри сети compose (БД не публикуется вообще). Caddy терминирует TLS, проксирует `/api/*` в бэкенд, остальное — в контейнер `web` (nginx со статикой, SPA-fallback и кэшем), сам получает и продлевает сертификаты (ACME).
 
 ### 5.1. Подготовка сервера
 
@@ -163,18 +197,17 @@ VZ_DEMO_MODE=false
 EOF
 chmod 600 .env
 
-# Фронтенд собирается один раз на любой машине с Node.js 22 (или прямо на VPS) и кладётся в frontend/dist
-cd frontend && npm ci && npm run build && cd ..
+# Фронтенд собирается в образе web при `docker compose -f docker-compose.prod.yml up -d --build`: Node.js на VPS не нужен
 ```
 
 `.env` хранить вне git и вместе с резервной копией БД: без `VZ_APP_SECRET` зашифрованные ключи клонов не прочитать.
 
 ### 5.3. Файлы развёртывания
 
-В репозитории лежат готовые файлы (они проверены `docker compose config`; Caddyfile на стенде не запускался):
+В репозитории лежат готовые файлы (compose проверен `docker compose config`, Caddyfile — `caddy validate`; запуск с настоящим доменом и сертификатом не выполнялся):
 
-- `docker-compose.prod.yml` — боевая схема: `db`, `backend`, `caddy`; профиль `fsp` добавляет свой ФСП ID (`keycloak-db` + `keycloak`);
-- `deploy/Caddyfile` — HTTPS, заголовки безопасности, проксирование `/api/*`, статика фронтенда с SPA-маршрутами;
+- `docker-compose.prod.yml` — боевая схема: `db`, `backend`, `pool` (одноразовая генерация пула), `web`, `caddy`; профиль `fsp` добавляет свой ФСП ID (`keycloak-db` + `keycloak`);
+- `deploy/Caddyfile` — HTTPS, заголовки безопасности, проксирование `/api/*` в backend и остального в `web`;
 - `deploy/docker-compose.db-loopback.yml` — временная публикация БД на `127.0.0.1` для генерации пула с хоста.
 
 Запуск: `docker compose -f docker-compose.prod.yml up -d --build`. Что отличает схему от локального `docker-compose.yml`:
@@ -215,27 +248,7 @@ docker compose -f docker-compose.prod.yml ps                   # backend дол�
 curl -s https://vzaimno.example/api/health                     # {"status":"ok","db":"ok",...}
 ```
 
-**Пул клонов обязателен**: без него тест не стартует (банк пуст). Скрипт не входит в образ и использует Node.js для JavaScript-семейств, поэтому его запускают с машины, где есть репозиторий, `uv` и Node.js 22, **через SSH-туннель** к PostgreSQL VPS и с боевым `VZ_APP_SECRET`. В прод-схеме БД не публикуется, поэтому на время работы на VPS поднимается loopback-вариант (порт только на `127.0.0.1` самого VPS, наружу не виден):
-
-```bash
-# на VPS: временно открыть БД на 127.0.0.1:5432
-docker compose -f docker-compose.prod.yml -f deploy/docker-compose.db-loopback.yml up -d db
-
-# терминал 1 (на своей машине): туннель к БД на VPS
-ssh -N -L 5433:127.0.0.1:5432 user@vzaimno.example
-
-# терминал 2: из репозитория (той же версии, что на сервере)
-cd backend
-export VZ_DATABASE_URL='postgresql+psycopg://vzaimno:<VZ_DB_PASSWORD>@localhost:5433/vzaimno'
-export VZ_APP_SECRET='<тот же секрет, что в .env на сервере>'
-uv run python scripts/generate_pool.py                    # 200 клонов на семейство, идемпотентно
-uv run python scripts/generate_pool.py --stats            # проверить состояние пула
-
-# на VPS после работы: вернуть закрытую схему (БД снова не публикуется)
-docker compose -f docker-compose.prod.yml up -d db
-```
-
-Для семейств Backend скрипт можно запустить и внутри контейнера без Node.js (нужен смонтированный `scripts/`): `docker compose -f docker-compose.prod.yml run --rm --no-deps -v "$PWD/backend/scripts:/app/scripts:ro" backend python scripts/generate_pool.py --spec backend_python` (команда не прогонялась автоматически). Семейства Frontend исполняют JavaScript и требуют Node.js.
+**Пул клонов обязателен**: без него тест не стартует. Его создаёт одноразовый сервис `pool` (в образе есть `scripts/` и Node.js): он стартует сам после `backend` и занимает ≈ 2,5 минуты (`docker compose -f docker-compose.prod.yml logs -f pool`). Повтор или долив: `docker compose -f docker-compose.prod.yml run --rm pool`; состояние: `... run --rm pool python scripts/generate_pool.py --stats`. `VZ_APP_SECRET` у `pool` и `backend` один (ключи шифруются им). Туннель к БД для этого больше не нужен; `deploy/docker-compose.db-loopback.yml` оставлен для обслуживания.
 
 **Демо-мир для стенда жюри** (`VZ_DEMO_MODE=true` в `.env`): `seed_demo.py` отказывается работать при `VZ_ENV=prod`, поэтому его запускают с машины с туннелем с локальным `VZ_ENV=dev` и тем же `VZ_APP_SECRET` (пароли демо-аккаунтов выводятся из него); через туннель наполнение идёт медленнее, чем локально:
 

@@ -6,7 +6,7 @@
 # Что отличает от локального docker-compose.yml:
 #   * БД не публикуется ни на каком адресе хоста. Для обслуживания — docker compose exec db …; для генерации пула
 #     заданий с хоста — временный deploy/docker-compose.db-loopback.yml (только 127.0.0.1) или SSH-туннель к контейнеру.
-#   * Образы закреплены по версиям (PostgreSQL+pgvector, Caddy, Keycloak, Mailpit в прод-схему не входит): обновление —
+#   * Образы закреплены по версиям (PostgreSQL+pgvector, Caddy, nginx и Node во фронтенд-образе, Keycloak; Mailpit в прод-схему не входит): обновление —
 #     осознанная правка версии здесь, а не «latest» при пересборке.
 #   * Keycloak (профиль `fsp`, только если нужен свой ФСП ID на стенде) запускается в production-режиме `start`, со своей
 #     PostgreSQL, не `start-dev`; наружу его выставляет Caddy (см. deploy/Caddyfile, блок для sso).
@@ -17,6 +17,12 @@
 
 name: vzaimno
 
+x-backend-build: &backend-build
+  context: ./backend
+  dockerfile: Dockerfile
+  additional_contexts:
+    config: ./config
+
 services:
   db:
     image: pgvector/pgvector:0.8.7-pg16 # PostgreSQL 16 + pgvector 0.8.7; менять версию осознанно
@@ -26,6 +32,7 @@ services:
       POSTGRES_PASSWORD: ${VZ_DB_PASSWORD:?задайте VZ_DB_PASSWORD}
       POSTGRES_DB: ${VZ_DB_NAME:-vzaimno}
     # ports: нет — БД доступна только соседним контейнерам сети compose
+    command: ["postgres", "-c", "max_connections=200", "-c", "shared_buffers=256MB"]
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -34,20 +41,20 @@ services:
       timeout: 3s
       retries: 20
       start_period: 5s
-    mem_limit: 768m
+    mem_limit: 1g
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-      additional_contexts:
-        config: ./config
+    build: *backend-build
+    image: vzaimno/backend:prod
     restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
     environment:
       VZ_ENV: prod
+      VZ_WORKERS: ${VZ_WORKERS:-4}
+      VZ_DB_POOL_SIZE: ${VZ_DB_POOL_SIZE:-8}
+      VZ_DB_MAX_OVERFLOW: ${VZ_DB_MAX_OVERFLOW:-4}
       VZ_DEMO_MODE: ${VZ_DEMO_MODE:-false}
       # В prod общие демо-кнопки (часы, сброс, режим жюри) — только админ или ключ; ключ необязателен
       VZ_DEMO_CONTROL_KEY: ${VZ_DEMO_CONTROL_KEY:-}
@@ -73,23 +80,76 @@ services:
       # VZ_FSP_OIDC_CLIENT_ID, VZ_FSP_OIDC_CLIENT_SECRET, VZ_FSP_REGISTRY_URL, VZ_FSP_TOKEN_URL (пустых значений не задавайте)
       # X-Forwarded-For принимается только от Caddy из этой подсети (docs/DEPLOY.md, п. 5.3); «*» в prod запрещено
       VZ_FORWARDED_ALLOW_IPS: 172.29.80.0/24
+    volumes:
+      - vzvar:/app/var
     expose:
       - "8000"
     # --no-proxy-headers: клиентский IP определяет само приложение (VZ_FORWARDED_ALLOW_IPS), а не uvicorn
-    command: ["sh", "-c", "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --no-proxy-headers"]
+    command: ["sh", "-c", "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --no-proxy-headers --workers $${VZ_WORKERS:-4}"]
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/api/health/live', timeout=3).status == 200 else 1)"]
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 20s
-    mem_limit: 768m
+    mem_limit: 2g
+
+  # Одноразовая задача: пул одноразовых экземпляров заданий (в образ входят scripts/ и Node.js). Идемпотентна.
+  # Ход: docker compose -f docker-compose.prod.yml logs -f pool; повтор: ... run --rm pool
+  pool:
+    build: *backend-build
+    image: vzaimno/pool:prod  # отдельное имя: два сервиса не могут собирать один и тот же тег (кэш слоёв общий)
+    restart: "no"
+    depends_on:
+      backend:
+        condition: service_healthy
+    volumes:
+      - vzvar:/app/var
+    environment:
+      VZ_ENV: prod
+      VZ_DATABASE_URL: postgresql+psycopg://${VZ_DB_USER:-vzaimno}:${VZ_DB_PASSWORD}@db:5432/${VZ_DB_NAME:-vzaimno}
+      VZ_APP_SECRET: ${VZ_APP_SECRET:?задайте VZ_APP_SECRET}
+      VZ_JWT_SECRET: ${VZ_JWT_SECRET:?задайте VZ_JWT_SECRET}
+      VZ_PSEUDONYM_SECRET: ${VZ_PSEUDONYM_SECRET:?задайте VZ_PSEUDONYM_SECRET}
+      VZ_COOKIE_SECURE: "true"
+      VZ_PUBLIC_BASE_URL: https://${VZ_PUBLIC_DOMAIN}
+      VZ_CORS_ORIGINS: https://${VZ_PUBLIC_DOMAIN}
+      VZ_SMTP_HOST: ${VZ_SMTP_HOST:?задайте VZ_SMTP_HOST}
+      VZ_MAIL_FROM: ${VZ_MAIL_FROM:?задайте VZ_MAIL_FROM}
+    command: ["python", "scripts/generate_pool.py"]
+    healthcheck:
+      disable: true  # HEALTHCHECK образа проверяет HTTP бэкенда, а здесь одноразовый скрипт без сервера
+    mem_limit: 1g
+
+  # Статика фронтенда (nginx, SPA-fallback, gzip, кэш хешированных файлов). Наружу не публикуется: его проксирует Caddy.
+  web:
+    build:
+      context: ./frontend
+    image: vzaimno/web:prod
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    expose:
+      - "80"
+    environment:
+      # Кому nginx верит в X-Forwarded-For. Локально — никому; за Caddy — подсеть compose; для нагрузочного теста с хоста (docs/LOAD_TEST.md) — подсеть docker
+      VZ_REAL_IP_FROM: 172.29.80.0/24
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    mem_limit: 128m
 
   caddy:
     image: caddy:2.10.2-alpine
     restart: unless-stopped
     depends_on:
       backend:
+        condition: service_healthy
+      web:
         condition: service_healthy
     environment:
       VZ_PUBLIC_DOMAIN: ${VZ_PUBLIC_DOMAIN:?задайте VZ_PUBLIC_DOMAIN}
@@ -99,9 +159,14 @@ services:
       - "443:443/udp"
     volumes:
       - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./frontend/dist:/srv/web:ro
       - caddy_data:/data
       - caddy_config:/config
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:2019/config/"]  # admin API Caddy, только внутри контейнера
+      interval: 15s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
     mem_limit: 128m
 
   # --- Свой ФСП ID на стенде (только `--profile fsp`; с настоящим ФСП ID не нужен) -----------------------------------
@@ -167,6 +232,7 @@ networks:
 
 volumes:
   pgdata:
+  vzvar:
   caddy_data:
   caddy_config:
   keycloak_pgdata:

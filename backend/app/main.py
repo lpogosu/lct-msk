@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import logging
 import mimetypes
+import os
+import time
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -73,7 +75,7 @@ async def _security_headers(request: Request, call_next) -> Response:  # type: i
     return response
 
 
-def _load_demo_clock() -> None:
+def _load_demo_clock(quiet: bool = False) -> None:
     """DEMO_MODE: восстановить смещение часов из БД (кнопки «+1 день» переживают перезапуск)."""
     try:
         from app.db.session import get_sessionmaker
@@ -83,9 +85,26 @@ def _load_demo_clock() -> None:
             row = db.get(DemoClock, 1)
             if row is not None:
                 clock.set_offset(row.offset_seconds)
-                log.info("DEMO_MODE: смещение часов %s с", row.offset_seconds)
+                if not quiet:
+                    log.info("DEMO_MODE: смещение часов %s с", row.offset_seconds)
     except Exception as e:  # БД может быть ещё не готова — демо-часы стартуют без смещения
         log.warning("DEMO_MODE: не удалось прочитать смещение часов: %s", e)
+
+
+_CLOCK_SYNC_TTL_S = 1.0
+_clock_sync_at = 0.0
+
+
+async def _sync_demo_clock(request: Request, call_next):
+    """DEMO_MODE и несколько процессов uvicorn (VZ_WORKERS > 1): смещение часов хранится в БД, а `clock` — в памяти
+    каждого процесса, поэтому «+1 день», нажатый в одном процессе, остальные не видели бы. Раз в секунду читаем смещение
+    из demo_clock (запрос по первичному ключу)."""
+    global _clock_sync_at
+    now = time.monotonic()
+    if now - _clock_sync_at >= _CLOCK_SYNC_TTL_S:
+        _clock_sync_at = now
+        _load_demo_clock(quiet=True)
+    return await call_next(request)
 
 
 def create_app(settings: Settings | None = None, mailer: Mailer | None = None) -> FastAPI:
@@ -117,6 +136,8 @@ def create_app(settings: Settings | None = None, mailer: Mailer | None = None) -
 
     # Порядок важен: добавленный позже middleware — внешний. CORS снаружи, заголовки/500 внутри.
     app.middleware("http")(_security_headers)
+    if settings.demo_mode and int(os.environ.get("VZ_WORKERS", "1") or 1) > 1:
+        app.middleware("http")(_sync_demo_clock)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,

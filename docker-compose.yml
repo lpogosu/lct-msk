@@ -1,10 +1,30 @@
-# «Взаимно» — локальный стенд.
-#   docker compose up -d                 → db, mailpit, backend, fsp-mock
+# «Взаимно» — локальный стенд (и стенд для жюри на одной машине).
+#   docker compose up -d --build         → db, mailpit, backend, fsp-mock, web (интерфейс на http://localhost), pool (пул заданий)
+#   make demo                            → демо-мир (кандидаты, компании, сценарий), см. docs/DEPLOY.md
 #   docker compose --profile fsp up -d   → плюс Keycloak (realm «fsp», ФСП ID)
 # Переменные VZ_* описаны в .env.example (скопируйте в .env при необходимости).
 # Лимиты памяти выставлены на каждом сервисе: стенд должен подниматься на ноутбуке жюри.
 
 name: vzaimno
+
+# Один образ бэкенда на backend и pool: собирается один раз, тег фиксирует имя
+x-backend-build: &backend-build
+  context: ./backend
+  dockerfile: Dockerfile
+  # config/*.yaml лежит вне контекста backend → передаём отдельным контекстом сборки
+  additional_contexts:
+    config: ./config
+
+x-backend-env: &backend-env
+  VZ_ENV: ${VZ_ENV:-dev}
+  # Локальный стенд — это стенд для жюри: демо-режим включён (кнопки времени/сброса, режим жюри). В prod-compose по умолчанию выключен.
+  VZ_DEMO_MODE: ${VZ_DEMO_MODE:-true}
+  VZ_DATABASE_URL: postgresql+psycopg://${VZ_DB_USER:-vzaimno}:${VZ_DB_PASSWORD:-vzaimno}@db:5432/${VZ_DB_NAME:-vzaimno}
+  VZ_APP_SECRET: ${VZ_APP_SECRET:-dev-insecure-app-secret-change-me}
+  # Процессов uvicorn и пул соединений на процесс (в сумме не больше max_connections БД): docs/LOAD_TEST.md
+  VZ_WORKERS: ${VZ_WORKERS:-4}
+  VZ_DB_POOL_SIZE: ${VZ_DB_POOL_SIZE:-8}
+  VZ_DB_MAX_OVERFLOW: ${VZ_DB_MAX_OVERFLOW:-4}
 
 services:
   db:
@@ -16,6 +36,8 @@ services:
       POSTGRES_DB: ${VZ_DB_NAME:-vzaimno}
     ports:
       - "127.0.0.1:${VZ_DB_PORT:-5432}:5432"  # только loopback: БД не должна быть видна из локальной сети
+    # Свыше умолчаний PostgreSQL: больше соединений (несколько процессов бэкенда) и буферный кэш под сотни тысяч строк
+    command: ["postgres", "-c", "max_connections=200", "-c", "shared_buffers=256MB"]
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -24,7 +46,7 @@ services:
       timeout: 3s
       retries: 20
       start_period: 5s
-    mem_limit: 512m
+    mem_limit: 1g
 
   mailpit:
     # Перехватчик почты для разработки: письма с кодом видно на http://localhost:8025
@@ -33,29 +55,33 @@ services:
     ports:
       - "${VZ_MAILPIT_UI_PORT:-8025}:8025"
       - "${VZ_MAILPIT_SMTP_PORT:-1025}:1025"
+    healthcheck:
+      test: ["CMD", "/mailpit", "readyz"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
     mem_limit: 128m
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-      # config/*.yaml лежит вне контекста backend → передаём отдельным контекстом сборки
-      additional_contexts:
-        config: ./config
+    build: *backend-build
+    image: vzaimno/backend:local
     restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
       mailpit:
         condition: service_started
+    volumes:
+      - vzvar:/app/var  # демо-аккаунты (backend/var/demo_accounts.md в контейнере → /app/var), общий с pool
     environment:
-      VZ_ENV: ${VZ_ENV:-dev}
-      VZ_DEMO_MODE: ${VZ_DEMO_MODE:-false}
-      VZ_DATABASE_URL: postgresql+psycopg://${VZ_DB_USER:-vzaimno}:${VZ_DB_PASSWORD:-vzaimno}@db:5432/${VZ_DB_NAME:-vzaimno}
-      VZ_PUBLIC_BASE_URL: ${VZ_PUBLIC_BASE_URL:-http://localhost:5173}
-      VZ_CORS_ORIGINS: ${VZ_CORS_ORIGINS:-http://localhost:5173}
+      <<: *backend-env
+      # Интерфейс — контейнер web (порт VZ_WEB_PORT, по умолчанию 80); 5173 — для Vite-разработки на хосте
+      VZ_PUBLIC_BASE_URL: ${VZ_PUBLIC_BASE_URL:-http://localhost}
+      VZ_CORS_ORIGINS: ${VZ_CORS_ORIGINS:-http://localhost,http://localhost:5173}
+      # За nginx (web) клиентский IP берётся из X-Forwarded-For, иначе все пользователи делят общие лимиты входа.
+      # Доверяем только частным подсетям docker; в prod-compose подсеть зафиксирована
+      VZ_FORWARDED_ALLOW_IPS: ${VZ_FORWARDED_ALLOW_IPS:-172.16.0.0/12,192.168.0.0/16,10.0.0.0/8}
       VZ_JWT_SECRET: ${VZ_JWT_SECRET:-dev-insecure-jwt-secret-change-me}
-      VZ_APP_SECRET: ${VZ_APP_SECRET:-dev-insecure-app-secret-change-me}
       VZ_PSEUDONYM_SECRET: ${VZ_PSEUDONYM_SECRET:-dev-insecure-pseudonym-secret-change-me}
       VZ_COOKIE_SECURE: ${VZ_COOKIE_SECURE:-false}
       VZ_MAIL_BACKEND: smtp
@@ -68,7 +94,7 @@ services:
       VZ_FSP_OIDC_CLIENT_ID: ${VZ_FSP_OIDC_CLIENT_ID:-vzaimno}
       # Демо-секрет конфиденциального client из deploy/keycloak/realm-fsp.json (в prod — свой)
       VZ_FSP_OIDC_CLIENT_SECRET: ${VZ_FSP_OIDC_CLIENT_SECRET:-vzaimno-demo-secret}
-      VZ_FSP_OIDC_REDIRECT_URI: ${VZ_FSP_OIDC_REDIRECT_URI:-http://localhost:5173/candidate/fsp/callback}
+      VZ_FSP_OIDC_REDIRECT_URI: ${VZ_FSP_OIDC_REDIRECT_URI:-http://localhost/candidate/fsp/callback}
       VZ_FSP_REGISTRY_URL: http://fsp-mock:8001
       # auto — реестр по сети, при недоступности встроенный снимок (демо не зависит от fsp-mock)
       VZ_FSP_PROVIDER: ${VZ_FSP_PROVIDER:-auto}
@@ -77,14 +103,53 @@ services:
     ports:
       - "${VZ_BACKEND_PORT:-8000}:8000"
     # --no-proxy-headers: клиентский IP для лимитов определяет приложение (VZ_FORWARDED_ALLOW_IPS), а не uvicorn
-    command: ["sh", "-c", "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --no-proxy-headers"]
+    command: ["sh", "-c", "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --no-proxy-headers --workers $${VZ_WORKERS:-4}"]
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/api/health/live', timeout=3).status == 200 else 1)"]
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 15s
-    mem_limit: 768m
+    mem_limit: 2g
+
+  # Одноразовая задача: пул одноразовых экземпляров заданий (без него тест не стартует). ≈ 3–5 минут, идемпотентно.
+  # Ход: docker compose logs -f pool. Повтор: docker compose run --rm pool
+  pool:
+    build: *backend-build
+    image: vzaimno/pool:local  # отдельное имя: два сервиса не могут собирать один и тот же тег (кэш слоёв общий)
+    restart: "no"
+    depends_on:
+      backend:
+        condition: service_healthy
+    volumes:
+      - vzvar:/app/var
+    environment: *backend-env
+    command: ["python", "scripts/generate_pool.py"]
+    healthcheck:
+      disable: true  # HEALTHCHECK образа проверяет HTTP бэкенда, а здесь одноразовый скрипт без сервера
+    mem_limit: 1g
+
+  # Интерфейс: nginx со статикой Vite, SPA-fallback и прокси /api → backend
+  web:
+    build:
+      context: ./frontend
+    image: vzaimno/web:local
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "${VZ_WEB_PORT:-80}:80"
+    environment:
+      # Кому nginx верит в X-Forwarded-For. Локально — никому; за Caddy — подсеть compose; для нагрузочного теста с хоста (docs/LOAD_TEST.md) — подсеть docker
+      VZ_REAL_IP_FROM: ${VZ_REAL_IP_FROM:-127.0.0.1}
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    mem_limit: 128m
 
   fsp-mock:
     # Мок реестра ФСП (FastAPI). Сервис собирается из services/fsp-mock (его ведёт отдельный модуль).
@@ -124,7 +189,14 @@ services:
       - ./deploy/keycloak:/opt/keycloak/data/import:ro
     ports:
       - "${VZ_KEYCLOAK_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000 && printf 'GET /health/ready HTTP/1.0\r\n\r\n' >&3 && grep -q UP <&3"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
     mem_limit: 768m
 
 volumes:
   pgdata:
+  vzvar:

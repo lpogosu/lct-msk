@@ -30,20 +30,44 @@
 - `backend/eval` — генератор синтетической популяции с латентной истиной и `make validate` (тот же код движков, что в проде).
 - `services/fsp-mock` — мок реестра ФСП; `deploy/keycloak` — realm `fsp`; `frontend/` — интерфейс.
 
-## Быстрый старт — 3 команды
+## Быстрый старт — всё в контейнерах (для жюри)
 
-Нужны Docker, [uv](https://docs.astral.sh/uv/) и `make` (на Windows — см. «Команды без make»).
+Нужен только Docker (Compose v2.17+): ни Python, ни Node.js на машине не требуются. Проверено на чистом состоянии (отдельный проект compose).
 
 ```bash
-make up              # PostgreSQL, Mailpit, мок реестра ФСП
-make migrate seed    # схема БД + демо-мир (первый раз ≈ 5–8 минут: пул заданий и ~300 кандидатов с настоящими тестами)
-make dev             # бэкенд в DEMO_MODE: http://localhost:8000/api/docs
+git clone <репозиторий> vzaimno && cd vzaimno
+docker compose up -d --build                                   # или: make up
+docker compose exec -T backend python scripts/seed_demo.py     # демо-мир, или: make demo
 ```
 
-Интерфейс: `cd frontend && npm install && npm run dev` → http://localhost:5173. Пароли демо-аккаунтов — в
-`backend/var/demo_accounts.md` (создаёт `make seed`, в git не попадает; в консоль пароли не печатаются).
+1. `up --build` собирает образы (backend, web, fsp-mock) и поднимает `db`, `mailpit`, `fsp-mock`, `backend` (миграции Alembic при старте),
+   `web` (nginx: интерфейс и прокси `/api`) и одноразовую задачу `pool` (пул заданий теста, ≈ 2,5 минуты: `docker compose logs -f pool`).
+   Сборка с тёплым кэшем образов ≈ 1 минута.
+2. `seed_demo.py` наполняет демо-мир (≈ 1 минута; ждите конца `pool`: `make demo` ждёт сам).
+3. Откройте **http://localhost** (порт — `VZ_WEB_PORT`, по умолчанию 80). API: http://localhost/api/docs, письма с кодами: http://localhost:8025.
+4. Логины и пароли демо-аккаунтов: `docker compose exec -T backend cat var/demo_accounts.md` (или `make creds`; пароли выводятся из `VZ_APP_SECRET`).
+
+Сервисы перезапускаются сами (`restart: unless-stopped`), у всех есть healthcheck: `docker compose ps`. Число процессов бэкенда — `VZ_WORKERS`
+(по умолчанию 4; на слабом ноутбуке `VZ_WORKERS=1`). Подробности, ресурсы, боевая схема — [docs/DEPLOY.md](docs/DEPLOY.md); нагрузка — [docs/LOAD_TEST.md](docs/LOAD_TEST.md).
+
+Разработка с бэкендом на хосте (нужны [uv](https://docs.astral.sh/uv/), Node.js; контейнер `backend` не поднимайте — порт 8000 занят uvicorn):
+
+```bash
+make up-infra        # PostgreSQL, Mailpit, мок реестра ФСП
+make migrate seed    # схема БД + демо-мир (первый раз ≈ 5–8 минут)
+make dev             # бэкенд в DEMO_MODE: http://localhost:8000/api/docs
+cd frontend && npm install && npm run dev      # http://localhost:5173
+```
+
+Пароли демо-аккаунтов при запуске с хоста — в `backend/var/demo_accounts.md` (создаёт `make seed`, в git не попадает; в консоль не печатаются).
 
 ## Проверьте сами за 5 минут
+
+**Жюри без регистрации: откройте `/jury`** (только DEMO_MODE; на главной появляется ссылка «Вы из жюри?»). Одна кнопка — одноразовый
+кандидат с готовым опросом и начатым тестом: **экспресс** (до 8 заданий, ≈ 4 минуты, тот же движок и банк; категорию не присваивает,
+при недостатке точности честно пишет «грейд не определён точно, нужен полный тест») или **полный**. Рядом — «Попробовать списать»,
+вход в демо-компанию и в лабораторию без пароля, инструкция проверки на своих профилях. Сессии помечены `demo_assisted` и в калибровку
+и метрики не попадают. Регистрация в DEMO_MODE не требует кода из письма (`VZ_DEMO_AUTO_VERIFY_EMAIL=false` вернёт код).
 
 Все компании, люди и контакты вымышленные. Логины без паролей отдаёт `GET /api/demo/accounts`, пароли лежат в
 `backend/var/demo_accounts.md`. Письма с кодами подтверждения — в Mailpit: http://localhost:8025.
@@ -135,7 +159,7 @@ make dev             # бэкенд в DEMO_MODE: http://localhost:8000/api/docs
 ### Команды без make (Windows, PowerShell)
 
 ```powershell
-docker compose up -d db mailpit fsp-mock                       # make up
+docker compose up -d db mailpit fsp-mock                       # make up-infra
 cd backend
 uv run alembic upgrade head                                    # make migrate
 uv run python scripts/generate_pool.py                         # make gen-pool
@@ -148,5 +172,4 @@ uv run python -m eval.validate                                 # make validate
 $env:VZ_DEMO_MODE = "true"; uv run uvicorn app.main:app --reload --port 8000   # make dev
 ```
 
-Целиком в контейнерах: `VZ_DEMO_MODE=true docker compose up -d --build` (демо-мир в этом случае наполняется командой
-`make seed` на хосте, в ту же БД). Переменные окружения `VZ_*` описаны в `.env.example`.
+Целиком в контейнерах: `docker compose up -d --build`, затем `docker compose exec -T backend python scripts/seed_demo.py` (раздел «Быстрый старт»). Переменные окружения `VZ_*` описаны в `.env.example`.

@@ -48,6 +48,7 @@
       "rootUrl": "http://localhost:8000",
       "baseUrl": "/",
       "redirectUris": [
+        "http://localhost/candidate/fsp/callback",
         "http://localhost:5173/candidate/fsp/callback",
         "http://localhost:8000/api/fsp/callback",
         "https://${VZ_PUBLIC_DOMAIN:vzaimno.example}/candidate/fsp/callback",
@@ -58,7 +59,7 @@
       ],
       "attributes": {
         "pkce.code.challenge.method": "S256",
-        "post.logout.redirect.uris": "http://localhost:8000/*##http://localhost:5173/*##https://${VZ_PUBLIC_DOMAIN:vzaimno.example}/*",
+        "post.logout.redirect.uris": "http://localhost:8000/*##http://localhost/*##http://localhost:5173/*##https://${VZ_PUBLIC_DOMAIN:vzaimno.example}/*",
         "oauth2.device.authorization.grant.enabled": "false",
         "backchannel.logout.session.required": "true"
       }
