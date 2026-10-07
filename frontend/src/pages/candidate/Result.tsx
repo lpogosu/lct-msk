@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api, unwrap } from '@/api/client'
 import { ApiException, errorMessage } from '@/api/errors'
+import { ExpressResult } from '@/features/candidate/components/ExpressResult'
 import { BlindCard } from '@/features/candidate/components/BlindCard'
 import { ProbabilityBar, SectionTitle, StatRow } from '@/features/candidate/components/Bits'
 import { QueryBoundary } from '@/features/candidate/components/QueryBoundary'
@@ -56,6 +57,8 @@ function ResultView({ r, sessionId }: { r: ResultOut; sessionId: string }) {
       </div>
     )
   }
+
+  if (r.express) return <ExpressResult r={r} sessionId={sessionId} />
 
   const decision = r.decision
   const passed = !!decision?.passed
@@ -130,6 +133,16 @@ function ResultView({ r, sessionId }: { r: ResultOut; sessionId: string }) {
             Залитый узел — сильный уровень, кольцо — подтверждено, пунктир — мало заданий для вывода.
           </p>
         </section>
+      )}
+
+      {!passed && r.message && (
+        <Panel variant="tint" radius="lg" padding="md" className="flex flex-col gap-2">
+          <p className="t-label text-ink">Когда можно пересдать</p>
+          <p className="t-body text-ink">{r.message}</p>
+          <p className="t-small text-ink-3">
+            Неподтверждённый грейд не сжигает попытку на грейд ниже, а неудачное повышение не снижает подтверждённый.
+          </p>
+        </Panel>
       )}
 
       {offers.length > 0 && <Offers offers={offers} sessionId={sessionId} expireIn={r.offers_expire_in} keepGrade={passed ? gradeName : null} />}

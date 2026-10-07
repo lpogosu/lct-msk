@@ -193,7 +193,7 @@ function CategoryPanel({ sel, cell }: { sel: { spec: string; grade: string } | n
 
       {card?.reach.shown && card.reach.histogram ? (
         <section aria-label="Ожидания кандидатов" className="flex flex-col gap-3">
-          <p className="t-small text-ink-3">Ожидания кандидатов, тыс. ₽{match?.salary_net ? ' на руки' : ''}</p>
+          <p className="t-small text-ink-3">Ожидания кандидатов, тыс. ₽ {match?.salary_net === false ? 'до вычета НДФЛ' : 'на руки'}</p>
           <ReachHistogram data={card.reach.histogram} from={match?.salary_from} to={match?.salary_to} height={90} />
           {match && card.reach.reach_at_to != null && (
             <p className="t-body text-ink-2">

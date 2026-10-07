@@ -123,6 +123,7 @@ def session_to_state(s: TestSession) -> dict[str, Any]:
         "trust": s.trust,
         "params_version": s.params_version,
         "last_activity_at": enc(s.last_activity_at),
+        "express": s.express,
     }
 
 
@@ -154,6 +155,7 @@ def session_from_state(d: Mapping[str, Any], flags: list[Flag] | None = None) ->
         trust=d.get("trust"),
         params_version=d.get("params_version") or "",
         last_activity_at=_dt(d.get("last_activity_at")),
+        express=bool(d.get("express")),
     )
 
 
@@ -195,6 +197,8 @@ _QUAL_PLAIN = (
     "source_session_id",
     "active_session_id",
     "chain_trust",
+    "last_failed_grade",
+    "attempt_free",
 )
 _QUAL_DT = (
     "review_deadline",

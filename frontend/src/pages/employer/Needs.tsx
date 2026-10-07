@@ -105,7 +105,7 @@ function NeedRow({ need, funnel }: { need: NeedSummary; funnel?: Funnel }) {
           )}
         </div>
         <p className="mt-1 t-body text-ink-2">
-          {need.category} · {formatRubRangeK(need.salary_from, need.salary_to)} {need.salary_net ? 'на руки' : 'до НДФЛ'}
+          {need.category} · {formatRubRangeK(need.salary_from, need.salary_to)} {need.salary_net ? 'на руки' : 'до вычета НДФЛ'}
         </p>
         <p className="mt-0.5 t-small text-ink-3">
           Создана {formatDayMonth(need.created_at)}

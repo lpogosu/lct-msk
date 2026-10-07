@@ -125,7 +125,7 @@ export function SalaryFields({
           aria-label="Тип вилки"
           options={[
             { value: 'net', label: 'на руки' },
-            { value: 'gross', label: 'до НДФЛ' },
+            { value: 'gross', label: 'до вычета НДФЛ' },
           ]}
           value={net ? 'net' : 'gross'}
           onChange={(v) => onNet(v === 'net')}

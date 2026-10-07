@@ -229,7 +229,7 @@ def suggest_grade(experience_months: int | None, cfg: SurveyConfig | None = None
             best = grade
     if best is None:
         return None, None
-    return best, f"По стажу вам ближе {names.get(best, best)} — это только подсказка, выбираете вы"
+    return best, f"По стажу вам ближе {names.get(best, best)} — это лишь ориентир, не критерий: грейд определяют навыки, выбираете вы"
 
 
 def senior_warning(claimed_grade: str, experience_months: int | None, cfg: SurveyConfig | None = None) -> str | None:
@@ -238,6 +238,6 @@ def senior_warning(claimed_grade: str, experience_months: int | None, cfg: Surve
     if claimed_grade != "senior" or experience_months is None or experience_months >= cfg.senior_warning_months:
         return None
     return (
-        "Senior обычно подтверждают с опытом от 4 лет. Попробовать можно: если не получится, "
-        "система предложит подтвердить уровень ниже по тем же ответам"
+        "Для Senior обычно нужен большой опыт, но грейд определяют навыки, а не годы. Попробовать можно: "
+        "если не получится, система предложит подтвердить уровень ниже по тем же ответам"
     )

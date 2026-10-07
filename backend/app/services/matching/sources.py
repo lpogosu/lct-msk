@@ -27,8 +27,10 @@ from sqlalchemy.orm import Session
 
 from app.contact.settings import get_contact_config
 from app.core.clock import clock
+from app.core.configs import load_config
 from app.fsp.models import Rank, RoleBadge
 from app.fsp.schema import FSPProfile, FSPState, NormalizedResult
+from app.matching.scoring import GRADES
 from app.models.candidate import CandidateProfile, SurveyResponse
 from app.models.enums import AssignmentStatus, ConsentPurpose, QualificationStatus, TaskKind
 from app.models.fsp import FspAchievementCache, FspLink
@@ -313,6 +315,40 @@ def load_surveys(db: Session, ids: Sequence[uuid.UUID]) -> dict[uuid.UUID, Surve
     return out
 
 
+# --------------------------------------------------------------------------- заявленные категории
+
+
+def load_claims(
+    db: Session, ids: Sequence[uuid.UUID], surveys: Mapping[uuid.UUID, SurveyResponse]
+) -> dict[uuid.UUID, dict[str, str]]:
+    """Заявленные, но не подтверждённые тестом категории: {кандидат: {специализация: грейд}}.
+
+    Организаторы рекомендуют НЕ скрывать кандидата с неподтверждённым грейдом, а показывать со статусом и ниже
+    подтверждённых (DECISIONS п. 29). Источники, по приоритету: грейд, который кандидат сам выбрал для последней
+    попытки теста по специализации; иначе специализация из опроса (chosen_spec) и подсказка грейда опроса
+    (survey_responses.suggested_grade) — «категория по опросу». Резюме и самоописание не используются (CLAUDE.md)."""
+    out: dict[uuid.UUID, dict[str, str]] = defaultdict(dict)
+    if not ids:
+        return out
+    specs = {s["code"] for s in load_config("taxonomy")["specializations"] if s.get("status") != "derived"}
+    rows = db.execute(
+        text(
+            "SELECT DISTINCT ON (candidate_id, specialization) candidate_id, specialization, claimed_grade "
+            "FROM test_sessions WHERE candidate_id = ANY(:ids) AND kind IN ('initial', 'retake') "
+            "ORDER BY candidate_id, specialization, created_at DESC, id"
+        ),
+        {"ids": list(ids)},
+    )
+    for uid, spec, grade in rows:
+        if spec in specs and grade in GRADES:
+            out[uid][spec] = grade
+    for uid, sv in surveys.items():
+        spec, grade = sv.chosen_spec, sv.suggested_grade
+        if sv.completed_at is not None and spec in specs and grade in GRADES:
+            out[uid].setdefault(spec, grade)
+    return out
+
+
 # --------------------------------------------------------------------------- ФСП
 
 
@@ -558,8 +594,15 @@ _FP_PARTS: tuple[tuple[str, str], ...] = (
     ),
     (
         "candidate_id",
-        """SELECT DISTINCT ON (candidate_id) candidate_id, format('%s;%s', industries, md5(stack_declared::text))
+        """SELECT DISTINCT ON (candidate_id) candidate_id, format('%s;%s;%s;%s;%s', industries,
+                  md5(stack_declared::text), chosen_spec, suggested_grade, completed_at IS NOT NULL)
            FROM survey_responses WHERE {where} ORDER BY candidate_id, updated_at DESC, id""",
+    ),
+    (
+        "candidate_id",
+        # Заявленные категории без подтверждения берут грейд из последней попытки теста (DECISIONS п. 29)
+        """SELECT candidate_id, string_agg(DISTINCT format('%s:%s', specialization, claimed_grade), ',')
+           FROM test_sessions WHERE {where} AND kind IN ('initial', 'retake') GROUP BY candidate_id""",
     ),
 )
 _FP_BY_IDS = tuple(text(q.format(where=f"{key} = ANY(:ids)")) for key, q in _FP_PARTS)
@@ -587,6 +630,7 @@ def fingerprints(db: Session, ids: Iterable[uuid.UUID]) -> dict[uuid.UUID, str]:
 
 _SCOPE_SQL = text(
     "SELECT candidate_id FROM qualifications WHERE status IN ('CONFIRMED', 'UPGRADE_TESTING') "
+    "UNION SELECT candidate_id FROM survey_responses WHERE completed_at IS NOT NULL AND chosen_spec IS NOT NULL "
     "UNION SELECT candidate_id FROM matching_features"
 )
 _CURRENT_SQL = text(

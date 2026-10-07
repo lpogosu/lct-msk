@@ -203,7 +203,7 @@ export function CounterSheet({ open, onClose, detail, actions, onDecline }: Shee
               value={salary}
               onChange={(e) => setSalary(e.target.value)}
               placeholder={String(Math.max(lim.salary_min, 250_000))}
-              hint={`От ${formatRub(lim.salary_min)} до ${formatRub(lim.salary_max)}, шаг ${formatRub(lim.salary_step)}`}
+              hint={`От ${formatRub(lim.salary_min)} до ${formatRub(lim.salary_max)}, шаг ${formatRub(lim.salary_step)}${detail.terms?.salary_type_label ? ` · ${detail.terms.salary_type_label}` : ''}`}
               mono
             />
           </CondRow>

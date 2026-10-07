@@ -245,6 +245,14 @@ def _con(
     brief: BriefSpec | None = None,
 ) -> Reason | None:
     f = r.features
+    if code == "category_unconfirmed":
+        # Заявленная категория без теста показывается со статусом и ниже подтверждённых (DECISIONS п. 29).
+        if r.confirmed:
+            return None
+        return Reason(
+            "con", code, "T", "Категория заявлена, тестом не подтверждена",
+            (Evidence("category", f"{r.spec}:{r.grade}", "категория по опросу"),),
+        )
     if code == "must_unconfirmed":
         miss = [ch for ch in r.skills if ch.kind == "must" and ch.state != "confirmed"]
         if not miss:
@@ -263,10 +271,8 @@ def _con(
         if r.u.salary_above_pct is None:
             return None
         if f.salary_visibility == "exact" and f.salary_min is not None:
-            # Процент считается в базисе брифа; если у кандидата другой базис — называем его, иначе цифры не сходятся.
-            basis = ""
-            if brief is not None and f.salary_net != brief.salary_net:
-                basis = " на руки" if f.salary_net else " до НДФЛ"
+            # Базис называем всегда («на руки» / «до вычета НДФЛ»): сумма без подписи двусмысленна (DECISIONS п. 29).
+            basis = " на руки" if f.salary_net else " до вычета НДФЛ"
             text = f"Ожидания {_rub(f.salary_min)}{basis} — выше верха вилки на {int(round(r.u.salary_above_pct))}%"
         else:
             text = "Ожидания выше вашей вилки"
@@ -308,7 +314,7 @@ def _con(
         names = cfg.section("explain")["component_titles"]
         if k == "T" and not r.confirmed:
             # У кандидата «по опросу» теста нет — «ниже медианы» было бы неправдой (DECISIONS п.5).
-            text = "Тест не пройден: категория по опросу, не подтверждена"
+            text = "Тест не пройден: категория заявлена, тестом не подтверждена"
             ev = (Evidence("category", f"{r.spec}:{r.grade}", "категория по опросу"),)
         elif k == "A" and r.x["A"] <= 0:
             text = "Свежесть: нет задач за последние 180 дней"

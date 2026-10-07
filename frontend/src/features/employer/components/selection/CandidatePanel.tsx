@@ -170,6 +170,9 @@ export function CandidatePanel({
 
   const pseudonym = card?.pseudonym ?? item?.pseudonym ?? bankItem?.pseudonym ?? ''
   const categoryName = card?.category?.name ?? item?.category ?? bankItem?.category ?? ''
+  const unconfirmed = (item?.confirmed ?? bankItem?.confirmed ?? card?.category?.confirmed) === false
+  const otherConfirmed = (card?.category?.all ?? []).filter((n) => n !== categoryName)
+  const otherUnconfirmed = (card?.category?.unconfirmed ?? []).filter((n) => n !== categoryName)
   const rows = [...(item?.chips ?? [])].sort((a, b) => (a.kind === b.kind ? 0 : a.kind === 'must' ? -1 : 1)).map(chipRow)
   const hasFsp = item?.has_fsp ?? bankItem?.has_fsp ?? card?.has_fsp ?? false
   const fspLine = item?.fsp_line ?? bankItem?.fsp_line ?? card?.fsp_line ?? null
@@ -190,7 +193,15 @@ export function CandidatePanel({
             {categoryName}
             {card?.test_date ? `, тест пройден ${card.test_date}` : ''}
           </p>
-          {item?.confirmed === false && <p className="t-small text-ink-3">Категория по опросу, тестом пока не подтверждена.</p>}
+          {unconfirmed && (
+            <p className="t-small text-ink-3">
+              Грейд не подтверждён: категория заявлена, тестом пока не подтверждена. В подборке такие кандидаты стоят ниже подтверждённых.
+            </p>
+          )}
+          {otherConfirmed.length > 0 && <p className="t-small text-ink-2">Также подтверждено тестом: {otherConfirmed.join(', ')}</p>}
+          {otherUnconfirmed.length > 0 && (
+            <p className="t-small text-ink-3">Заявлено, тестом не подтверждено: {otherUnconfirmed.join(', ')}</p>
+          )}
           <button
             type="button"
             onClick={onClose}

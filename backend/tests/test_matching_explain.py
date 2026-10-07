@@ -213,7 +213,7 @@ def test_salary_con_respects_visibility():
     r, e = _one(replace(_base(), salary_min=308_000, salary_visibility="signal"))
     assert e.con.text == "Ожидания выше вашей вилки"
     r, e = _one(replace(_base(), salary_min=308_000, salary_visibility="exact"))
-    assert e.con.text == "Ожидания 308 000 ₽ — выше верха вилки на 10%"
+    assert e.con.text == "Ожидания 308 000 ₽ на руки — выше верха вилки на 10%"
 
 
 def test_without_fsp_no_con_about_fsp_even_if_far_below_median():
@@ -360,8 +360,10 @@ def test_unconfirmed_weak_test_con_does_not_mention_median():
     brief = replace(BRIEF, must=(), nice=())
     r = score_candidate(c, brief, ScoringContext.build(POOL))
     e = explain(r, MEDIANS, brief=brief)
-    assert e.con is not None and e.con.code == "weak_component" and e.con.component == "T"
-    assert "медиан" not in e.con.text and "опросу" in e.con.text
+    # DECISIONS п. 29: заявленная категория без теста показывается со статусом — первым «против» идёт он
+    assert e.con is not None and e.con.code == "category_unconfirmed" and e.con.component == "T"
+    assert e.con.text == "Категория заявлена, тестом не подтверждена"
+    assert "медиан" not in e.con.text
     assert e.con.evidence[0].type == "category"
 
 
@@ -382,7 +384,7 @@ def test_format_con_accusative_and_region_wording():
 def test_exact_salary_con_names_basis_when_it_differs_from_brief():
     # 360 000 до НДФЛ = 313 200 на руки — выше верха 280 000 на руки на 12%.
     r, e = _one(replace(_base(), salary_min=360_000, salary_net=False, salary_visibility="exact"))
-    assert e.con.text == "Ожидания 360 000 ₽ до НДФЛ — выше верха вилки на 12%"
+    assert e.con.text == "Ожидания 360 000 ₽ до вычета НДФЛ — выше верха вилки на 12%"
 
 
 def test_stack_pro_wording_when_brief_has_only_nice_skills():

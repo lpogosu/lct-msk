@@ -45,8 +45,25 @@ class AggregationCfg(BaseModel):
     decay: float = Field(gt=0, le=1)
 
 
+class ResultClassCfg(BaseModel):
+    """Класс результата C: призёр или участник (DECISIONS п. 29, config/fsp.yaml: vss.result_class)."""
+
+    podium_max_place: int = Field(ge=1)
+    class_weights: dict[str, float]
+    participation_max_counted: int = Field(ge=0)
+
+    @model_validator(mode="after")
+    def _classes(self) -> ResultClassCfg:
+        if set(self.class_weights) != {"podium", "participant"}:
+            raise ValueError("vss.result_class.class_weights: нужны классы podium и participant")
+        if any(not 0.0 <= w <= 1.0 for w in self.class_weights.values()):
+            raise ValueError("vss.result_class.class_weights: значения вне [0, 1]")
+        return self
+
+
 class VSSCfg(BaseModel):
     level_rules: list[LevelRule]
+    result_class: ResultClassCfg
     place: PlaceCfg
     role_weights: dict[ResultRole, float]
     freshness_half_life_months: float = Field(gt=0)

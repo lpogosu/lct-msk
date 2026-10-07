@@ -8,7 +8,7 @@ import { Tag } from '../common'
 const FLAG_LABEL: Record<string, string> = {
   borderline: 'тест на границе грейда',
   stale_test: 'тест устарел',
-  unconfirmed: 'категория по опросу, тестом не подтверждена',
+  unconfirmed: 'категория заявлена, тестом не подтверждена',
 }
 
 function PinIcon({ filled }: { filled?: boolean }) {
@@ -104,6 +104,7 @@ export function SelectionTable({
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                       <span className="t-name text-ink">{it.pseudonym}</span>
                       <Badge item={it} />
+                      {!it.confirmed && <Tag tone="warn">грейд не подтверждён</Tag>}
                       {it.shortlisted && (
                         <span className="flex items-center gap-1 t-small text-brand" title="В шортлисте">
                           <PinIcon filled />

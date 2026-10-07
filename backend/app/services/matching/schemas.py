@@ -553,6 +553,10 @@ class CardCategoryOut(BaseModel):
     borderline: bool
     fullstack: bool
     all: list[str] = Field(description="Все подтверждённые категории")
+    confirmed: bool = Field(default=True, description="Основная категория карточки подтверждена тестом")
+    unconfirmed: list[str] = Field(
+        default_factory=list, description="Заявленные категории без подтверждения тестом («грейд не подтверждён»)"
+    )
 
 
 class GradeChangeOut(BaseModel):

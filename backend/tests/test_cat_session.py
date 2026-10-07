@@ -597,3 +597,94 @@ def test_handoff_with_theta_exactly_zero():
     assert h["position_in_grade"] == 0.0 and h["theta"] == 0.0
     q.theta = 0.6
     assert q.handoff(clock)["position_in_grade"] == pytest.approx(0.5)
+
+
+# --- политика пересдач и повышения (ответы постановщиков, DECISIONS п. 29) --------------------------
+
+
+def _failed_at(q, clock, grade, sid):
+    q.apply(
+        outcome(session_id=sid, decision="FAILED", target_grade=grade, confirmed_grade=None, p_pass=0.05,
+                claimed_grade=grade),
+        clock,
+    )
+
+
+def test_lower_grade_attempt_is_free_during_cooldown_and_does_not_burn_retake():
+    clock = FixedClock(T0)
+    q = Qualification("acc", SPEC)
+    q.record_survey(clock)
+    q.start_test("s1", clock, grade="senior")
+    _failed_at(q, clock, "senior", "s1")
+    assert q.status == QualStatus.NOT_CONFIRMED and q.last_failed_grade == "senior"
+    until = q.next_attempt_allowed_at
+    assert until == T0 + timedelta(days=14)
+    # то же и более высокий грейд — ждать; грейд ниже — сразу
+    assert q.can_start_test(clock, grade="senior").code == "retake_cooldown"
+    assert q.can_start_test(clock).code == "retake_cooldown"
+    assert q.can_start_test(clock, grade="middle").code == "lower_grade_free"
+    assert q.lower_grades_open(clock) == ["intern", "junior", "middle"]
+    q.start_test("s2", clock, grade="middle")
+    assert len(q.attempts) == 1  # бесплатная попытка в лимит не засчитана
+    _failed_at(q, clock, "middle", "s2")
+    assert q.next_attempt_allowed_at == until  # ожидание не продлено
+    assert q.last_failed_grade == "middle"
+    assert q.can_start_test(clock, grade="senior").code == "retake_cooldown"
+    q.start_test("s3", clock, grade="junior")
+    q.apply(outcome(session_id="s3", target_grade="junior", confirmed_grade="junior", claimed_grade="junior"), clock)
+    assert q.status == QualStatus.CONFIRMED and q.grade == "junior"
+    assert len(q.attempts) == 1
+
+
+def test_free_lower_attempt_abandoned_keeps_cooldown_and_limit_never_blocks_lower():
+    clock = FixedClock(T0)
+    q = Qualification("acc", SPEC)
+    q.record_survey(clock)
+    q.start_test("s1", clock, grade="middle")
+    _failed_at(q, clock, "middle", "s1")
+    until = q.next_attempt_allowed_at
+    q.start_test("s2", clock, grade="junior")
+    q.apply(outcome(session_id="s2", status="ABANDONED", decision=None, confirmed_grade=None), clock)
+    assert q.status == QualStatus.NOT_CONFIRMED and q.next_attempt_allowed_at == until and len(q.attempts) == 1
+    # самый низкий грейд: ниже нет, значит ждать как обычно
+    q.start_test("s3", clock, grade="junior")
+    _failed_at(q, clock, "junior", "s3")
+    q.start_test("s4", clock, grade="intern")
+    _failed_at(q, clock, "intern", "s4")
+    assert q.can_start_test(clock, grade="intern").code == "retake_cooldown"
+
+
+def test_dropped_level_is_retaken_after_retake_days_not_change_interval():
+    clock = FixedClock(T0)
+    q = Qualification("acc", SPEC)
+    q.record_survey(clock)
+    q.start_test("s1", clock, grade="middle")
+    q.apply(outcome(status="EXTENSION_OFFERED", decision="FAILED", target_grade="middle", confirmed_grade=None,
+                    pending_offers=True, trust=None, claimed_grade="middle"), clock)
+    q.apply(outcome(session_id="s1-ext1", kind="ext_down", target_grade="junior", confirmed_grade="junior",
+                    claimed_grade="middle"), clock)
+    assert q.status == QualStatus.CONFIRMED and q.grade == "junior"  # дали тот грейд, который подтвердил тест
+    assert q.next_change_allowed_at == T0 + timedelta(days=14)
+    clock.advance(days=13)
+    assert q.can_start_upgrade(clock).code == "change_interval"
+    clock.advance(days=1)
+    assert q.can_start_upgrade(clock).ok
+    assert q.start_upgrade("u1", clock) == "middle"
+
+
+def test_failed_voluntary_promotion_never_lowers_confirmed_grade_and_promotion_is_separate():
+    clock = FixedClock(T0)
+    q = Qualification("acc", SPEC)
+    q.record_survey(clock)
+    q.start_test("s1", clock, grade="junior")
+    q.apply(outcome(target_grade="junior", confirmed_grade="junior", claimed_grade="junior"), clock)
+    # повышение — только отдельной сессией и только после интервала смены грейда
+    assert q.can_start_test(clock, grade="middle").code == "already_confirmed"
+    assert q.can_start_upgrade(clock).code == "change_interval"
+    clock.advance(days=90)
+    q.start_upgrade("u1", clock)
+    q.apply(outcome(session_id="u1", kind="upgrade", decision="FAILED", target_grade="middle",
+                    confirmed_grade=None, p_pass=0.05), clock)
+    assert q.status == QualStatus.CONFIRMED and q.grade == "junior"
+    assert q.last_failed_grade is None  # на подтверждённый грейд неудачное повышение не влияет
+    assert q.can_start_upgrade(clock).code == "upgrade_cooldown"

@@ -7,6 +7,7 @@ import { Chip, SectionTitle, SkillChip } from '@/features/candidate/components/B
 import { QueryBoundary } from '@/features/candidate/components/QueryBoundary'
 import { Sheet } from '@/features/candidate/components/Sheet'
 import { qk, useQualifications, type Qualification } from '@/features/candidate/queries'
+import { GRADES } from '@/lib/grades'
 import { Alert, Button, EmptyState, MobileHeader, Panel, Ruler, TextArea, useToast } from '@/ui'
 
 type Flag = NonNullable<Qualification['flags']>[number]
@@ -50,6 +51,7 @@ function QualificationCard({ qual }: { qual: Qualification }) {
   const [dispute, setDispute] = useState<Flag | null>(null)
   const interval = qual.interval80 && qual.interval80.length === 2 ? ([qual.interval80[0], qual.interval80[1]] as const) : undefined
   const confirmed = qual.status === 'CONFIRMED' || qual.status === 'UPGRADE_TESTING'
+  const lowerOpen = (qual.lower_grades_open ?? []).map((c) => GRADES.find((g) => g.code === c)?.name ?? c)
   const spec = qual.specialization.code
   const history = qual.history ?? []
   const attempts = qual.attempts ?? []
@@ -170,8 +172,16 @@ function QualificationCard({ qual }: { qual: Qualification }) {
             {!confirmed && (
               <RuleRow
                 rule={qual.can_start}
+                extra={
+                  lowerOpen.length > 0 ? (
+                    <p className="t-small text-ink-2">
+                      Тест на грейд ниже ({lowerOpen.join(', ')}) можно пройти сразу, без ожидания: он не расходует пересдачу.
+                      Тот же грейд — по сроку выше.
+                    </p>
+                  ) : null
+                }
                 action={
-                  qual.can_start.ok ? (
+                  qual.can_start.ok || lowerOpen.length > 0 ? (
                     <Button size="sm" to={`/candidate/grade?spec=${spec}`}>
                       {qual.status === 'NOT_CONFIRMED' ? 'Пройти тест ещё раз' : 'Выбрать грейд и начать'}
                     </Button>
@@ -306,11 +316,12 @@ function QualificationCard({ qual }: { qual: Qualification }) {
   )
 }
 
-function RuleRow({ rule, action }: { rule: Qualification['can_start']; action: React.ReactNode }) {
+function RuleRow({ rule, action, extra }: { rule: Qualification['can_start']; action: React.ReactNode; extra?: React.ReactNode }) {
   return (
     <Panel variant="panel" radius="lg" padding="sm" className="flex flex-col gap-2">
       <p className="t-body text-ink">{rule.message}</p>
       {rule.available_in && !rule.ok && <p className="t-small text-ink-3">Станет доступно {rule.available_in}.</p>}
+      {extra}
       <div>{action}</div>
     </Panel>
   )

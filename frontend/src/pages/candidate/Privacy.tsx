@@ -153,10 +153,10 @@ function PrivacyForm({ initial }: { initial: PrivacyOut }) {
           mono
         />
         <Segmented
-          aria-label="На руки или до НДФЛ"
+          aria-label="На руки или до вычета НДФЛ"
           options={[
             { value: 'net', label: 'На руки' },
-            { value: 'gross', label: 'До НДФЛ' },
+            { value: 'gross', label: 'До вычета НДФЛ' },
           ]}
           value={draft.salary_type}
           onChange={(v) => patch({ salary_type: v })}

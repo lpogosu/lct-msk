@@ -736,7 +736,7 @@ def assemble_version(
 ) -> Assembled:
     """Собрать версию движком: признаки из кэша → жёсткие фильтры компании → Score, объяснения, hidden_by."""
     t0 = time.perf_counter()
-    rows_all = feat.load_pool(db, categories)
+    rows_all = feat.load_pool(db, categories, include_unconfirmed=True)
     t1 = time.perf_counter()
     rows = _company_hard_filter(
         db, need.company_id, rows_all, is_internship=bool(need.is_internship), salary_from=need.salary_from

@@ -32,16 +32,26 @@ disciplines:
     scoring_kind: points_time
 
 vss:
-  # L — уровень. Правила проверяются по порядку, срабатывает первое совпадение.
+  # L — уровень соревнования. По ответам организаторов (DECISIONS п. 29) все дисциплины и все мероприятия
+  # равноправны: «чемпионат России выше хакатона» НЕ утверждаем, иерархию уровней не вводим. Поэтому все веса
+  # равны 1,0; важны результат (класс + место в поле), число стартов и свежесть. Правила оставлены, чтобы
+  # эксперты ФСП при необходимости могли завести вес, не меняя код. Правила проверяются по порядку.
   level_rules:
     - { level: international, weight: 1.0 }
-    - { level: all_russian, stage: [qualifier], weight: 0.45 }            # отбор КР (и любой всероссийский отбор)
-    - { level: all_russian, status: [championship, first], weight: 0.9 }  # ЧР / ПР
-    - { level: all_russian, status: [cup], weight: 0.8 }                  # финал КР
-    - { level: all_russian, weight: 0.65 }                                # другие всероссийские из ЕКП
-    - { level: interregional, weight: 0.45 }
-    - { level: regional, weight: 0.3 }
-    - { level: municipal, weight: 0.15 }                                  # муниципальные / вузовские
+    - { level: all_russian, weight: 1.0 }
+    - { level: interregional, weight: 1.0 }
+    - { level: regional, weight: 1.0 }
+    - { level: municipal, weight: 1.0 }
+
+  # C — класс результата: защита от накрутки профиля онлайн-участиями (DECISIONS п. 29).
+  # Призёр (место ≤ podium_max_place) — класс podium; всё остальное (участник, участник отбора, финалист без
+  # призового места) — класс participant: его очки умножаются на class_weights.participant, и в сумму A_d
+  # идут не больше participation_max_counted таких результатов. Число стартов растёт через A_d (топ-N с убывающей
+  # отдачей), но участиями без призовых мест потолок достигается быстро.
+  result_class:
+    podium_max_place: 3
+    class_weights: { podium: 1.0, participant: 0.5 }
+    participation_max_counted: 2
 
   # Q — место с поправкой на размер поля.
   # q = 1 − (place−1)/max(N−1, 1); F(N) = min(1, ln(1+N)/ln(field_size_ref));

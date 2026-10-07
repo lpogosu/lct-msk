@@ -127,7 +127,7 @@ def filter_reason(f: Filter, r: ScoreResult, cfg: ScoringConfig, cat: SkillCatal
         grades = set(f.value if isinstance(f.value, tuple) else (f.value,))
         return None if r.grade in grades else "Грейд не входит в фильтр"
     if f.code == "confirmed_only":
-        return None if feat.confirmed else "Категория по опросу, тестом не подтверждена"
+        return None if feat.confirmed else "Категория заявлена, тестом не подтверждена"
     if f.code == "exclude":
         ids = set(f.value if isinstance(f.value, tuple) else (f.value,))
         return "Скрыт вручную" if r.candidate_id in ids else None

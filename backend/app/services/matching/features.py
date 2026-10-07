@@ -139,14 +139,24 @@ class _Ctx:
 
 
 def _row_payload(
-    qual: QualSnap, *, modules: dict[str, list[Any]], is_fullstack: bool, spec: str, ctx: _Ctx, now: datetime
+    qual: QualSnap,
+    *,
+    modules: dict[str, list[Any]],
+    is_fullstack: bool,
+    spec: str,
+    ctx: _Ctx,
+    now: datetime,
+    unconfirmed: bool = False,
 ) -> tuple[dict[str, Any], bool]:
-    """payload строки кэша и признак видимости работодателям."""
+    """payload строки кэша и признак видимости работодателям.
+
+    unconfirmed — заявленная категория без подтверждения тестом: видна по тем же правилам согласия, но помечена
+    и в выдаче идёт ниже подтверждённых (DECISIONS п. 29)."""
     visible = (
         ctx.active
         and ctx.blind_card
         and ctx.search_mode != SearchMode.hidden.value
-        and qual.confirmed
+        and (qual.confirmed or unconfirmed)
         and not qual.hidden
         and ctx.age_ok
     )
@@ -178,6 +188,8 @@ def _row_payload(
         "internship_only": ctx.internship_only,
         "last_activity_at": _iso(qual.last_activity_at or qual.confirmed_at),
     }
+    if unconfirmed:
+        payload["unconfirmed"] = True
     return payload, visible
 
 
@@ -214,10 +226,13 @@ def build_payloads(
     quals = sources.load_qualifications(db, ids, now)
     fsp = sources.load_fsp_profiles(db, ids, accounts, now)
     tasks = sources.load_tasks(db, ids)
+    claims = sources.load_claims(db, ids, surveys)
     out: dict[uuid.UUID, list[tuple[str, str, bool, bool, dict[str, Any]]]] = {}
     for uid in ids:
         confirmed = [q for q in quals.get(uid, ()) if q.confirmed]
-        if not confirmed:
+        confirmed_specs = {q.spec for q in confirmed}
+        claimed = {s: g for s, g in claims.get(uid, {}).items() if s not in confirmed_specs}
+        if not confirmed and not claimed:
             out[uid] = []
             continue
         prof = profiles.get(uid)
@@ -276,6 +291,12 @@ def build_payloads(
                 merged, modules=_modules_payload(a, b), is_fullstack=True, spec=FULLSTACK, ctx=ctx, now=now
             )
             rows.append((FULLSTACK, str(merged.grade), visible, ctx.fsp_features.has_fsp, payload))
+        for spec, grade in sorted(claimed.items()):
+            snap = QualSnap(spec=spec, status="CLAIMED", grade=grade, theta=None, se=None)
+            payload, visible = _row_payload(
+                snap, modules={}, is_fullstack=False, spec=spec, ctx=ctx, now=now, unconfirmed=True
+            )
+            rows.append((spec, grade, visible, ctx.fsp_features.has_fsp, payload))
         out[uid] = rows
     return out
 
@@ -536,8 +557,12 @@ def load_pool(
     *,
     now: datetime | None = None,
     specs: Sequence[str] | None = None,
+    include_unconfirmed: bool = False,
 ) -> list[PoolRow]:
-    """Видимые работодателям строки кэша выбранных категорий (или всех) → признаки для движка."""
+    """Видимые работодателям строки кэша выбранных категорий (или всех) → признаки для движка.
+
+    include_unconfirmed — добавить заявленные категории без подтверждения тестом (подборка и банк показывают их
+    со статусом и ниже подтверждённых; охват, рекомендации и перцентили считаются только по подтверждённым)."""
     now = now or clock.now()
     q = select(
         MatchingFeatures.candidate_id,
@@ -545,6 +570,8 @@ def load_pool(
         MatchingFeatures.grade,
         func.md5(cast(MatchingFeatures.payload, Text)),
     ).where(MatchingFeatures.visible.is_(True))
+    if not include_unconfirmed:
+        q = q.where(MatchingFeatures.payload["unconfirmed"].astext.is_distinct_from("true"))
     if categories is not None:
         cats = list(dict.fromkeys(tuple(c) for c in categories))
         if not cats:
@@ -569,7 +596,10 @@ def category_counts(db: Session) -> dict[tuple[str, str], int]:
 
     rows = db.execute(
         select(MatchingFeatures.specialization, MatchingFeatures.grade, func.count())
-        .where(MatchingFeatures.visible.is_(True))
+        .where(
+            MatchingFeatures.visible.is_(True),
+            MatchingFeatures.payload["unconfirmed"].astext.is_distinct_from("true"),
+        )
         .group_by(MatchingFeatures.specialization, MatchingFeatures.grade)
     )
     return {(s, g): int(n) for s, g, n in rows}

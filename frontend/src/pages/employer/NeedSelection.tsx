@@ -53,7 +53,7 @@ export default function NeedSelection() {
 
 function summarize(need: Need): string {
   const b = need.brief
-  const parts: string[] = [`${formatRubRangeK(b.salary_from, b.salary_to)} ${b.salary_net ? 'на руки' : 'до НДФЛ'}`]
+  const parts: string[] = [`${formatRubRangeK(b.salary_from, b.salary_to)} ${b.salary_net ? 'на руки' : 'до вычета НДФЛ'}`]
   const where = [
     b.formats.map((f) => FORMAT_LABEL_LOWER[f] ?? f).join(' или '),
     need.parse.city?.name ? `в городе ${need.parse.city.name}` : '',

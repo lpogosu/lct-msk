@@ -91,6 +91,12 @@ export function BankTable({
                       {it.invitation_label && <Tag tone="brand">{it.invitation_label}</Tag>}
                     </div>
                     <p className="t-small text-ink-2">{it.category}</p>
+                    {!it.confirmed && (
+                      <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <Tag tone="warn">грейд не подтверждён</Tag>
+                        <span className="t-small text-ink-3">категория заявлена, тестом не подтверждена</span>
+                      </p>
+                    )}
                     {it.search_mode && <p className="t-small text-ink-3">{SEARCH_MODE_LABEL[it.search_mode] ?? it.search_mode}</p>}
                   </div>
                 </div>

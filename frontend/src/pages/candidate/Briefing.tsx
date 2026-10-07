@@ -139,7 +139,7 @@ function BriefingView({ b }: { b: Briefing }) {
 
   const selected = b.grades.find((g) => g.code === grade) ?? null
   const consentOk = b.consent.given || consent
-  const canStart = b.can_start.ok && !!grade && consentOk
+  const canStart = b.can_start.ok && !!grade && consentOk && selected?.available !== false
 
   return (
     <div className="flex flex-col gap-7">
@@ -183,20 +183,23 @@ function BriefingView({ b }: { b: Briefing }) {
                   type="button"
                   role="radio"
                   aria-checked={on}
-                  onClick={() => setGrade(g.code)}
+                  aria-disabled={g.available === false}
+                  onClick={() => g.available !== false && setGrade(g.code)}
                   className={cn(
                     'flex flex-col gap-1 rounded-panel-lg border px-4 py-3.5 text-left transition-colors',
                     on ? 'border-brand bg-tint' : 'border-hairline bg-white hover:border-steel',
+                    g.available === false && 'cursor-not-allowed opacity-60 hover:border-hairline',
                   )}
                 >
                   <span className="flex items-center justify-between gap-3">
                     <span className="t-name text-ink">{g.name}</span>
                     <span className="flex items-center gap-2">
-                      {g.suggested && <Chip tone="tint">по стажу ближе</Chip>}
+                      {g.suggested && <Chip tone="tint">ориентир по стажу</Chip>}
                       <span className="font-mono text-[13px] text-ink-3">от {g.score}</span>
                     </span>
                   </span>
                   {g.anchor && <span className="t-small text-ink-2">{g.anchor}</span>}
+                  {g.available === false && g.note && <span className="t-small text-ink-3">{g.note}</span>}
                 </button>
               )
             })}
@@ -212,6 +215,18 @@ function BriefingView({ b }: { b: Briefing }) {
           <span id="rules-h">Правила теста</span>
         </SectionTitle>
         <TraceList items={b.rules} />
+      </section>
+
+      <section aria-labelledby="retake-h" className="flex flex-col gap-3">
+        <SectionTitle>
+          <span id="retake-h">Пересдача и повышение: когда можно</span>
+        </SectionTitle>
+        {b.retake_status && (
+          <Panel variant="tint" radius="lg" padding="sm">
+            <p className="t-body text-ink">{b.retake_status}</p>
+          </Panel>
+        )}
+        <TraceList items={b.retake_rules ?? []} />
       </section>
 
       {!b.consent.given ? (

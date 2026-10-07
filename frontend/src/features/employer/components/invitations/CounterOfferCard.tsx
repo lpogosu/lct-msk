@@ -50,7 +50,7 @@ export function CounterOfferCard({
     rows.push({
       label: 'Зарплата',
       yours: card.salary.text,
-      theirs: `от ${formatRub(c.salary_from)}`,
+      theirs: `от ${formatRub(c.salary_from)} ${card.salary.salary_type_label}`,
       verdict: c.within_range ? 'внутри вашей вилки' : 'выше вашей вилки',
       same: c.within_range,
     })

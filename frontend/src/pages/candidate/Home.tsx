@@ -61,7 +61,14 @@ export default function CandidateHome() {
       ) : quals.isError ? (
         <ErrorBlock error={quals.error} onRetry={() => void quals.refetch()} compact />
       ) : (
-        <CategoryCard qual={confirmed} next={nextAction(survey.data, quals.data ?? [])} waitlistName={waitlistName(survey.data)} />
+        <CategoryCard
+          qual={confirmed}
+          others={(quals.data ?? []).filter(
+            (x) => x !== confirmed && (x.status === 'CONFIRMED' || x.status === 'UPGRADE_TESTING') && x.category,
+          )}
+          next={nextAction(survey.data, quals.data ?? [])}
+          waitlistName={waitlistName(survey.data)}
+        />
       )}
 
       {survey.isError ? (
@@ -190,10 +197,13 @@ function InvitationsCard({
 
 function CategoryCard({
   qual,
+  others = [],
   next,
   waitlistName,
 }: {
   qual: Qualification | null
+  /** Остальные подтверждённые категории: по каждой специализации — своя (Backend и QA одновременно) */
+  others?: Qualification[]
   next: { label: string; to: string }
   waitlistName: string | null
 }) {
@@ -232,6 +242,11 @@ function CategoryCard({
           )}
         </dl>
         {qual.hidden && qual.hidden_message && <p className="t-small text-ink-2">{qual.hidden_message}</p>}
+        {others.length > 0 && (
+          <p className="t-small text-ink-2">
+            Также подтверждено: {others.map((o) => o.category?.label).filter(Boolean).join(' · ')}
+          </p>
+        )}
         <Link to="/candidate/qualification" className="t-label text-brand underline-offset-4 hover:underline">
           Мой грейд: модули, история, следующий тест
         </Link>

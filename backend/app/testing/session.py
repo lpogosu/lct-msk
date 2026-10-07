@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 import math
 import random
 from collections.abc import Mapping, Sequence
@@ -48,7 +49,9 @@ from app.testing.cat import (
     Selection,
     compute_offers,
     decide,
+    express_cat_config,
     load_cat_config,
+    load_express_config,
     module_subscores,
     new_state,
     record_answer,
@@ -255,6 +258,7 @@ class SessionOutcome:
     subscores: Mapping[str, Mapping[str, Any]] = field(default_factory=dict)
     parent_id: str | None = None  # добор: родительская сессия цепочки (тот же апостериор)
     started_at: datetime | None = None  # для добора — момент принятия предложения
+    claimed_grade: str | None = None  # грейд, заявленный в начале попытки (для добора вниз — исходный)
 
 
 @dataclass
@@ -287,6 +291,23 @@ class TestSession:
     trust: float | None = None
     params_version: str = ""
     last_activity_at: datetime | None = None  # последний запрос кандидата (для обрыва без явной паузы)
+    express: bool = False  # экспресс-тест жюри (DEMO_MODE): короткий CAT, грейд не присваивается, в метрики не идёт
+
+    def cat_cfg(self, cfg: CatConfig | None = None) -> CatConfig:
+        """Параметры CAT этой сессии: явно переданные, иначе экспресс-набор (для экспресса) или основной."""
+        if cfg is not None:
+            return cfg
+        return express_cat_config() if self.express else load_cat_config()
+
+    def express_time_up(self, clock: Clock) -> bool:
+        """Бюджет времени экспресса исчерпан (и заданий уже хватает, чтобы решать): решение по данным ответам."""
+        if not self.express or self.started_at is None:
+            return False
+        ex = load_express_config()
+        return (
+            (clock.now() - self.started_at).total_seconds() >= ex.time_budget_s
+            and self.cat.n_scored >= ex.time_budget_min_items
+        )
 
     # --- создание ---
     @classmethod
@@ -304,9 +325,12 @@ class TestSession:
         blueprint: Mapping[str, float] | None = None,
         scale: Scale | None = None,
         cfg: CatConfig | None = None,
+        express: bool = False,
     ) -> TestSession:
         """claimed_grade — целевой грейд сессии (для повышения это g+1, а base_grade = g)."""
         scale = scale or load_scale()
+        if express and cfg is None:
+            cfg = express_cat_config()
         cat = new_state(spec, claimed_grade, rng, kind=kind, blueprint=blueprint, scale=scale, cfg=cfg)
         return cls(
             id=session_id,
@@ -318,6 +342,7 @@ class TestSession:
             created_at=clock.now(),
             base_grade=base_grade,
             params_version=scale.params_version,
+            express=express,
         )
 
     # --- вспомогательное ---
@@ -331,8 +356,10 @@ class TestSession:
 
     def progress(self, cfg: CatConfig | None = None) -> dict[str, Any]:
         """Для плеера: «задание 7 · обычно 12–20» (pretest неотличимы — считаем все позиции)."""
-        cfg = cfg or load_cat_config()
+        cfg = self.cat_cfg(cfg)
         shown = len(self.cat.responses) + (1 if self.pending else 0)
+        if self.express:
+            return {"position": shown, "text_ru": f"экспресс · задание {shown} из {cfg.n_max}"}
         return {"position": shown, "text_ru": f"задание {shown} · обычно 12–{cfg.n_max}"}
 
     # --- ход теста ---
@@ -358,19 +385,26 @@ class TestSession:
         self.last_activity_at = clock.now()
         if self.pending is not None:
             return self.pending
+        if self.express_time_up(clock):
+            self._decide("time_budget", clock, scale, cfg)
+            return None
         sel = select_next(
-            self.cat, families, rng, now=clock.now(), seen_history=seen_history, scale=scale, cfg=cfg
+            self.cat, families, rng, now=clock.now(), seen_history=seen_history, scale=scale, cfg=self.cat_cfg(cfg)
         )
         if sel is None:
             self._decide("bank_exhausted", clock, scale, cfg)
             return None
+        if self.express:
+            limit = load_express_config().item_time_limit_s
+            if sel.time_limit_s > limit:
+                sel = dataclasses.replace(sel, time_limit_s=limit)
         self.pending = sel
         self.pending_shown_at = clock.now()
         return sel
 
     def deadline(self, cfg: CatConfig | None = None) -> datetime | None:
         """Серверный дедлайн текущего задания: лимит семейства + 5 с запаса."""
-        cfg = cfg or load_cat_config()
+        cfg = self.cat_cfg(cfg)
         if self.pending is None or self.pending_shown_at is None:
             return None
         return self.pending_shown_at + timedelta(seconds=self.pending.time_limit_s + cfg.timer_grace_s)
@@ -403,16 +437,19 @@ class TestSession:
         self.pending = None
         self.pending_shown_at = None
         self.last_activity_at = clock.now()
-        reason = stop_check(self.cat, scale, cfg)
+        reason = stop_check(self.cat, scale, self.cat_cfg(cfg))
+        if reason is None and self.express_time_up(clock):
+            reason = "time_budget"
         if reason:
             self._decide(reason, clock, scale, cfg)
         return rec
 
     def _decide(self, reason: str, clock: Clock, scale: Scale | None = None, cfg: CatConfig | None = None) -> None:
         scale = scale or load_scale()
-        cfg = cfg or load_cat_config()
+        cfg = self.cat_cfg(cfg)
         self.decision = decide(self.cat, reason, scale, cfg)
-        self.offers = compute_offers(self.cat, self.decision, scale, cfg)
+        # Экспресс — оценка, а не попытка получить грейд: доборов нет (их даёт только полный тест)
+        self.offers = () if self.express else compute_offers(self.cat, self.decision, scale, cfg)
         self.decided_at = clock.now()
         if self.offers:
             self.status = SessionStatus.EXTENSION_OFFERED
@@ -558,7 +595,7 @@ class TestSession:
     # --- итог ---
     def granted_grade(self) -> str | None:
         d = self.decision
-        if d is None:
+        if d is None or self.express:  # экспресс категорию не присваивает: точность не та (DECISIONS п. 29)
             return None
         if self.kind in PRIMARY_KINDS or self.kind == KIND_EXT_DOWN:
             return d.target_grade if d.passed else None
@@ -596,12 +633,13 @@ class TestSession:
             subscores=subs,
             parent_id=self.parent_id,
             started_at=self.started_at or self.created_at,
+            claimed_grade=self.claimed_grade,
         )
 
     def result(self, scale: Scale | None = None, cfg: CatConfig | None = None) -> dict[str, Any]:
         """Экран результата К4: линейка, облако, «решено по уровням», модули, развилка."""
         granted = self.granted_grade()
-        out = result_summary(self.cat, self.decision, grade_for_tags=granted, scale=scale, cfg=cfg)
+        out = result_summary(self.cat, self.decision, grade_for_tags=granted, scale=scale, cfg=self.cat_cfg(cfg))
         out["status"] = str(self.status)
         out["confirmed_grade"] = granted
         out["offers"] = [o.to_dict() for o in self.offers] if self.status == SessionStatus.EXTENSION_OFFERED else []
@@ -674,6 +712,10 @@ class Qualification:
     chain_trust: float | None = None  # min доверия по закрытым сессиям цепочки
     grade_session_ids: list[str] = field(default_factory=list)  # на каких сессиях держится текущий грейд
     reviews: list[str] = field(default_factory=list)  # сессии на проверке у методиста
+    # Политика пересдач (ответы постановщиков, DECISIONS п. 29): самый низкий грейд, на котором не
+    # подтвердились, и признак «бесплатной» попытки на грейд ниже — она не сжигает пересдачу.
+    last_failed_grade: str | None = None
+    attempt_free: bool = False
 
     # --- опрос ---
     def record_survey(self, clock: Clock) -> None:
@@ -682,7 +724,20 @@ class Qualification:
             self.status = QualStatus.SURVEY_DONE
 
     # --- первичный тест и пересдача ---
-    def can_start_test(self, clock: Clock, rules: RulesConfig | None = None) -> RuleCheck:
+    def _is_lower_than_failed(self, grade: str | None, scale: Scale) -> bool:
+        """Грейд строго ниже того, на котором кандидат не подтвердился в прошлой попытке."""
+        if grade is None or self.last_failed_grade is None:
+            return False
+        if grade not in scale.grades or self.last_failed_grade not in scale.grades:
+            return False
+        return scale.grade_index(grade) < scale.grade_index(self.last_failed_grade)
+
+    def can_start_test(
+        self, clock: Clock, rules: RulesConfig | None = None, grade: str | None = None, scale: Scale | None = None
+    ) -> RuleCheck:
+        """grade — грейд, на который кандидат хочет пройти тест. Провал на грейде g не сжигает попытку на
+        грейде ниже g: пока идёт ожидание пересдачи (или исчерпан лимит), тест на более низкий грейд
+        доступен сразу и в лимит попыток не засчитывается (DECISIONS п. 29, docs/TESTING_MECHANISM.md)."""
         rules = rules or load_rules()
         now = clock.now()
         if self.status == QualStatus.NONE:
@@ -692,34 +747,52 @@ class Qualification:
         if self.status == QualStatus.CONFIRMED:
             return RuleCheck(False, "already_confirmed", "Грейд уже подтверждён — доступен только тест на повышение")
         if self.status == QualStatus.NOT_CONFIRMED:
+            blocked: RuleCheck | None = None
             window_start = now - timedelta(days=rules.attempts_window_days)
             recent = sorted(a for a in self.attempts if a > window_start)
             if len(recent) >= rules.max_attempts:
                 avail = recent[0] + timedelta(days=rules.attempts_window_days)
-                return RuleCheck(
+                blocked = RuleCheck(
                     False,
                     "attempts_limit",
                     f"Не больше {rules.max_attempts} попыток за {rules.attempts_window_days} дней. "
                     f"Следующая попытка — {until_ru(avail, now)}",
                     avail,
                 )
-            if self.next_attempt_allowed_at and now < self.next_attempt_allowed_at:
-                return RuleCheck(
+            elif self.next_attempt_allowed_at and now < self.next_attempt_allowed_at:
+                blocked = RuleCheck(
                     False,
                     "retake_cooldown",
                     f"Повтор теста будет доступен {until_ru(self.next_attempt_allowed_at, now)}",
                     self.next_attempt_allowed_at,
                 )
+            if blocked is not None:
+                if self._is_lower_than_failed(grade, scale or load_scale()):
+                    return RuleCheck(
+                        True, "lower_grade_free", "Тест на более низкий грейд доступен сразу и не расходует пересдачу"
+                    )
+                return blocked
         return RuleCheck(True, "ok", "Можно начинать тест")
 
-    def start_test(self, session_id: str, clock: Clock, rules: RulesConfig | None = None) -> str:
+    def lower_grades_open(self, clock: Clock, rules: RulesConfig | None = None, scale: Scale | None = None) -> list[str]:
+        """Грейды, на которые тест доступен СЕЙЧАС вопреки ожиданию пересдачи (пусто, если ожидания нет)."""
+        scale = scale or load_scale()
+        if self.can_start_test(clock, rules).ok:
+            return []
+        return [g for g in scale.grades if self.can_start_test(clock, rules, g, scale).ok]
+
+    def start_test(
+        self, session_id: str, clock: Clock, rules: RulesConfig | None = None, grade: str | None = None
+    ) -> str:
         """SURVEY_DONE | NOT_CONFIRMED → TESTING. Возвращает вид сессии (initial | retake)."""
-        check = self.can_start_test(clock, rules)
+        check = self.can_start_test(clock, rules, grade)
         if not check.ok:
             raise SessionError(check.code, check.message_ru, check.available_at)
         kind = KIND_RETAKE if self.status == QualStatus.NOT_CONFIRMED else KIND_INITIAL
         self.status = QualStatus.TESTING
-        self.attempts.append(clock.now())
+        self.attempt_free = check.code == "lower_grade_free"
+        if not self.attempt_free:
+            self.attempts.append(clock.now())
         self.active_session_id = session_id
         self.onboarding_until = None
         self.chain_ids, self.chain_trust = [session_id], None
@@ -798,6 +871,25 @@ class Qualification:
         self.module_tags = {k: v["tag"] for k, v in o.subscores.items() if v.get("tag") in (TAG_CONFIRMED, TAG_STRONG)}
         self.module_theta = {k: v["theta"] for k, v in o.subscores.items()}
 
+    def _dropped_level(self, o: SessionOutcome) -> bool:
+        """Подтверждён грейд ниже заявленного (провал целевого грейда → добор вниз)."""
+        scale = load_scale()
+        c, g = o.claimed_grade, o.confirmed_grade
+        if c is None or g is None or c not in scale.grades or g not in scale.grades:
+            return False
+        return scale.grade_index(g) < scale.grade_index(c)
+
+    def _note_failed(self, o: SessionOutcome) -> None:
+        """Запомнить, на каком грейде не подтвердились (самый низкий из проваленных в цепочке)."""
+        scale = load_scale()
+        t = o.target_grade
+        if t not in scale.grades:
+            return
+        cur = self.last_failed_grade
+        if cur in scale.grades and o.kind in EXTENSION_KINDS and scale.grade_index(cur) < scale.grade_index(t):
+            return
+        self.last_failed_grade = t
+
     def _join_chain(self, session_id: str) -> None:
         if session_id not in self.chain_ids:
             self.chain_ids.append(session_id)
@@ -849,7 +941,9 @@ class Qualification:
         if o.status == SessionStatus.ABANDONED:
             if self.status == QualStatus.TESTING:
                 self.status = QualStatus.NOT_CONFIRMED
-                self.next_attempt_allowed_at = now + timedelta(days=rules.retake_days)
+                if not self.attempt_free:  # бесплатная попытка на грейд ниже ожидание не продлевает
+                    self.next_attempt_allowed_at = now + timedelta(days=rules.retake_days)
+                self.attempt_free = False
             elif self.status == QualStatus.UPGRADE_TESTING:
                 self.status = QualStatus.CONFIRMED
                 self.next_attempt_allowed_at = now + timedelta(days=rules.upgrade_retry_days)
@@ -871,11 +965,20 @@ class Qualification:
                 self.grade = o.confirmed_grade
                 self.first_confirmed_at = self.first_confirmed_at or now
                 self.next_change_allowed_at = now + timedelta(days=rules.change_interval_days)
+                if self._dropped_level(o):
+                    # Заявил Middle, подтвердился Junior: грейд выше — не «прыжок», а повтор того же уровня,
+                    # его можно пересдать через retake_days, а не через интервал смены грейда (DECISIONS п. 29)
+                    self.next_change_allowed_at = now + timedelta(days=rules.retake_days)
+                    self.last_failed_grade = o.claimed_grade
+                self.attempt_free = False
                 self._take_result(o, now)
                 self.grade_session_ids = list(self.chain_ids)
             elif not o.pending_offers and not o.extended and SessionStatus(o.status) in CLOSED_STATUSES:
                 self.status = QualStatus.NOT_CONFIRMED
-                self.next_attempt_allowed_at = now + timedelta(days=rules.retake_days)
+                self._note_failed(o)
+                if not self.attempt_free:
+                    self.next_attempt_allowed_at = now + timedelta(days=rules.retake_days)
+                self.attempt_free = False
                 self.active_session_id = None
             self._apply_trust(o, now, rules)
             return

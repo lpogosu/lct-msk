@@ -477,7 +477,8 @@ def candidate_profile_view(
     from app.matching.scoring import GRADES
 
     def key(r: Any) -> tuple:
-        return (r[0] == "fullstack", -GRADES.index(r[1]) if r[1] in GRADES else 0, r[0])
+        # Подтверждённая категория всегда главнее заявленной (DECISIONS п. 29)
+        return (bool(r[3].get("unconfirmed")), r[0] == "fullstack", -GRADES.index(r[1]) if r[1] in GRADES else 0, r[0])
 
     main = sorted(rows, key=key)[0]
     if selection_item is not None:
@@ -533,7 +534,14 @@ def candidate_profile_view(
             "name": cfg.category_name(spec, grade),
             "borderline": bool(payload.get("borderline")),
             "fullstack": bool(payload.get("is_fullstack")),
-            "all": [cfg.category_name(s, g) for s, g, vis, _ in rows if vis or disclosure is not None],
+            "confirmed": not payload.get("unconfirmed"),
+            "all": [
+                cfg.category_name(s, g) for s, g, vis, p in rows if (vis or disclosure is not None) and not p.get("unconfirmed")
+            ],
+            # Заявленные без теста — отдельным списком со статусом, в «подтверждённые» не входят (DECISIONS п. 29)
+            "unconfirmed": [
+                cfg.category_name(s, g) for s, g, vis, p in rows if (vis or disclosure is not None) and p.get("unconfirmed")
+            ],
         },
         "grade_history": history,
         "test_date": relative_days(feats.test_days_ago) if feats.test_days_ago is not None else None,

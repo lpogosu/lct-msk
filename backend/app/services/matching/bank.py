@@ -131,7 +131,7 @@ def bank_search(db: Session, user: User, q: BankQuery, *, secret: str) -> dict[s
     cats, specs = _validate(q)
     feat.ensure_fresh(db)
     cfg = ScoringConfig.load()
-    rows_all = feat.load_pool(db, cats, specs=specs)
+    rows_all = feat.load_pool(db, cats, specs=specs, include_unconfirmed=True)
     if q.grade is not None:
         rows_all = [r for r in rows_all if r.features.grade == q.grade]
     # Перцентиль T — по всей категории (как в подборке), а не по списку после фильтров: пул выше — это все

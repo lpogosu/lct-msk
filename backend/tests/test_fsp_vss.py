@@ -130,11 +130,15 @@ def vss_of(p: FSPProfile, d: str = "product") -> float:
 
 
 # ---------------------------------------------------------------- контрольные примеры брифа §5.4
+# Пересчитаны по ответам организаторов (DECISIONS п. 29): L = 1 для всех уровней (мероприятия не ранжируем), класс
+# результата C: призёр 1,0 / участник 0,5. Чемпионат России, 1-е место: L 0,9 → 1,0 (86,8 → 88,5).
+# Финал КР 30/100 — участник: L 0,8 → 1,0, но C = 0,5 (71,6 → 63,4). Региональный 10/40 — участник: L 0,3 → 1,0,
+# C = 0,5 (18,4 → 28,7): региональный старт больше не «весит меньше» только из-за ранга мероприятия.
 
 
 @pytest.mark.parametrize(
     ("role", "expected"),
-    [(ResultRole.participant, 86.8), (ResultRole.personal, 89.5)],
+    [(ResultRole.participant, 88.5), (ResultRole.personal, 91.1)],
 )
 def test_control_champion_of_russia_with_ms(role: ResultRole, expected: float) -> None:
     p = profile(res(place=1, n=100, role=role), ranks=(rank(RankCode.MS),))
@@ -143,7 +147,7 @@ def test_control_champion_of_russia_with_ms(role: ResultRole, expected: float) -
 
 @pytest.mark.parametrize(
     ("role", "expected"),
-    [(ResultRole.participant, 71.6), (ResultRole.personal, 74.7)],
+    [(ResultRole.participant, 63.4), (ResultRole.personal, 66.0)],
 )
 def test_control_cup_final_30th_of_100_with_kms(role: ResultRole, expected: float) -> None:
     r = res(status=StatusType.cup, stage=Stage.final, place=30, n=100, role=role)
@@ -153,7 +157,7 @@ def test_control_cup_final_30th_of_100_with_kms(role: ResultRole, expected: floa
 
 @pytest.mark.parametrize(
     ("role", "expected"),
-    [(ResultRole.participant, 18.4), (ResultRole.personal, 21.2)],
+    [(ResultRole.participant, 28.7), (ResultRole.personal, 32.8)],
 )
 def test_control_regional_10th_of_40_ten_months_ago(role: ResultRole, expected: float) -> None:
     ten_months_ago = NOW - timedelta(days=round(10 * 30.4375))
@@ -162,9 +166,10 @@ def test_control_regional_10th_of_40_ten_months_ago(role: ResultRole, expected: 
 
 
 def test_control_formula_matches_brief_by_hand() -> None:
-    # Финал КР, 30/100: q = 1 − 29/99, Q = q^1,5 (F(100) = 1, бонуса нет); L = 0,8; Ro = 0,85; КМС 0,7.
+    # Финал КР, 30/100: q = 1 − 29/99, Q = q^1,5 (F(100) = 1, бонуса нет); L = 1; C = 0,5 (участник);
+    # Ro = 0,85; КМС 0,7.
     q = (1 - 29 / 99) ** 1.5
-    expected = 100 * (1 - math.exp(-(0.8 * q * 0.85 + 0.5 * 0.7) / 0.6))
+    expected = 100 * (1 - math.exp(-(1.0 * 0.5 * q * 0.85 + 0.5 * 0.7) / 0.6))
     r = res(status=StatusType.cup, place=30, n=100)
     p = profile(r, ranks=(rank(RankCode.KMS, valid_until=date(2028, 1, 10)),))
     assert vss_of(p) == pytest.approx(expected, abs=1e-9)
@@ -272,7 +277,7 @@ def test_awaiting_protocol_result_is_not_counted() -> None:
 
 def test_qualifier_and_final_of_same_competition_count_once() -> None:
     final = res(status=StatusType.cup, place=8, n=80, group="G1")
-    qual = res(status=StatusType.cup, stage=Stage.qualifier, place=3, n=900, group="G1")
+    qual = res(status=StatusType.cup, stage=Stage.qualifier, place=300, n=900, group="G1")
     assert vss_of(profile(final, qual)) == pytest.approx(vss_of(profile(final)))
     bd = compute_vss(profile(final, qual), NOW)["product"]
     assert sum(1 for rp in bd.results if rp.counted) == 1
@@ -281,7 +286,7 @@ def test_qualifier_and_final_of_same_competition_count_once() -> None:
 def test_top5_with_diminishing_returns() -> None:
     results = [res(place=1, n=100, role=ResultRole.personal) for _ in range(7)]
     bd = compute_vss(profile(*results), NOW)["product"]
-    p = 0.9  # L·Q·Ro·T·V = 0,9·1·1·1·1
+    p = 1.0  # L·C·Q·Ro·T·V = 1·1·1·1·1·1 (все уровни равноправны, призёр)
     assert bd.a == pytest.approx(p * sum(0.6**i for i in range(5)))
     assert sum(1 for rp in bd.results if rp.counted) == 5
     assert aggregate([1.0, 0.5]) == pytest.approx(1.0 + 0.5 * 0.6)
@@ -505,3 +510,58 @@ def test_config_covers_taxonomy() -> None:
     assert (m["product"]["fullstack"], m["product"]["backend_python"], m["product"]["frontend_js"]) == (0.9, 0.8, 0.8)
     assert m["infosec"]["devops"] == 0.7
     assert m["robotics"]["data_ml"] == m["bas"]["data_ml"] == 0.6
+
+
+# ---------------------------------------------------------------- ответы организаторов: равноправие и антинакрутка (п. 29)
+
+
+@pytest.mark.parametrize("level", list(Level))
+def test_all_levels_and_event_statuses_are_equal(level: Level) -> None:
+    """Мероприятия не ранжируем: тот же результат на любом уровне и в любом статусе даёт тот же VSS."""
+    base = vss_of(profile(res(level=Level.all_russian, status=StatusType.championship, place=2, n=60)))
+    other = vss_of(profile(res(level=level, status=StatusType.cup, stage=Stage.single, place=2, n=60)))
+    assert other == pytest.approx(base)
+    assert {r.weight for r in get_fsp_config().vss.level_rules} == {1.0}
+
+
+def test_participations_without_prize_are_capped() -> None:
+    """Онлайн-участиями профиль не накрутить: учитывается не больше participation_max_counted участий."""
+    cap = get_fsp_config().vss.result_class.participation_max_counted
+    many = [res(place=20, n=60, stage=Stage.qualifier, role=ResultRole.personal) for _ in range(12)]
+    bd = compute_vss(profile(*many), NOW)["product"]
+    assert sum(1 for rp in bd.results if rp.counted) == cap
+    capped = vss_of(profile(*many))
+    exact = vss_of(profile(*many[:cap]))
+    assert capped == pytest.approx(exact)
+
+
+def test_podium_outweighs_any_number_of_participations() -> None:
+    cap = get_fsp_config().vss.result_class.participation_max_counted
+    participations = [res(place=15, n=60, role=ResultRole.personal) for _ in range(20)]
+    podium = res(place=2, n=60, role=ResultRole.personal)
+    assert vss_of(profile(podium)) > vss_of(profile(*participations))
+    # призёр добавляется поверх потолка участий, а не вытесняется ими
+    assert vss_of(profile(podium, *participations)) > vss_of(profile(*participations[:cap]))
+
+
+def test_result_class_and_class_weight_are_exposed() -> None:
+    bd = compute_vss(
+        profile(res(place=1, n=60, role=ResultRole.personal), res(place=30, n=60, role=ResultRole.personal)), NOW
+    )["product"]
+    classes = {rp.result_class: rp.class_weight for rp in bd.results}
+    assert classes == {"podium": 1.0, "participant": 0.5}
+
+
+def test_recency_decays_by_half_life() -> None:
+    """Свежесть разрешена организаторами: результат двухлетней давности весит вдвое меньше (полураспад 24 мес.)."""
+    half = get_fsp_config().vss.freshness_half_life_months
+    old = NOW - timedelta(days=round(half * 30.4375))
+    fresh_pts = compute_vss(profile(res(place=1, n=60, role=ResultRole.personal)), NOW)["product"].results[0].points
+    old_pts = compute_vss(profile(res(place=1, n=60, role=ResultRole.personal, end=old)), NOW)["product"].results[0].points
+    assert old_pts == pytest.approx(fresh_pts / 2, rel=1e-3)
+
+
+def test_spec_relevance_still_applies_but_not_event_rank() -> None:
+    """Релевантность дисциплины специализации разрешена (ИБ-соревнования для ИБ-специалиста)."""
+    vss = {"infosec": 80.0}
+    assert fsp_fit(vss, "infosec").value > fsp_fit(vss, "frontend_js").value

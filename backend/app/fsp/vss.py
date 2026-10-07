@@ -1,9 +1,13 @@
 """VSS — «подтверждённая сила» по дисциплине ФСП, вклад F в Score, доказательство навыка для K,
 и тексты для карточки (обобщённая строка до раскрытия, выписка из протокола после).
 
-Формулы — research/brief.md §5.4 и концепция §6.3, поправки DECISIONS.md п.2:
-    points(r) = L · Q · Ro · T · V
-    A_d       = Σ топ-5 p_(i) · 0,6^(i−1)         (отбор и финал одного соревнования → max)
+Формулы — research/brief.md §5.4 и концепция §6.3, поправки DECISIONS.md п.2 и п.29 (Q&A организаторов):
+    ФСП никогда не влияет на грейд кандидата — только на Score (F) и доказательство навыков (K).
+   
+    points(r) = L · C · Q · Ro · T · V            (L = 1 для всех уровней: мероприятия не ранжируем, п. 29;
+                                                   C — класс результата: призёр 1,0 / участник 0,5)
+    A_d       = Σ топ-5 p_(i) · 0,6^(i−1)         (отбор и финал одного соревнования → max;
+                                                   участий без призового места учитывается не больше 2)
     VSS_d     = 100 · (1 − exp(−(A_d + 0,5·Rk) / 0,6));  разряд без результатов → VSS_d ≤ 50
     F         = max_d m(d, s) · VSS_d / 100        (нет истории → F = 0: отсутствие бонуса, не штраф)
     K: v_k   ⊇ 0,8 · m(d, k) · VSS_d / 100
@@ -113,7 +117,9 @@ class ResultPoints(BaseModel):
     result_id: str
     ekp: str
     group_key: str
-    level_weight: float  # L
+    level_weight: float  # L (все уровни равноправны, config/fsp.yaml)
+    result_class: str = "participant"  # podium | participant (DECISIONS п. 29)
+    class_weight: float = 1.0  # C
     place_quality: float  # Q
     role_weight: float  # Ro
     freshness: float  # T
@@ -220,9 +226,18 @@ def source_weight(source: Source, cfg: FSPConfig | None = None) -> float:
     return _cfg(cfg).vss.source_weights[source]
 
 
+def result_class(r: NormalizedResult, cfg: FSPConfig | None = None) -> str:
+    """Класс результата: podium — призёр (худшее место ≤ порога), иначе participant (участник, участник отбора,
+    финалист без призового места). Мероприятия между собой не ранжируем (DECISIONS п. 29)."""
+    wp = r.worst_place
+    return "podium" if wp is not None and wp <= _cfg(cfg).vss.result_class.podium_max_place else "participant"
+
+
 def result_points(r: NormalizedResult, now: date | datetime, cfg: FSPConfig | None = None) -> ResultPoints:
     c = _cfg(cfg)
     lw = level_weight(r.level, r.status_type, r.stage, c)
+    cls = result_class(r, c)
+    cw = c.vss.result_class.class_weights[cls]
     q = place_quality(r.place, r.place_to, r.field_size, r.score, r.max_score, c)
     ro = role_weight(r.role, c)
     t = freshness(r.end_date, now, c)
@@ -232,11 +247,13 @@ def result_points(r: NormalizedResult, now: date | datetime, cfg: FSPConfig | No
         ekp=r.ekp,
         group_key=r.group_key,
         level_weight=lw,
+        result_class=cls,
+        class_weight=cw,
         place_quality=q,
         role_weight=ro,
         freshness=t,
         source_weight=v,
-        points=lw * q * ro * t * v,
+        points=lw * cw * q * ro * t * v,
     )
 
 
@@ -290,9 +307,19 @@ def discipline_vss(
     for rp in sorted(scored, key=lambda x: (-x.points, x.result_id)):
         best_by_group.setdefault(rp.group_key, rp)
     ranked = sorted(best_by_group.values(), key=lambda x: (-x.points, x.result_id))
-    for rp in ranked[: c.vss.aggregation.top_n]:
+    # Потолок участий без призового места: онлайн-явками профиль не накрутить (DECISIONS п. 29).
+    cap = c.vss.result_class.participation_max_counted
+    seen_participation = 0
+    pool: list[ResultPoints] = []
+    for rp in ranked:
+        if rp.result_class == "participant":
+            seen_participation += 1
+            if seen_participation > cap:
+                continue
+        pool.append(rp)
+    for rp in pool[: c.vss.aggregation.top_n]:
         rp.counted = True
-    a = aggregate((rp.points for rp in ranked), c)
+    a = aggregate((rp.points for rp in pool), c)
 
     rk, rk_code = 0.0, None
     for rank in ranks:

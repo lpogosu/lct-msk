@@ -154,7 +154,7 @@ export function buildMeaningRows(parse: ParseOut, text: string): MeaningRow[] {
     rows.push({
       key: 'salary',
       label: names((s.quotes ?? []).map((q) => q.text)).replace(', ', ' '),
-      meaning: `${money}${s.net === true ? ' на руки' : s.net === false ? ' до НДФЛ' : ''}${s.yearly ? ' (в год, пересчитано)' : ''}`,
+      meaning: `${money}${s.net === true ? ' на руки' : s.net === false ? ' до вычета НДФЛ' : ' (не указано — считаем «на руки»)'}${s.yearly ? ' (в год, пересчитано)' : ''}`,
       uncertain: s.net == null,
       ranges: s.quotes ?? [],
     })
