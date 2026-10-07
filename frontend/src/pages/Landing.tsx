@@ -1,3 +1,4 @@
+import { useDemoMode } from '@/features/demo/api'
 import { Button, Illustration, NodeLegend, Panel, TraceDiagram, type TraceDiagramRow } from '@/ui'
 
 const CANDIDATE_STEPS: TraceDiagramRow[] = [
@@ -13,6 +14,7 @@ const EMPLOYER_STEPS: TraceDiagramRow[] = [
 ]
 
 export default function Landing() {
+  const demo = useDemoMode()
   return (
     <div className="mx-auto flex max-w-page flex-col gap-12 px-4 py-6 sm:px-6 sm:py-8 lg:gap-16 lg:px-12 lg:py-10">
       <Panel
@@ -40,6 +42,14 @@ export default function Landing() {
               Нанимаю
             </Button>
           </div>
+          {demo && (
+            <p className="t-body text-ink-2" data-testid="jury-link">
+              Вы из жюри?{' '}
+              <Button variant="text" to="/jury">
+                Пройти тест самому без регистрации
+              </Button>
+            </p>
+          )}
         </div>
         <Illustration
           name="hero_vzaimno"

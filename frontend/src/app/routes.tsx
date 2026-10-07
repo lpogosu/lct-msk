@@ -27,6 +27,12 @@ const publicRoutes: RouteObject = {
     { index: true, element: <Landing />, handle: { title: 'Главная' } },
     // Публичная сверка стандартизированного PDF-профиля по QR (ссылки /v/{code} печатает бэкенд)
     { path: 'v/:code', element: wip('Сверка профиля', '/', 'Акт сверки по QR-коду'), handle: { title: 'Сверка профиля' } },
+    // Вход для жюри: одноразовый кандидат, экспресс-тест, роли без пароля. Только DEMO_MODE (иначе страница сама скажет об этом)
+    {
+      path: 'jury',
+      lazy: async () => ({ Component: (await import('@/pages/jury/JuryEntry')).default }),
+      handle: { title: 'Для жюри' },
+    },
     // Песочница жюри «Попробуй списать» (Антиподсказчик): без входа, работает только при DEMO_MODE (иначе страница сама скажет об этом)
     {
       path: 'try',

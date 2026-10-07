@@ -71,6 +71,9 @@ class Settings(BaseSettings):
     # DEMO_MODE включён. None — по среде: в VZ_ENV=prod (публичный стенд) только роль «администратор» или заголовок
     # X-Demo-Key; вне prod (локальный стенд жюри) — любой вошедший. Подсказка кандидату в режиме жюри — всегда владельцу сессии.
     demo_controls_admin_only: bool | None = None
+    # DEMO_MODE: регистрация без письма с кодом — аккаунт активен сразу (жюри не обязано подтверждать почту; Q&A, DECISIONS п. 29).
+    # Вне DEMO_MODE игнорируется: боевая регистрация всегда идёт через код из письма.
+    demo_auto_verify_email: bool = True
     demo_control_key: SecretStr | None = None  # ключ для заголовка X-Demo-Key (curl/скрипты жюри); пусто — только админ
     # Встроенный планировщик (app/services/scheduler, config/scheduler.yaml): None — как в конфиге, False — выключить
     # (например, когда те же задачи гоняет внешний cron), True — включить, даже если в конфиге выключен.

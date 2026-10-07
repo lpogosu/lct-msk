@@ -14,7 +14,7 @@ from typing import Annotated
 from fastapi import APIRouter, BackgroundTasks, Depends, Query, status
 from sqlalchemy import select
 
-from app.api.deps import DbSession, LimiterDep, MetaDep, require_roles
+from app.api.deps import DbSession, LimiterDep, MetaDep, SettingsDep, require_roles
 from app.core.clock import clock
 from app.core.errors import bad_request, conflict, error_responses, not_found
 from app.models.enums import FlagStatus, UserRole
@@ -106,9 +106,12 @@ def briefing(
     ),
 )
 def create_session(
-    body: SessionCreateIn, user: Candidate, db: DbSession, limiter: LimiterDep, meta: MetaDep
+    body: SessionCreateIn, user: Candidate, db: DbSession, limiter: LimiterDep, meta: MetaDep, settings: SettingsDep
 ) -> SessionOut:
     limiter.check("tests_create", str(user.id), limits.RL_SESSION_CREATE)
+    if body.express and not settings.demo_mode:
+        # Экспресс-версия существует только в DEMO_MODE: на боевом стенде её «нет» (как и остальных демо-инструментов)
+        raise not_found("not_found", "Ресурс не найден")
     _known_spec(body.specialization)
     ld = svc.create_session(
         db,
@@ -119,6 +122,7 @@ def create_session(
         consent_test_logging=body.consent_test_logging,
         ip=meta.ip,
         user_agent=meta.user_agent,
+        express=bool(body.express),
     )
     out = views.session_out(ld)
     db.commit()

@@ -179,6 +179,8 @@ export default function CandidateTest() {
   const session = next.data!.session
   const position = session.progress.position
   const shownLeft = Math.min(remaining, item.time_limit_s)
+  const express = session.express
+  const expressMax = session.express_items_max ?? 8
 
   return (
     <>
@@ -197,6 +199,10 @@ export default function CandidateTest() {
         }
       />
 
+      {express && (
+        <ExpressStrip deadlineAt={session.express_deadline_at} />
+      )}
+
       {!online && (
         <Alert tone="danger" className="mb-4" title="Нет связи">
           Тест на паузе. Когда связь вернётся, он продолжится с этого же задания — в течение 30 минут.
@@ -206,13 +212,17 @@ export default function CandidateTest() {
       <div className="mb-5">
         <div className="mb-2 flex items-baseline justify-between gap-3">
           <p className="t-small text-ink-2">
-            {position <= 15 ? `Задание ${position} из примерно 12–15` : `Задание ${position} · осталось немного`}
+            {express
+              ? `Экспресс · задание ${position} из ${expressMax}`
+              : position <= 15
+                ? `Задание ${position} из примерно 12–15`
+                : `Задание ${position} · осталось немного`}
           </p>
           <p className="font-mono text-[12px] text-ink-3" aria-label={`Код варианта ${item.variant_code}`}>
             вариант {item.variant_code}
           </p>
         </div>
-        <TraceProgress done={Math.max(0, position - 1)} estimatedTotal={15} label={`Пройдено заданий: ${Math.max(0, position - 1)}`} />
+        <TraceProgress done={Math.max(0, position - 1)} estimatedTotal={express ? expressMax : 15} label={`Пройдено заданий: ${Math.max(0, position - 1)}`} />
       </div>
 
       {advancing ? (
@@ -269,5 +279,23 @@ export default function CandidateTest() {
         </div>
       </Sheet>
     </>
+  )
+}
+
+/** Плашка экспресса: честно говорит, что это сокращённая версия, и показывает общий бюджет времени. */
+function ExpressStrip({ deadlineAt }: { deadlineAt?: string | null }) {
+  const target = useMemo(() => (deadlineAt ? new Date(deadlineAt).getTime() : 0), [deadlineAt])
+  const left = useCountdown(target)
+  return (
+    <Panel variant="tint" radius="md" padding="sm" className="mb-4 flex items-center justify-between gap-3" data-testid="express-strip">
+      <p className="min-w-0 t-small text-ink-2">
+        <span className="t-label text-ink">Экспресс-версия для жюри.</span> Не больше 8 заданий; категорию не присваивает.
+      </p>
+      {target > 0 && (
+        <span className="shrink-0 font-mono text-[13px] text-ink-2 tabular-nums" aria-label="Осталось времени на весь экспресс">
+          {formatClock(left)}
+        </span>
+      )}
+    </Panel>
   )
 }

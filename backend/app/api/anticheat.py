@@ -52,6 +52,7 @@ async def anticheat_lifespan(app: FastAPI) -> AsyncIterator[None]:
     """DEMO_MODE: в фоне собрать запас заданий песочницы с двойниками (у части семейств двойник считается десятки секунд),
     чтобы мини-тест «Попробуй списать» открывался сразу. Тесты платформы отключают это флагом app.state.demo_loop = False
     (как и фоновый цикл демо). Поток демон: остановке сервера он не мешает."""
+    sandbox.AUTO_TOP_UP = bool(app.state.settings.demo_mode and getattr(app.state, "demo_loop", True))
     if app.state.settings.demo_mode and getattr(app.state, "demo_loop", True):
         threading.Thread(target=_warm_sandbox, name="sandbox-warm", daemon=True).start()
     yield

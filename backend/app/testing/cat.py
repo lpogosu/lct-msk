@@ -144,6 +144,38 @@ def load_cat_config() -> CatConfig:
     return CatConfig.from_config()
 
 
+@dataclass(frozen=True)
+class ExpressConfig:
+    """Экспресс-тест жюри (config/testing.yaml → express): короче основной части, остальное — тот же движок."""
+
+    time_budget_s: int
+    time_budget_min_items: int
+    item_time_limit_s: int
+
+
+def express_cat_config(testing: dict[str, Any] | None = None) -> CatConfig:
+    """Параметры CAT для экспресса: те же пороги уверенности, меньше заданий, без pretest и без контроля покрытия."""
+    t = testing if testing is not None else load_config("testing")
+    e = t["express"]
+    return dataclasses.replace(
+        CatConfig.from_config(t),
+        n_min=int(e["n_min"]),
+        n_max=int(e["n_max"]),
+        pretest_count=int(e["pretest_count"]),
+        coverage_min_quota=float(e["coverage_min_quota"]),
+    )
+
+
+def load_express_config(testing: dict[str, Any] | None = None) -> ExpressConfig:
+    t = testing if testing is not None else load_config("testing")
+    e = t["express"]
+    return ExpressConfig(
+        time_budget_s=int(e["time_budget_s"]),
+        time_budget_min_items=int(e["time_budget_min_items"]),
+        item_time_limit_s=int(e["item_time_limit_s"]),
+    )
+
+
 def load_blueprint(spec: str, taxonomy: dict[str, Any] | None = None) -> dict[str, float]:
     """Квоты модулей стандартного теста специализации (config/taxonomy.yaml)."""
     tax = taxonomy if taxonomy is not None else load_config("taxonomy")

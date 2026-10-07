@@ -199,10 +199,13 @@ def make_account(client, mailer, test_settings) -> Callable[..., Account]:
             json={"email": email, "password": password, "role": role, "consent_personal_data": True},
         )
         assert r.status_code == 201, r.text
-        r = client.post(
-            "/api/auth/verify-email",
-            json={"email": email, "code": code_from_mail(mailer, email), "password": password},
-        )
+        if r.json()["status"] == "active":  # DEMO_MODE: регистрация без письма с кодом — аккаунт активен сразу
+            r = client.post("/api/auth/login", json={"email": email, "password": password})
+        else:
+            r = client.post(
+                "/api/auth/verify-email",
+                json={"email": email, "code": code_from_mail(mailer, email), "password": password},
+            )
         assert r.status_code == 200, r.text
         body = r.json()
         cookie = r.cookies.get(test_settings.refresh_cookie_name)

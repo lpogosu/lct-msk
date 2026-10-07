@@ -69,6 +69,10 @@ def _try_family(fam: Family, base_seed: int, cfg: AntiCheatConfig) -> tuple[Fami
 
 _BANK_LOCK = threading.Lock()
 _BANK: dict[str, SandboxItem] = {}  # «семейство:seed» → готовый экземпляр с двойником (общий запас на процесс)
+# «семейство:seed» → сколько раз уже выдано проверяющим. Обещание банка («одинаковые задания не расходятся между
+# кандидатами») действует и в песочнице: экземпляр из запаса достаётся ОДНОМУ проверяющему, потом он выбывает из запаса;
+# когда свободных нет — задание строится на месте (медленнее, зато уникально), а фоновый добор пополняет запас.
+_ISSUED: dict[str, int] = {}
 _WARMING = False
 
 
@@ -81,6 +85,18 @@ def bank_size() -> int:
         return len(_BANK)
 
 
+def fresh_size() -> int:
+    """Сколько заданий в запасе ещё никому не выдавалось."""
+    with _BANK_LOCK:
+        return sum(1 for k in _BANK if not _ISSUED.get(k))
+
+
+def _claim(it: SandboxItem) -> None:
+    """Пометить экземпляр выданным (вызывать под _BANK_LOCK)."""
+    key = f"{it.family_id}:{it.seed}"
+    _ISSUED[key] = _ISSUED.get(key, 0) + 1
+
+
 def _remember(r: tuple[Family, int, Any, Any]) -> SandboxItem:
     fam, seed, inst, twin = r
     it = SandboxItem(0, fam.id, seed, inst.variant_code, inst, twin)
@@ -89,7 +105,7 @@ def _remember(r: tuple[Family, int, Any, Any]) -> SandboxItem:
     return it
 
 
-def warm_bank(rc: RuntimeConfig | None = None, cfg: AntiCheatConfig | None = None) -> int:
+def warm_bank(rc: RuntimeConfig | None = None, cfg: AntiCheatConfig | None = None, *, salt: str = "") -> int:
     """Заранее собрать запас заданий с двойниками (по `bank_per_language` на язык), чтобы мини-тест выдавался сразу.
 
     Двойник у части семейств считается десятки секунд, поэтому мини-тест собирается из запаса мгновенно, а в запас
@@ -105,7 +121,7 @@ def warm_bank(rc: RuntimeConfig | None = None, cfg: AntiCheatConfig | None = Non
     try:
         reg = all_families()
         pool = sandbox_pool(reg, cfg)
-        rng = random.Random("sandbox-bank")
+        rng = random.Random(f"sandbox-bank{salt}")
         futures: dict[Future[Any], str] = {}
         for lang, fids in pool.items():
             shuffled = list(fids)
@@ -147,16 +163,20 @@ def build_items(reviewer_seed: str, rc: RuntimeConfig, cfg: AntiCheatConfig) -> 
     used: set[str] = set()
     picked: dict[int, SandboxItem] = {}
     with _BANK_LOCK:
-        banked = list(_BANK.values())
-    for i in range(n):
-        lang = order[i % len(order)]
-        options = sorted(
-            (b for b in banked if _bank_language(b) == lang and b.family_id not in used), key=lambda b: (b.family_id, b.seed)
-        )
-        if options:
-            choice = options[rng.randrange(len(options))]
-            picked[i] = choice
-            used.add(choice.family_id)
+        # Только ещё не выданные: экземпляр достаётся одному проверяющему. Выбор и пометка — под одной блокировкой,
+        # чтобы два одновременных старта не забрали одно и то же задание.
+        banked = [b for k, b in _BANK.items() if not _ISSUED.get(k)]
+        for i in range(n):
+            lang = order[i % len(order)]
+            options = sorted(
+                (b for b in banked if _bank_language(b) == lang and b.family_id not in used),
+                key=lambda b: (b.family_id, b.seed),
+            )
+            if options:
+                choice = options[rng.randrange(len(options))]
+                picked[i] = choice
+                used.add(choice.family_id)
+                _claim(choice)
     slots: dict[int, list[tuple[Family, int]]] = {}
     for i in range(n):
         if i in picked:
@@ -192,6 +212,8 @@ def build_items(reviewer_seed: str, rc: RuntimeConfig, cfg: AntiCheatConfig) -> 
                         built = _remember(r)  # и в запас: следующий проверяющий получит такое задание сразу
                         if slot_no not in found:
                             found[slot_no] = built
+                            with _BANK_LOCK:
+                                _claim(built)
         finally:
             ex.shutdown(wait=False, cancel_futures=True)
         if len(found) < len(slots):
@@ -239,12 +261,26 @@ def _test_from_run(run: AnticheatSandboxRun, cfg: AntiCheatConfig) -> SandboxTes
 # ----------------------------------------------------------------------------- старт
 
 
+AUTO_TOP_UP = False  # фоновый добор запаса после выдачи; включает anticheat_lifespan в живом DEMO_MODE (в тестах выключен)
+
+
+def _top_up_async(rc: RuntimeConfig, cfg: AntiCheatConfig) -> None:
+    """Невыданных заданий в запасе стало мало → в фоне досчитать новые (со свежим зерном), чтобы следующий проверяющий
+    получил уникальный набор сразу, а не ждал сборки на месте."""
+    if not AUTO_TOP_UP or fresh_size() >= cfg.sandbox.n_items * 3:
+        return
+    threading.Thread(
+        target=lambda: warm_bank(rc, cfg, salt=secrets.token_hex(4)), name="sandbox-topup", daemon=True
+    ).start()
+
+
 def start(db: Session) -> dict[str, Any]:
     """Новый мини-тест: случайное зерно проверяющего → набор из 4 заданий; на клиент — условия и clip, без ключей."""
     cfg, rc = load_anticheat_config(), runtime_config()
     _prune(db, rc)
     seed = secrets.token_hex(8)
     items = build_items(seed, rc, cfg)
+    _top_up_async(rc, cfg)
     test_id = _test_id(seed, items)
     db.add(AnticheatSandboxRun(test_id=test_id, reviewer_seed=seed, items=[_item_json(i) for i in items], demo_assisted=True))
     db.flush()

@@ -59,6 +59,11 @@ export default function Register() {
         consent_personal_data: true,
         consent_text_version: processing?.version ?? null,
       })
+      if (res.status === 'active') {
+        // DEMO_MODE: письмо с кодом не нужно, аккаунт уже активен — входим сразу (RedirectIfAuthed откроет кабинет)
+        await authApi.login({ email: email.trim(), password })
+        return
+      }
       startSignup({
         email: res.email,
         password,

@@ -387,3 +387,21 @@ survey:
     cypress: test_frameworks
     bash: linux_git
   recency: now
+
+# --- Вход жюри /jury (DEMO_MODE): одноразовые кандидаты, экспресс-тест, роли без пароля -------------------------
+# Одноразовый кандидат: аккаунт active без письма и без пароля (вход — токеном из /api/demo/jury/start), опрос
+# заполняется настоящим сервисом по выбранной специализации, сессия теста помечается demo_assisted.
+jury_entry:
+  guest_email_domain: jury.demo.example.com
+  default_specialization: backend_python
+  default_grade: middle
+  industries: [other]
+  months_by_grade: { intern: 3, junior: 14, middle: 40, senior: 72 }   # стаж только для подсказки грейда на брифинге
+  employer_company: severny_kod      # «Посмотреть глазами работодателя»: HR этой компании (пароль не печатается)
+  lab_account: jury                  # «Лаборатория методиста»: staff.jury (только просмотр)
+  start_rate: { capacity: 60, period_s: 3600 }   # одноразовых кандидатов с одного адреса (жюри за одним NAT)
+  paths:                             # куда вести после входа
+    candidate_express: /candidate/test/{session_id}
+    candidate_full: /candidate/test/{session_id}
+    employer: /employer/needs
+    lab: /lab/sessions

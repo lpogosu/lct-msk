@@ -57,7 +57,6 @@ from app.testing.cat import (
     KIND_UPGRADE,
     TAG_CONFIRMED,
     TAG_STRONG,
-    load_cat_config,
     module_subscores,
 )
 from app.testing.detectors import HARD, SOFT, Flag, SessionEvent, trust_from_flags
@@ -247,7 +246,17 @@ def apply_outcome(db: Session, ld: Loaded) -> None:
     if ld.sess.status == SessionStatus.EXTENSION_OFFERED and needs_review(ld):
         outcome = dataclasses.replace(outcome, under_review=True)
     q.apply(outcome, clock)
+    if ld.sess.express and q.status == QualStatus.NOT_CONFIRMED:
+        _refund_express_attempt(q, ld.sess)
     save_domain(db, qrow, q)
+
+
+def _refund_express_attempt(q: Any, sess: TestSession) -> None:
+    """Экспресс не сжигает попытку и не ставит ожидание 14 дней: после него кандидат сразу может пройти полный тест.
+    Повторный вызов безопасен — снимается только попытка, начатая этой же сессией (не раньше её создания)."""
+    q.next_attempt_allowed_at = None
+    if q.attempts and q.attempts[-1] >= sess.created_at - timedelta(seconds=1):
+        q.attempts.pop()
 
 
 def finalize(db: Session, ld: Loaded) -> None:
@@ -277,7 +286,7 @@ def enforce_shown_cap(ld: Loaded) -> None:
     """DECISIONS п. 17: показанных заданий ≤ 20 вместе с pretest. Движок считает только зачётные,
     поэтому в основной части стоп по числу показанных делает сервис (решение — тем же decide())."""
     sess = ld.sess
-    cfg = load_cat_config()
+    cfg = sess.cat_cfg()
     if (
         sess.status == SessionStatus.IN_PROGRESS
         and sess.pending is None
@@ -348,7 +357,12 @@ def create_session(
     consent_test_logging: bool,
     ip: str | None = None,
     user_agent: str | None = None,
+    express: bool = False,
 ) -> Loaded:
+    """express=True — экспресс-тест жюри (DEMO_MODE проверяет вызывающий): короткий CAT, сессия demo_assisted, только
+    первичный тест или повтор (не повышение), грейд не присваивается."""
+    if express and upgrade:
+        raise bad_request("express_no_upgrade", "Экспресс-версия — только оценка уровня; повышение — полным тестом")
     info = spec_info(spec)
     if info is None:
         raise bad_request("unknown_specialization", "Неизвестная специализация")
@@ -407,7 +421,7 @@ def create_session(
             base_grade = q.grade
             kind, claimed = KIND_UPGRADE, q.start_upgrade(str(session_id), clock)
         else:
-            kind = q.start_test(str(session_id), clock)
+            kind = q.start_test(str(session_id), clock, grade=grade)
             claimed = str(grade)
     except SessionError as e:
         raise session_error(e) from e
@@ -433,6 +447,7 @@ def create_session(
         status=SessionStatus.CREATED.value,
         logging_consent=True,
         params_version=bank_params_version(db),
+        demo_assisted=express,  # исключена из калибровки, экспозиции и метрик (DECISIONS п. 4, 29)
         state={},
     )
     sess = TestSession.create(
@@ -444,6 +459,7 @@ def create_session(
         rng=rng_for(row, "create"),
         kind=kind,
         base_grade=base_grade,
+        express=express,
     )
     sess.start(clock)
     ld = Loaded(row=row, sess=sess, n_flags=0)

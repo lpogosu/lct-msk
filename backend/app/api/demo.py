@@ -17,15 +17,24 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import Annotated, Any, Literal
 
-from fastapi import APIRouter, Depends, FastAPI, Header, Query, Request
+from fastapi import APIRouter, Depends, FastAPI, Header, Query, Request, Response
 from fastapi.security import HTTPAuthorizationCredentials
 from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 from starlette.concurrency import run_in_threadpool
 
-from app.api.deps import DbSession, SettingsDep, bearer_scheme, get_current_user, require_roles
+from app.api.deps import (
+    DbSession,
+    LimiterDep,
+    MetaDep,
+    SettingsDep,
+    bearer_scheme,
+    get_current_user,
+    require_roles,
+)
+from app.api.schemas import TokenResponse
 from app.core.access import ensure_role
-from app.core.errors import error_responses, forbidden, not_found, unauthorized
+from app.core.errors import ApiError, error_responses, forbidden, not_found, unauthorized
 from app.db.session import get_sessionmaker
 from app.models.enums import UserRole
 from app.models.matching import CandidateAlias
@@ -391,6 +400,137 @@ def jury_hint(
     out = jury.hint(db, user, session_id)
     db.commit()
     return out
+
+
+# --------------------------------------------------------------------------- вход жюри (/jury)
+
+
+class JuryStartIn(BaseModel):
+    mode: Literal["express", "full"] = Field(description="express — короткая версия (≈ 4 минуты), full — полный тест")
+    specialization: str | None = Field(default=None, max_length=32, description="Код специализации (по умолчанию из config/demo.yaml)")
+    grade: str | None = Field(default=None, max_length=16, description="Заявленный грейд (по умолчанию из config/demo.yaml)")
+
+
+class JuryStartOut(TokenResponse):
+    session_id: uuid.UUID = Field(description="Начатая сессия теста")
+    mode: Literal["express", "full"]
+    path: str = Field(description="Куда вести фронтенд: страница теста")
+
+
+class JuryPersonaIn(BaseModel):
+    persona: Literal["employer", "lab"] = Field(description="employer — HR демо-компании; lab — лаборатория методиста (жюри)")
+
+
+class JuryPersonaOut(TokenResponse):
+    persona: Literal["employer", "lab"]
+    path: str = Field(description="Куда вести фронтенд")
+
+
+class JuryOptionOut(BaseModel):
+    code: str
+    name: str
+
+
+class JuryPathsOut(BaseModel):
+    express_items_max: int = Field(description="Потолок заданий экспресс-теста")
+    express_minutes: int = Field(description="Бюджет времени экспресса, минут (округление вверх)")
+    specializations: list[JuryOptionOut] = Field(description="Специализации с готовым тестом")
+    grades: list[JuryOptionOut]
+    default_specialization: str
+    default_grade: str
+    employer_available: bool = Field(description="Демо-работодатель собран (seed выполнен)")
+    lab_available: bool = Field(description="Аккаунт жюри для лаборатории собран")
+
+
+@router.get(
+    "/jury/paths",
+    response_model=JuryPathsOut,
+    summary="Что доступно на странице входа жюри",
+    description="Открытый маршрут для страницы /jury: параметры экспресс-теста, специализации и грейды, собран ли демо-мир.",
+)
+def jury_paths(db: DbSession) -> dict[str, Any]:
+    from app.services.demo import jury_entry as je
+    from app.services.testing import labels as L
+    from app.testing.cat import express_cat_config, load_express_config
+
+    c = je.cfg()
+    scale_grades = L.load_scale().grades
+    specs = [s for s in L.taxonomy()["specializations"] if L.spec_testable(s["code"])]
+
+    def exists(persona: str) -> bool:
+        try:
+            je.persona_user(db, persona)
+            return True
+        except ApiError:
+            return False
+
+    return {
+        "express_items_max": express_cat_config().n_max,
+        "express_minutes": -(-load_express_config().time_budget_s // 60),
+        "specializations": [{"code": s["code"], "name": s["name"]} for s in specs],
+        "grades": [{"code": g, "name": L.grade_name(g)} for g in scale_grades],
+        "default_specialization": c["default_specialization"],
+        "default_grade": c["default_grade"],
+        "employer_available": exists("employer"),
+        "lab_available": exists("lab"),
+    }
+
+
+@router.post(
+    "/jury/start",
+    response_model=JuryStartOut,
+    status_code=201,
+    summary="Пройти тест самому: одноразовый кандидат",
+    description=(
+        "Одной кнопкой: создаёт одноразового кандидата (без письма и пароля), заполняет опрос по выбранной специализации, "
+        "ставит согласие на журналирование, начинает экспресс- или полный тест и входит (access-токен + refresh-cookie). "
+        "Сессия помечена demo_assisted и в калибровку и метрики не входит. Открытый маршрут, лимит — как у регистрации (по IP). "
+        "Экспресс: до 8 заданий, ≈ 4 минуты, тот же движок и банк, категория не присваивается."
+    ),
+)
+def jury_start(
+    body: JuryStartIn, response: Response, db: DbSession, settings: SettingsDep, limiter: LimiterDep, meta: MetaDep
+) -> JuryStartOut:
+    from app.api.auth import _token_response
+    from app.core import auth_service
+    from app.services.demo import jury_entry as je
+
+    c = je.cfg()
+    limiter.check("demo_jury_start", meta.ip or "unknown", je.start_rate())
+    spec = body.specialization or str(c["default_specialization"])
+    grade = body.grade or str(c["default_grade"])
+    je.check_spec(spec)
+    user = je.create_guest(db, settings, spec=spec, grade=grade)
+    sid = je.start_for_guest(db, user, mode=body.mode, spec=spec, grade=grade, ip=meta.ip, ua=meta.user_agent)
+    issued = auth_service.start_session(db, settings, user, meta)
+    tr = _token_response(issued, response, settings)
+    path = str(c["paths"]["candidate_express" if body.mode == "express" else "candidate_full"]).format(session_id=sid)
+    return JuryStartOut(**tr.model_dump(), session_id=sid, mode=body.mode, path=path)
+
+
+@router.post(
+    "/jury/persona",
+    response_model=JuryPersonaOut,
+    summary="Войти как демо-работодатель или жюри лаборатории",
+    description=(
+        "Вход без пароля в существующий демо-аккаунт: HR демо-компании («Северный код») или «жюри» (методист, лаборатория). "
+        "Пароли не читаются и не возвращаются; администратора здесь нет (его пароль — в backend/var/demo_accounts.md). "
+        "404 — демо-мир не собран (`make seed`)."
+    ),
+)
+def jury_persona(
+    body: JuryPersonaIn, response: Response, db: DbSession, settings: SettingsDep, limiter: LimiterDep, meta: MetaDep
+) -> JuryPersonaOut:
+    from app.api.auth import _token_response
+    from app.core import auth_service
+    from app.services.demo import jury_entry as je
+
+    limiter.check("demo_jury_persona", meta.ip or "unknown", settings.rate("login_ip"))
+    user = je.persona_user(db, body.persona)
+    issued = auth_service.start_session(db, settings, user, meta)
+    tr = _token_response(issued, response, settings)
+    path = str(je.cfg()["paths"][body.persona])
+    return JuryPersonaOut(**tr.model_dump(), persona=body.persona, path=path)
 
 
 @router.get(

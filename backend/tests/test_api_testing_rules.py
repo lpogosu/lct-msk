@@ -244,3 +244,33 @@ def test_senior_warning_in_briefing(api, bank, make_account):
     assert brief["senior_warning"] and "Senior" in brief["senior_warning"]
     assert any(g["suggested"] for g in brief["grades"])
     assert brief["rules"] and any("90 дней" in r for r in brief["rules"])
+
+
+def test_failed_grade_allows_lower_grade_immediately_without_burning_retake(api, bank, make_account):
+    """Политика пересдач (DECISIONS п. 29): провал Middle → тест на Junior сразу, он не расходует пересдачу."""
+    acc = make_account()
+    do_survey(api, acc, months=30)
+    s1 = start(api, acc, "middle")
+    _finish_failed(api, bank, acc, s1["id"])
+    q = api.get("/api/tests/qualification/backend_python", acc)
+    assert q["status"] == "NOT_CONFIRMED" and q["can_start"]["code"] == "retake_cooldown"
+    assert q["lower_grades_open"] == ["intern", "junior"]
+    # на тот же грейд — ждать, на ниже — сразу
+    assert start(api, acc, "middle", expect=409)["code"] == "retake_cooldown"
+    brief = api.get("/api/tests/briefing?specialization=backend_python", acc)
+    by_code = {g["code"]: g for g in brief["grades"]}
+    assert by_code["middle"]["available"] is False and by_code["middle"]["note"]
+    assert by_code["junior"]["available"] is True
+    assert brief["mode"] == "test" and brief["can_start"]["ok"] is True
+    assert brief["retake_rules"] and "через 14 дней" in " ".join(brief["retake_rules"])
+    assert brief["retake_status"] and "сразу" in brief["retake_status"]
+    s2 = start(api, acc, "junior")
+    assert s2["kind"] == "retake"
+    _finish_failed(api, bank, acc, s2["id"])
+    q = api.get("/api/tests/qualification/backend_python", acc)
+    assert q["can_start"]["code"] == "retake_cooldown"  # ожидание на Middle не продлили
+    # бесплатная попытка не съела лимит из 3: после 14 дней доступно и Middle
+    advance_days(14)
+    advance(60)
+    s3 = start(api, acc, "middle")
+    assert s3["kind"] == "retake"

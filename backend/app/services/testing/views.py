@@ -23,6 +23,7 @@ from app.models.testing import ItemInstance, TestResponse
 from app.models.testing import TestSession as SessionRow
 from app.models.users import User
 from app.services.testing import labels as L
+from app.services.testing.express import apply_express, express_session_fields
 from app.services.testing.qualification import list_rows, load_domain
 from app.services.testing.schemas import (
     AttemptOut,
@@ -133,6 +134,7 @@ def session_out(ld: Loaded) -> SessionOut:
         parent_session_id=row.parent_session_id,
         child_session_id=uuid.UUID(s.extended_by) if s.extended_by else None,
         finished=s.status not in (SessionStatus.CREATED, SessionStatus.IN_PROGRESS, SessionStatus.PAUSED),
+        **express_session_fields(s),
     )
 
 
@@ -330,6 +332,9 @@ def result_out(db: Session, user: User, ld: Loaded) -> ResultOut:
     elif not granted and not offers and s.status in CLOSED_STATUSES:
         days = load_rules().retake_days
         message = f"Грейд не подтверждён. Повторить тест можно через {days} дней — откликаться на вакансии можно и сейчас"
+        lower = scale.prev_grade(s.claimed_grade) if s.claimed_grade in scale.grades else None
+        if lower is not None:
+            message += f". Тест на грейд ниже ({scale.grade_name(lower)}) можно пройти сразу — пересдачу он не расходует"
     if granted and not blind.given and not s.extended_by:
         message = "Чтобы работодатели вас увидели, дайте согласие на показ слепой карточки"
     if s.status == SessionStatus.EXTENSION_OFFERED and needs_review(ld):
@@ -354,7 +359,7 @@ def result_out(db: Session, user: User, ld: Loaded) -> ResultOut:
             s.decided_at,
         )
     cat = category_of(s.spec, granted) if granted else None
-    return ResultOut(
+    out = ResultOut(
         **base,
         visible=True,
         message=message,
@@ -379,6 +384,8 @@ def result_out(db: Session, user: User, ld: Loaded) -> ResultOut:
         review_available=True,
         blind_card_preview=preview,
     )
+    # Экспресс жюри: вместо категории — оценка с погрешностью или «нужен полный тест» (app/services/testing/express.py)
+    return apply_express(out, s, d, scale) if s.express else out
 
 
 # ---------------------------------------------------------------------------
@@ -601,6 +608,7 @@ def qualification_out(db: Session, user: User, spec: str, q: Qualification) -> Q
         next_attempt_allowed_at=q.next_attempt_allowed_at,
         next_attempt_in=L.rel(q.next_attempt_allowed_at) if q.next_attempt_allowed_at and q.next_attempt_allowed_at > now else None,
         can_start=rule_out(q.can_start_test(clock, rules)),
+        lower_grades_open=q.lower_grades_open(clock, rules, scale),
         can_upgrade=rule_out(q.can_start_upgrade(clock, scale, rules)),
         history=hist,
         attempts=attempts_out(db, user.id, spec),
@@ -631,6 +639,25 @@ def experience_months(db: Session, user_id: uuid.UUID) -> int | None:
     return int(prof.experience_months) if prof is not None and prof.experience_months is not None else None
 
 
+def nca_wait(q: Qualification) -> bool:
+    return bool(q.next_change_allowed_at and q.next_change_allowed_at > clock.now())
+
+
+def retake_rules_text(rules: Any) -> list[str]:
+    """Правила пересдачи и повышения простым языком; сроки — из config/testing.yaml (rules.*)."""
+    return [
+        f"Повысить грейд можно отдельным тестом на одну ступень вверх — не чаще раза в {rules.change_interval_days} дней "
+        "после последней смены грейда. Перескочить через уровень за один день нельзя.",
+        "Если заявленный грейд не подтвердился, вы получаете тот, который тест подтвердил — ниже заявленного. "
+        "Попытка при этом не сгорает.",
+        "Тест на более низкий грейд можно пройти сразу, не дожидаясь срока пересдачи: он не расходует пересдачу.",
+        f"Повторить тот же грейд можно через {rules.retake_days} дней; не больше {rules.max_attempts} попыток за "
+        f"{rules.attempts_window_days} дней.",
+        f"Неудачное повышение грейд не снижает: остаётся подтверждённый, а новая попытка повышения — через "
+        f"{rules.upgrade_retry_days} дней.",
+    ]
+
+
 def briefing_out(db: Session, user: User, spec: str, q: Qualification | None) -> BriefingOut:
     scale = load_scale()
     rules = load_rules()
@@ -653,6 +680,16 @@ def briefing_out(db: Session, user: User, spec: str, q: Qualification | None) ->
         check = rule_out(q.can_start_test(clock, rules))
     mode = "unavailable" if not check.ok else ("upgrade" if confirmed else "test")
     upgrade_target = scale.next_grade(q.grade) if confirmed and q and q.grade else None
+    lower_open: list[str] = []
+    if testable and q is not None and not confirmed and q.status == QualStatus.NOT_CONFIRMED:
+        lower_open = q.lower_grades_open(clock, rules, scale)
+        if lower_open and not check.ok:
+            # Ожидание пересдачи идёт, но грейды ниже проваленного открыты сразу (DECISIONS п. 29)
+            check = rule_out(q.can_start_test(clock, rules, lower_open[0], scale))
+            mode = "test"
+    waiting = testable and q is not None and not confirmed and q.status == QualStatus.NOT_CONFIRMED and bool(
+        q.next_attempt_allowed_at and q.next_attempt_allowed_at > clock.now()
+    )
     cards = [
         GradeCardOut(
             code=g,
@@ -660,9 +697,23 @@ def briefing_out(db: Session, user: User, spec: str, q: Qualification | None) ->
             score=round(scale.score(c)),
             anchor=L.grade_anchor(g),
             suggested=g == hint_grade,
+            available=not (waiting and g not in lower_open and not q.can_start_test(clock, rules, g, scale).ok),
+            note=(
+                f"Пересдача доступна {L.rel(q.next_attempt_allowed_at)}"
+                if waiting and g not in lower_open and q.next_attempt_allowed_at and not q.can_start_test(clock, rules, g, scale).ok
+                else None
+            ),
         )
         for g, c in scale.cuts
     ]
+    retake_status = None
+    if q is not None and q.status == QualStatus.NOT_CONFIRMED and q.last_failed_grade in scale.grades and waiting:
+        failed = scale.grade_name(q.last_failed_grade)
+        retake_status = f"Грейд «{failed}» не подтверждён: пересдать его можно {L.rel(q.next_attempt_allowed_at)}"
+        if lower_open:
+            retake_status += "; тест на грейд ниже — сразу, без ожидания"
+    elif confirmed and q is not None and nca_wait(q):
+        retake_status = f"Следующий тест на повышение — {L.rel(q.next_change_allowed_at)}"
     rules_text = [
         f"{cfg.n_min}–{cfg.n_max} заданий, обычно 12–15; около 20–25 минут",
         "Одно задание на экран, у каждого задания свой таймер; если время вышло, ответ засчитывается как неверный",
@@ -671,6 +722,7 @@ def briefing_out(db: Session, user: User, spec: str, q: Qualification | None) ->
         f"{cfg.pretest_count} пробных задания не влияют на результат и ничем не отличаются от остальных",
         "Грейд принудительно не понижаем",
         f"Смена грейда — не чаще 1 раза в {rules.change_interval_days} дней; повтор без грейда — через {rules.retake_days} дней",
+        "Грейд — это уровень навыков, а не стаж: подтверждает его только тест",
         "Журналируем уход со вкладки, вставку текста и время ответа. Камеры и микрофона нет",
     ]
     nca = q.next_change_allowed_at if confirmed and q else None
@@ -687,6 +739,8 @@ def briefing_out(db: Session, user: User, spec: str, q: Qualification | None) ->
         rules=rules_text,
         consent=consent_state(db, user.id, ConsentPurpose.test_logging),
         can_start=check,
+        retake_rules=retake_rules_text(rules),
+        retake_status=retake_status,
         current_grade=grade_ref(q.grade) if confirmed and q else None,
         upgrade_target=grade_ref(upgrade_target),
         next_change_allowed_at=nca,

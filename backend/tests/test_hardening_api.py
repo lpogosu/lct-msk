@@ -316,8 +316,12 @@ def _login(client, email: str, password: str) -> dict[str, str]:
 def _register(client, mailer, email: str, role: str) -> dict[str, str]:
     from tests.conftest import code_from_mail
 
-    assert client.post("/api/auth/register", json={"email": email, "password": "Parol-2026", "role": role, "consent_personal_data": True}).status_code == 201
-    r = client.post("/api/auth/verify-email", json={"email": email, "code": code_from_mail(mailer, email), "password": "Parol-2026"})
+    reg = client.post("/api/auth/register", json={"email": email, "password": "Parol-2026", "role": role, "consent_personal_data": True})
+    assert reg.status_code == 201
+    if reg.json()["status"] == "active":  # DEMO_MODE: регистрация без письма с кодом
+        r = client.post("/api/auth/login", json={"email": email, "password": "Parol-2026"})
+    else:
+        r = client.post("/api/auth/verify-email", json={"email": email, "code": code_from_mail(mailer, email), "password": "Parol-2026"})
     assert r.status_code == 200, r.text
     client.cookies.clear()
     return {"Authorization": f"Bearer {r.json()['access_token']}"}

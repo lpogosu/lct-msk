@@ -371,6 +371,12 @@ def register(
         scope={"context": "registration"},
     )
     audit(db, "auth.register", actor_id=user.id, actor_role=role, entity_type="user", entity_id=user.id, ip=meta.ip)
+    if settings.demo_mode and settings.demo_auto_verify_email:
+        # Демо для жюри: почту не подтверждаем, аккаунт сразу активен (вход — обычным /auth/login). Только DEMO_MODE.
+        _activate_email(db, settings, user, clock.now())
+        audit(db, "auth.email_verified", actor_id=user.id, actor_role=role, entity_type="user", entity_id=user.id, ip=meta.ip)
+        db.commit()
+        return user, SendStatus(sent=False, resend_available_in_s=0, sends_left_this_hour=0)
     db.commit()
     status = issue_verification_code(db, user, settings, mailer, enforce_limits=False)
     return user, status

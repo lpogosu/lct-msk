@@ -153,6 +153,18 @@ def test_sandbox_is_unique_per_visitor_and_shows_up_in_lab(demo_client, db_sessi
     assert counts["dismissed"] >= 1
 
 
+def test_sandbox_never_hands_out_same_instance_twice(demo_client, db_session):
+    """Корень флейка: запас прогретых заданий общий на процесс, и два проверяющих могли получить один и тот же экземпляр
+    (при малом запасе — целиком одинаковый набор). Обещание банка: одинаковые задания не расходятся между кандидатами,
+    поэтому экземпляр из запаса достаётся одному проверяющему, остальным — свежие."""
+    runs = [demo_client.post(START).json() for _ in range(3)]
+    seen: list[str] = []
+    for r in runs:
+        run = db_session.scalars(select(AnticheatSandboxRun).where(AnticheatSandboxRun.test_id == r["test_id"])).one()
+        seen += [f"{j['family_id']}:{j['seed']}" for j in run.items]
+    assert len(seen) == 12 and len(set(seen)) == 12, "один экземпляр выдан двум проверяющим"
+
+
 def test_sandbox_uses_family_twin_first(db_session):
     """Сборка песочницы идёт через dispatch: Family.twin() первым — семейства QA/DevOps со своим двойником в пуле."""
     from app.testing.anticheat.config import load_anticheat_config
@@ -173,6 +185,9 @@ def test_sandbox_assembles_from_warm_bank_without_building(demo_client, db_sessi
 
     first = demo_client.post(START).json()  # холодный старт: собирается на месте и пополняет запас
     assert sandbox.bank_size() >= 4
+    # Выданные экземпляры из запаса выбывают (см. test_sandbox_never_hands_out_same_instance_twice); здесь имитируем
+    # пополненный запас, чтобы проверить именно сборку без пересчёта двойников
+    sandbox._ISSUED.clear()
 
     def boom(*a, **k):
         raise AssertionError("двойник пересчитан, хотя задание есть в запасе")

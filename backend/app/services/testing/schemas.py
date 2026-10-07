@@ -166,6 +166,8 @@ class GradeCardOut(BaseModel):
     score: int = Field(description="Порог грейда на линейке 300–600")
     anchor: str | None = Field(default=None, description="Поведенческий якорь для карточки")
     suggested: bool = Field(description="Подсказка по стажу указывает на этот грейд")
+    available: bool = Field(default=True, description="Тест на этот грейд можно начать сейчас (иначе — ждём пересдачу)")
+    note: str | None = Field(default=None, description="Почему грейд сейчас недоступен и когда станет доступен")
 
 
 class BriefingOut(BaseModel):
@@ -182,6 +184,12 @@ class BriefingOut(BaseModel):
     rules: list[str] = Field(description="Правила теста для брифинга")
     consent: ConsentStateOut = Field(description="Согласие на журналирование событий теста — обязательно для старта")
     can_start: RuleCheckOut = Field(description="Можно ли начать сейчас и когда станет можно")
+    retake_rules: list[str] = Field(
+        default_factory=list, description="Правила пересдачи и повышения простым языком (значения сроков — из config/testing.yaml)"
+    )
+    retake_status: str | None = Field(
+        default=None, description="Личный итог: когда можно пересдать, на какой грейд — сразу (после неудачи)"
+    )
     current_grade: GradeRef | None = Field(default=None, description="Подтверждённый грейд")
     upgrade_target: GradeRef | None = Field(default=None, description="Грейд теста на повышение")
     next_change_allowed_at: datetime | None = Field(default=None, description="Ближайшая возможная смена грейда")
@@ -195,6 +203,13 @@ class SessionCreateIn(_In):
     upgrade: bool = Field(default=False, description="Тест на повышение на одну ступень")
     consent_test_logging: bool = Field(
         default=False, description="Галочка брифинга: согласие на журналирование событий теста (записывается в журнал)"
+    )
+    express: bool | None = Field(
+        default=None,
+        description=(
+            "Экспресс-версия для жюри (только DEMO_MODE, иначе 404): до 8 заданий и бюджет ≈ 4 минуты, тот же движок и "
+            "банк, сессия demo_assisted, категория не присваивается"
+        ),
     )
 
 
@@ -217,6 +232,11 @@ class SessionOut(BaseModel):
     parent_session_id: uuid.UUID | None = Field(default=None, description="Для добора — основная сессия")
     child_session_id: uuid.UUID | None = Field(default=None, description="Принятый добор (продолжение)")
     finished: bool = Field(description="Ответы больше не принимаются")
+    express: bool = Field(default=False, description="Экспресс-версия для жюри (DEMO_MODE): короткий тест, категория не присваивается")
+    express_deadline_at: datetime | None = Field(
+        default=None, description="Экспресс: когда истекает бюджет времени (после него решение по уже данным ответам)"
+    )
+    express_items_max: int | None = Field(default=None, description="Экспресс: потолок заданий")
 
 
 class OptionOut(BaseModel):
@@ -386,6 +406,21 @@ class BlindCardPreviewOut(BaseModel):
     note: str = Field(description="Что работодатель НЕ видит")
 
 
+class ExpressResultOut(BaseModel):
+    """Честная подача результата экспресс-версии: оценка с широкой погрешностью, а не категория."""
+
+    badge: str = Field(description="«Экспресс-версия для жюри»")
+    verdict: str = Field(description="estimate_pass | estimate_below | inconclusive")
+    headline: str = Field(description="Главная строка: оценка или «Грейд не определён точно — нужен полный тест»")
+    note: str = Field(description="Что это значит")
+    margin_note: str = Field(description="Погрешность: 80%-интервал балла и его ширина")
+    interval_width: int = Field(description="Ширина 80%-интервала, баллов")
+    n_items: int = Field(description="Заданий в экспрессе")
+    stop_reason: str = Field(description="confidence | max_items | time_budget | bank_exhausted")
+    full_test_title: str = Field(description="Что даёт полный тест")
+    full_test: list[str] = Field(description="Чем полный тест отличается от экспресса")
+
+
 class ResultOut(BaseModel):
     session: SessionOut = Field(description="Сессия")
     visible: bool = Field(description="Результат показан (false — на проверке, прерван или аннулирован)")
@@ -410,6 +445,7 @@ class ResultOut(BaseModel):
     review_available: bool = Field(description="Доступен разбор ошибок")
     blind_card_consent: ConsentStateOut = Field(description="Согласие на показ слепой карточки: без него кандидата нет в банке")
     blind_card_preview: BlindCardPreviewOut | None = Field(default=None, description="«Так вас видит работодатель»")
+    express: ExpressResultOut | None = Field(default=None, description="Экспресс-версия для жюри: оценка вместо категории (иначе null)")
 
 
 class ReviewItemOut(BaseModel):
@@ -515,6 +551,9 @@ class QualificationOut(BaseModel):
     next_attempt_allowed_at: datetime | None = Field(default=None, description="Ближайшая попытка")
     next_attempt_in: str | None = Field(default=None, description="То же — относительно")
     can_start: RuleCheckOut = Field(description="Можно ли начать тест")
+    lower_grades_open: list[str] = Field(
+        default_factory=list, description="Грейды ниже проваленного: тест доступен сразу, пересдачу не расходует"
+    )
     can_upgrade: RuleCheckOut = Field(description="Можно ли пройти тест на повышение")
     history: list[GradeChangeOut] = Field(default_factory=list, description="Смены грейда")
     attempts: list[AttemptOut] = Field(default_factory=list, description="Попытки и доборы")
