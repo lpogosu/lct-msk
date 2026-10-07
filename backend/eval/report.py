@@ -348,10 +348,14 @@ def render_markdown(r: Mapping[str, Any], *, charts: Mapping[str, Path], doc_dir
               f"пороговых пунктов. Не выполнены: " + (", ".join(f"«{t['label']}»" for t in failed) if failed else "нет") + ".", ""]
     L += _data_section(r)
     L += _testing_section(r, charts, doc_dir)
+    from eval import report_spec  # отложенный импорт: report_spec берёт форматтеры из этого модуля
+
+    L += report_spec.spec_section(r, doc_dir)
     L += _vcat_section(r)
     L += _matching_section(r, charts, doc_dir)
     L += _pairs_section(r)
     L += _limits_section(r, failed)
+    L += report_spec.jury_section()
     L += [
         "## Как воспроизвести",
         "",
@@ -359,6 +363,8 @@ def render_markdown(r: Mapping[str, Any], *, charts: Mapping[str, Path], doc_dir
         "cd backend",
         "uv run python -m eval.validate            # полный прогон: этот файл, eval/out/validation.json, графики, набор пар",
         "uv run python -m eval.validate --quick    # дымовой прогон на меньших выборках (eval/out/validation_quick.json)",
+        "uv run python -m eval.spec_validation --quick   # только test-retest и разделяющая способность (eval/out/spec_validation.json)",
+        "uv run python -m eval.jury_check eval/jury_profiles_example.jsonl   # проверка на своих профилях (раздел 7)",
         "uv run python -m eval.validate --save-db  # дополнительно записать ValidationRun в базу",
         "uv run python -m eval.validate --save-db --from-json eval/out/validation.json  # залить готовый результат без прогона",
         "```",
@@ -818,9 +824,14 @@ def _pairs_section(r: Mapping[str, Any]) -> list[str]:
           "- `rel` — релевантность 0–3 по оракулу (релевантен ⇔ rel ≥ 2); `ranks_top20` — место в топ-20 каждой системы пула.",
           "",
           "Как пользоваться: ранжируйте кандидатов каждого брифа своей системой (или нашей — порядок в `ranks_top20`) и "
-          "посчитайте P@k по полю `rel`. Импорт этого файла через `POST /api/admin/import` и выдача через "
-          "`POST /api/eval/rank` запланированы (DECISIONS п.5) и будут принимать ровно этот формат. Скрытой истины "
-          "(истинный уровень, истинный стек) в файле нет — только итоговая метка оракула.", ""]
+          "посчитайте P@k по полю `rel`. Импорт этого файла и своих пар — `POST /api/admin/import`, "
+          "метрики — `POST /api/admin/eval/pairs`, ранжирование — `POST /api/admin/eval/rank` (раздел 7). Скрытой истины "
+          "(истинный уровень, истинный стек) в файле нет — только итоговая метка оракула.", "",
+          "**Как набор собран.** Популяция с латентной истиной (`eval/population.py`) → 40 брифов (`eval/briefs`, эталон "
+          "разметки написан командой) → для каждого test-брифа пул из топ-20 пяти систем и 10 случайных кандидатов → "
+          "`rel` 0–3 даёт оракул по скрытой истине (специализация, грейд, доля must/nice в истинном стеке, формат/город — "
+          "не учитывается); релевантен rel ≥ 2. **Размер** — см. выше; минимального размера организаторы не требуют. "
+          "**Ограничение:** разметка машинная, не рекрутерская (см. раздел 6).", ""]
     return L
 
 
@@ -844,6 +855,11 @@ def _limits_section(r: Mapping[str, Any], failed: Sequence[Mapping[str, Any]]) -
          "- В банке нет pretest-семейств: r_pb считается по боевым заданиям с оценкой уровня без этого задания.",
          "- Fullstack как производная категория в популяции не порождается (каждый кандидат проходит один тест), поэтому "
          "Fullstack-брифы ищут в смежных категориях Backend и Frontend.",
+         "- Test-retest и разделяющая способность (2.11) измерены на симулированных профилях: ответы порождает модель Раша с "
+         "экспертными сложностями и допущенным разбросом клонов, поэтому цифры — верхняя оценка для живых людей, где к "
+         "шуму добавятся усталость, подсказки и неидеальные ключи. Ретеста на людях не проводилось.",
+         "- Покрытие двойниками неполное (2.11): для части форматов (выбор ответа, не исполняемые языки) двойник не строится; "
+         "recall двойника на моделях и людях не измерен.",
          "- Формат работы и город оракул не учитывает, а наша формула учитывает (компонент U): часть «ошибок» по оракулу — "
          "это кандидаты, которых формула честно опустила из-за формата.",
          ""]

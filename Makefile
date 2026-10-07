@@ -25,7 +25,7 @@ COMPOSE ?= docker compose
 USERS   ?= 50
 RUNTIME ?= 3m
 
-.PHONY: help up up-infra down ps logs demo creds reset-demo-stack migrate gen-pool seed reset-demo demo-accounts test lint validate dev loadtest-accounts loadtest
+.PHONY: help up up-infra down ps logs demo creds reset-demo-stack migrate gen-pool seed reset-demo demo-accounts test lint validate jury-check dev loadtest-accounts loadtest
 
 help:
 	@echo "make up | demo | creds | ps | logs | down | up-infra | migrate | gen-pool | seed | reset-demo | test | lint | validate | dev | loadtest-accounts | loadtest"
@@ -96,6 +96,10 @@ lint:
 # Валидация решения (симуляция + подбор): docs/VALIDATION.md и backend/eval/out/validation.json
 validate:
 	$(UV) python -m eval.validate
+
+# Проверка жюри на своих синтетических профилях: make jury-check PROFILES=eval/jury_profiles_example.jsonl
+jury-check:
+	$(UV) python -m eval.jury_check $(or $(PROFILES),eval/jury_profiles_example.jsonl)
 
 # Бэкенд в DEMO_MODE: автоответчик синтетических кандидатов, «+1 день / +3 дня», режим жюри, приёмник вебхуков
 dev:

@@ -141,7 +141,9 @@
               "enum": [
                 "backend_python",
                 "frontend_js",
-                "fullstack"
+                "fullstack",
+                "qa",
+                "devops"
               ]
             },
             "grade": {

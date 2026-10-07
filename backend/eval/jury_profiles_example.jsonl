@@ -1,0 +1,16 @@
+{"id": "ex01", "spec": "backend_python", "true_grade": "intern", "claimed_grade": "intern"}
+{"id": "ex02", "spec": "backend_python", "true_grade": "junior"}
+{"id": "ex03", "spec": "backend_python", "true_grade": "middle", "claimed_grade": "middle"}
+{"id": "ex04", "spec": "backend_python", "true_grade": "senior"}
+{"id": "ex05", "spec": "frontend_js", "true_grade": "intern", "claimed_grade": "intern"}
+{"id": "ex06", "spec": "frontend_js", "true_grade": "junior"}
+{"id": "ex07", "spec": "frontend_js", "true_grade": "middle", "claimed_grade": "middle"}
+{"id": "ex08", "spec": "frontend_js", "true_grade": "senior"}
+{"id": "ex09", "spec": "qa", "true_grade": "intern", "claimed_grade": "intern"}
+{"id": "ex10", "spec": "qa", "true_grade": "junior"}
+{"id": "ex11", "spec": "qa", "true_grade": "middle", "claimed_grade": "middle"}
+{"id": "ex12", "spec": "qa", "true_grade": "senior"}
+{"id": "ex13", "spec": "devops", "true_grade": "intern", "claimed_grade": "intern"}
+{"id": "ex14", "spec": "devops", "true_grade": "junior"}
+{"id": "ex15", "spec": "devops", "true_grade": "middle", "claimed_grade": "middle"}
+{"id": "ex16", "spec": "devops", "true_grade": "senior"}

@@ -34,6 +34,7 @@ from typing import Any
 
 from eval import matching_eval as ME
 from eval import metrics as M
+from eval import spec_validation as SV
 from eval import testing_eval as T
 from eval import vcat
 from eval.common import MASTER_SEED, REF_DATE, bank_for, real_bank
@@ -280,6 +281,10 @@ def run(rc: RunConfig, *, workers: int | None = None, log: bool = True) -> dict[
         "tags": T.tags_section(pop),
         "no_fsp": _no_fsp_section(pop),
     }
+    t_sv = time.perf_counter()
+    spec_validation = SV.run(SV.SpecRunConfig.make(rc.quick, rc.seed), workers=workers)
+    durations["spec_validation"] = time.perf_counter() - t_sv
+    say(f"раздел spec_validation: {durations['spec_validation']:.1f} с")
     matching = parts["matching"]
     result: dict[str, Any] = {
         "meta": {},
@@ -287,6 +292,7 @@ def run(rc: RunConfig, *, workers: int | None = None, log: bool = True) -> dict[
                        "config": _pop_config(pop.cfg)},
         "testing": testing,
         "categorization": parts["vcat"],
+        "spec_validation": spec_validation,
         "matching": ME.strip_private(matching),
     }
     result["_matching_private"] = {"_rankings": matching["_rankings"], "_rels": matching["_rels"]}
@@ -358,8 +364,18 @@ def public_result(result: Mapping[str, Any]) -> dict[str, Any]:
     return M.round_tree(out, 4)
 
 
+def write_summary(pub: Mapping[str, Any], path: Path) -> None:
+    """Малый итог для жюри (коммитится): метаданные, плитки «Итогов» и test-retest/разделяющая способность."""
+    summary = {"meta": {k: pub["meta"].get(k) for k in ("mode", "seed", "git_sha", "bank_families", "scoring_config_version")},
+               "command": "cd backend && uv run python -m eval.validate",
+               "tiles": pub.get("tiles"), "spec_validation": pub.get("spec_validation")}
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(summary, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+
+
 def write_outputs(result: dict[str, Any], *, out_dir: Path, docs_path: Path | None, charts_dir: Path,
-                  pairs_path: Path | None, quick: bool) -> dict[str, str]:
+                  pairs_path: Path | None, quick: bool, summary_path: Path | None = None,
+                  img_dir: Path | None = None) -> dict[str, str]:
     from eval import report
 
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -377,6 +393,15 @@ def write_outputs(result: dict[str, Any], *, out_dir: Path, docs_path: Path | No
     json_path = out_dir / (QUICK_RESULT_NAME if quick else RESULT_NAME)
     json_path.write_text(json.dumps(pub, ensure_ascii=False, indent=1, sort_keys=False) + "\n", encoding="utf-8")
     paths["json"] = str(json_path)
+    if summary_path is not None:
+        write_summary(pub, summary_path)
+        paths["summary"] = str(summary_path)
+    if img_dir is not None:
+        from eval import spec_charts
+
+        made = spec_charts.make_charts(pub["spec_validation"], img_dir)
+        if made:
+            paths["png"] = ", ".join(str(m) for m in made)
     charts_dir.mkdir(parents=True, exist_ok=True)
     charts = report.write_charts(pub, charts_dir)
     if docs_path is not None:
@@ -484,8 +509,10 @@ def main(argv: list[str] | None = None) -> int:
         docs = args.docs or (REPO_DIR / "docs" / "VALIDATION.md")
         pairs = None if args.no_pairs else EVAL_DIR / "pairs_test.jsonl"
     result = run(rc, workers=args.workers)
+    official = not (custom or rc.quick)
     paths = write_outputs(result, out_dir=out_dir, docs_path=docs, charts_dir=charts_dir, pairs_path=pairs,
-                          quick=rc.quick)
+                          quick=rc.quick, summary_path=EVAL_DIR / "results" / "summary.json" if official else None,
+                          img_dir=REPO_DIR / "docs" / "img" if official else None)
     if args.save_db:
         paths["db_rows"] = str(_save_db(public_result(result)))
     for k, v in paths.items():
