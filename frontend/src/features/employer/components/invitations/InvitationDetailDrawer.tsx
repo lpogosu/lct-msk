@@ -1,5 +1,6 @@
 import { Alert, Skeleton } from '@/ui'
 import { Drawer } from '@/ui/Drawer'
+import { ChatPanel } from '@/features/chat/ChatPanel'
 import { useInvitation } from '../../api'
 import { BlockTitle, Label, LoadError, Tag } from '../common'
 
@@ -70,6 +71,8 @@ export function InvitationDetailDrawer({ id, onClose }: { id: string; onClose: (
               </div>
             )}
           </section>
+
+          {disclosed && <ChatPanel kind="invitation" refId={id} title="Чат с кандидатом" />}
 
           {d.why_you.length > 0 && (
             <section className="flex flex-col gap-2" aria-label="Почему вы">

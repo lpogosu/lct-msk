@@ -229,6 +229,15 @@ sequenceDiagram
 | `GET` | `/api/companies/me/webhooks` | работодатель | Журнал доставок вебхуков |
 | `POST` | `/api/companies/me/webhooks/test` | работодатель | Проверить вебхук |
 | `POST` | `/api/companies/me/webhooks/rotate-secret` | работодатель | Новый секрет подписи |
+| `GET` / `PUT` | `/api/companies/me/ats` | работодатель | Настройки ATS: тип (Нет / Вебхук / Хантфлоу), адрес, токен (шифруется, не возвращается) |
+| `POST` | `/api/companies/me/ats/check` | работодатель | Проверить подключение (эмулятор записывает запрос в журнал) |
+| `GET` | `/api/companies/me/ats/log` | работодатель | «Журнал ATS» |
+| `GET` / `POST` | `/api/companies/me/ats/keys` | работодатель | API-ключи компании: список, создание (ключ виден один раз) |
+| `POST` / `DELETE` | `/api/companies/me/ats/keys/{id}/rotate`, `/api/companies/me/ats/keys/{id}` | работодатель | Перевыпуск и отзыв ключа |
+| `GET` | `/api/ats/v1/me`, `/vacancies`, `/invitations[/{id}]`, `/applications[/{id}]` | ключ компании | Pull-API для ATS: курсор, `updated_since`, контакты только при раскрытии и `contacts:read` |
+| `POST` | `/api/ats/v1/invitations/{id}/status`, `/api/ats/v1/applications/{id}/status` | ключ компании (`status:write`) | Статус из ATS через машину состояний, `Idempotency-Key`, 409 при недопустимом переходе — [ATS_INTEGRATION.md](ATS_INTEGRATION.md) |
+| `GET` | `/api/chat/threads`, `/api/chat/unread` | кандидат, работодатель | Переписки и непрочитанные (чат после «Взаимно») |
+| `GET` / `POST` | `/api/chat/{kind}/{id}`, `/api/chat/{kind}/{id}/messages` | кандидат, работодатель | Переписка по приглашению (`invitation`) или отклику (`application`); только после взаимного «да» |
 | `GET` | `/api/companies/{company_id}/reliability` | любой вошедший | Надёжность компании |
 
 ### Потребности и подборка
@@ -462,7 +471,7 @@ curl -s -X POST "$API/admin/eval/rank?format=csv" -H "Authorization: Bearer $ADM
 
 | Что | Состояние |
 |---|---|
-| ATS: `GET /ats/invitations?updated_since=`, `POST /ats/status` (забор изменений и обратная синхронизация этапов) | В разработке; исходящие вебхуки работают (`/api/companies/me/webhooks*`) |
+| ATS: забор изменений и обратная синхронизация этапов | Готово: `/api/ats/v1/*`, адаптер «Хантфлоу» (эмулятор; боевой режим не проверялся на живом сервисе) — [ATS_INTEGRATION.md](ATS_INTEGRATION.md); исходящие вебхуки работают (`/api/companies/me/webhooks*`) |
 | «Сигнал интереса» | В разработке |
 | События «Антиподсказчика» | `POST /api/tests/sessions/{id}/events` принимает `copy`, `cut`, `dragstart`, `self_paste`, `copy_bypass` и пишет их в журнал; серверная обработка (хуки `anticheat_hooks.py`) и клиентский обработчик — в разработке |
 | Направления QA и DevOps в тесте | В коде есть первые семейства, но `POST /api/tests/sessions` для них отвечает `409 specialization_not_testable`, пока направления не включены в `config/taxonomy.yaml` |

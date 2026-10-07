@@ -17,7 +17,7 @@ salary:
   hard_max_ratio: 2.0     # to/from > 2.0 → блокировка (DECISIONS 6)
   types:
     net: на руки
-    gross: до НДФЛ
+    gross: до вычета НДФЛ   # явная подпись базиса: везде «на руки» или «до вычета НДФЛ» (DECISIONS п. 29)
 
 # --- Содержимое приглашения -------------------------------------------------------------------
 invitation:
@@ -492,3 +492,60 @@ http_limits:
   apply_per_minute: 10          # отклики на вакансии
   task_submit_per_minute: 20    # ответы на задачи
   webhook_test_per_minute: 5    # тестовая отправка вебхука
+
+# --- Чат после «Взаимно» [доп.] (Q&A 07.10, DECISIONS 29) --------------------------------------
+# Доступен обеим сторонам только после взаимного «да» (приглашение «Принято» / отклик «Есть интерес»
+# при действующем согласии на раскрытие контактов). Отзыв согласия — работодатель теряет доступ,
+# кандидат видит историю; завершённый контакт — только чтение.
+chat:
+  max_len: 1000                 # знаков в сообщении
+  page_size: 50                 # сообщений за один запрос истории
+  rate_per_minute: 10           # сообщений в минуту от одного пользователя
+  thread_max_messages: 500      # потолок на переписку (защита от спама)
+  email_notify: true            # письмо о новом сообщении (не чаще, чем раз в email_min_interval_min)
+  email_min_interval_min: 30
+  demo_reply_enabled: true      # DEMO_MODE: синтетический кандидат отвечает заготовкой
+  demo_replies:
+    - Спасибо за сообщение! Давайте созвонимся в удобное для вас время.
+    - Здравствуйте! Мне подходит, предложите, пожалуйста, два-три слота на этой неделе.
+    - Благодарю, получил(а). Напишу подробнее, как только сверюсь с календарём.
+
+# --- Интеграция с ATS работодателя [доп.] (концепция §8.2, DECISIONS 29) --------------------------
+ats:
+  page_size_default: 50
+  page_size_max: 100
+  key_prefix: vzk               # ключ: vzk_<id>_<секрет>; в БД только sha256 секрета
+  key_secret_bytes: 24
+  max_keys_per_company: 5
+  rate_per_minute: 120          # запросов к /api/ats/v1 в минуту на ключ
+  log_size: 50                  # «Журнал ATS» в профиле компании
+  idempotency_ttl_days: 7
+  scopes:
+    vacancies:read: Читать вакансии
+    invitations:read: Читать приглашения и их статусы
+    applications:read: Читать отклики и их статусы
+    contacts:read: Получать контакты кандидатов (только при действующем согласии)
+    status:write: Передавать статусы из ATS (интервью, оффер, нанят, отказ)
+  types:
+    none: Нет
+    webhook: Вебхук
+    huntflow: Хантфлоу
+  huntflow:
+    default_base_url: https://api.huntflow.ru/v2
+    timeout_s: 5
+    emulator_account_id: 1        # условный номер организации в режиме эмулятора
+    # Названия этапов воронки Хантфлоу: в реальном режиме берутся из GET /accounts/{id}/vacancies/statuses
+    stage_names:
+      new: Новый кандидат
+      contacted: Первичный контакт
+      interview: Интервью
+      offer: Оффер
+      hired: Нанят
+      rejected: Отказ
+    # id этапов в эмуляторе (в реальном режиме подставляются настоящие)
+    emulator_stage_ids: {new: 101, contacted: 102, interview: 103, offer: 104, hired: 105, rejected: 106}
+    emulator_rejection_reasons: {skills_missing: 201, position_closed: 202, chose_other: 203, salary: 204, other: 205}
+  # статус ATS → что делаем у нас (для приглашений); остальное — 409
+  status_map:
+    invitation: [contacted, interview, offer, hired, rejected]
+    application: [viewed, interested, rejected]

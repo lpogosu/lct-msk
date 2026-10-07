@@ -8,9 +8,11 @@ from app.api import (
     admin,
     anticheat,
     applications,
+    ats,
     auth,
     bank,
     candidates,
+    chat,
     companies,
     consents,
     demo,
@@ -49,6 +51,8 @@ OPENAPI_TAGS: list[dict[str, str]] = [
         "name": "Антиподсказчик",
         "description": "«Подтверждение за 5 минут» для работодателя (после раскрытия контакта) и песочница жюри «Попробуй списать» (DEMO_MODE).",
     },
+    {"name": "Чат", "description": "Переписка кандидата и работодателя после взаимного «да» (текст, лимиты, непрочитанные)."},
+    {"name": "Интеграция ATS", "description": "Интеграция с системой найма работодателя: pull-API /api/ats/v1 по ключу компании и приём статусов из ATS."},
     {"name": "Компании", "description": "Профиль компании-работодателя и интеграция с ATS (вебхуки)."},
     {"name": "Кандидат", "description": "Профиль и резюме кандидата, стандартизированный PDF-профиль, настройки приватности и поиска."},
     {"name": "Уведомления", "description": "Уведомления внутри платформы."},
@@ -59,7 +63,7 @@ OPENAPI_TAGS: list[dict[str, str]] = [
 api_router = APIRouter(prefix=API_PREFIX)
 for module in (
     health, auth, consents, companies, candidates, survey, testing, needs, bank, invitations, applications,
-    vacancies, tasks, notifications, fsp, verify, lab, anticheat, demo, admin,
+    vacancies, tasks, notifications, chat, ats, fsp, verify, lab, anticheat, demo, admin,
 ):
     api_router.include_router(module.router)
 api_router.include_router(bank.skills_router)  # GET /api/skills — справочник навыков для фильтров

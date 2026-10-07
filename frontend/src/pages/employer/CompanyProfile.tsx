@@ -4,6 +4,7 @@ import { api, unwrap } from '@/api/client'
 import { ApiException, errorMessage } from '@/api/errors'
 import { qk, useCompany, useSaveCompany, type CompanyMe, type CompanyProfileIn } from '@/features/employer/api'
 import { BlockTitle, Label, LoadError, PageHead, PageSkeleton, Tag } from '@/features/employer/components/common'
+import { AtsPanel } from '@/features/employer/components/AtsPanel'
 import { CompanyCardView } from '@/features/employer/components/CompanyCardView'
 import { Alert, Button, Input, Panel, Skeleton, TextArea, useToast } from '@/ui'
 
@@ -76,7 +77,12 @@ export default function CompanyProfile() {
         ) : company.isError ? (
           <LoadError error={company.error} onRetry={() => void company.refetch()} />
         ) : (
-          <ProfileForm me={company.data} />
+          <>
+            <ProfileForm me={company.data} />
+            <div className="mt-14 border-t border-hairline pt-10">
+              <AtsPanel />
+            </div>
+          </>
         )}
       </div>
     </div>

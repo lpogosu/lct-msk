@@ -206,6 +206,10 @@ def persist(ctx: Ctx, row: Application, app: DApp, out: Outcome) -> None:
             event_type = f"application.{ev.to_status}" if ev.from_status != ev.to_status else f"application.{ev.action}"
             webhooks.enqueue(db, company, event_type, webhook_data(ctx, row, app, ev), ev.id, ev.at)
         ctx.companies.add(company.id)
+    if out.events:
+        from app.services.ats import sync as ats_sync  # локально: ats импортирует слой контакта
+
+        ats_sync.on_application_events(db, row, app, out.events)
 
 
 def refresh_rows(ctx: Ctx, rows: Iterable[Application]) -> None:

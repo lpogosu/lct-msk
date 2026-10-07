@@ -360,6 +360,46 @@ class HttpLimitsCfg(_Frozen):
     webhook_test_per_minute: int
 
 
+class ChatCfg(_Frozen):
+    max_len: int = Field(ge=1)
+    page_size: int = Field(ge=1)
+    rate_per_minute: int = Field(ge=1)
+    thread_max_messages: int = Field(ge=1)
+    email_notify: bool
+    email_min_interval_min: int
+    demo_reply_enabled: bool
+    demo_replies: list[str] = Field(min_length=1)
+
+
+class AtsHuntflowCfg(_Frozen):
+    default_base_url: str
+    timeout_s: float
+    emulator_account_id: int
+    stage_names: dict[str, str]
+    emulator_stage_ids: dict[str, int]
+    emulator_rejection_reasons: dict[str, int]
+
+
+class AtsStatusMapCfg(_Frozen):
+    invitation: list[str]
+    application: list[str]
+
+
+class AtsCfg(_Frozen):
+    page_size_default: int = Field(ge=1)
+    page_size_max: int = Field(ge=1)
+    key_prefix: str
+    key_secret_bytes: int = Field(ge=16)
+    max_keys_per_company: int = Field(ge=1)
+    rate_per_minute: int = Field(ge=1)
+    log_size: int = Field(ge=1)
+    idempotency_ttl_days: int = Field(ge=1)
+    scopes: dict[str, str]
+    types: dict[str, str]
+    huntflow: AtsHuntflowCfg
+    status_map: AtsStatusMapCfg
+
+
 class ContactConfig(_Frozen):
     version: int
     timezone_offset_hours: int
@@ -390,6 +430,8 @@ class ContactConfig(_Frozen):
     feedback: FeedbackCfg
     notifications: NotificationsCfg
     http_limits: HttpLimitsCfg
+    chat: ChatCfg
+    ats: AtsCfg
 
     @model_validator(mode="after")
     def _cross(self) -> ContactConfig:

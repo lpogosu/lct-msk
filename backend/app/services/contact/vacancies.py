@@ -128,6 +128,9 @@ def publish(db: Session, user: User, spec: VacancySpec) -> tuple[Vacancy, list[s
     )
     db.add(vac)
     db.flush()
+    from app.services.ats import sync as ats_sync  # локально: ats импортирует слой контакта
+
+    ats_sync.on_vacancy_published(db, vac)
     return vac, warnings
 
 

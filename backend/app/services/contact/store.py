@@ -323,6 +323,10 @@ def persist(ctx: Ctx, row: Invitation, inv: DInv, out: Outcome, *, comment: str 
         for ev in out.events:
             webhooks.enqueue(db, company, webhook_type(ev), webhook_data(ctx, row, inv, ev), ev.id, ev.at)
         ctx.companies.add(company.id)
+    if out.events:
+        from app.services.ats import sync as ats_sync  # локально: ats импортирует слой контакта
+
+        ats_sync.on_invitation_events(db, row, inv, out.events)
 
 
 def webhook_type(ev: DEvent) -> str:
@@ -376,6 +380,7 @@ def _apply_effect(ctx: Ctx, row: Invitation, inv: DInv, kind: str, data: Mapping
         save_disclosure(db, data["disclosure"])
     elif kind == "disclosure_revoked":
         revoke_disclosure_rows(db, data["disclosure"])
+        row.updated_at = now()  # pull-API ATS (updated_since) должен увидеть пропажу контактов
     elif kind == "new_terms":
         db.add(terms_to_row(data["terms"]))
     elif kind == "feedback":
@@ -505,8 +510,16 @@ def refresh_rows(ctx: Ctx, rows: Iterable[Invitation]) -> None:
     """Применить истёкшие сроки (событие датируется дедлайном) и разослать созревшие напоминания."""
     at = now()
     c = cfg()
-    for row in rows:
+    # Строки блокируются в одном порядке (по id): два параллельных чтения списка с пересекающимися приглашениями
+    # иначе берут блокировки навстречу друг другу и получают deadlock (нагрузочный тест, docs/LOAD_TEST.md)
+    for row in sorted(rows, key=lambda r: str(r.id)):
         if not needs_refresh(row):
+            continue
+        # Пробный прогон без блокировки: чтение списка почти всегда ничего не меняет (срок не наступил, напоминаний нет),
+        # и блокировать «на всякий случай» каждую ожидающую строку на каждом GET незачем
+        probe = to_domain(ctx.db, row)
+        probe_out = refresh(probe, at, c)
+        if not (probe_out.events or probe_out.side_effects or due_reminders(probe, at, list(row.reminders_sent or []), c)):
             continue
         # Блокировка строки: два одновременных чтения не применят один и тот же срок дважды
         ctx.db.refresh(row, with_for_update=True)

@@ -41,6 +41,7 @@ from app.mail.sender import Mailer, MailError, OutgoingMail
 from app.models.company import Company, WebhookDelivery
 from app.models.contact import Application, Feedback, Invitation, Vacancy
 from app.models.enums import NeedStatus, UserRole, VacancyStatus
+from app.models.integration import AtsLog, ChatMessage
 from app.models.matching import Need
 from app.models.users import AuditLog, User
 
@@ -93,10 +94,15 @@ def _scrub_candidate_links(db: Session, candidate_id: uuid.UUID) -> dict[str, in
     inv_ids = [str(i) for i in db.scalars(select(Invitation.id).where(Invitation.candidate_id == candidate_id))]
     app_ids = [str(i) for i in db.scalars(select(Application.id).where(Application.candidate_id == candidate_id))]
     target_ids = [uuid.UUID(i) for i in inv_ids + app_ids]
-    counts = {"feedback": 0, "webhook_deliveries": 0}
+    counts = {"feedback": 0, "webhook_deliveries": 0, "chat_messages": 0, "ats_log": 0}
     if target_ids:
         res = db.execute(delete(Feedback).where(Feedback.target_id.in_(target_ids)))
         counts["feedback"] = int(res.rowcount or 0)
+        # чат и «Журнал ATS» ссылаются на приглашения/отклики без внешнего ключа: текст переписки и запросы с контактами стираем
+        res = db.execute(delete(ChatMessage).where(ChatMessage.ref_id.in_(target_ids)))
+        counts["chat_messages"] = int(res.rowcount or 0)
+        res = db.execute(delete(AtsLog).where(AtsLog.entity_id.in_(inv_ids + app_ids)))
+        counts["ats_log"] = int(res.rowcount or 0)
     if inv_ids or app_ids:
         # копии событий для ATS компании: контакты кандидата (если были раскрыты) стираем, остальное — без ПДн
         res = db.execute(

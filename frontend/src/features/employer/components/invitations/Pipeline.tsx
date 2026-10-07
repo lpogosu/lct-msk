@@ -155,6 +155,7 @@ function AcceptedCard({ card, h }: { card: InvitationCard; h: CardHandlers }) {
         ))}
       {!card.contacts_open && <p className="t-small text-ink-3">Контакты откроются после согласия кандидата</p>}
       {card.stage === 'interview' && <Tag tone="brand">собеседование</Tag>}
+      {card.stage === 'offer' && <Tag tone="brand">оффер</Tag>}
       {!card.contacted && t.contact_due_text && (
         <p className={cn('t-small', card.contact_overdue ? 'font-medium text-danger-text' : 'text-danger-text')}>
           {card.contact_overdue ? 'Срок первого контакта вышел' : `Свяжитесь ${t.contact_due_text}`}

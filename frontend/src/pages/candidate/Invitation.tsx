@@ -8,6 +8,7 @@ import { QueryBoundary } from '@/features/candidate/components/QueryBoundary'
 import { salaryHero } from '@/features/candidate/format'
 import { useInvitationActions } from '@/features/candidate/invitation/actions'
 import { MutualView } from '@/features/candidate/invitation/MutualView'
+import { ChatPanel } from '@/features/chat/ChatPanel'
 import { SalaryTrace } from '@/features/candidate/invitation/SalaryTrace'
 import {
   AcceptSheet,
@@ -84,6 +85,7 @@ function InvitationView({ d, id }: { d: InvitationDetail; id: string }) {
       {mutual ? (
         <>
           <MutualView d={d} onDispute={() => setSheet('dispute')} onRevoke={() => setSheet('revoke')} />
+          <ChatPanel kind="invitation" refId={id} title="Чат с компанией" className="mt-6" />
           {can('check') && <OutcomeCheck d={d} actions={actions} />}
           <Footer d={d} />
         </>

@@ -68,6 +68,7 @@ flowchart LR
 | Резюме (PDF), PDF-профиль, сверка по QR | `/api/candidates/me/*`, `/api/v/{code}` | PDF раскрытого кандидата | — | `app.services.resume`, `app.services.pdf`, `app.services.profile` |
 | Согласия, журнал, аудит | `/api/consents`, журнал | — | — | `app.core.consents`, `app.core.audit`, [SECURITY.md](SECURITY.md) |
 | Уведомления, вебхуки ATS | `/api/notifications` | `/api/companies/me/webhooks` | — | `app.services.notify`, `app.services.contact.webhooks` |
+| Интеграция с ATS (pull-API, статусы, адаптер «Хантфлоу», журнал), чат после «Взаимно» | `/api/ats/v1`, `/api/chat` | `/api/companies/me/ats*` | `company_api_keys`, `ats_settings`, `ats_log`, `chat_messages` | `app.services.ats`, `app.services.chat` — [ATS_INTEGRATION.md](ATS_INTEGRATION.md) |
 | Валидация | — | — | `/api/lab/validation` | `backend/eval`, [VALIDATION.md](VALIDATION.md) |
 
 ## 3. Контекст и контейнеры (C4)
@@ -741,7 +742,7 @@ stateDiagram-v2
 | «Сигнал интереса» | В разработке (в коде нет) |
 | Фабрика семейств (LLM пишет черновик генератора офлайн) | В разработке |
 | Эмбеддинги и колонки `vector` | В разработке |
-| ATS: исходящие вебхуки | Готово. Pull-API (`GET /ats/invitations`, `POST /ats/status`) — в разработке |
+| ATS: исходящие вебхуки, pull-API, обратная синхронизация статусов, адаптер «Хантфлоу» (эмулятор), чат после «Взаимно» | Готово ([ATS_INTEGRATION.md](ATS_INTEGRATION.md)); боевой режим Хантфлоу на живом сервисе не проверялся |
 | Ночная калибровка с CUSUM и периодический `sweep()` | Готово: встроенный планировщик (`app/services/scheduler`, `config/scheduler.yaml`); ручной запуск остался |
 | Удаление аккаунта, сроки хранения ПДн, минимизация ответа реестра ФСП | Готово (`app/services/account`, `config/privacy.yaml`); согласие законного представителя 14–17 лет — плановый ручной процесс без интерфейса ([SECURITY.md](SECURITY.md) п. 1.4) |
 | Caddy и HTTPS | Готово в `docker-compose.prod.yml` и `deploy/Caddyfile` (в локальный `docker-compose.yml` не входят) — [DEPLOY.md](DEPLOY.md) |
