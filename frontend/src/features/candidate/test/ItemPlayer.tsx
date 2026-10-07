@@ -23,6 +23,7 @@ export function CodeBlock({
     <div
       className="overflow-x-auto rounded-panel-lg bg-code-bg py-3 text-white"
       role={onSelectLine ? 'group' : 'figure'}
+      tabIndex={0}
       aria-label={label ?? 'Код задания'}
       translate="no"
     >

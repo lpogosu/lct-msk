@@ -155,7 +155,7 @@ function Intro({ loading, onStart, error }: { loading: boolean; onStart: () => v
             <b className="text-ink">3.</b> Или решите по экрану, сделайте скриншот, перепечатайте условие — это обходит двойника, и мы об этом скажем прямо.
           </li>
         </ol>
-        <p className="t-small text-ink-3">С ноутбука: поведение копирования на телефонах не проверено. Сессия помечена demo_assisted и в метрики не входит.</p>
+        <p className="t-small text-ink-3">С ноутбука: поведение копирования на телефонах не проверено. Сессия помечена как демонстрационная и в метрики не входит.</p>
       </Panel>
       {error && <Alert tone="danger">{error}</Alert>}
       <div>
@@ -303,7 +303,7 @@ function Result({ result, onAgain }: { result: SandboxResult; onAgain: () => voi
   return (
     <>
       <header className="flex flex-col gap-3">
-        <p className="t-small text-ink-3">Результат · сессия demo_assisted, в метрики не входит</p>
+        <p className="t-small text-ink-3">Результат · демонстрационная сессия, в метрики не входит</p>
         <h1 className="t-display text-brand">{caught > 0 ? 'Вас поймал двойник' : 'Двойник вас не поймал'}</h1>
         <p className="t-lead max-w-[820px] text-ink-2">{result.summary_ru}</p>
       </header>

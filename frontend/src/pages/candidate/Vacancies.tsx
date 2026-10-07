@@ -158,7 +158,7 @@ function ApplicationRow({ a }: { a: Application }) {
       <p className="t-label text-ink">{a.vacancy?.title ?? 'Вакансия'}</p>
       <p className="t-small text-ink-2">
         {a.company?.name ?? 'Компания'}
-        {a.vacancy ? ` · ${salaryLine(a.vacancy.salary.salary_from, a.vacancy.salary.salary_to)}` : ''}
+        {a.vacancy ? ` · ${salaryLine(a.vacancy.salary.salary_from, a.vacancy.salary.salary_to, a.vacancy.salary.salary_type_label)}` : ''}
       </p>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
         <Chip tone={a.status === 'interested' ? 'tint' : 'panel'}>{a.status_label}</Chip>

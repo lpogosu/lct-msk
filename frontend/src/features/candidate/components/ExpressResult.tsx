@@ -68,7 +68,7 @@ export function ExpressResult({ r, sessionId }: { r: ResultOut; sessionId: strin
       </div>
       <Panel variant="panel" radius="md" padding="sm">
         <p className="t-small text-ink-3">
-          Экспресс-сессия помечена demo_assisted: в калибровку банка, метрики лаборатории и подбор работодателям она не
+          Экспресс-сессия помечена как демонстрационная: в калибровку банка, метрики лаборатории и подбор работодателям она не
           попадает.
         </p>
       </Panel>

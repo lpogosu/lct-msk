@@ -15,7 +15,6 @@ export const LAB_NAV: NavItem[] = [
   { to: '/lab/bank', label: 'Банк заданий' },
   { to: '/lab/reconciliations', label: 'Сверки' },
   { to: '/lab/validation', label: 'Валидация' },
-  { to: '/lab/ai-stand', label: 'ИИ-стенд' },
 ]
 
 export const CANDIDATE_NAV: NavItem[] = [

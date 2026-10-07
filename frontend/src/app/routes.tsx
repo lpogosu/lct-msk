@@ -1,4 +1,4 @@
-import type { ComponentType, ReactNode } from 'react'
+import type { ComponentType } from 'react'
 import { createBrowserRouter, Navigate, type RouteObject } from 'react-router-dom'
 import { FullPageLoading, RedirectIfAuthed, RequireRole } from '@/auth/guards'
 import { CandidateLayout } from '@/layouts/CandidateLayout'
@@ -9,24 +9,13 @@ import { RootLayout } from '@/layouts/RootLayout'
 import { AuthLayout } from '@/pages/auth/AuthLayout'
 import Landing from '@/pages/Landing'
 import { NotFound, RouteError } from '@/pages/NotFound'
-import { WorkInProgress } from '@/ui'
-
-/*
- * КАРТА МАРШРУТОВ. Каждый ещё не собранный экран — заглушка `wip(...)` со спокойным «Раздел в работе»
- * и номером узла Figma (страница «v2 · Трасса», file rzq7Hlpmq8hTkGJQsJ7AoF).
- * Экран-агент заменяет `element: wip(...)` на настоящую страницу (`lazy` — чтобы не раздувать стартовый бандл).
- */
-
-function wip(section: string, backTo?: string, figma?: string, description?: string): ReactNode {
-  return <WorkInProgress section={section} backTo={backTo} figma={figma} description={description} />
-}
 
 const publicRoutes: RouteObject = {
   element: <PublicLayout />,
   children: [
     { index: true, element: <Landing />, handle: { title: 'Главная' } },
     // Публичная сверка стандартизированного PDF-профиля по QR (ссылки /v/{code} печатает бэкенд)
-    { path: 'v/:code', element: wip('Сверка профиля', '/', 'Акт сверки по QR-коду'), handle: { title: 'Сверка профиля' } },
+    { path: 'v/:code', lazy: async () => ({ Component: (await import('@/pages/Verify')).default }), handle: { title: 'Сверка профиля' } },
     // Вход для жюри: одноразовый кандидат, экспресс-тест, роли без пароля. Только DEMO_MODE (иначе страница сама скажет об этом)
     {
       path: 'jury',
@@ -191,7 +180,7 @@ const labRoutes: RouteObject = {
     { path: 'reconciliations', lazy: labPage(() => import('@/pages/lab/Reconciliations')), handle: { title: 'Сверки' } },
     { path: 'reconciliations/:id', lazy: labPage(() => import('@/pages/lab/ReconciliationAct')), handle: { title: 'Акт сверки' } },
     { path: 'validation', lazy: labPage(() => import('@/pages/lab/Validation')), handle: { title: 'Валидация' } },
-    { path: 'ai-stand', element: wip('ИИ-стенд'), handle: { title: 'ИИ-стенд' } },
+    { path: 'ai-stand', element: <Navigate to="/lab/sessions" replace /> },
   ],
 }
 

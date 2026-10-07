@@ -38,3 +38,4 @@ Thumbs.db
 .playwright-mcp/
 loadtest/accounts.json
 loadtest/out/
+.screens/

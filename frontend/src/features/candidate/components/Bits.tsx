@@ -163,7 +163,7 @@ export function StatRow({ items }: { items: { value: ReactNode; label: string }[
     <dl className="m-0 grid" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}>
       {items.map((it, i) => (
         <div key={it.label} className={cn('flex min-w-0 flex-col-reverse justify-end gap-1', i > 0 && 'border-l border-hairline pl-4', i < items.length - 1 && 'pr-3')}>
-          <dt className="truncate t-small text-ink-2">{it.label}</dt>
+          <dt className="t-small text-ink-2">{it.label}</dt>
           <dd className="t-num-l m-0 text-ink max-[380px]:text-[28px]">{it.value}</dd>
         </div>
       ))}

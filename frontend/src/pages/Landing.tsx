@@ -1,5 +1,5 @@
 import { useDemoMode } from '@/features/demo/api'
-import { Button, Illustration, NodeLegend, Panel, TraceDiagram, type TraceDiagramRow } from '@/ui'
+import { Button, Illustration, type IllustrationName, NodeLegend, Panel, TraceDiagram, type TraceDiagramRow } from '@/ui'
 
 const CANDIDATE_STEPS: TraceDiagramRow[] = [
   { label: 'Опрос', evidence: 'Отрасли, действия за год, технологии и стаж — пять минут.', end: 'claimed' },
@@ -11,6 +11,27 @@ const EMPLOYER_STEPS: TraceDiagramRow[] = [
   { label: 'Потребность', evidence: 'Опишите текстом, как коллеге, и обязательно укажите вилку.', end: 'open' },
   { label: 'Подборка', evidence: 'Слепые карточки с объяснением: что подтверждено и чем.', end: 'test' },
   { label: 'Приглашение', evidence: 'С зарплатой. Ответ «Да», «Да, если…» или «Нет».', end: 'fsp' },
+]
+
+const DIFFERENTIATORS: { img: IllustrationName; title: string; text: string; alt: string }[] = [
+  {
+    img: 'mutual',
+    title: 'Обратный подбор по категории',
+    text: 'Работодатель описывает потребность и вилку, а платформа сама предлагает «специализацию × грейд» и строит слепую подборку с объяснением. Контакты откроются только после взаимного «да».',
+    alt: 'Две сферы, соединённые дугой: взаимное согласие',
+  },
+  {
+    img: 'detector',
+    title: 'Тест с одноразовыми клонами и «Антиподсказчиком»',
+    text: 'У каждого кандидата свои клоны заданий. Подсказка из нейросети или чужой ответ не подойдёт, а попытка списать оставляет след в акте сверки.',
+    alt: 'Детектор: проверка самостоятельности ответов',
+  },
+  {
+    img: 'medal_fsp',
+    title: 'Достижения ФСП как подтверждённый профиль',
+    text: 'Олимпиады и хакатоны из реестра ФСП идут в профиль узлом «подтверждено». Нет истории ФСП — это не штраф: категорию определяет тест.',
+    alt: 'Медаль ФСП',
+  },
 ]
 
 export default function Landing() {
@@ -58,6 +79,23 @@ export default function Landing() {
           alt="Две сферы, соединённые дугой: кандидат и работодатель"
         />
       </Panel>
+
+      <section aria-labelledby="diff" className="flex flex-col gap-6">
+        <h2 id="diff" className="t-title text-brand">
+          Чем «Взаимно» отличается
+        </h2>
+        <ul className="grid gap-6 md:grid-cols-3">
+          {DIFFERENTIATORS.map((d) => (
+            <li key={d.title}>
+              <Panel variant="panel" radius="xl" padding="lg" className="flex h-full flex-col gap-4">
+                <Illustration name={d.img} alt={d.alt} className="mx-auto w-40" />
+                <h3 className="t-body-strong text-ink">{d.title}</h3>
+                <p className="t-body text-ink-2">{d.text}</p>
+              </Panel>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <section aria-labelledby="how" className="flex flex-col gap-6">
         <h2 id="how" className="t-title text-brand">
