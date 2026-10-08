@@ -338,6 +338,7 @@ class ScoreResult:
     flags: frozenset[str]  # borderline | low_trust | stale_test | unconfirmed
     declared_overlap: int
     features: CandidateFeatures
+    cond: float = 1.0  # множитель жёстких условий (зарплата, формат/город); 1,0 — условия выполнены
 
     @property
     def confirmed(self) -> bool:
@@ -637,11 +638,22 @@ def component_G(c: CandidateFeatures, brief: BriefSpec, cfg: ScoringConfig) -> f
     return g
 
 
+def component_cond(u: UDetail, cfg: ScoringConfig) -> float:
+    """Cond = (1 − s_sal·(1 − SalFit)) · (1 − s_fmt·(1 − FmtFit)): условия как ограничение, а не только 10% бонуса.
+
+    Зачем: работодатель не считает релевантным кандидата, чьё ожидание выше вилки или чей формат/город не подходит;
+    при чисто аддитивном U (10 баллов из 100) такой кандидат оставался в топе. Условия выполнены → 1,0, и
+    формула сводится к прежней (контрольные примеры §4.2 не меняются). Обоснование — VALIDATION.md, «Условия как ограничение».
+    """
+    cc = cfg.section("Cond")
+    return (1.0 - float(cc["salary_strength"]) * (1.0 - u.sal_fit)) * (1.0 - float(cc["format_strength"]) * (1.0 - u.fmt_fit))
+
+
 def score_from_components(
-    x: Mapping[str, float], weights: Mapping[str, float], G: float = 1.0, Cov: float = 1.0
+    x: Mapping[str, float], weights: Mapping[str, float], G: float = 1.0, Cov: float = 1.0, cond: float = 1.0
 ) -> tuple[float, dict[str, float]]:
-    """c_i = 100·G·Cov·w_i·x_i, Score = Σ c_i (концепция §4.4 п.1)."""
-    c = {k: 100.0 * G * Cov * float(weights[k]) * float(x[k]) for k in COMPONENTS}
+    """c_i = 100·G·Cov·Cond·w_i·x_i, Score = Σ c_i (концепция §4.4 п.1)."""
+    c = {k: 100.0 * G * Cov * cond * float(weights[k]) * float(x[k]) for k in COMPONENTS}
     return sum(c.values()), c
 
 
@@ -690,7 +702,8 @@ def score_candidate(c: CandidateFeatures, brief: BriefSpec, ctx: ScoringContext)
     # Cov: подтверждено (v_k ≥ 0,5) меньше половины must → ×0,8.
     cov = float(covc["factor"]) if must_total and must_conf < float(covc["min_share"]) * must_total else 1.0
     x = {"T": t.value, "K": k_val, "F": f.value, "A": a.value, "U": u.value}
-    score, contrib = score_from_components(x, ctx.weights, g, cov)
+    cond = component_cond(u, cfg)
+    score, contrib = score_from_components(x, ctx.weights, g, cov, cond)
     tc = cfg.section("T")
     flags = set()
     if c.borderline:
@@ -723,6 +736,7 @@ def score_candidate(c: CandidateFeatures, brief: BriefSpec, ctx: ScoringContext)
         flags=frozenset(flags),
         declared_overlap=overlap,
         features=c,
+        cond=cond,
     )
 
 

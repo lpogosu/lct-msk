@@ -50,6 +50,7 @@ from eval.textsearch import BM25, TfIdf, rank_positions
 
 BRIEFS_DIR = Path(__file__).resolve().parent / "briefs"
 RELEVANT = 2  # релевантен ⇔ rel ≥ 2 (концепция §7.1)
+FORMAT_OK = 0.7  # посадка формата не ниже этой величины считается «согласен работать так» (офис↔гибрид 0,7)
 SYSTEMS = ("ours", "ours_gold", "ours_noq", "b0", "b1", "b2", "b3")
 SYSTEM_LABELS = {
     "ours": "Наш (сквозной: разбор брифа + 1 уточнение)",
@@ -145,8 +146,8 @@ def skill_covered(c: Candidate, skill: str, threshold: float, cat: SkillCatalog)
     return max(levels) >= threshold if levels else True
 
 
-def oracle_rel(c: Candidate, gold: Mapping[str, Any], cfg: ScoringConfig, cat: SkillCatalog) -> int:
-    """rel ∈ {0..3} по скрытой истине (VALIDATION_PLAN §1.5)."""
+def oracle_rel(c: Candidate, gold: Mapping[str, Any], cfg: ScoringConfig, cat: SkillCatalog, *, conditions: bool = True) -> int:
+    """rel ∈ {0..3} по скрытой истине (VALIDATION_PLAN §1.5). conditions=False — прежний оракул v1 без формата и города."""
     if spec_adjacency(cfg, c.truth.spec, gold["spec"]) < 0.8 - 1e-9:
         return 0
     rel = 3
@@ -169,7 +170,36 @@ def oracle_rel(c: Candidate, gold: Mapping[str, Any], cfg: ScoringConfig, cat: S
         to_net = float(to) if gold.get("salary_net") in (True, None) else float(to) * (1.0 - ndfl)
         if c.salary_min > 1.1 * to_net:
             rel -= 1
+    if conditions and not format_city_ok(c, gold, cfg):
+        rel -= 1
     return max(0, rel)
+
+
+def format_city_ok(c: Candidate, gold: Mapping[str, Any], cfg: ScoringConfig) -> bool:
+    """Формат и город: работодатель не назовёт релевантным того, кто не согласен работать так, как написано в брифе.
+
+    Формат совместим, если для какого-то формата брифа и приемлемого формата кандидата посадка из
+    `scoring.yaml → U.format_fit` не ниже FORMAT_OK (офис↔гибрид 0,7 — допустимо; удалёнка↔офис 0,3 и 0 — нет).
+    Город важен только для офиса и гибрида: другой город без готовности к релокации — несовместимо.
+    Ярлык не зависит от Score: берёт только скрытые настройки кандидата (VALIDATION_PLAN §1.5, правка v2).
+    """
+    bf = set(gold.get("formats") or ())
+    if not bf:
+        return True
+    matrix = cfg.section("U")["format_fit"]
+    city_bad = bool(gold.get("city") and c.city and gold["city"] != c.city and not c.relocation)
+    for f in sorted(bf):
+        if f == "remote":
+            fit = max((float(matrix[f].get(cf, 0.0)) for cf in c.formats), default=1.0)
+            if fit >= FORMAT_OK:
+                return True
+            continue
+        if city_bad:
+            continue
+        fit = max((float(matrix[f].get(cf, 0.0)) for cf in c.formats), default=1.0)
+        if fit >= FORMAT_OK:
+            return True
+    return False
 
 
 IRRELEVANCE_LABELS = {
@@ -179,6 +209,7 @@ IRRELEVANCE_LABELS = {
     "grade_below": "грейд на ступень ниже брифа, покрыты не все must или минимум выше вилки",
     "must_lt_half": "грейд совпал, покрыто меньше половины must",
     "partial_and_salary": "грейд совпал, покрыты не все must и минимум выше вилки",
+    "conditions": "грейд и must подходят, но формат/город или зарплата не подходят",
 }
 
 
@@ -198,7 +229,9 @@ def irrelevance_reason(c: Candidate, gold: Mapping[str, Any], cfg: ScoringConfig
     must = list(gold.get("must") or ())
     thr = float(cfg.cuts[gold["grade"]]) - 0.5
     covered = sum(1 for s in must if skill_covered(c, s, thr, cat))
-    return "must_lt_half" if must and covered < 0.5 * len(must) else "partial_and_salary"
+    if must and covered < 0.5 * len(must):
+        return "must_lt_half"
+    return "conditions" if covered == len(must) else "partial_and_salary"
 
 
 # --------------------------------------------------------------------------- контекст
@@ -240,8 +273,8 @@ class World:
             tfidf=TfIdf(docs),
         )
 
-    def rels(self, gold: Mapping[str, Any]) -> dict[str, int]:
-        return {c.id: oracle_rel(c, gold, self.cfg, self.cat) for c in self.pop.candidates}
+    def rels(self, gold: Mapping[str, Any], *, conditions: bool = True) -> dict[str, int]:
+        return {c.id: oracle_rel(c, gold, self.cfg, self.cat, conditions=conditions) for c in self.pop.candidates}
 
 
 @dataclass
@@ -694,7 +727,8 @@ def evaluate(pop: Population, *, seed: int, n_boot: int = 2000, briefs: Sequence
     log("подбор: версии и бейзлайны готовы")
 
     def agg(split: str) -> dict[str, Any]:
-        ids = [b.id for b in briefs if b.split == split]
+        # "all" = test + dev вместе: ни те ни другие не участвовали в настройке (она на matching_tune), мощность выше в два раза
+        ids = [b.id for b in briefs if split == "all" or b.split == split]
         out: dict[str, Any] = {"n_briefs": len(ids), "systems": {}}
         for s in (*SYSTEMS, *ABLATIONS):
             out["systems"][s] = {
@@ -722,6 +756,7 @@ def evaluate(pop: Population, *, seed: int, n_boot: int = 2000, briefs: Sequence
         "ablations": ABLATION_LABELS,
         "test": agg("test"),
         "dev": agg("dev"),
+        "all": agg("all"),
         "parser": {"test": parser_metrics(test, runs),
                    "dev": parser_metrics([b for b in briefs if b.split == "dev"], runs)},
         "per_brief": per_brief,

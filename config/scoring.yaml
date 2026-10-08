@@ -1,5 +1,5 @@
 # Скоринг подборки, объяснения, версии, охват, разбор брифа.
-# Score(c | бриф) = 100 · G · Cov · (wT·T + wK·K + wF·F + wA·A + wU·U)       — концепция §4.2
+# Score(c | бриф) = 100 · G · Cov · Cond · (wT·T + wK·K + wF·F + wA·A + wU·U)   — концепция §4.2 (+ Cond, VALIDATION.md)
 # Матрицы ФСП m(d, s) и m(d, модуль) берём из config/fsp.yaml (spec_relevance, module_relevance,
 # skill_evidence_factor) — единый источник с модулем ФСП. Пороги грейдов (cut) — из taxonomy.yaml.
 # Версия конфига пишется в каждую версию подборки (scoring_config_version = version + sha256 содержимого).
@@ -32,6 +32,14 @@ G:
   grade_above: 0.85
   grade_below: 0.80
   borderline_factor: 0.9          # BORDERLINE_PASS (тест сдан «на границе»)
+
+# ---------------------------------------------------------------- Cond: жёсткие условия как множитель
+# Score = 100 · G · Cov · Cond · Σ w·x. Cond = (1 − s_sal·(1 − SalFit)) · (1 − s_fmt·(1 − FmtFit)); условия выполнены → 1.
+# Плато по s ∈ [0,5; 1,0] (настройка на синтетических брифах и другой популяции, eval/matching_tune.py): берём 0,7 —
+# при полном несоответствии одного условия Score падает до 30%, а не обнуляется («Да, если…» остаётся возможным).
+Cond:
+  salary_strength: 0.7
+  format_strength: 0.7
 
 # ---------------------------------------------------------------- Cov: покрытие must
 Cov:

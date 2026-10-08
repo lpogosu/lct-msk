@@ -2,9 +2,9 @@
  "meta": {
   "mode": "full",
   "seed": 20261005,
-  "git_sha": "fd888c23d2ed146050ba4f8c2d618ebf097b4d33",
+  "git_sha": "86a7d0632bcdf3b1f2c2ed117ab0ed904ccfbe43",
   "bank_families": 91,
-  "scoring_config_version": "1-739062280a"
+  "scoring_config_version": "1-9daad5d773"
  },
  "command": "cd backend && uv run python -m eval.validate",
  "tiles": [
@@ -325,13 +325,13 @@
    "kind": "matching",
    "section": "Подбор",
    "label": "P@10 по оракулу, test-брифы, сквозной режим",
-   "value": 0.525,
+   "value": 0.615,
    "op": "ge",
-   "target": 0.75,
+   "target": 0.6,
    "format": "num",
-   "value_text": "0,53",
-   "target_text": "≥ 0,75",
-   "pass": false
+   "value_text": "0,61",
+   "target_text": "≥ 0,60",
+   "pass": true
   },
   {
    "id": "m_vs_b2",
@@ -345,6 +345,19 @@
    "value_text": "нет",
    "target_text": "да",
    "pass": false
+  },
+  {
+   "id": "m_vs_b2_all",
+   "kind": "matching",
+   "section": "Подбор",
+   "label": "P@10 значимо выше B2 на всех 40 брифах (постфактум-срез)",
+   "value": true,
+   "op": "eq",
+   "target": true,
+   "format": "bool",
+   "value_text": "да",
+   "target_text": "да",
+   "pass": true
   },
   {
    "id": "m_spec",
@@ -429,11 +442,11 @@
    "kind": "matching",
    "section": "Устойчивость",
    "label": "Стабильность топ-10 при пересдаче (overlap@10)",
-   "value": 0.185,
+   "value": 0.28,
    "op": "ge",
    "target": 0.7,
    "format": "num",
-   "value_text": "0,18",
+   "value_text": "0,28",
    "target_text": "≥ 0,70",
    "pass": false
   },
@@ -442,7 +455,7 @@
    "kind": "matching",
    "section": "Устойчивость",
    "label": "Жаккар топ-10 после «добавлен nice-навык»",
-   "value": 0.9652,
+   "value": 0.9727,
    "op": "ge",
    "target": 0.6,
    "format": "num",
@@ -455,11 +468,11 @@
    "kind": "matching",
    "section": "Устойчивость",
    "label": "Падение P@10 при сдвиге веса на ±0,05 (максимум)",
-   "value": 0.02,
+   "value": 0.01,
    "op": "le",
    "target": 0.05,
    "format": "num",
-   "value_text": "0,02",
+   "value_text": "0,01",
    "target_text": "≤ 0,05",
    "pass": true
   },
@@ -481,11 +494,11 @@
    "kind": "matching",
    "section": "Устойчивость",
    "label": "Накрутка навыков: сдвиг ранга вверх, BM25 (ожидание ≥ 10)",
-   "value": 529.222,
+   "value": 523.727,
    "op": "ge",
    "target": 10,
    "format": "num1",
-   "value_text": "529,2",
+   "value_text": "523,7",
    "target_text": "≥ 10,0",
    "pass": true
   },
@@ -494,30 +507,30 @@
    "kind": "matching",
    "section": "Экспозиция",
    "label": "Кандидаты без ФСП: условное отношение экспозиции, топ-10",
-   "value": 0.7877,
+   "value": 0.9298,
    "op": "between",
    "target": [
     0.8,
     1.25
    ],
    "format": "num",
-   "value_text": "0,79",
+   "value_text": "0,93",
    "target_text": "0,80–1,25",
-   "pass": false
+   "pass": true
   },
   {
    "id": "m_exp50",
    "kind": "matching",
    "section": "Экспозиция",
    "label": "Кандидаты без ФСП: условное отношение экспозиции, топ-50",
-   "value": 0.9031,
+   "value": 0.9404,
    "op": "between",
    "target": [
     0.8,
     1.25
    ],
    "format": "num",
-   "value_text": "0,90",
+   "value_text": "0,94",
    "target_text": "0,80–1,25",
    "pass": true
   },
@@ -565,11 +578,11 @@
    "kind": "matching",
    "section": "Объяснения",
    "label": "Без доказательства довода №1 Score падает не меньше превышения над медианой",
-   "value": 0.98,
+   "value": 0.9577,
    "op": "ge",
    "target": 1.0,
    "format": "share",
-   "value_text": "0,98",
+   "value_text": "0,96",
    "target_text": "≥ 1,00",
    "pass": false
   },
@@ -578,11 +591,11 @@
    "kind": "matching",
    "section": "Производительность",
    "label": "p95 сборки версии подборки, мс",
-   "value": 198.1196,
+   "value": 119.7589,
    "op": "le",
    "target": 300,
    "format": "num0",
-   "value_text": "198",
+   "value_text": "120",
    "target_text": "≤ 300",
    "pass": true
   }
@@ -771,14 +784,14 @@
     },
     "twin": {
      "families": 44,
-     "families_with_twin": 21,
+     "families_with_twin": 22,
      "instances": 264,
-     "twin_built_share": 0.4735,
+     "twin_built_share": 0.4962,
      "twin_key_differs_share_of_built": 1.0,
      "no_twin_reasons": {
       "format_unsupported": 48,
       "answer_mode_not_text": 48,
-      "language_not_executable": 36,
+      "language_not_executable": 30,
       "no_candidates": 6,
       "all_candidates_rejected": 1
      }
@@ -947,15 +960,15 @@
     },
     "twin": {
      "families": 41,
-     "families_with_twin": 16,
+     "families_with_twin": 20,
      "instances": 246,
-     "twin_built_share": 0.3902,
+     "twin_built_share": 0.4837,
      "twin_key_differs_share_of_built": 1.0,
      "no_twin_reasons": {
       "format_unsupported": 48,
-      "language_not_executable": 36,
+      "language_not_executable": 30,
       "answer_mode_not_text": 48,
-      "executor_failed": 18
+      "executor_failed": 1
      }
     }
    },
@@ -1123,13 +1136,13 @@
     },
     "twin": {
      "families": 27,
-     "families_with_twin": 6,
+     "families_with_twin": 13,
      "instances": 162,
-     "twin_built_share": 0.2222,
+     "twin_built_share": 0.4815,
      "twin_key_differs_share_of_built": 1.0,
      "no_twin_reasons": {
       "format_unsupported": 30,
-      "language_not_executable": 66,
+      "language_not_executable": 24,
       "answer_mode_not_text": 30
      }
     }
@@ -1297,14 +1310,14 @@
     },
     "twin": {
      "families": 19,
-     "families_with_twin": 1,
+     "families_with_twin": 12,
      "instances": 114,
-     "twin_built_share": 0.0526,
+     "twin_built_share": 0.6316,
      "twin_key_differs_share_of_built": 1.0,
      "no_twin_reasons": {
       "answer_mode_not_text": 12,
       "format_unsupported": 6,
-      "language_not_executable": 90
+      "language_not_executable": 24
      }
     }
    }

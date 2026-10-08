@@ -527,3 +527,14 @@ def test_bank_sort_without_brief():
     assert scores == sorted(scores, reverse=True)
     shuffled = pool[::-1]
     assert [r.candidate_id for r in rank_bank(shuffled, ctx=ctx)] == [r.candidate_id for r in ranked]
+
+
+def test_cond_is_neutral_when_conditions_met_and_penalizes_mismatch():
+    """Cond = 1 при выполненных условиях (контрольные примеры не меняются); несоответствие снижает Score, не обнуляя."""
+    ctx = ScoringContext.build(category_stats=_stats(0.7, 91))
+    ok = score_candidate(candidate_a(), BRIEF, ctx)
+    assert ok.cond == 1.0
+    bad = score_candidate(replace_features(candidate_a(), formats=frozenset({"remote"}), salary_min=400_000), BRIEF, ctx)
+    assert 0.0 < bad.cond < 0.5
+    assert bad.score < ok.score
+    assert abs(sum(bad.c.values()) - bad.score) < 1e-9
