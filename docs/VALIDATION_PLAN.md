@@ -9,6 +9,26 @@ uv run python -m eval.validate          # полный прогон, < 5 мин
 uv run python -m eval.validate --quick  # дымовой прогон, < 1 мин (меньше выборки, те же процедуры)
 ```
 
+Конвейер валидации:
+
+```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#EEF0FF','primaryBorderColor':'#402FFF','primaryTextColor':'#1B1B2F','lineColor':'#6F6F8C','secondaryColor':'#F4F4F8','tertiaryColor':'#FFFFFF','textColor':'#6F6F8C','edgeLabelBackground':'#F4F4F8','clusterBkg':'#F8F8FC','clusterBorder':'#B8B8D0','noteBkgColor':'#F4F4F8','noteTextColor':'#1B1B2F','noteBorderColor':'#9A9AB0','actorBkg':'#EEF0FF','actorBorder':'#402FFF','actorTextColor':'#1B1B2F','actorLineColor':'#9A9AB0','signalColor':'#6F6F8C','signalTextColor':'#6F6F8C','labelBoxBkgColor':'#EEF0FF','labelBoxBorderColor':'#402FFF','labelTextColor':'#1B1B2F','loopTextColor':'#6F6F8C','activationBkgColor':'#DCDFFF','activationBorderColor':'#402FFF','fontSize':'14px'}}}%%
+flowchart LR
+  seed["Главный сид 20261005<br/>поток на каждый эксперимент"]
+  lt["Латентная истина<br/>θ, навыки, ФСП, условия"]:::acc
+  pop["Синтетическая популяция<br/>кандидаты и брифы"]
+  sim["Симуляция на прод-движках<br/>CAT, детекторы, разбор брифа, Score"]
+  orc["Оракул пригодности<br/>знает истину, не знает формулы"]
+  met["Метрики и пороги<br/>из протокола до прогона"]
+  rep["docs/VALIDATION.md<br/>validation.json, графики"]:::acc
+  seed --> lt --> pop --> sim --> met --> rep
+  lt --> orc --> met
+  bl["Бейзлайны B0, B1, B2<br/>фиксированная форма, сортировка по уровню"] --> met
+  classDef acc fill:#402FFF,stroke:#402FFF,color:#FFFFFF;
+  classDef ext fill:#F4F4F8,stroke:#9A9AB0,color:#1B1B2F,stroke-dasharray:4 3;
+  classDef db fill:#FFFFFF,stroke:#402FFF,color:#1B1B2F;
+```
+
 Правила протокола:
 
 - Используется **тот же код движков, что и в проде**: `app/testing/*` (CAT, EAP, детекторы, калибровка,

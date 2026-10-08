@@ -2,7 +2,7 @@
 
 REST/JSON-API бэкенда. Исчерпывающее описание (поля, схемы, примеры ошибок) — в интерактивной документации и в `openapi.json`; этот документ объясняет, как с API работать: аутентификация, формат ошибок, разделы и сквозные соглашения. Названия эндпоинтов и полей сверены с OpenAPI, сформированным из кода (`app.main:app`, версия API `0.1.0`).
 
-Содержание: [1. Документация и схема](#1-документация-и-схема) · [2. Аутентификация](#2-аутентификация) · [3. Формат ошибок](#3-формат-ошибок-и-коды) · [4. Ограничение частоты](#4-ограничение-частоты-запросов) · [5. Разделы](#5-разделы-и-эндпоинты) · [6. Соглашения](#6-сквозные-соглашения) · [7. Примеры](#7-примеры-сценарии-curl) · [8. Статус](#8-в-разработке)
+Содержание: [1. Документация и схема](#1-документация-и-схема) · [2. Аутентификация](#2-аутентификация) · [3. Формат ошибок](#3-формат-ошибок-и-коды) · [4. Ограничение частоты](#4-ограничение-частоты-запросов) · [5. Разделы](#5-разделы-и-эндпоинты) · [6. Соглашения](#6-сквозные-соглашения) · [7. Примеры](#7-примеры-сценарии-curl) · [8. Статус](#8-статус-и-то-чего-ещё-нет)
 
 ## 1. Документация и схема
 
@@ -13,7 +13,7 @@ REST/JSON-API бэкенда. Исчерпывающее описание (по�
 | Схема OpenAPI 3.1 (JSON) | `/api/openapi.json` |
 | Готовность и жизнь процесса | `/api/health`, `/api/health/live` |
 
-Все пути — под префиксом `/api`. Локально бэкенд слушает `http://localhost:8000` (`docker compose up -d`), фронтенд в разработке проксирует `/api` на него (Vite, порт 5173).
+Все пути — под префиксом `/api`. Локально бэкенд слушает `http://localhost:8000` (`docker compose up -d`), фронтенд (Vite dev-сервер, порт 5173; в compose — контейнер `web` с nginx на порту 80) проксирует `/api` на него.
 
 **Как получить `openapi.json`:**
 
@@ -40,6 +40,7 @@ OPENAPI_FILE=../backend/openapi.json npm run gen:api
 Своя аутентификация в FastAPI: email и пароль с подтверждением кодом из письма, JWT-доступ и refresh-токен в httpOnly-cookie. Роли: `candidate` («Ищу работу»), `employer` («Нанимаю»), `methodist`, `admin`. Самостоятельно регистрируются только первые две; методист и администратор создаются из БД или сидом.
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#EEF0FF','primaryBorderColor':'#402FFF','primaryTextColor':'#1B1B2F','lineColor':'#6F6F8C','secondaryColor':'#F4F4F8','tertiaryColor':'#FFFFFF','textColor':'#6F6F8C','edgeLabelBackground':'#F4F4F8','clusterBkg':'#F8F8FC','clusterBorder':'#B8B8D0','noteBkgColor':'#F4F4F8','noteTextColor':'#1B1B2F','noteBorderColor':'#9A9AB0','actorBkg':'#EEF0FF','actorBorder':'#402FFF','actorTextColor':'#1B1B2F','actorLineColor':'#9A9AB0','signalColor':'#6F6F8C','signalTextColor':'#6F6F8C','labelBoxBkgColor':'#EEF0FF','labelBoxBorderColor':'#402FFF','labelTextColor':'#1B1B2F','loopTextColor':'#6F6F8C','activationBkgColor':'#DCDFFF','activationBorderColor':'#402FFF','fontSize':'14px'}}}%%
 sequenceDiagram
   autonumber
   participant C as Клиент
@@ -133,7 +134,7 @@ sequenceDiagram
 
 ## 5. Разделы и эндпоинты
 
-Всего 169 эндпоинтов в 17 разделах. Колонка «Кто» — требуемая роль (`require_roles`); «любой вошедший» — любой авторизованный пользователь, «без входа» — публичный маршрут (`refresh` и `logout` опираются на cookie).
+Всего 219 эндпоинтов в 23 разделах (список построен автоматически из OpenAPI приложения). Колонка «Кто» — требуемая роль (`require_roles`); «любой вошедший» — любой авторизованный пользователь, «без входа» — публичный маршрут (`refresh` и `logout` опираются на cookie).
 
 ### Служебное
 
@@ -202,6 +203,9 @@ sequenceDiagram
 |---|---|---|---|
 | `GET` | `/api/candidates/me` | кандидат | Мой профиль |
 | `PUT` | `/api/candidates/me` | кандидат | Сохранить профиль |
+| `DELETE` | `/api/candidates/me` | кандидат | Удалить аккаунт (право на удаление, 152-ФЗ): тело `{"password"}` или `{"confirm": "УДАЛИТЬ"}` для аккаунта без пароля; необратимо, все сессии завершаются; `403 password_invalid`, `429` — 5 попыток в час |
+| `GET` | `/api/candidates/me/guardian` | кандидат | Согласие законного представителя |
+| `POST` | `/api/candidates/me/guardian` | кандидат | Запросить согласие законного представителя |
 | `GET` | `/api/candidates/me/resume` | кандидат | Черновик распознанного резюме |
 | `POST` | `/api/candidates/me/resume` | кандидат | Загрузить резюме (PDF) |
 | `DELETE` | `/api/candidates/me/resume` | кандидат | Удалить резюме |
@@ -215,7 +219,6 @@ sequenceDiagram
 | `POST` | `/api/candidates/me/preview` | кандидат | Так вас видят — с черновиком настроек |
 | `GET` | `/api/candidates/me/blocklist/search` | кандидат | Найти компанию для блок-листа |
 | `GET` | `/api/candidates/me/consents` | кандидат | Журнал согласий |
-| `DELETE` | `/api/candidates/me` | кандидат | Удалить аккаунт (право на удаление, 152-ФЗ): тело `{"password"}` или `{"confirm": "УДАЛИТЬ"}` для аккаунта без пароля; необратимо, все сессии завершаются; `403 password_invalid`, `429` — 5 попыток в час |
 | `GET` | `/api/candidates/me/visibility-stats` | кандидат | Как меня видят |
 
 ### Компании
@@ -225,20 +228,22 @@ sequenceDiagram
 | `GET` | `/api/companies/me` | работодатель | Профиль моей компании |
 | `PUT` | `/api/companies/me` | работодатель | Изменить профиль компании |
 | `DELETE` | `/api/companies/me` | работодатель | Удалить аккаунт работодателя (тело как у кандидата); если он последний в компании — ждущие приглашения отзываются, брифы и вакансии закрываются, контакты связи и вебхук ATS стираются |
+| `GET` | `/api/companies/me/verification` | работодатель | Метка «Проверенная компания» |
+| `POST` | `/api/companies/me/verification` | работодатель | Подать реквизиты на проверку |
+| `DELETE` | `/api/companies/me/verification` | работодатель | Убрать метку |
 | `GET` | `/api/companies/me/preview` | работодатель | Так видит кандидат |
 | `GET` | `/api/companies/me/webhooks` | работодатель | Журнал доставок вебхуков |
 | `POST` | `/api/companies/me/webhooks/test` | работодатель | Проверить вебхук |
 | `POST` | `/api/companies/me/webhooks/rotate-secret` | работодатель | Новый секрет подписи |
-| `GET` / `PUT` | `/api/companies/me/ats` | работодатель | Настройки ATS: тип (Нет / Вебхук / Хантфлоу), адрес, токен (шифруется, не возвращается) |
+| `GET` | `/api/companies/{company_id}/reliability` | любой вошедший | Надёжность компании |
+| `GET` | `/api/companies/me/ats` | работодатель | Настройки ATS компании |
+| `PUT` | `/api/companies/me/ats` | работодатель | Сохранить настройки ATS |
 | `POST` | `/api/companies/me/ats/check` | работодатель | Проверить подключение (эмулятор записывает запрос в журнал) |
 | `GET` | `/api/companies/me/ats/log` | работодатель | «Журнал ATS» |
-| `GET` / `POST` | `/api/companies/me/ats/keys` | работодатель | API-ключи компании: список, создание (ключ виден один раз) |
-| `POST` / `DELETE` | `/api/companies/me/ats/keys/{id}/rotate`, `/api/companies/me/ats/keys/{id}` | работодатель | Перевыпуск и отзыв ключа |
-| `GET` | `/api/ats/v1/me`, `/vacancies`, `/invitations[/{id}]`, `/applications[/{id}]` | ключ компании | Pull-API для ATS: курсор, `updated_since`, контакты только при раскрытии и `contacts:read` |
-| `POST` | `/api/ats/v1/invitations/{id}/status`, `/api/ats/v1/applications/{id}/status` | ключ компании (`status:write`) | Статус из ATS через машину состояний, `Idempotency-Key`, 409 при недопустимом переходе — [ATS_INTEGRATION.md](ATS_INTEGRATION.md) |
-| `GET` | `/api/chat/threads`, `/api/chat/unread` | кандидат, работодатель | Переписки и непрочитанные (чат после «Взаимно») |
-| `GET` / `POST` | `/api/chat/{kind}/{id}`, `/api/chat/{kind}/{id}/messages` | кандидат, работодатель | Переписка по приглашению (`invitation`) или отклику (`application`); только после взаимного «да» |
-| `GET` | `/api/companies/{company_id}/reliability` | любой вошедший | Надёжность компании |
+| `GET` | `/api/companies/me/ats/keys` | работодатель | API-ключи компании |
+| `POST` | `/api/companies/me/ats/keys` | работодатель | Создать API-ключ |
+| `POST` | `/api/companies/me/ats/keys/{key_pk}/rotate` | работодатель | Перевыпустить ключ |
+| `DELETE` | `/api/companies/me/ats/keys/{key_pk}` | работодатель | Отозвать ключ |
 
 ### Потребности и подборка
 
@@ -262,8 +267,8 @@ sequenceDiagram
 | `DELETE` | `/api/needs/{need_id}/shortlist/{ref}` | работодатель | Открепить кандидата |
 | `GET` | `/api/needs/{need_id}/candidates/{ref}` | работодатель | Карточка кандидата (Р6) |
 | `GET` | `/api/bank` | работодатель | Банк кандидатов |
-| `GET` | `/api/bank/summary` | работодатель | Сводка «специализация × грейд» одним запросом для карты талантов: число подтверждённых кандидатов, доля с ФСП, ожидания P25/P50/P75 «на руки» (появляются при N ≥ `privacy_min_n` = 10, округлены до ступени), «ждут теста» по направлениям; свой лимит запросов |
 | `GET` | `/api/bank/candidates/{ref}` | работодатель | Карточка кандидата из банка |
+| `GET` | `/api/bank/summary` | работодатель | Сводка «специализация × грейд» одним запросом для карты талантов: число подтверждённых кандидатов, доля с ФСП, ожидания P25/P50/P75 «на руки» (появляются при N ≥ `privacy_min_n` = 10, округлены до ступени), «ждут теста» по направлениям; свой лимит запросов |
 | `GET` | `/api/skills` | любой вошедший | Справочник навыков для фильтров (`testable`, модули теста, специализации); `?testable=true`, `?spec=` |
 
 ### Приглашения
@@ -317,6 +322,7 @@ sequenceDiagram
 | `PATCH` | `/api/vacancies/{vacancy_id}` | работодатель | Изменить вакансию |
 | `GET` | `/api/vacancies/{vacancy_id}` | кандидат | Вакансия (кандидат) |
 | `POST` | `/api/vacancies/{vacancy_id}/close` | работодатель | Снять вакансию с публикации |
+| `POST` | `/api/vacancies/{vacancy_id}/report` | кандидат | Пожаловаться на вакансию |
 
 ### Регулярные задачи
 
@@ -380,6 +386,13 @@ sequenceDiagram
 | `POST` | `/api/lab/flags/{flag_id}/resolve` | методист, админ | Решение по флагу |
 | `GET` | `/api/lab/validation` | методист, админ | Валидация |
 | `POST` | `/api/lab/calibrate` | методист, админ | Калибровка заданий |
+| `GET` | `/api/lab/reconciliations` | администратор, методист | Лента сверок «двойника в буфере» |
+| `GET` | `/api/lab/reconciliations/{reconciliation_id}` | администратор, методист | Акт сверки |
+| `POST` | `/api/lab/reconciliations/{reconciliation_id}/review` | администратор, методист | Решение по сверке |
+| `GET` | `/api/lab/sessions/{session_id}/verification-kit` | администратор, методист | «Подтверждение за 5 минут» по сессии |
+| `GET` | `/api/lab/twins/coverage` | администратор, методист | Покрытие банка двойниками |
+| `POST` | `/api/lab/twins/precompute` | администратор, методист | Посчитать двойники пула |
+| `GET` | `/api/lab/validation/report` | администратор, методист | Отчёт последней валидации |
 
 ### Администрирование
 
@@ -392,8 +405,6 @@ sequenceDiagram
 | `POST` | `/api/demo/clock` | любой вошедший; в prod — админ или `X-Demo-Key` | Сдвинуть часы демо |
 | `POST` | `/api/demo/reset` | то же | Сбросить демо-мир (режим жюри сохраняет значение) |
 | `POST` | `/api/demo/autoresponder` | то же | Автоответчик синтетических кандидатов |
-| `POST` | `/api/demo/jury-mode` | то же | Режим жюри |
-| `GET` | `/api/demo/jury/hint` | кандидат | Подсказка жюри к заданию |
 | `GET` | `/api/demo/synthetic` | работодатель | Какие кандидаты синтетические |
 | `GET` | `/api/demo/webhook-sink` | без входа | Последние события вебхуков ATS |
 | `POST` | `/api/demo/webhook-sink` | без входа | Принять вебхук ATS |
@@ -408,6 +419,75 @@ sequenceDiagram
 
 - **`/api/admin/*`** (роль `admin`): `POST /api/admin/import` принимает набор размеченных пар «бриф × кандидат» (формат `backend/eval/pairs_test.jsonl`, схема `backend/eval/pairs_test.schema.json`; отдельно можно передать `briefs` и `candidates`); кандидат с `features: null` — без теста: он попадает в группу «категория по опросу, не подтверждена» и ранжируется ниже подтверждённых. Импортированные данные **не попадают в банк платформы**. `POST /api/admin/eval/rank` строит топ-N по брифу (`brief_id` из импорта или `text` с вилкой) тем же движком, что подборка работодателя, с компонентами Score, вкладами и «за»/«против»; `?format=csv` отдаёт тот же топ в CSV. `POST /api/admin/eval/pairs` считает P@5, P@10, nDCG@10 со средним по брифам и 95 % бутстреп-доверительным интервалом (тот же код, что `make validate`); `GET /api/admin/validation` отдаёт последний прогон валидации.
 - **`/api/demo/*`** существует только при `VZ_DEMO_MODE=true`, иначе `404`: `POST /api/demo/clock` (`{"preset": "plus_1d"}`, «+1 день», «+3 дня», сброс; сдвигает сроки приглашений и откликов и свежесть тестов), `POST /api/demo/reset` (быстрый сброс к состоянию seed), `POST /api/demo/autoresponder` (автоответчик синтетических кандидатов отвечает на приглашения за 30–90 с), `POST /api/demo/jury-mode` и `GET /api/demo/jury/hint` («режим жюри»: подсказка к текущему заданию, сессия помечается `demo_assisted` и исключается из метрик и калибровки), `GET /api/demo/webhook-sink` и `POST /api/demo/webhook-sink` (встроенный приёмник вебхуков ATS, последние 20 событий), `GET /api/demo/state`, `GET /api/demo/accounts` (логины без паролей, открытые маршруты). На боевом стенде демо-режим выключают.
+
+### Чат
+
+Переписка кандидата и работодателя открывается только после взаимного «да» и раскрытия контактов; `kind` — `invitation` или `application`, `ref_id` — идентификатор приглашения или отклика. Только текст, лимиты длины и частоты — в `config/`; чужие переписки не отдаются.
+
+| Метод | Путь | Кто | Назначение |
+|---|---|---|---|
+| `GET` | `/api/chat/threads` | любой вошедший | Мои переписки |
+| `GET` | `/api/chat/unread` | любой вошедший | Непрочитанные сообщения (счётчик) |
+| `GET` | `/api/chat/{kind}/{ref_id}` | любой вошедший | Переписка |
+| `POST` | `/api/chat/{kind}/{ref_id}/messages` | любой вошедший | Написать сообщение |
+
+### Интеграция ATS
+
+Pull-API для системы найма работодателя: заголовок `X-API-Key` (ключ создаётся через `POST /api/companies/me/ats/keys`, хранится только хэш). Схема, вебхуки и соответствие статусов — в [ATS_INTEGRATION.md](ATS_INTEGRATION.md). Настройки и журнал ATS компании — в разделе «Компании».
+
+| Метод | Путь | Кто | Назначение |
+|---|---|---|---|
+| `GET` | `/api/ats/v1/me` | ключ компании (X-API-Key) | Проверка ключа |
+| `GET` | `/api/ats/v1/vacancies` | ключ компании (X-API-Key) | Вакансии |
+| `GET` | `/api/ats/v1/invitations` | ключ компании (X-API-Key) | Приглашения со статусами |
+| `GET` | `/api/ats/v1/invitations/{invitation_id}` | ключ компании (X-API-Key) | Приглашение |
+| `GET` | `/api/ats/v1/applications` | ключ компании (X-API-Key) | Отклики со статусами |
+| `GET` | `/api/ats/v1/applications/{application_id}` | ключ компании (X-API-Key) | Отклик |
+| `POST` | `/api/ats/v1/invitations/{invitation_id}/status` | ключ компании (X-API-Key) | Статус из ATS: приглашение |
+| `POST` | `/api/ats/v1/applications/{application_id}/status` | ключ компании (X-API-Key) | Статус из ATS: отклик |
+
+### Законный представитель
+
+Запрос согласия для кандидатов 15–17 лет — `POST /api/candidates/me/guardian` (раздел «Кандидат»); подтверждение по одноразовой ссылке из письма. См. [SECURITY.md](SECURITY.md).
+
+| Метод | Путь | Кто | Назначение |
+|---|---|---|---|
+| `POST` | `/api/guardian/confirm` | без входа | Подтвердить согласие законного представителя |
+
+### Антиподсказчик
+
+«Подтверждение за 5 минут» для работодателя после раскрытия контакта; сверки двойника и акты — в разделе «Лаборатория». См. [TESTING_MECHANISM.md](TESTING_MECHANISM.md).
+
+| Метод | Путь | Кто | Назначение |
+|---|---|---|---|
+| `GET` | `/api/invitations/{invitation_id}/verification-kit` | работодатель | «Подтверждение за 5 минут» для работодателя |
+
+### Режим жюри и песочница «Попробуй списать»
+
+Работает только при `VZ_DEMO_MODE=true`, иначе `404`. Позволяет жюри пройти тест самому одноразовым кандидатом, войти демо-работодателем и проверить «Антиподсказчика» на мини-тесте.
+
+| Метод | Путь | Кто | Назначение |
+|---|---|---|---|
+| `POST` | `/api/jury/cheat-lab` | без входа (только DEMO_MODE) | Песочница жюри: начать мини-тест |
+| `POST` | `/api/jury/cheat-lab/{test_id}/answers` | без входа (только DEMO_MODE) | Песочница жюри: отправить ответы |
+| `GET` | `/api/jury/cheat-lab/{test_id}/result` | без входа (только DEMO_MODE) | Песочница жюри: результат |
+| `POST` | `/api/demo/jury-mode` | то же | Режим жюри |
+| `GET` | `/api/demo/jury/hint` | кандидат | Подсказка жюри к заданию |
+| `GET` | `/api/demo/jury/paths` | без входа | Что доступно на странице входа жюри |
+| `POST` | `/api/demo/jury/start` | без входа | Пройти тест самому: одноразовый кандидат |
+| `POST` | `/api/demo/jury/persona` | без входа | Войти как демо-работодатель или жюри лаборатории |
+
+### Доверие и безопасность
+
+Модерация: жалобы кандидатов, автосигналы по компаниям, отзыв и восстановление метки «Проверенная компания». Доступ — администратор или методист. См. [TRUST_AND_SAFETY.md](TRUST_AND_SAFETY.md).
+
+| Метод | Путь | Кто | Назначение |
+|---|---|---|---|
+| `GET` | `/api/admin/trust/complaints` | администратор, методист | Очередь жалоб |
+| `POST` | `/api/admin/trust/complaints/{complaint_id}/resolve` | администратор, методист | Разобрать жалобу |
+| `GET` | `/api/admin/trust/flags` | администратор, методист | Автосигналы по компаниям |
+| `POST` | `/api/admin/trust/companies/{company_id}/revoke` | администратор, методист | Отозвать метку «Проверенная компания» |
+| `POST` | `/api/admin/trust/companies/{company_id}/restore` | администратор, методист | Снять отзыв метки |
 
 ## 6. Сквозные соглашения
 
@@ -467,12 +547,12 @@ curl -s -X POST "$API/admin/eval/rank?format=csv" -H "Authorization: Bearer $ADM
 
 Полный сквозной сценарий (приглашение → «Да, если…» → контакты) — в диаграмме [ARCHITECTURE.md](ARCHITECTURE.md) п. 6.3.
 
-## 8. В разработке
+## 8. Статус и то, чего ещё нет
 
 | Что | Состояние |
 |---|---|
 | ATS: забор изменений и обратная синхронизация этапов | Готово: `/api/ats/v1/*`, адаптер «Хантфлоу» (эмулятор; боевой режим не проверялся на живом сервисе) — [ATS_INTEGRATION.md](ATS_INTEGRATION.md); исходящие вебхуки работают (`/api/companies/me/webhooks*`) |
-| «Сигнал интереса» | В разработке |
-| События «Антиподсказчика» | `POST /api/tests/sessions/{id}/events` принимает `copy`, `cut`, `dragstart`, `self_paste`, `copy_bypass` и пишет их в журнал; серверная обработка (хуки `anticheat_hooks.py`) и клиентский обработчик — в разработке |
-| Направления QA и DevOps в тесте | В коде есть первые семейства, но `POST /api/tests/sessions` для них отвечает `409 specialization_not_testable`, пока направления не включены в `config/taxonomy.yaml` |
-| Удаление аккаунта | Отдельного эндпоинта нет; отвязка ФСП ID и удаление резюме есть |
+| «Сигнал интереса» | В разработке (эндпоинтов нет; описан в [MATCHING.md](MATCHING.md) §9) |
+| События «Антиподсказчика» | Готово: `POST /api/tests/sessions/{id}/events` принимает `blur`, `focus`, `paste`, `copy`, `cut`, `dragstart`, `self_paste`, `copy_bypass`, `reconnect`; хуки `anticheat_hooks.py` подключены (подмена буфера выдаётся в `ItemOut.clip`, улики и акты сверки — в «Лаборатории») |
+| Направления QA и DevOps в тесте | Готово: обе специализации `active` в `config/taxonomy.yaml`, тест доступен |
+| Удаление аккаунта | Готово: `DELETE /api/candidates/me`, `DELETE /api/companies/me`; отвязка ФСП ID — `DELETE /api/fsp/me`, резюме — `DELETE /api/candidates/me/resume` |

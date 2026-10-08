@@ -20,6 +20,7 @@
 ## 2. Схема интеграции
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#EEF0FF','primaryBorderColor':'#402FFF','primaryTextColor':'#1B1B2F','lineColor':'#6F6F8C','secondaryColor':'#F4F4F8','tertiaryColor':'#FFFFFF','textColor':'#6F6F8C','edgeLabelBackground':'#F4F4F8','clusterBkg':'#F8F8FC','clusterBorder':'#B8B8D0','noteBkgColor':'#F4F4F8','noteTextColor':'#1B1B2F','noteBorderColor':'#9A9AB0','actorBkg':'#EEF0FF','actorBorder':'#402FFF','actorTextColor':'#1B1B2F','actorLineColor':'#9A9AB0','signalColor':'#6F6F8C','signalTextColor':'#6F6F8C','labelBoxBkgColor':'#EEF0FF','labelBoxBorderColor':'#402FFF','labelTextColor':'#1B1B2F','loopTextColor':'#6F6F8C','activationBkgColor':'#DCDFFF','activationBorderColor':'#402FFF','fontSize':'14px'}}}%%
 flowchart LR
   subgraph FSP["Сторона ФСП"]
     SSO["ФСП ID: Keycloak, realm fsp"]
@@ -46,6 +47,34 @@ flowchart LR
 2. **Реестр достижений** отвечает на вопрос «что у него в протоколах»: по `sub` отдаёт результаты, соревнования, разряды и роли.
 
 Пока у ФСП нет публичного API реестра (протоколы публикуются сканами PDF), на стенде работают: Keycloak с тем же realm `fsp` и сервис `fsp-mock` (60 вымышленных спортсменов, 25 соревнований, фамилии из ИТ-терминов, в номере ЕКП после года стоит «99» — признак синтетики). Если мок или Keycloak не подняты, демо не ломается: данные берутся из встроенного снимка (`VZ_FSP_PROVIDER=auto`), а вместо входа есть «демо-вход ФСП» с подписанным мок-токеном (в интерфейсе везде пометка «Демо-реестр ФСП»).
+
+Последовательность: привязка, достижения, VSS и выписка:
+
+```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#EEF0FF','primaryBorderColor':'#402FFF','primaryTextColor':'#1B1B2F','lineColor':'#6F6F8C','secondaryColor':'#F4F4F8','tertiaryColor':'#FFFFFF','textColor':'#6F6F8C','edgeLabelBackground':'#F4F4F8','clusterBkg':'#F8F8FC','clusterBorder':'#B8B8D0','noteBkgColor':'#F4F4F8','noteTextColor':'#1B1B2F','noteBorderColor':'#9A9AB0','actorBkg':'#EEF0FF','actorBorder':'#402FFF','actorTextColor':'#1B1B2F','actorLineColor':'#9A9AB0','signalColor':'#6F6F8C','signalTextColor':'#6F6F8C','labelBoxBkgColor':'#EEF0FF','labelBoxBorderColor':'#402FFF','labelTextColor':'#1B1B2F','loopTextColor':'#6F6F8C','activationBkgColor':'#DCDFFF','activationBorderColor':'#402FFF','fontSize':'14px'}}}%%
+sequenceDiagram
+  autonumber
+  actor U as Кандидат
+  participant FE as Frontend
+  participant API as Backend
+  participant SSO as ФСП ID
+  participant REG as Реестр ФСП
+  actor E as Работодатель
+  U->>FE: «Привязать ФСП ID»
+  FE->>SSO: редирект: authorize, code_challenge S256
+  SSO-->>FE: code и state
+  FE->>API: GET /api/fsp/callback
+  API->>SSO: обмен кода, проверка по JWKS
+  SSO-->>API: sub
+  API->>SSO: client credentials
+  SSO-->>API: токен сервисного аккаунта
+  API->>REG: GET /v1/athletes/{sub}/achievements
+  REG-->>API: результаты: место из N, протокол
+  API->>API: минимизация ответа, VSS по лучшим 5 результатам
+  Note over API: F = max m·VSS/100, нет истории: F = 0, не штраф
+  E->>API: взаимное «да» и согласие кандидата
+  API-->>E: выписка из протокола
+```
 
 ## 3. ФСП ID (OIDC)
 
@@ -262,7 +291,7 @@ K          : v_k ⊇ 0,8 · m(d, модуль навыка) · VSS_d / 100    Ф
 - возраст считается по году рождения из реестра, **реестр важнее заявленного кандидатом** (иначе несовершеннолетний обошёл бы защиту, указав год рождения до привязки); без года рождения кандидат с флагом `is_minor` скрывается осторожно в пользу защиты;
 - возраст и пол работодателю не показываются и в Score не участвуют никогда.
 
-Согласие законного представителя в текущей версии не запрашивается через интерфейс (поле `guardian_consent` в профиле зарезервировано, логики нет): плановый ручной процесс описан в [SECURITY.md](SECURITY.md) п. 1.4; автоматизация — **в разработке, нужно решение ФСП** (раздел 10).
+Согласие законного представителя кандидатов 15–17 лет запрашивается платформой сама (письмо представителю с одноразовой ссылкой, `POST /api/candidates/me/guardian`, [SECURITY.md](SECURITY.md) п. 1.4). Подтверждение родства документом остаётся организационным вопросом и **требует решения ФСП** (раздел 10).
 
 ## 9. Пошаговый путь к реальной интеграции
 

@@ -25,7 +25,7 @@ COMPOSE ?= docker compose
 USERS   ?= 50
 RUNTIME ?= 3m
 
-.PHONY: help up up-infra down ps logs demo creds reset-demo-stack migrate gen-pool seed reset-demo demo-accounts test lint validate jury-check dev loadtest-accounts loadtest
+.PHONY: help up up-infra down ps logs demo creds reset-demo-stack migrate gen-pool seed reset-demo demo-accounts test lint validate jury-check dev loadtest-accounts loadtest docs-pdf
 
 help:
 	@echo "make up | demo | creds | ps | logs | down | up-infra | migrate | gen-pool | seed | reset-demo | test | lint | validate | dev | loadtest-accounts | loadtest"
@@ -104,3 +104,8 @@ jury-check:
 # Бэкенд в DEMO_MODE: автоответчик синтетических кандидатов, «+1 день / +3 дня», режим жюри, приёмник вебхуков
 dev:
 	cd $(BACKEND) && VZ_DEMO_MODE=true uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# PDF документации: docs/pdf/ (сводный + по документу). Нужны Python (markdown-it-py, pypdf), Node.js, Chrome или Edge и один раз
+# `cd docs/pdf-tools && npm install`; подробности в docs/README.md, раздел «PDF-версии»
+docs-pdf:
+	python docs/build_pdf.py

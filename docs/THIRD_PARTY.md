@@ -1,6 +1,6 @@
 # Сторонние компоненты и лицензии
 
-Список библиотек, контейнерных образов, шрифтов и ресурсов, из которых собрано «Взаимно», с версиями и лицензиями. Версии Python-пакетов извлечены скриптом из `backend/uv.lock` (зафиксированное разрешение зависимостей), версии JavaScript-пакетов — из `frontend/package-lock.json`, образы — из `docker-compose.yml` и `backend/Dockerfile`; лицензии Python-пакетов — из метаданных PyPI для зафиксированных версий (с проверкой по установленным пакетам). Состояние на 2026-10-05. Все компоненты имеют открытые лицензии; собственный код проекта — «Взаимно» (хакатон ЛЦТ-2026, спецтрек ФСП).
+Список библиотек, контейнерных образов, шрифтов и ресурсов, из которых собрано «Взаимно», с версиями и лицензиями. Версии Python-пакетов извлечены скриптом из `backend/uv.lock` (зафиксированное разрешение зависимостей), версии JavaScript-пакетов — из `frontend/package-lock.json`, образы — из `docker-compose.yml` и `backend/Dockerfile`; лицензии Python-пакетов — из метаданных PyPI для зафиксированных версий (с проверкой по установленным пакетам). Состояние на 2026-10-08 (версии повторно сверены с `backend/uv.lock` и `frontend/package-lock.json`: расхождений нет). Все компоненты имеют открытые лицензии; собственный код проекта — «Взаимно» (хакатон ЛЦТ-2026, спецтрек ФСП).
 
 Содержание: [1. Бэкенд (Python)](#1-бэкенд-python) · [2. Фронтенд (JavaScript)](#2-фронтенд-javascript) · [3. Образы и системные компоненты](#3-образы-и-системные-компоненты) · [4. Шрифты](#4-шрифты) · [5. Иллюстрации и данные](#5-иллюстрации-и-данные) · [6. Замечания по лицензиям](#6-замечания-по-лицензиям) · [7. Как обновить список](#7-как-обновить-список)
 
@@ -93,7 +93,7 @@
 
 ## 2. Фронтенд (JavaScript)
 
-`frontend/package.json` (версия приложения 0.1.0), версии — из `package-lock.json` (lockfileVersion 3); сборка `npm run build` (TypeScript и Vite). Окружение сборки: Node.js 22 LTS (проверено на 22.20.0) и npm 11. Фронтенд в разработке: список будет дополняться по мере появления экранов, а таблицы ниже перегенерируются из `package-lock.json`.
+`frontend/package.json` (версия приложения 0.1.0), версии — из `package-lock.json` (lockfileVersion 3); сборка `npm run build` (TypeScript и Vite). Окружение сборки: Node.js 22 LTS (проверено на 22.20.0) и npm 11.
 
 ### 2.1. Зависимости, попадающие в сборку (`dependencies`)
 
@@ -159,6 +159,8 @@
 | Mailpit | `axllent/mailpit:v1.31.4` (`docker-compose.yml`) | MIT | Перехват писем в разработке |
 | Python | `python:3.12-slim` (`backend/Dockerfile`, `services/fsp-mock/Dockerfile`) | PSF-2.0 (CPython); базовый образ Debian содержит пакеты под своими лицензиями | Среда выполнения бэкенда и `fsp-mock` |
 | uv | `ghcr.io/astral-sh/uv:0.11.12` (`backend/Dockerfile`) | MIT или Apache-2.0 | Установка зависимостей по `uv.lock` |
+| nginx | `nginx:1.27.5-alpine` (`frontend/Dockerfile`, образ `web`) | BSD-2-Clause | Статика фронтенда, SPA-fallback, прокси `/api` |
+| Node.js (образы) | `node:22.12-alpine` (сборка фронтенда, `frontend/Dockerfile`), `node:22.12-slim` (исполнение JS-семейств при генерации пула, `backend/Dockerfile`) | MIT | Сборка Vite; ключи JavaScript-заданий |
 | Caddy 2 | `caddy:2.10.2-alpine` (`docker-compose.prod.yml`, [DEPLOY.md](DEPLOY.md)) | Apache-2.0 | Обратный прокси, TLS |
 | Swagger UI (swagger-ui-dist) | 5.33.1, файлы в `backend/app/static/docs` | Apache-2.0 (лицензия и NOTICE рядом) | Интерактивная документация `/api/docs`, без внешних CDN |
 | ReDoc | 2.5.4 (`redoc.standalone.js`), файлы в `backend/app/static/docs` | MIT (лицензия рядом) | Документация `/api/redoc`, без внешних CDN и шрифтов |

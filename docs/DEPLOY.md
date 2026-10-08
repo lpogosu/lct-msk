@@ -302,8 +302,38 @@ VZ_ENV=dev uv run python scripts/seed_demo.py              # пароли — в
 | Windows: ошибки кодировки в консоли | `PYTHONUTF8=1` (`make` выставляет сам) |
 | `additional_contexts` не поддерживается | Обновите Docker Compose до v2.17+ |
 
+## Схема боевого развёртывания
+
+```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#EEF0FF','primaryBorderColor':'#402FFF','primaryTextColor':'#1B1B2F','lineColor':'#6F6F8C','secondaryColor':'#F4F4F8','tertiaryColor':'#FFFFFF','textColor':'#6F6F8C','edgeLabelBackground':'#F4F4F8','clusterBkg':'#F8F8FC','clusterBorder':'#B8B8D0','noteBkgColor':'#F4F4F8','noteTextColor':'#1B1B2F','noteBorderColor':'#9A9AB0','actorBkg':'#EEF0FF','actorBorder':'#402FFF','actorTextColor':'#1B1B2F','actorLineColor':'#9A9AB0','signalColor':'#6F6F8C','signalTextColor':'#6F6F8C','labelBoxBkgColor':'#EEF0FF','labelBoxBorderColor':'#402FFF','labelTextColor':'#1B1B2F','loopTextColor':'#6F6F8C','activationBkgColor':'#DCDFFF','activationBorderColor':'#402FFF','fontSize':'14px'}}}%%
+flowchart TB
+  net(["Интернет"])
+  subgraph HOST["VPS в РФ, compose prod"]
+    caddy["Caddy 2.10<br/>80, 443, HTTP/3<br/>автоматический TLS"]:::acc
+    web["web: nginx 1.27<br/>SPA + прокси /api"]
+    api["backend: FastAPI<br/>только expose, наружу не публикуется"]:::acc
+    pool["pool<br/>пул заданий, разовый"]
+    db[("PostgreSQL 16 + pgvector<br/>без публикации портов")]:::db
+    subgraph FSPP["профиль fsp, необязательно"]
+      kc["Keycloak 26"]
+      kcdb[("PostgreSQL 16<br/>БД Keycloak")]:::db
+    end
+    vol[("тома: pgdata, vzvar,<br/>caddy_data")]:::db
+  end
+  net -- "443" --> caddy
+  caddy --> web
+  caddy -. "sso.домен" .-> kc
+  web -- "/api" --> api
+  api --> db
+  pool --> db
+  kc --> kcdb
+  db --- vol
+  classDef acc fill:#402FFF,stroke:#402FFF,color:#FFFFFF;
+  classDef ext fill:#F4F4F8,stroke:#9A9AB0,color:#1B1B2F,stroke-dasharray:4 3;
+  classDef db fill:#FFFFFF,stroke:#402FFF,color:#1B1B2F;
+```
+
 ## 8. В разработке
 
-- Образ и compose-сервис фронтенда; готовый скрипт долива пула внутри контейнера с Node.js.
 - Мониторинг, алерты и автоматическое резервное копирование.
 - Закрепление образов по digest (сейчас — по версиям; `python:3.12-slim` в Dockerfile остаётся плавающим тегом минорной линии).

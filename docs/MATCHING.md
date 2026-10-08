@@ -22,15 +22,20 @@
 ## 2. Конвейер
 
 ```mermaid
-flowchart LR
-  T["Текст брифа и вилка"] --> P["Разбор: навыки, must и nice, специализация, грейд, формат"]
-  P --> C["Рекомендация категорий P(s)·P(g) и охват вилки"]
-  C --> S["Пул: matching_features, visible, не в блок-листе"]
-  S --> SC["Score: G · Cov · (T, K, F, A, U)"]
-  SC --> EX["Объяснения: 3 за и 1 против"]
-  EX --> V["Версия подборки n: неизменяемый снимок"]
-  V --> F["Фильтры: hidden_by вместо удаления"]
-  F --> V2["Версия n+1, шортлист, откат"]
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#EEF0FF','primaryBorderColor':'#402FFF','primaryTextColor':'#1B1B2F','lineColor':'#6F6F8C','secondaryColor':'#F4F4F8','tertiaryColor':'#FFFFFF','textColor':'#6F6F8C','edgeLabelBackground':'#F4F4F8','clusterBkg':'#F8F8FC','clusterBorder':'#B8B8D0','noteBkgColor':'#F4F4F8','noteTextColor':'#1B1B2F','noteBorderColor':'#9A9AB0','actorBkg':'#EEF0FF','actorBorder':'#402FFF','actorTextColor':'#1B1B2F','actorLineColor':'#9A9AB0','signalColor':'#6F6F8C','signalTextColor':'#6F6F8C','labelBoxBkgColor':'#EEF0FF','labelBoxBorderColor':'#402FFF','labelTextColor':'#1B1B2F','loopTextColor':'#6F6F8C','activationBkgColor':'#DCDFFF','activationBorderColor':'#402FFF','fontSize':'14px'}}}%%
+flowchart TB
+  t["Текст брифа<br/>и зарплатная вилка"] --> p["Разбор: навыки, must и nice,<br/>специализация, грейд, формат"]
+  p --> c["Рекомендуемые категории<br/>P(s)·P(g) и охват вилки"]
+  c --> pool["Пул: видимые, не в блок-листе,<br/>с согласиями"]
+  pool --> mul["Множители<br/>G категория · Cov покрытие must<br/>Cond условия и вилка"]
+  mul --> sc["Score = 100 · G · Cov · Cond · Σ<br/>Σ = wT·T + wK·K + wF·F + wA·A + wU·U"]:::acc
+  sc --> ex["Объяснения:<br/>3 за и 1 против"]
+  ex --> v["Версия подборки n<br/>неизменяемый снимок"]:::acc
+  v --> f["Фильтры: hidden_by<br/>вместо удаления"]
+  f --> v2["Версия n+1,<br/>шортлист, откат"]
+  classDef acc fill:#402FFF,stroke:#402FFF,color:#FFFFFF;
+  classDef ext fill:#F4F4F8,stroke:#9A9AB0,color:#1B1B2F,stroke-dasharray:4 3;
+  classDef db fill:#FFFFFF,stroke:#402FFF,color:#1B1B2F;
 ```
 
 Источники признаков кандидата (`app/services/matching/sources.py`, `features.py`): квалификация (θ̂, SE, подбаллы модулей), ФСП (VSS по дисциплинам), регулярные задачи, настройки кандидата (минимум зарплаты, форматы, город, релокация, отрасли), заявленные навыки. Строки кэша `matching_features` хранят **абсолютные** даты («дней назад» считаются при чтении по `Clock`), пересобираются по хукам (тест, профиль, согласие, ФСП, задачи) и по отпечатку источников; максимальный срок жизни — 7 дней, потому что VSS зависит от времени.
@@ -202,4 +207,4 @@ Score(кандидат | бриф) = 100 · G · Cov · Cond · ( wT·T + wK·K 
 - Must-навыки, которые тест не проверяет (Docker, Kafka, Redis и т. п.), формула не может подтвердить: у неё есть только доказательства (тест, задачи, ФСП), самоописанию она не верит.
 - Оракул и генератор популяции написаны одной командой; экспертной разметки пар нет. Это проверка согласованности механики с нашей моделью мира, а не мнения рекрутера.
 - Эмбеддинги и колонки `vector` в БД — в разработке.
-- Банки QA и DevOps включены (`active`), но меньше по объёму, чем Backend/Frontend; «Сигнал интереса» — в разработке.
+- Банки QA и DevOps включены (`active`), но меньше по объёму, чем Backend/Frontend; «Сигнал интереса» — в разработке (в коде нет).

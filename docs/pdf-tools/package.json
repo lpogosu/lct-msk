@@ -1,0 +1,11 @@
+{
+  "name": "vzaimno-docs-pdf",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Инструменты сборки PDF документации (docs/build_pdf.py): Mermaid и Playwright",
+  "license": "MIT",
+  "dependencies": {
+    "mermaid": "11.12.0",
+    "playwright-core": "1.56.1"
+  }
+}

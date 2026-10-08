@@ -21,6 +21,7 @@
 Три роли пользователей (`candidate`, `employer`, `methodist`; плюс `admin`) и сквозная цепочка «опрос → тест → категория → подборка → приглашение → взаимное «да» → контакты».
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#EEF0FF','primaryBorderColor':'#402FFF','primaryTextColor':'#1B1B2F','lineColor':'#6F6F8C','secondaryColor':'#F4F4F8','tertiaryColor':'#FFFFFF','textColor':'#6F6F8C','edgeLabelBackground':'#F4F4F8','clusterBkg':'#F8F8FC','clusterBorder':'#B8B8D0','noteBkgColor':'#F4F4F8','noteTextColor':'#1B1B2F','noteBorderColor':'#9A9AB0','actorBkg':'#EEF0FF','actorBorder':'#402FFF','actorTextColor':'#1B1B2F','actorLineColor':'#9A9AB0','signalColor':'#6F6F8C','signalTextColor':'#6F6F8C','labelBoxBkgColor':'#EEF0FF','labelBoxBorderColor':'#402FFF','labelTextColor':'#1B1B2F','loopTextColor':'#6F6F8C','activationBkgColor':'#DCDFFF','activationBorderColor':'#402FFF','fontSize':'14px'}}}%%
 flowchart LR
   subgraph CAND["Кандидат"]
     direction TB
@@ -76,70 +77,84 @@ flowchart LR
 ### 3.1. Уровень 1 — контекст
 
 ```mermaid
-C4Context
-  title Контекст: «Взаимно» и его окружение
-  Person(cand, "Кандидат", "ИТ-специалист: опрос, тест, ответы на приглашения")
-  Person(emp, "Работодатель", "Бриф, подборка, приглашения")
-  Person(met, "Методист и администратор", "Банк заданий, флаги, валидация")
-  System(vz, "Взаимно", "Платформа обратного подбора ИТ-специалистов")
-  System_Ext(fspid, "ФСП ID", "Keycloak, OpenID Connect, realm fsp")
-  System_Ext(reg, "Реестр достижений ФСП", "REST API, предлагаемый контракт, в демо fsp-mock")
-  System_Ext(smtp, "SMTP-сервер", "Коды подтверждения и уведомления")
-  System_Ext(llm, "YandexGPT, GigaChat", "Необязательно: разбор брифа и резюме")
-  System_Ext(ats, "ATS работодателя", "Приём подписанных вебхуков")
-  Rel(cand, vz, "Опрос, тест, приглашения", "HTTPS")
-  Rel(emp, vz, "Бриф, подборка, приглашения", "HTTPS")
-  Rel(met, vz, "Лаборатория", "HTTPS")
-  Rel(vz, fspid, "Вход: authorization code + PKCE", "OIDC")
-  Rel(vz, reg, "Достижения спортсмена", "HTTPS, bearer")
-  Rel(vz, smtp, "Письма", "SMTP")
-  Rel(vz, llm, "Маскированный текст, ответ с цитатами", "HTTPS")
-  Rel(vz, ats, "События приглашений", "HTTPS, HMAC-SHA256")
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#EEF0FF','primaryBorderColor':'#402FFF','primaryTextColor':'#1B1B2F','lineColor':'#6F6F8C','secondaryColor':'#F4F4F8','tertiaryColor':'#FFFFFF','textColor':'#6F6F8C','edgeLabelBackground':'#F4F4F8','clusterBkg':'#F8F8FC','clusterBorder':'#B8B8D0','noteBkgColor':'#F4F4F8','noteTextColor':'#1B1B2F','noteBorderColor':'#9A9AB0','actorBkg':'#EEF0FF','actorBorder':'#402FFF','actorTextColor':'#1B1B2F','actorLineColor':'#9A9AB0','signalColor':'#6F6F8C','signalTextColor':'#6F6F8C','labelBoxBkgColor':'#EEF0FF','labelBoxBorderColor':'#402FFF','labelTextColor':'#1B1B2F','loopTextColor':'#6F6F8C','activationBkgColor':'#DCDFFF','activationBorderColor':'#402FFF','fontSize':'14px'}}}%%
+flowchart LR
+  cand(["Кандидат<br/>опрос, тест, ответы"])
+  emp(["Работодатель<br/>бриф, подборка, приглашения"])
+  met(["Методист и админ<br/>банк, флаги, валидация"])
+  vz["Взаимно<br/>платформа обратного подбора"]:::acc
+  fspid["ФСП ID<br/>Keycloak, OIDC"]:::ext
+  reg["Реестр достижений ФСП<br/>REST, предлагаемый контракт"]:::ext
+  smtp["SMTP<br/>коды и уведомления"]:::ext
+  llm["YandexGPT, GigaChat<br/>необязательно"]:::ext
+  ats["ATS работодателя<br/>вебхуки, pull-API"]:::ext
+  cand -- "HTTPS" --> vz
+  emp -- "HTTPS" --> vz
+  met -- "HTTPS" --> vz
+  vz -- "OIDC: code + PKCE" --> fspid
+  vz -- "достижения по sub, bearer" --> reg
+  vz -- "письма" --> smtp
+  vz -- "маскированный текст" --> llm
+  vz -- "события, HMAC-SHA256" --> ats
+  ats -- "статусы, X-API-Key" --> vz
+  classDef acc fill:#402FFF,stroke:#402FFF,color:#FFFFFF;
+  classDef ext fill:#F4F4F8,stroke:#9A9AB0,color:#1B1B2F,stroke-dasharray:4 3;
+  classDef db fill:#FFFFFF,stroke:#402FFF,color:#1B1B2F;
 ```
 
 ### 3.2. Уровень 2 — контейнеры
 
 ```mermaid
-C4Container
-  title Контейнеры «Взаимно» (docker-compose.yml и рекомендуемый прод)
-  Person(user, "Пользователь", "Кандидат, работодатель, методист")
-  System_Boundary(vz, "Взаимно") {
-    Container(proxy, "Caddy", "Caddy 2", "HTTPS, статика фронтенда, прокси /api; только в проде (docker-compose.prod.yml), в локальном compose нет")
-    Container(web, "Frontend", "React 18, Vite, TypeScript, Tailwind", "SPA, типы API генерируются из OpenAPI")
-    Container(api, "Backend", "FastAPI, SQLAlchemy 2, uvicorn", "Модульный монолит: тест, антиподсказчик, подбор, контакт, ФСП, платформа")
-    ContainerDb(db, "PostgreSQL", "PostgreSQL 16 + pgvector", "Вся доменная и служебная информация")
-    Container(mock, "fsp-mock", "FastAPI", "Демо-реестр ФСП: предлагаемый контракт API")
-    Container(kc, "Keycloak", "Keycloak 26, realm fsp", "ФСП ID для демо (профиль compose fsp)")
-    Container(mail, "Mailpit", "Mailpit", "Перехват писем в разработке")
-  }
-  System_Ext(ext, "ФСП ID, реестр, SMTP, LLM, ATS", "Внешние системы продакшена")
-  Rel(user, proxy, "Браузер", "HTTPS")
-  Rel(proxy, web, "Статика dist/")
-  Rel(proxy, api, "/api/*", "HTTP")
-  Rel(api, db, "SQL", "psycopg 3")
-  Rel(api, mock, "Достижения спортсмена по sub", "HTTP, bearer")
-  Rel(api, kc, "discovery, token, JWKS", "HTTP")
-  Rel(user, kc, "Вход через ФСП ID", "редирект")
-  Rel(api, mail, "SMTP :1025")
-  Rel(api, ext, "Прод: SSO ФСП, API реестра, SMTP, LLM, ATS")
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#EEF0FF','primaryBorderColor':'#402FFF','primaryTextColor':'#1B1B2F','lineColor':'#6F6F8C','secondaryColor':'#F4F4F8','tertiaryColor':'#FFFFFF','textColor':'#6F6F8C','edgeLabelBackground':'#F4F4F8','clusterBkg':'#F8F8FC','clusterBorder':'#B8B8D0','noteBkgColor':'#F4F4F8','noteTextColor':'#1B1B2F','noteBorderColor':'#9A9AB0','actorBkg':'#EEF0FF','actorBorder':'#402FFF','actorTextColor':'#1B1B2F','actorLineColor':'#9A9AB0','signalColor':'#6F6F8C','signalTextColor':'#6F6F8C','labelBoxBkgColor':'#EEF0FF','labelBoxBorderColor':'#402FFF','labelTextColor':'#1B1B2F','loopTextColor':'#6F6F8C','activationBkgColor':'#DCDFFF','activationBorderColor':'#402FFF','fontSize':'14px'}}}%%
+flowchart TB
+  user(["Браузер<br/>кандидат, работодатель, методист"])
+  subgraph PROD["Периметр прода"]
+    caddy["Caddy 2<br/>HTTPS и HSTS<br/>только docker-compose.prod.yml"]:::ext
+  end
+  subgraph VZ["Взаимно: docker compose"]
+    web["web: nginx<br/>React SPA, прокси /api"]:::acc
+    api["backend: FastAPI<br/>модульный монолит"]:::acc
+    db[("PostgreSQL 16<br/>+ pgvector")]:::db
+    pool["pool<br/>пул клонов и двойников<br/>разовый запуск"]
+    mail["Mailpit<br/>письма в разработке"]
+    mock["fsp-mock<br/>демо-реестр ФСП"]
+    kc["Keycloak 26<br/>realm fsp, профиль fsp"]
+  end
+  ext["ФСП ID, реестр, SMTP, LLM, ATS<br/>внешние системы прода"]:::ext
+  user -- "HTTPS" --> caddy
+  user -. "локально: http :80" .-> web
+  caddy --> web
+  web -- "/api/*" --> api
+  api -- "SQL, psycopg 3" --> db
+  pool --> db
+  api -- "SMTP :1025" --> mail
+  api -- "bearer, достижения по sub" --> mock
+  api -- "discovery, token, JWKS" --> kc
+  user -- "вход через ФСП ID" --> kc
+  api -. "прод" .-> ext
+  classDef acc fill:#402FFF,stroke:#402FFF,color:#FFFFFF;
+  classDef ext fill:#F4F4F8,stroke:#9A9AB0,color:#1B1B2F,stroke-dasharray:4 3;
+  classDef db fill:#FFFFFF,stroke:#402FFF,color:#1B1B2F;
 ```
 
 Сервисы `docker-compose.yml` (проект `vzaimno`):
 
 | Сервис | Образ / сборка | Порт | Лимит памяти | Назначение |
 |---|---|---|---|---|
-| `db` | `pgvector/pgvector:pg16` | 5432 | 512 МБ | PostgreSQL 16; расширение `vector` создаёт миграция `0001` |
+| `db` | `pgvector/pgvector:0.8.7-pg16` | 5432 | 512 МБ | PostgreSQL 16; расширение `vector` создаёт миграция `0001` |
 | `backend` | сборка `backend/Dockerfile` (python:3.12-slim, uv, непривилегированный пользователь) | 8000 | 768 МБ | Миграции `alembic upgrade head`, затем `uvicorn app.main:app --no-proxy-headers` (клиентский IP определяет приложение) |
 | `fsp-mock` | сборка `services/fsp-mock` (python:3.12-slim) | 8001 | 256 МБ | Демо-реестр ФСП, 60 синтетических спортсменов |
-| `mailpit` | `axllent/mailpit:latest` | 8025 (веб), 1025 (SMTP) | 128 МБ | Письма с кодом видны на http://localhost:8025 |
+| `mailpit` | `axllent/mailpit:v1.31.4` | 8025 (веб), 1025 (SMTP) | 128 МБ | Письма с кодом видны на http://localhost:8025 |
 | `keycloak` | `quay.io/keycloak/keycloak:26.0`, профиль `fsp` | 8080 | 768 МБ | ФСП ID: realm `fsp` с 30 демо-пользователями |
-| фронтенд | `frontend/` (Vite dev-сервер :5173, `npm run build` → `dist/`) | 5173 | — | В `docker-compose.yml` не входит. Caddy в compose тоже пока нет: рекомендуемая схема — в [DEPLOY.md](DEPLOY.md) |
+| `web` | сборка `frontend/Dockerfile` (nginx со статикой Vite, SPA-fallback, прокси `/api` → `backend`) | 80 | 128 МБ | Интерфейс на http://localhost. Для разработки — Vite dev-сервер :5173 (`npm run dev`). Caddy с HTTPS есть только в `docker-compose.prod.yml`: [DEPLOY.md](DEPLOY.md) |
+| `pool` | образ бэкенда, разовый запуск `scripts/generate_pool.py` | — | 1 ГБ | Прегенерация пула клонов заданий и двойников; затем завершается |
 
 Демо не зависит от Keycloak и от `fsp-mock`: при `VZ_FSP_PROVIDER=auto` бэкенд берёт данные реестра из встроенного снимка (`app/fsp/data/demo_registry.json`), а вместо входа через Keycloak есть «демо-вход ФСП» с подписанным мок-токеном.
 
 ## 4. Модули монолита и их границы
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#EEF0FF','primaryBorderColor':'#402FFF','primaryTextColor':'#1B1B2F','lineColor':'#6F6F8C','secondaryColor':'#F4F4F8','tertiaryColor':'#FFFFFF','textColor':'#6F6F8C','edgeLabelBackground':'#F4F4F8','clusterBkg':'#F8F8FC','clusterBorder':'#B8B8D0','noteBkgColor':'#F4F4F8','noteTextColor':'#1B1B2F','noteBorderColor':'#9A9AB0','actorBkg':'#EEF0FF','actorBorder':'#402FFF','actorTextColor':'#1B1B2F','actorLineColor':'#9A9AB0','signalColor':'#6F6F8C','signalTextColor':'#6F6F8C','labelBoxBkgColor':'#EEF0FF','labelBoxBorderColor':'#402FFF','labelTextColor':'#1B1B2F','loopTextColor':'#6F6F8C','activationBkgColor':'#DCDFFF','activationBorderColor':'#402FFF','fontSize':'14px'}}}%%
 flowchart TB
   subgraph HTTP["app.api: HTTP-слой"]
     api_auth["auth, consents, notifications"]
@@ -205,7 +220,7 @@ flowchart TB
 | Контракт реестра в бэкенде и в `fsp-mock` совпадает байт-в-байт | `tests/test_fsp_mock.py` |
 | Клоны: 200 экземпляров без исключений, детерминизм по seed, ≥ 95 % различных ключей, дистракторы ≠ ключу | `tests/test_bank_gates.py`, `tests/test_bank_*.py` |
 
-Всего в `backend/tests` собирается 1551 тест (`uv run pytest --collect-only -q`). Для тестов API нужен PostgreSQL (`VZ_TEST_DATABASE_URL`).
+Всего в `backend/tests` собирается 2147 тестов (`uv run pytest --collect-only -q`). Для тестов API нужен PostgreSQL (`VZ_TEST_DATABASE_URL`).
 
 ## 5. Данные (ERD)
 
@@ -213,9 +228,36 @@ flowchart TB
 
 Расширение `pgvector` включено в `0001`, но колонок типа `vector` пока нет: эмбеддинги в рантайме не используются (член `cos(emb, proto)` в разборе брифа по умолчанию равен 0). Это «в разработке».
 
+### 5.0. Обзор: ключевые сущности
+
+Ниже только основные таблицы и связи; полные ERD по областям — в п. 5.1–5.4.
+
+```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#EEF0FF','primaryBorderColor':'#402FFF','primaryTextColor':'#1B1B2F','lineColor':'#6F6F8C','secondaryColor':'#F4F4F8','tertiaryColor':'#FFFFFF','textColor':'#6F6F8C','edgeLabelBackground':'#F4F4F8','clusterBkg':'#F8F8FC','clusterBorder':'#B8B8D0','noteBkgColor':'#F4F4F8','noteTextColor':'#1B1B2F','noteBorderColor':'#9A9AB0','actorBkg':'#EEF0FF','actorBorder':'#402FFF','actorTextColor':'#1B1B2F','actorLineColor':'#9A9AB0','signalColor':'#6F6F8C','signalTextColor':'#6F6F8C','labelBoxBkgColor':'#EEF0FF','labelBoxBorderColor':'#402FFF','labelTextColor':'#1B1B2F','loopTextColor':'#6F6F8C','activationBkgColor':'#DCDFFF','activationBorderColor':'#402FFF','fontSize':'14px'}}}%%
+erDiagram
+  users ||--o| candidate_profiles : "профиль"
+  users ||--o{ consents : "согласия"
+  users ||--o{ test_sessions : "тесты"
+  users ||--o{ qualifications : "категории"
+  test_sessions ||--o{ test_responses : "ответы"
+  item_instances ||--o{ test_responses : "клон"
+  users ||--o| fsp_links : "ФСП ID"
+  companies ||--o{ users : "сотрудники"
+  companies ||--o{ needs : "потребности"
+  needs ||--o{ need_versions : "версии подборки"
+  companies ||--o{ vacancies : "вакансии"
+  vacancies ||--o{ applications : "отклики"
+  needs ||--o{ invitations : "приглашения"
+  users ||--o{ invitations : "кандидат"
+  invitations ||--o{ offer_terms : "условия v1, v2"
+  companies ||--o{ contact_disclosures : "раскрытия"
+  users ||--o{ contact_disclosures : "кандидат"
+```
+
 ### 5.1. Пользователи, согласия, компании
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#EEF0FF','primaryBorderColor':'#402FFF','primaryTextColor':'#1B1B2F','lineColor':'#6F6F8C','secondaryColor':'#F4F4F8','tertiaryColor':'#FFFFFF','textColor':'#6F6F8C','edgeLabelBackground':'#F4F4F8','clusterBkg':'#F8F8FC','clusterBorder':'#B8B8D0','noteBkgColor':'#F4F4F8','noteTextColor':'#1B1B2F','noteBorderColor':'#9A9AB0','actorBkg':'#EEF0FF','actorBorder':'#402FFF','actorTextColor':'#1B1B2F','actorLineColor':'#9A9AB0','signalColor':'#6F6F8C','signalTextColor':'#6F6F8C','labelBoxBkgColor':'#EEF0FF','labelBoxBorderColor':'#402FFF','labelTextColor':'#1B1B2F','loopTextColor':'#6F6F8C','activationBkgColor':'#DCDFFF','activationBorderColor':'#402FFF','fontSize':'14px'}}}%%
 erDiagram
   users ||--o| candidate_profiles : "профиль кандидата"
   users ||--o{ consents : "журнал согласий"
@@ -270,6 +312,7 @@ erDiagram
 ### 5.2. Тестирование
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#EEF0FF','primaryBorderColor':'#402FFF','primaryTextColor':'#1B1B2F','lineColor':'#6F6F8C','secondaryColor':'#F4F4F8','tertiaryColor':'#FFFFFF','textColor':'#6F6F8C','edgeLabelBackground':'#F4F4F8','clusterBkg':'#F8F8FC','clusterBorder':'#B8B8D0','noteBkgColor':'#F4F4F8','noteTextColor':'#1B1B2F','noteBorderColor':'#9A9AB0','actorBkg':'#EEF0FF','actorBorder':'#402FFF','actorTextColor':'#1B1B2F','actorLineColor':'#9A9AB0','signalColor':'#6F6F8C','signalTextColor':'#6F6F8C','labelBoxBkgColor':'#EEF0FF','labelBoxBorderColor':'#402FFF','labelTextColor':'#1B1B2F','loopTextColor':'#6F6F8C','activationBkgColor':'#DCDFFF','activationBorderColor':'#402FFF','fontSize':'14px'}}}%%
 erDiagram
   users ||--o{ qualifications : "по специализации"
   users ||--o{ test_sessions : "проходит"
@@ -336,6 +379,7 @@ erDiagram
 ### 5.3. Подбор и контакт
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#EEF0FF','primaryBorderColor':'#402FFF','primaryTextColor':'#1B1B2F','lineColor':'#6F6F8C','secondaryColor':'#F4F4F8','tertiaryColor':'#FFFFFF','textColor':'#6F6F8C','edgeLabelBackground':'#F4F4F8','clusterBkg':'#F8F8FC','clusterBorder':'#B8B8D0','noteBkgColor':'#F4F4F8','noteTextColor':'#1B1B2F','noteBorderColor':'#9A9AB0','actorBkg':'#EEF0FF','actorBorder':'#402FFF','actorTextColor':'#1B1B2F','actorLineColor':'#9A9AB0','signalColor':'#6F6F8C','signalTextColor':'#6F6F8C','labelBoxBkgColor':'#EEF0FF','labelBoxBorderColor':'#402FFF','labelTextColor':'#1B1B2F','loopTextColor':'#6F6F8C','activationBkgColor':'#DCDFFF','activationBorderColor':'#402FFF','fontSize':'14px'}}}%%
 erDiagram
   companies ||--o{ needs : "брифы"
   needs ||--o{ need_versions : "неизменяемые версии"
@@ -410,6 +454,7 @@ erDiagram
 ### 5.4. ФСП и регулярные задачи
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#EEF0FF','primaryBorderColor':'#402FFF','primaryTextColor':'#1B1B2F','lineColor':'#6F6F8C','secondaryColor':'#F4F4F8','tertiaryColor':'#FFFFFF','textColor':'#6F6F8C','edgeLabelBackground':'#F4F4F8','clusterBkg':'#F8F8FC','clusterBorder':'#B8B8D0','noteBkgColor':'#F4F4F8','noteTextColor':'#1B1B2F','noteBorderColor':'#9A9AB0','actorBkg':'#EEF0FF','actorBorder':'#402FFF','actorTextColor':'#1B1B2F','actorLineColor':'#9A9AB0','signalColor':'#6F6F8C','signalTextColor':'#6F6F8C','labelBoxBkgColor':'#EEF0FF','labelBoxBorderColor':'#402FFF','labelTextColor':'#1B1B2F','loopTextColor':'#6F6F8C','activationBkgColor':'#DCDFFF','activationBorderColor':'#402FFF','fontSize':'14px'}}}%%
 erDiagram
   users ||--o| fsp_links : "привязка ФСП ID"
   users ||--o{ fsp_achievements : "кэш достижений"
@@ -466,6 +511,27 @@ erDiagram
 ### 6.1. Путь кандидата: опрос → грейд → CAT → категория
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#EEF0FF','primaryBorderColor':'#402FFF','primaryTextColor':'#1B1B2F','lineColor':'#6F6F8C','secondaryColor':'#F4F4F8','tertiaryColor':'#FFFFFF','textColor':'#6F6F8C','edgeLabelBackground':'#F4F4F8','clusterBkg':'#F8F8FC','clusterBorder':'#B8B8D0','noteBkgColor':'#F4F4F8','noteTextColor':'#1B1B2F','noteBorderColor':'#9A9AB0','actorBkg':'#EEF0FF','actorBorder':'#402FFF','actorTextColor':'#1B1B2F','actorLineColor':'#9A9AB0','signalColor':'#6F6F8C','signalTextColor':'#6F6F8C','labelBoxBkgColor':'#EEF0FF','labelBoxBorderColor':'#402FFF','labelTextColor':'#1B1B2F','loopTextColor':'#6F6F8C','activationBkgColor':'#DCDFFF','activationBorderColor':'#402FFF','fontSize':'14px'}}}%%
+flowchart LR
+  r["Регистрация<br/>и код из письма"] --> s["Опрос<br/>4 шага"]
+  s --> g{"Выбор грейда"}
+  g --> t["Адаптивный тест CAT<br/>8–20 заданий<br/>одноразовые клоны"]
+  t --> d{"Решение<br/>P(θ ≥ порог)"}
+  d -- "P ≥ 0,9" --> ok["Категория:<br/>специализация × грейд"]:::acc
+  d -- "P ≤ 0,1" --> no["Грейд не подтверждён<br/>добор вниз или пересдача"]
+  d -- "макс. длина, P от 0,5 до 0,9" --> bp["«На границе»<br/>в подборе G × 0,9"]
+  ok --> pr["Профиль, согласия,<br/>ФСП ID по желанию"]
+  bp --> pr
+  no --> pr
+  classDef acc fill:#402FFF,stroke:#402FFF,color:#FFFFFF;
+  classDef ext fill:#F4F4F8,stroke:#9A9AB0,color:#1B1B2F,stroke-dasharray:4 3;
+  classDef db fill:#FFFFFF,stroke:#402FFF,color:#1B1B2F;
+```
+
+Последовательность вызовов:
+
+```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#EEF0FF','primaryBorderColor':'#402FFF','primaryTextColor':'#1B1B2F','lineColor':'#6F6F8C','secondaryColor':'#F4F4F8','tertiaryColor':'#FFFFFF','textColor':'#6F6F8C','edgeLabelBackground':'#F4F4F8','clusterBkg':'#F8F8FC','clusterBorder':'#B8B8D0','noteBkgColor':'#F4F4F8','noteTextColor':'#1B1B2F','noteBorderColor':'#9A9AB0','actorBkg':'#EEF0FF','actorBorder':'#402FFF','actorTextColor':'#1B1B2F','actorLineColor':'#9A9AB0','signalColor':'#6F6F8C','signalTextColor':'#6F6F8C','labelBoxBkgColor':'#EEF0FF','labelBoxBorderColor':'#402FFF','labelTextColor':'#1B1B2F','loopTextColor':'#6F6F8C','activationBkgColor':'#DCDFFF','activationBorderColor':'#402FFF','fontSize':'14px'}}}%%
 sequenceDiagram
   autonumber
   actor K as Кандидат
@@ -525,6 +591,7 @@ sequenceDiagram
 ### 6.2. Подбор: бриф → категории → версия подборки
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#EEF0FF','primaryBorderColor':'#402FFF','primaryTextColor':'#1B1B2F','lineColor':'#6F6F8C','secondaryColor':'#F4F4F8','tertiaryColor':'#FFFFFF','textColor':'#6F6F8C','edgeLabelBackground':'#F4F4F8','clusterBkg':'#F8F8FC','clusterBorder':'#B8B8D0','noteBkgColor':'#F4F4F8','noteTextColor':'#1B1B2F','noteBorderColor':'#9A9AB0','actorBkg':'#EEF0FF','actorBorder':'#402FFF','actorTextColor':'#1B1B2F','actorLineColor':'#9A9AB0','signalColor':'#6F6F8C','signalTextColor':'#6F6F8C','labelBoxBkgColor':'#EEF0FF','labelBoxBorderColor':'#402FFF','labelTextColor':'#1B1B2F','loopTextColor':'#6F6F8C','activationBkgColor':'#DCDFFF','activationBorderColor':'#402FFF','fontSize':'14px'}}}%%
 sequenceDiagram
   autonumber
   actor R as Работодатель
@@ -569,6 +636,7 @@ sequenceDiagram
 ### 6.3. Приглашение: «Да / Да, если… / Нет» и раскрытие контактов
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#EEF0FF','primaryBorderColor':'#402FFF','primaryTextColor':'#1B1B2F','lineColor':'#6F6F8C','secondaryColor':'#F4F4F8','tertiaryColor':'#FFFFFF','textColor':'#6F6F8C','edgeLabelBackground':'#F4F4F8','clusterBkg':'#F8F8FC','clusterBorder':'#B8B8D0','noteBkgColor':'#F4F4F8','noteTextColor':'#1B1B2F','noteBorderColor':'#9A9AB0','actorBkg':'#EEF0FF','actorBorder':'#402FFF','actorTextColor':'#1B1B2F','actorLineColor':'#9A9AB0','signalColor':'#6F6F8C','signalTextColor':'#6F6F8C','labelBoxBkgColor':'#EEF0FF','labelBoxBorderColor':'#402FFF','labelTextColor':'#1B1B2F','loopTextColor':'#6F6F8C','activationBkgColor':'#DCDFFF','activationBorderColor':'#402FFF','fontSize':'14px'}}}%%
 sequenceDiagram
   autonumber
   actor R as Работодатель
@@ -626,6 +694,7 @@ sequenceDiagram
 ### 6.4. Привязка ФСП ID: OIDC + PKCE → реестр
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#EEF0FF','primaryBorderColor':'#402FFF','primaryTextColor':'#1B1B2F','lineColor':'#6F6F8C','secondaryColor':'#F4F4F8','tertiaryColor':'#FFFFFF','textColor':'#6F6F8C','edgeLabelBackground':'#F4F4F8','clusterBkg':'#F8F8FC','clusterBorder':'#B8B8D0','noteBkgColor':'#F4F4F8','noteTextColor':'#1B1B2F','noteBorderColor':'#9A9AB0','actorBkg':'#EEF0FF','actorBorder':'#402FFF','actorTextColor':'#1B1B2F','actorLineColor':'#9A9AB0','signalColor':'#6F6F8C','signalTextColor':'#6F6F8C','labelBoxBkgColor':'#EEF0FF','labelBoxBorderColor':'#402FFF','labelTextColor':'#1B1B2F','loopTextColor':'#6F6F8C','activationBkgColor':'#DCDFFF','activationBorderColor':'#402FFF','fontSize':'14px'}}}%%
 sequenceDiagram
   autonumber
   actor K as Кандидат
@@ -669,6 +738,7 @@ sequenceDiagram
 Таблица переходов `(from, action, actor) → (to, guards, side_effects)` лежит в `app/contact/invitation.py` (`TRANSITIONS`); каждый переход пишется в `invitation_events`. Подписи статусов одинаковы у обеих сторон (`config/contact.yaml → status_labels`).
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#EEF0FF','primaryBorderColor':'#402FFF','primaryTextColor':'#1B1B2F','lineColor':'#6F6F8C','secondaryColor':'#F4F4F8','tertiaryColor':'#FFFFFF','textColor':'#6F6F8C','edgeLabelBackground':'#F4F4F8','clusterBkg':'#F8F8FC','clusterBorder':'#B8B8D0','noteBkgColor':'#F4F4F8','noteTextColor':'#1B1B2F','noteBorderColor':'#9A9AB0','actorBkg':'#EEF0FF','actorBorder':'#402FFF','actorTextColor':'#1B1B2F','actorLineColor':'#9A9AB0','signalColor':'#6F6F8C','signalTextColor':'#6F6F8C','labelBoxBkgColor':'#EEF0FF','labelBoxBorderColor':'#402FFF','labelTextColor':'#1B1B2F','loopTextColor':'#6F6F8C','activationBkgColor':'#DCDFFF','activationBorderColor':'#402FFF','fontSize':'14px'}}}%%
 stateDiagram-v2
   [*] --> sent: квота, лимит кандидата, пауза пары, карточку открывали
   sent --> viewed: кандидат открыл
@@ -686,6 +756,8 @@ stateDiagram-v2
   accepted --> closed: итог hired или not_matched
   accepted --> consent_revoked: кандидат отозвал согласие
   closed --> consent_revoked: отзыв согласия возможен всегда
+  note right of accepted: контакты раскрыты, открыт чат
+  note right of consent_revoked: контакты скрыты, чат закрыт
 ```
 
 В `accepted` и `closed` есть «петли» без смены статуса: «связались», «со мной не связались», «условия совпали?», «собеседование», «согласие после встречного».
@@ -693,6 +765,7 @@ stateDiagram-v2
 ### 7.2. Тестовая сессия и квалификация
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#EEF0FF','primaryBorderColor':'#402FFF','primaryTextColor':'#1B1B2F','lineColor':'#6F6F8C','secondaryColor':'#F4F4F8','tertiaryColor':'#FFFFFF','textColor':'#6F6F8C','edgeLabelBackground':'#F4F4F8','clusterBkg':'#F8F8FC','clusterBorder':'#B8B8D0','noteBkgColor':'#F4F4F8','noteTextColor':'#1B1B2F','noteBorderColor':'#9A9AB0','actorBkg':'#EEF0FF','actorBorder':'#402FFF','actorTextColor':'#1B1B2F','actorLineColor':'#9A9AB0','signalColor':'#6F6F8C','signalTextColor':'#6F6F8C','labelBoxBkgColor':'#EEF0FF','labelBoxBorderColor':'#402FFF','labelTextColor':'#1B1B2F','loopTextColor':'#6F6F8C','activationBkgColor':'#DCDFFF','activationBorderColor':'#402FFF','fontSize':'14px'}}}%%
 stateDiagram-v2
   direction LR
   [*] --> CREATED
@@ -733,16 +806,16 @@ stateDiagram-v2
 
 | Область | Статус |
 |---|---|
-| Бэкенд: аутентификация, согласия, опрос, тестирование, банк (69 семейств Backend и Frontend), подбор, контакт, ФСП ID и реестр, профиль и резюме, PDF-профиль со сверкой, регулярные задачи, уведомления, вебхуки, лаборатория, валидация | Готово, покрыто тестами |
+| Бэкенд: аутентификация, согласия, опрос, тестирование, банк (91 семейство в 10 модулях: Backend, Frontend, QA, DevOps), подбор, контакт, ФСП ID и реестр, профиль и резюме, PDF-профиль со сверкой, регулярные задачи, уведомления, вебхуки, лаборатория, валидация | Готово, покрыто тестами |
 | Контракт реестра ФСП, `fsp-mock`, realm Keycloak `fsp` | Готово |
-| Фронтенд | В разработке: каркас (маршрутизация, клиент API, сессии, лендинг, вход), экраны — по мере готовности |
-| «Антиподсказчик»: двойники, улики, акт сверки, «Подтверждение за 5 минут», песочница | Библиотека `app/testing/anticheat` готова; подключение к выдаче заданий (хуки `anticheat_hooks.py` пока пустые) и клиентский обработчик копирования — в разработке |
-| Банки DevOps и QA | В разработке: в коде уже есть первые семейства и тесты, но в `taxonomy.yaml` эти направления пока `survey_only`, тест по ним не запускается |
+| Фронтенд | Готово: кандидат (опрос, брифинг, тест, результат, «Мой грейд», приглашения, ФСП, приватность, профиль и PDF), работодатель (потребности, подборка, приглашения, банк, вакансии, задачи, профиль компании), лаборатория, страница жюри и песочница; образ `web` (nginx) |
+| «Антиподсказчик»: двойники, улики, акт сверки, «Подтверждение за 5 минут», песочница | Готово: библиотека `app/testing/anticheat`, сервис `app/services/anticheat`, хуки `anticheat_hooks.py` подключены к выдаче заданий и ответам, клиентский обработчик буфера (`frontend/src/features/anticheat`), лента сверок и акты в лаборатории, песочница жюри |
+| Банки DevOps и QA | Готово: обе специализации `active` (модули `devops_core` 11 и `qa_testing` 11 семейств плюс общие `git_linux`, `http_api`, `sql`); банк меньше, чем у Backend и Frontend |
 | `/api/admin/*` (импорт данных жюри, ранжирование с компонентами Score, метрики по размеченным парам, валидация) и `/api/demo/*` (часы «+1 день», сброс, автоответчик, режим жюри, приёмник вебхуков; только при `VZ_DEMO_MODE=true`) | Готово; наполнение демо-мира — `make seed` (`backend/scripts/seed_demo.py`) |
 | «Сигнал интереса» | В разработке (в коде нет) |
 | Фабрика семейств (LLM пишет черновик генератора офлайн) | В разработке |
 | Эмбеддинги и колонки `vector` | В разработке |
 | ATS: исходящие вебхуки, pull-API, обратная синхронизация статусов, адаптер «Хантфлоу» (эмулятор), чат после «Взаимно» | Готово ([ATS_INTEGRATION.md](ATS_INTEGRATION.md)); боевой режим Хантфлоу на живом сервисе не проверялся |
 | Ночная калибровка с CUSUM и периодический `sweep()` | Готово: встроенный планировщик (`app/services/scheduler`, `config/scheduler.yaml`); ручной запуск остался |
-| Удаление аккаунта, сроки хранения ПДн, минимизация ответа реестра ФСП | Готово (`app/services/account`, `config/privacy.yaml`); согласие законного представителя 14–17 лет — плановый ручной процесс без интерфейса ([SECURITY.md](SECURITY.md) п. 1.4) |
+| Удаление аккаунта, сроки хранения ПДн, минимизация ответа реестра ФСП | Готово (`app/services/account`, `config/privacy.yaml`); согласие законного представителя 15–17 лет — письмо с одноразовой ссылкой и подтверждение ([SECURITY.md](SECURITY.md) п. 1.4) |
 | Caddy и HTTPS | Готово в `docker-compose.prod.yml` и `deploy/Caddyfile` (в локальный `docker-compose.yml` не входят) — [DEPLOY.md](DEPLOY.md) |
