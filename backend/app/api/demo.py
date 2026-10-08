@@ -39,7 +39,7 @@ from app.db.session import get_sessionmaker
 from app.models.enums import UserRole
 from app.models.matching import CandidateAlias
 from app.models.users import User
-from app.services.demo import jury, loop, sink, world
+from app.services.demo import fsp_reserve, jury, loop, sink, world
 from app.services.demo import models as demo_models  # noqa: F401 — регистрирует таблицы демо в Base.metadata
 from app.services.demo.cfg import section
 from app.services.demo.clockctl import describe
@@ -330,6 +330,7 @@ def clock_shift(body: ClockShiftIn, _: ControlUser, db: DbSession, settings: Set
 )
 def reset(_: ControlUser, db: DbSession, settings: SettingsDep) -> dict[str, Any]:
     out = world.reset_world(settings, db)
+    fsp_reserve.seed_history(db)  # витрина панели ФСП стирается вместе с демо-компаниями — собираем заново
     return {
         "seconds": out["seconds"],
         "counts": out["counts"],
@@ -418,11 +419,11 @@ class JuryStartOut(TokenResponse):
 
 
 class JuryPersonaIn(BaseModel):
-    persona: Literal["employer", "lab"] = Field(description="employer — HR демо-компании; lab — лаборатория методиста (жюри)")
+    persona: Literal["employer", "lab", "fsp"] = Field(description="employer — HR демо-компании; lab — лаборатория методиста (жюри); fsp — панель ФСП «Кадровый резерв» (тот же аккаунт жюри)")
 
 
 class JuryPersonaOut(TokenResponse):
-    persona: Literal["employer", "lab"]
+    persona: Literal["employer", "lab", "fsp"]
     path: str = Field(description="Куда вести фронтенд")
 
 
@@ -439,7 +440,7 @@ class JuryPathsOut(BaseModel):
     default_specialization: str
     default_grade: str
     employer_available: bool = Field(description="Демо-работодатель собран (seed выполнен)")
-    lab_available: bool = Field(description="Аккаунт жюри для лаборатории собран")
+    lab_available: bool = Field(description="Аккаунт жюри для лаборатории и панели ФСП собран")
 
 
 @router.get(

@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate, type RouteObject } from 'react-router-do
 import { FullPageLoading, RedirectIfAuthed, RequireRole } from '@/auth/guards'
 import { CandidateLayout } from '@/layouts/CandidateLayout'
 import { EmployerLayout } from '@/layouts/EmployerLayout'
+import { FspLayout } from '@/layouts/FspLayout'
 import { LabLayout } from '@/layouts/LabLayout'
 import { PublicLayout } from '@/layouts/PublicLayout'
 import { RootLayout } from '@/layouts/RootLayout'
@@ -206,6 +207,24 @@ const labRoutes: RouteObject = {
   ],
 }
 
+// Панель ФСП «Кадровый резерв»: агрегаты с k-анонимностью. Роль — методист/админ (в демо вход с /jury, кнопка «Панель ФСП»).
+const fspRoutes: RouteObject = {
+  path: 'fsp',
+  element: (
+    <RequireRole roles={['methodist', 'admin']}>
+      <FspLayout />
+    </RequireRole>
+  ),
+  children: [
+    { index: true, element: <Navigate to="reserve" replace /> },
+    {
+      path: 'reserve',
+      lazy: async () => ({ Component: (await import('@/pages/fsp/Reserve')).default }),
+      handle: { title: 'Кадровый резерв ФСП' },
+    },
+  ],
+}
+
 export const router = createBrowserRouter([
   {
     element: <RootLayout />,
@@ -218,6 +237,7 @@ export const router = createBrowserRouter([
       candidateRoutes,
       employerRoutes,
       labRoutes,
+      fspRoutes,
       { path: 'dev/kit', lazy: async () => ({ Component: (await import('@/pages/dev/Kit')).default }), handle: { title: 'Витрина компонентов' } },
       { path: '*', element: <NotFound /> },
     ],

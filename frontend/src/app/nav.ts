@@ -19,6 +19,11 @@ export const LAB_NAV: NavItem[] = [
   { to: '/lab/trust', label: 'Жалобы' },
 ]
 
+export const FSP_NAV: NavItem[] = [
+  { to: '/fsp/reserve', label: 'Кадровый резерв' },
+  { to: '/lab/validation', label: 'Как мы считаем' },
+]
+
 export const CANDIDATE_NAV: NavItem[] = [
   { to: '/candidate', label: 'Мой путь', end: true },
   { to: '/candidate/invitations', label: 'Приглашения' },

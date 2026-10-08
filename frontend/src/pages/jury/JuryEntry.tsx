@@ -6,7 +6,7 @@ import { enterJuryPersona, startJuryTest, useJuryPaths, type JuryMode } from '@/
 import { Alert, Button, EmptyState, Panel, Segmented, Skeleton } from '@/ui'
 import { Select } from '@/ui/Select'
 
-type Busy = JuryMode | 'employer' | 'lab' | null
+type Busy = JuryMode | 'employer' | 'lab' | 'fsp' | null
 
 /**
  * Вход для жюри (публичный, только DEMO_MODE): без регистрации и писем. Одна кнопка — одноразовый кандидат с готовым
@@ -65,7 +65,7 @@ export default function JuryEntry() {
     }
   }
 
-  async function enter(persona: 'employer' | 'lab') {
+  async function enter(persona: 'employer' | 'lab' | 'fsp') {
     setError(null)
     setBusy(persona)
     try {
@@ -155,7 +155,7 @@ export default function JuryEntry() {
         <h2 id="more" className="t-title text-brand">
           Что ещё посмотреть
         </h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <PathCard
             title="Попробовать списать"
             text="Мини-тест из 4 заданий с двойниками в буфере: списывайте как угодно, затем смотрите, что заметила система."
@@ -191,6 +191,21 @@ export default function JuryEntry() {
               onClick={() => void enter('lab')}
             >
               Открыть лабораторию
+            </Button>
+            {!p.lab_available && <p className="t-small text-ink-3">Демо-мир не собран: выполните make seed.</p>}
+          </PathCard>
+          <PathCard
+            title="Панель ФСП"
+            text="Кадровый резерв: путь спортсменов от соревнований до найма, регионы и дисциплины, где не хватает кадров. Только агрегаты, ячейки меньше 5 скрыты."
+          >
+            <Button
+              variant="outline"
+              block
+              loading={busy === 'fsp'}
+              disabled={busy !== null || !p.lab_available}
+              onClick={() => void enter('fsp')}
+            >
+              Открыть панель ФСП
             </Button>
             {!p.lab_available && <p className="t-small text-ink-3">Демо-мир не собран: выполните make seed.</p>}
           </PathCard>

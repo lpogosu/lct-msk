@@ -84,6 +84,11 @@ def main(argv: list[str] | None = None) -> int:
                 force_scenario=args.force, skip_pool=args.skip_pool,
                 add_specs=tuple(x.strip() for x in args.add_specs.split(",") if x.strip()) if args.add_specs else (),
             )
+        if not args.add_specs:
+            from app.services.demo import fsp_reserve
+
+            history = fsp_reserve.seed_history(db)  # витрина панели ФСП (config/fsp_dashboard.yaml → demo_history)
+            say(f"история подбора для панели ФСП: {history}")
         print()
         print(f"Готово за {out['seconds']} с")
         for k, v in out["counts"].items():

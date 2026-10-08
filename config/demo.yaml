@@ -410,3 +410,4 @@ jury_entry:
     candidate_full: /candidate/test/{session_id}
     employer: /employer/needs
     lab: /lab/sessions
+    fsp: /fsp/reserve

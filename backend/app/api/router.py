@@ -18,6 +18,7 @@ from app.api import (
     credentials,
     demo,
     fsp,
+    fsp_dashboard,
     guardian,
     health,
     interest,
@@ -72,7 +73,7 @@ OPENAPI_TAGS: list[dict[str, str]] = [
 api_router = APIRouter(prefix=API_PREFIX)
 for module in (
     health, auth, consents, companies, candidates, survey, testing, needs, bank, invitations, applications,
-    vacancies, tasks, notifications, chat, ats, interest, fsp, guardian, verify, lab, anticheat, demo, admin, trust, credentials,
+    vacancies, tasks, notifications, chat, ats, interest, fsp, fsp_dashboard, guardian, verify, lab, anticheat, demo, admin, trust, credentials,
 ):
     api_router.include_router(module.router)
 api_router.include_router(bank.skills_router)  # GET /api/skills — справочник навыков для фильтров
