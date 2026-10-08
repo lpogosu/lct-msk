@@ -24,6 +24,19 @@ export function formatRubRangeK(from: number, to: number): string {
   return `${formatDecimal(from / 1000)}–${formatDecimal(to / 1000)}${NBSP}тыс.${NBSP}₽`
 }
 
+/** Подпись базы зарплаты без разрыва: «₽ на руки» не переносится посреди фразы (пробелы внутри — неразрывные). */
+export function salaryBasisLabel(net: boolean | null | undefined): string {
+  if (net === true) return `на${NBSP}руки`
+  if (net === false) return `до${NBSP}вычета${NBSP}НДФЛ`
+  return ''
+}
+
+/** Склеивает «сумма ₽» и подпись базы неразрывным пробелом: «220–280 тыс. ₽ на руки» не рвётся после «₽». */
+export function withSalaryBasis(money: string, net: boolean | null | undefined): string {
+  const label = salaryBasisLabel(net)
+  return label ? `${money}${NBSP}${label}` : money
+}
+
 /** Склонение: plural(3, ['кандидат', 'кандидата', 'кандидатов']) → «кандидата» */
 export function plural(n: number, forms: readonly [string, string, string]): string {
   const k = Math.abs(n) % 100

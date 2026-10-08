@@ -7,6 +7,7 @@ import re
 from typing import Any
 
 from app.testing.bank.base import Instance, Rendered, register
+from app.testing.bank.families._scenario import ModelTwinMixin, Scenario, ScenarioError
 from app.testing.bank.families.shared._common import (
     SPECS,
     TextIntsFamily,
@@ -42,7 +43,7 @@ HINTS = {
 
 
 @register
-class PaginationOffsetMath(TextIntsFamily):
+class PaginationOffsetMath(ModelTwinMixin, TextIntsFamily):
     id = "http.pagination.offset_math"
     title = "Пагинация limit/offset: смещение, число страниц, хвост"
     specs = (*SPECS, "qa")
@@ -52,6 +53,39 @@ class PaginationOffsetMath(TextIntsFamily):
     position = 0.0
     time_limit_s = 90
     is_anchor = True
+
+    misconceptions = {"offset_page_times_limit": "", "offset_one_based": "", "pages_floor": "", "last_page_modulo": ""}
+
+    # --- двойник: меняем только "total" (limit повторяется в URL, теле ответа и условии — правка одного места
+    # сделала бы показанный текст противоречивым); ключ пересчитывает решатель по показанному тексту.
+    def scenario_for(self, seed: int) -> Scenario:
+        inst = self.generate(seed)
+        return Scenario(code=inst.rendered.code or "", data=inst.rendered.prompt)
+
+    def twin_spans(self, sc: Scenario, code: str) -> list[tuple[int, int]]:
+        m = re.search(r'"total": (\d+)', code)
+        return [m.span(1)] if m else []
+
+    def solve(self, sc: Scenario, code: str, mutant: str | None = None) -> str | None:
+        try:
+            total = int(re.search(r'"total": (\d+)', code).group(1))
+            limit = int(re.search(r'"limit": (\d+)', code).group(1))
+            page = int(re.search(r"получить страницу (\d+)", str(sc.data)).group(1))
+        except (AttributeError, ValueError) as e:
+            raise ScenarioError("не разобрать показанный ответ") from e
+        offset = (page - 1) * limit
+        pages = -(-total // limit)
+        last = total - (pages - 1) * limit
+        if pages < page:
+            return None  # страница за пределами списка: двойник бессмыслен
+        res = {
+            None: (offset, pages, last),
+            "offset_page_times_limit": (page * limit, pages, last),
+            "offset_one_based": (offset + 1, pages, last),
+            "pages_floor": (offset, total // limit, last),
+            "last_page_modulo": (offset, pages, total % limit),
+        }[mutant]
+        return " ".join(map(str, res))
 
     def normalize(self, answer: Any) -> Any:
         if isinstance(answer, str):

@@ -158,28 +158,14 @@ NORMALIZERS_EXT: dict[str, Callable[[Any], Any]] = {
 _DEFAULT_LITERAL = re.compile(r"(?<![\w.])\d+(?=[A-Za-z%]{0,2}(?!\w|\.\d))")
 
 
-class ScenarioFamily(BankFamily):
-    """Семейство с ответом-текстом, решателем по показанному тексту и двойником в буфере."""
+class ModelTwinMixin:
+    """«Двойник в буфере» для семейств, у которых ключ считает решатель по ПОКАЗАННОМУ тексту, а не исполнение кода.
 
-    language: ClassVar[str] = "text"
-    answer_hint: ClassVar[str] = ""
-    min_distractors: ClassVar[int] = 2  # меньше — экземпляр слишком «угадываем»: перегенерируем
+    Подмешивается к Family/BankFamily. Семейство даёт: scenario_for(seed) -> Scenario (code = показанный текст,
+    data = то, что не мутируется), solve(sc, code, mutant), misconceptions, normalize(). Всё остальное (перебор
+    литералов, гейты, K_err) здесь. Подробно — в докстринге модуля."""
 
-    # --- что реализует семейство
-    @abstractmethod
-    def make(self, rng: random.Random) -> Scenario: ...
-
-    @abstractmethod
-    def prompt(self, sc: Scenario) -> str: ...
-
-    @abstractmethod
-    def solve(self, sc: Scenario, code: str, mutant: str | None = None) -> str | None: ...
-
-    @abstractmethod
-    def why(self, sc: Scenario, raw_key: str) -> str: ...
-
-    def hint(self, sc: Scenario) -> str:
-        return self.answer_hint
+    misconceptions: ClassVar[dict[str, str]] = {}
 
     def twin_spans(self, sc: Scenario, code: str) -> list[tuple[int, int]]:
         """Куда можно подставлять литерал-двойник: диапазоны [начало, конец) в code (по умолчанию — целые числа ≥ 2)."""
@@ -194,48 +180,6 @@ class ScenarioFamily(BankFamily):
         old = code[span[0] : span[1]]
         return self._propose(old, rng, p) if self._literal_ok(old, p.min_value) else []
 
-    # --- генерация
-    def normalize(self, answer: Any) -> Any:
-        return NORMALIZERS_EXT[self.answer_kind](answer)
-
-    def build(self, rng: random.Random, seed: int) -> Instance:
-        return self._finish(seed, self.make(rng))
-
-    def _finish(self, seed: int, sc: Scenario) -> Instance:
-        try:
-            raw = self.solve(sc, sc.code)
-            wrongs = [(self.solve(sc, sc.code, m), m) for m in self.misconceptions]
-        except ScenarioError as e:
-            raise GenerationRetry from e
-        if raw is None:
-            raise GenerationRetry
-        inst = self.text_instance(
-            seed,
-            prompt=self.prompt(sc),
-            code=sc.code,
-            language=self.language,
-            raw_key=raw,
-            wrongs=wrongs,
-            why=self.why(sc, raw),
-            answer_hint=self.hint(sc),
-        )
-        if len(inst.distractors) < self.min_distractors:
-            raise GenerationRetry
-        return inst
-
-    def scenario_for(self, seed: int) -> Scenario:
-        """Сценарий экземпляра: тот же цикл перегенерации, что и в generate() (детерминизм по seed)."""
-        rng = rng_for(self.id, seed)
-        for _ in range(self.max_attempts):
-            try:
-                sc = self.make(rng)
-                self._finish(seed, sc)
-                return sc
-            except GenerationRetry:
-                continue
-        raise RuntimeError(f"{self.id}: не удалось собрать сценарий для seed={seed}")
-
-    # --- двойник в буфере
     def twin(self, inst: Instance, seed: int | None = None) -> Twin | None:
         return self.try_twin(inst, seed).twin
 
@@ -391,7 +335,73 @@ class ScenarioFamily(BankFamily):
         return out
 
 
+class ScenarioFamily(ModelTwinMixin, BankFamily):
+    """Семейство с ответом-текстом, решателем по показанному тексту и двойником в буфере."""
+
+    language: ClassVar[str] = "text"
+    answer_hint: ClassVar[str] = ""
+    min_distractors: ClassVar[int] = 2  # меньше — экземпляр слишком «угадываем»: перегенерируем
+
+    # --- что реализует семейство
+    @abstractmethod
+    def make(self, rng: random.Random) -> Scenario: ...
+
+    @abstractmethod
+    def prompt(self, sc: Scenario) -> str: ...
+
+    @abstractmethod
+    def solve(self, sc: Scenario, code: str, mutant: str | None = None) -> str | None: ...
+
+    @abstractmethod
+    def why(self, sc: Scenario, raw_key: str) -> str: ...
+
+    def hint(self, sc: Scenario) -> str:
+        return self.answer_hint
+
+    # --- генерация
+    def normalize(self, answer: Any) -> Any:
+        return NORMALIZERS_EXT[self.answer_kind](answer)
+
+    def build(self, rng: random.Random, seed: int) -> Instance:
+        return self._finish(seed, self.make(rng))
+
+    def _finish(self, seed: int, sc: Scenario) -> Instance:
+        try:
+            raw = self.solve(sc, sc.code)
+            wrongs = [(self.solve(sc, sc.code, m), m) for m in self.misconceptions]
+        except ScenarioError as e:
+            raise GenerationRetry from e
+        if raw is None:
+            raise GenerationRetry
+        inst = self.text_instance(
+            seed,
+            prompt=self.prompt(sc),
+            code=sc.code,
+            language=self.language,
+            raw_key=raw,
+            wrongs=wrongs,
+            why=self.why(sc, raw),
+            answer_hint=self.hint(sc),
+        )
+        if len(inst.distractors) < self.min_distractors:
+            raise GenerationRetry
+        return inst
+
+    def scenario_for(self, seed: int) -> Scenario:
+        """Сценарий экземпляра: тот же цикл перегенерации, что и в generate() (детерминизм по seed)."""
+        rng = rng_for(self.id, seed)
+        for _ in range(self.max_attempts):
+            try:
+                sc = self.make(rng)
+                self._finish(seed, sc)
+                return sc
+            except GenerationRetry:
+                continue
+        raise RuntimeError(f"{self.id}: не удалось собрать сценарий для seed={seed}")
+
+
 __all__ = [
+    "ModelTwinMixin",
     "NORMALIZERS_EXT",
     "Scenario",
     "ScenarioError",

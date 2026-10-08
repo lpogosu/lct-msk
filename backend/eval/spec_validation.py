@@ -342,7 +342,7 @@ def leak_gain(spec: str, cfg: SpecRunConfig) -> dict[str, Any]:
 def twin_coverage(spec: str, cfg: SpecRunConfig) -> dict[str, Any]:
     """«Двойник в буфере»: у какой доли экземпляров семейств специализации он строится и отличается от ключа
     (т.е. ответ по скопированному тексту засчитывается неверным). Детерминированно, без людей и без LLM."""
-    from app.testing.anticheat.twins import try_make_twin
+    from app.testing.anticheat.dispatch import family_twin_result
     from app.testing.bank.registry import all_families
 
     fams = all_families()
@@ -355,7 +355,7 @@ def twin_coverage(spec: str, cfg: SpecRunConfig) -> dict[str, Any]:
         for s in range(cfg.n_twin_seeds):
             try:
                 inst = fams[fid].generate(s)
-                res = try_make_twin(fams[fid], inst)
+                res = family_twin_result(fams[fid], inst)  # как в проде: Family.twin() первым (QA, DevOps), затем общий мутатор
             except Exception:  # noqa: BLE001 — семейство без исполнителя: двойника нет
                 reasons["error"] = reasons.get("error", 0) + 1
                 total += 1

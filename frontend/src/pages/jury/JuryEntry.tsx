@@ -200,9 +200,9 @@ export default function JuryEntry() {
         </h2>
         <Panel variant="panel" radius="xl" padding="lg" className="flex max-w-[760px] flex-col gap-3">
           <p className="t-body text-ink-2">
-            Загрузите свой набор «бриф × кандидат» (строки как в <code className="font-mono">backend/eval/pairs_test.jsonl</code>) и
-            получите те же метрики, что у нас. Нужен вход администратора, пароль — в{' '}
-            <code className="font-mono">backend/var/demo_accounts.md</code>.
+            Загрузите свой набор «бриф × кандидат» (формат строк — как в тестовом наборе пар из репозитория) и
+            получите те же метрики, что у нас. Нужен вход администратора; учётные записи стенда выдаёт команда проекта при
+            показе. Пошаговая инструкция в репозитории: <code className="font-mono">docs/VALIDATION.md</code>, раздел 7.
           </p>
           <ol className="list-decimal pl-5 t-body text-ink-2">
             <li>

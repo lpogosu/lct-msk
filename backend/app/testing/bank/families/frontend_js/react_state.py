@@ -12,6 +12,7 @@ import random
 import re
 
 from app.testing.bank.base import Family, Instance, Rendered, register
+from app.testing.bank.families._scenario import ModelTwinMixin, Scenario, ScenarioError
 from app.testing.bank.families.frontend_js._common import (
     explain,
     fill,
@@ -26,6 +27,23 @@ from app.testing.bank.families.frontend_js._common import (
 )
 
 ASSUME = "React 18 (createRoot), production-сборка без StrictMode."
+
+
+class _TextModelTwin(ModelTwinMixin):
+    """Двойник для React-семейств: ключ пересчитывает модель сценария по ПОКАЗАННОМУ коду (JSX node не исполняет)."""
+
+    def scenario_for(self, seed: int) -> Scenario:
+        inst = self.generate(seed)
+        return Scenario(code=inst.rendered.code or "", data=inst.rendered.prompt)
+
+    def solve(self, sc: Scenario, code: str, mutant: str | None = None) -> str | None:
+        try:
+            return self._solve(str(sc.data), code, mutant)
+        except (ValueError, KeyError, IndexError, TypeError, AttributeError) as e:
+            raise ScenarioError(f"{type(e).__name__}: {e}") from e
+
+    def _solve(self, prompt: str, code: str, mutant: str | None) -> str | None:
+        raise NotImplementedError
 
 
 def _opt_show(ch) -> dict[str, str]:
@@ -285,7 +303,7 @@ def _model_input(kind: str, typed: str, mx: int, flags: frozenset[str] = frozens
 
 
 @register
-class ControlledInput(Family):
+class ControlledInput(_TextModelTwin, Family):
     id = "react.controlled_input"
     title = "Контролируемое поле ввода: что увидит пользователь"
     specs = ("frontend_js",)
@@ -296,8 +314,34 @@ class ControlledInput(Family):
     c = 0.0
     time_limit_s = 90
 
+    misconceptions = {"raw_typed": "", "filter_without_max": "", "slice_ignored": "", "filter_before_upper": "",
+                      "trim_final_only": ""}
+
     def normalize(self, answer):
         return norm_exact(answer)
+
+    def _solve(self, prompt: str, code: str, mutant: str | None) -> str | None:
+        # Вид обработчика определяем по показанному коду, максимум — по литералу в нём, ввод — из условия.
+        typed = re.search(r"символы «(.*?)» \(каждый", prompt, re.S).group(1)
+        if ".toUpperCase()" in code:
+            kind, mx = "upper", int(re.search(r"slice\(0, (\d+)\)", code).group(1))
+        elif ".trim()" in code:
+            kind, mx = "trim", 0
+        elif "/^\d*$/" in code or "test(" in code:
+            kind, mx = "reject", int(re.search(r"length <= (\d+)", code).group(1))
+        else:
+            kind, mx = "digits", int(re.search(r"length <= (\d+)", code).group(1))
+        flags = {
+            "raw_typed": "raw_typed", "filter_without_max": "filter_without_max", "slice_ignored": "slice_ignored",
+            "filter_before_upper": "filter_before_upper", "trim_final_only": "trim_final_only",
+        }
+        if mutant and (
+            (mutant in ("filter_without_max",) and kind not in ("digits", "reject"))
+            or (mutant in ("slice_ignored", "filter_before_upper") and kind != "upper")
+            or (mutant == "trim_final_only" and kind != "trim")
+        ):
+            return None
+        return norm_exact(_model_input(kind, typed, mx, frozenset({flags[mutant]}) if mutant else frozenset()))
 
     @staticmethod
     def _typed(rng: random.Random, kind: str, mx: int) -> str:
@@ -394,7 +438,7 @@ def _apply_click(base: int, ops: list[tuple[str, int]], mode: str = "") -> tuple
 
 
 @register
-class BatchedUpdates(Family):
+class BatchedUpdates(_TextModelTwin, Family):
     id = "react.batched_updates"
     title = "Очередь обновлений состояния и batching"
     specs = ("frontend_js",)
@@ -406,9 +450,34 @@ class BatchedUpdates(Family):
     time_limit_s = 120
     is_anchor = True
     enemies = ("react.stale_closure",)
+    misconceptions = {"all_functional": "", "all_stale": "", "render_per_update": "", "mount_not_logged": ""}
 
     def normalize(self, answer):
         return norm_output(answer)
+
+    def _solve(self, prompt: str, code: str, mutant: str | None) -> str | None:
+        init = int(re.search(r"useState\((\d+)\)", code).group(1))
+        sname, setter = re.search(r"const \[(\w+), (\w+)\] = useState", code).groups()
+        ops: list[tuple[str, int]] = []
+        for ln in re.search(r"function handleClick\(\) \{\n(.*?)\n  \}", code, re.S).group(1).splitlines():
+            ln = ln.strip()
+            if m := re.fullmatch(rf"{setter}\({sname} \+ (\d+)\);", ln):
+                ops.append(("V", int(m.group(1))))
+            elif m := re.fullmatch(rf"{setter}\(\((\w+)\) => \1 \+ (\d+)\);", ln):
+                ops.append(("F+", int(m.group(2))))
+            elif m := re.fullmatch(rf"{setter}\(\((\w+)\) => \1 \* (\d+)\);", ln):
+                ops.append(("F*", int(m.group(2))))
+            else:
+                raise ValueError("unknown update")
+        mode = mutant or ""
+        log = [init]
+        base = init
+        for _ in range(2):
+            base, steps = _apply_click(base, ops, "" if mode == "mount_not_logged" else mode)
+            log += steps if mode == "render_per_update" else [base]
+        if mode == "mount_not_logged":
+            log = log[1:]
+        return norm_output(" ".join(map(str, log)))
 
     def generate(self, seed: int) -> Instance:
         rng = random.Random(seed)
@@ -493,7 +562,7 @@ _SC_HINTS = {
 
 
 @register
-class StaleClosure(Family):
+class StaleClosure(_TextModelTwin, Family):
     id = "react.stale_closure"
     title = "Устаревшее замыкание в useEffect"
     specs = ("frontend_js",)
@@ -504,9 +573,24 @@ class StaleClosure(Family):
     c = 0.0
     time_limit_s = 120
     enemies = ("react.batched_updates",)
+    misconceptions = {"no_stale": "", "all_stale": "", "first_event": ""}
 
     def normalize(self, answer):
         return norm_output(answer)
+
+    def _solve(self, prompt: str, code: str, mutant: str | None) -> str | None:
+        amounts = [int(x) for x in re.search(r"= ([\d, ]+) \(каждое", prompt).group(1).split(",")]
+        s0, c0 = (int(x) for x in re.findall(r"useState\((\d+)\)", code)[:2])
+        stale = "sum" if re.search(r"set\w+\(\w+ \+ \w+\.\w+\);", code) else "cnt"
+        fresh_sum, fresh_cnt = s0 + sum(amounts), c0 + len(amounts)
+        if mutant == "no_stale":
+            res = (fresh_cnt, fresh_sum)
+        elif mutant == "all_stale":
+            res = (c0 + 1, s0 + amounts[-1])
+        else:
+            last = amounts[0] if mutant == "first_event" else amounts[-1]
+            res = (fresh_cnt, s0 + last) if stale == "sum" else (c0 + 1, fresh_sum)
+        return f"{res[0]} {res[1]}"
 
     def generate(self, seed: int) -> Instance:
         rng = random.Random(seed)

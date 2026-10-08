@@ -13,7 +13,7 @@ export function salaryHero(from: number, to: number): { range: string; unit: str
 /** «220–280 тыс. ₽ на руки» одной строкой. */
 export function salaryLine(from: number, to: number, typeLabel?: string): string {
   const { range, unit } = salaryHero(from, to)
-  return `${range}${NBSP}${unit}${typeLabel ? ` ${typeLabel}` : ''}`
+  return `${range}${NBSP}${unit}${typeLabel ? `${NBSP}${typeLabel.split(' ').join(NBSP)}` : ''}`
 }
 
 /** Стаж в месяцах словами: 50 → «4 года 2 мес.» */
