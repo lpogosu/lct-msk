@@ -1,0 +1,17 @@
+{
+  "name": "vzaimno-e2e",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Сквозные смоук-тесты (Playwright) критичных путей «Взаимно»",
+  "scripts": {
+    "test": "playwright test",
+    "install:browsers": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.11.0",
+    "@playwright/test": "1.57.0",
+    "@types/node": "^22.10.0",
+    "typescript": "~5.9.0"
+  }
+}

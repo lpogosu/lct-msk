@@ -1,0 +1,253 @@
+# CI «Взаимно»: бэкенд (линт, типы, тесты на PostgreSQL+pgvector, миграции), фронтенд (типы, линт, сборка),
+# сквозные e2e-тесты (Playwright), сборка Docker-образов, аудит зависимостей. Описание — docs/ENGINEERING.md.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PYTHONUTF8: "1"
+  UV_FROZEN: "1"
+
+jobs:
+  backend-lint:
+    name: Бэкенд · ruff и mypy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+      - run: uv sync
+      - name: ruff
+        run: uv run ruff check .
+      - name: mypy --strict на ядрах (app/testing, app/matching, app/fsp/vss, app/core)
+        run: uv run python scripts/typecheck_strict.py
+      - name: mypy по всему app (информативно, долг по типам считаем числом)
+        run: uv run mypy | tail -1
+        continue-on-error: true
+
+  backend-tests:
+    name: Бэкенд · pytest (${{ matrix.shard.name }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        # Три шарда (2200+ тестов): api, движок/банк/антиподсказчик и остальное (rest = всё, что не вошло в первые два)
+        shard:
+          - name: api
+            args: "tests/test_api_*.py"
+          - name: engine
+            args: "tests/test_anticheat_*.py tests/test_bank_*.py tests/test_cat_*.py tests/test_qa_*.py tests/test_taxonomy_*.py"
+          - name: rest
+            args: "tests --ignore-glob=tests/test_api_*.py --ignore-glob=tests/test_anticheat_*.py --ignore-glob=tests/test_bank_*.py --ignore-glob=tests/test_cat_*.py --ignore-glob=tests/test_qa_*.py --ignore-glob=tests/test_taxonomy_*.py"
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.7-pg16
+        env:
+          POSTGRES_USER: vzaimno
+          POSTGRES_PASSWORD: vzaimno
+          POSTGRES_DB: vzaimno
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U vzaimno -d vzaimno"
+          --health-interval 3s --health-timeout 3s --health-retries 20
+    env:
+      VZ_TEST_DATABASE_URL: postgresql+psycopg://vzaimno:vzaimno@localhost:5432/vzaimno_test
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+      - uses: actions/setup-node@v4  # JS-семейства банка заданий исполняют эталонные решения в node
+        with:
+          node-version: "22"
+      - run: uv sync
+      - name: pytest
+        run: uv run pytest -q --durations=15 ${{ matrix.shard.args }}
+
+  migrations:
+    name: Бэкенд · миграции Alembic (up, down, up, без дрейфа)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.7-pg16
+        env:
+          POSTGRES_USER: vzaimno
+          POSTGRES_PASSWORD: vzaimno
+          POSTGRES_DB: vzaimno
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U vzaimno -d vzaimno"
+          --health-interval 3s --health-timeout 3s --health-retries 20
+    env:
+      VZ_DATABASE_URL: postgresql+psycopg://vzaimno:vzaimno@localhost:5432/vzaimno
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+      - run: uv sync
+      - run: uv run alembic upgrade head
+      - name: downgrade до базовой ревизии
+        run: uv run alembic downgrade base
+      - name: повторный upgrade
+        run: uv run alembic upgrade head
+      - name: модели и миграции совпадают (нет неописанных изменений схемы)
+        run: uv run alembic check
+
+  frontend:
+    name: Фронтенд · типы, линт, сборка
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run build
+      - name: аудит зависимостей, попадающих в сборку (high и выше)
+        run: npm audit --omit=dev --audit-level=high
+
+  e2e:
+    name: Сквозные тесты (Playwright)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    needs: [frontend]
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.7-pg16
+        env:
+          POSTGRES_USER: vzaimno
+          POSTGRES_PASSWORD: vzaimno
+          POSTGRES_DB: vzaimno
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U vzaimno -d vzaimno"
+          --health-interval 3s --health-timeout 3s --health-retries 20
+    env:
+      VZ_DATABASE_URL: postgresql+psycopg://vzaimno:vzaimno@localhost:5432/vzaimno
+      VZ_DEMO_MODE: "true"
+      VZ_PUBLIC_BASE_URL: http://localhost:5185
+      VZ_CORS_ORIGINS: http://localhost:5185
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Бэкенд и демо-мир
+        working-directory: backend
+        run: |
+          uv sync
+          uv run alembic upgrade head
+          uv run python scripts/generate_pool.py --n 40
+          uv run python scripts/seed_demo.py --candidates 60 --skip-pool
+      - name: Запуск бэкенда и интерфейса
+        run: |
+          (cd backend && nohup uv run uvicorn app.main:app --port 8128 > ../backend.log 2>&1 &)
+          (cd frontend && npm ci --no-audit --no-fund && VITE_API_PROXY_TARGET=http://localhost:8128 nohup npx vite --port 5185 --strictPort > ../vite.log 2>&1 &)
+          for _ in $(seq 1 60); do curl -fs http://localhost:5185/api/health && break; sleep 2; done
+          curl -fs http://localhost:5185/api/health
+      - name: Playwright
+        working-directory: frontend/e2e
+        run: |
+          npm ci --no-audit --no-fund
+          npx playwright install --with-deps chromium
+          npx playwright test
+        env:
+          CI: "true"
+          E2E_BASE_URL: http://localhost:5185
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-report
+          path: |
+            frontend/e2e/playwright-report
+            frontend/e2e/test-results
+            backend.log
+            vite.log
+          if-no-files-found: ignore
+          retention-days: 7
+
+  docker:
+    name: Docker · сборка образов
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: "backend (pool использует тот же образ)"
+        uses: docker/build-push-action@v6
+        with:
+          context: backend
+          build-contexts: config=./config
+          push: false
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,scope=backend,mode=max
+      - name: web (nginx + собранный интерфейс)
+        uses: docker/build-push-action@v6
+        with:
+          context: frontend
+          push: false
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,scope=web,mode=max
+      - name: fsp-mock
+        uses: docker/build-push-action@v6
+        with:
+          context: services/fsp-mock
+          push: false
+          cache-from: type=gha,scope=fsp-mock
+          cache-to: type=gha,scope=fsp-mock,mode=max
+
+  dependency-audit:
+    name: Аудит зависимостей Python
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: pip-audit по uv.lock (прод-зависимости)
+        working-directory: backend
+        run: |
+          uv export --no-dev --no-hashes --frozen -o ../requirements-audit.txt
+          uvx pip-audit -r ../requirements-audit.txt --no-deps --disable-pip
