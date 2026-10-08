@@ -39,3 +39,7 @@ Thumbs.db
 loadtest/accounts.json
 loadtest/out/
 .screens/
+
+# Презентация: собирается build_deck.py (крупный бинарник и производные картинки не храним)
+presentation/*.pptx
+presentation/assets/
