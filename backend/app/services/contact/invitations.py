@@ -52,6 +52,7 @@ from app.models.trust import TrustComplaint
 from app.models.users import User
 from app.services.notify import send_mail_safe
 from app.trust import complaints as trust_complaints
+from app.trust.verification import trust_of_many
 
 from . import identity
 from .common import cfg, contact_error, issues, now, rel
@@ -946,7 +947,8 @@ def candidate_cards(ctx: Ctx, rows: list[Invitation], at: datetime) -> list[dict
     ids = list({r.company_id for r in rows})
     companies = {c.id: c for c in ctx.db.scalars(select(Company).where(Company.id.in_(ids)))}
     events = events_by_company(ctx.db, ids)
-    comps = {cid: company_card(ctx.db, c, at, events.get(cid, [])) for cid, c in companies.items()}
+    trust = trust_of_many(ctx.db, ids)
+    comps = {cid: company_card(ctx.db, c, at, events.get(cid, []), trust.get(cid)) for cid, c in companies.items()}
     with prefetched(ctx.db, rows):
         return [candidate_card(ctx, r, None, at, comps.get(r.company_id), preloaded=True) for r in rows]
 

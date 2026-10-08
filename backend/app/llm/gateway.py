@@ -129,13 +129,45 @@ class GigaChatProvider:
             raise LLMError(f"GigaChat: {e.__class__.__name__}") from e
 
 
+class OpenAICompatProvider:
+    """Любой OpenAI-совместимый /chat/completions (открытые модели у облачных хостингов, свой vLLM/Ollama).
+
+    Принимает только задачи из `tasks` (зарубежный адрес не получает резюме без явного решения оператора)."""
+
+    name = "openai_compat"
+
+    def __init__(self, settings: LLMSettings, client: httpx.Client | None = None) -> None:
+        self._s = settings
+        self._client = client or httpx.Client()
+        self.tasks: frozenset[str] | None = settings.openai_task_set
+
+    def complete(self, system: str, user: str, timeout_s: float) -> str:
+        s = self._s
+        assert s.openai_api_key is not None and s.openai_base_url is not None
+        body = {
+            "model": s.openai_model,
+            "temperature": 0,
+            "max_tokens": 2000,
+            "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
+        }
+        headers = {"Authorization": f"Bearer {s.openai_api_key.get_secret_value()}"}
+        try:
+            r = self._client.post(s.openai_base_url.rstrip("/") + "/chat/completions", json=body, headers=headers, timeout=timeout_s)
+            r.raise_for_status()
+            return str(r.json()["choices"][0]["message"]["content"])
+        except (httpx.HTTPError, KeyError, IndexError, ValueError, TypeError) as e:
+            raise LLMError(f"OpenAI-compat: {e.__class__.__name__}") from e
+
+
 def providers_from_settings(settings: LLMSettings) -> list[LLMProvider]:
-    """Цепочка по настройкам: auto → YandexGPT, затем GigaChat (только настроенные)."""
+    """Цепочка по настройкам: auto → YandexGPT, GigaChat, затем OpenAI-совместимый (только настроенные)."""
     chain: list[LLMProvider] = []
     if settings.provider in ("auto", "yandexgpt") and settings.yandex_configured:
         chain.append(YandexGPTProvider(settings))
     if settings.provider in ("auto", "gigachat") and settings.gigachat_configured:
         chain.append(GigaChatProvider(settings))
+    if settings.provider in ("auto", "openai_compat") and settings.openai_configured:
+        chain.append(OpenAICompatProvider(settings))
     return chain
 
 
@@ -330,7 +362,7 @@ class LLMGateway:
             return LLMExtraction(provider=None, error="В кассете нет записи для этого текста", masked_spans=masked.count)
         else:
             cached = False
-            provider_name, raw, error = self._call_chain(instructions, masked.text)
+            provider_name, raw, error = self._call_chain(instructions, masked.text, task)
             if provider_name is None:
                 return LLMExtraction(provider=None, error=error, masked_spans=masked.count)
             if self.cassette is not None:  # record
@@ -357,11 +389,14 @@ class LLMGateway:
             provider=provider_name, fields=tuple(fields), rejected=rejected, cached=cached, masked_spans=masked.count
         )
 
-    def _call_chain(self, instructions: str, masked_text: str) -> tuple[str | None, str, str | None]:
+    def _call_chain(self, instructions: str, masked_text: str, task: str = "") -> tuple[str | None, str, str | None]:
         deadline = time.monotonic() + self.settings.timeout_s
         user = f"{instructions}\n\nТекст:\n{masked_text}"
         last_error: str | None = None
         for p in self.providers:
+            allowed_tasks = getattr(p, "tasks", None)  # провайдер с ограничением задач (зарубежный) пропускает чужие
+            if allowed_tasks is not None and task not in allowed_tasks:
+                continue
             remaining = deadline - time.monotonic()
             if remaining < 1.0:
                 last_error = "Истёк общий таймаут LLM"

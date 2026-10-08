@@ -13,7 +13,7 @@ class LLMSettings(BaseSettings):
 
     # none — LLM не вызывается (умолчание, демо); auto — YandexGPT, при сбое GigaChat, иначе без LLM;
     # yandexgpt / gigachat — только этот провайдер.
-    provider: Literal["none", "auto", "yandexgpt", "gigachat"] = "none"
+    provider: Literal["none", "auto", "yandexgpt", "gigachat", "openai_compat"] = "none"
     # Режим шлюза (DECISIONS п. 23): none — выключена; live — провайдеры; record — провайдеры + запись ответов
     # в кассету; replay — только кассета, без сети и ключей (демо воспроизводимо). Пусто — none при
     # provider=none, иначе live.
@@ -41,6 +41,24 @@ class LLMSettings(BaseSettings):
     gigachat_url: str = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions"
     # Сертификат НУЦ Минцифры (путь к PEM) или true/false — проверка TLS у GigaChat
     gigachat_verify: str = "true"
+
+    # Любой OpenAI-совместимый /chat/completions: открытые модели (Qwen, Llama, DeepSeek, gpt-oss) у облачных
+    # хостингов (OpenRouter, Together, Fireworks, Nebius), собственный vLLM/Ollama, а также зарубежные API.
+    # ВАЖНО (152-ФЗ, ст. 12): зарубежный адрес получает только задачи из openai_tasks. По умолчанию это разбор текста
+    # брифа работодателя — в нём нет ПДн кандидатов. Резюме («resume») уходит на зарубежный адрес лишь по явному
+    # решению оператора (VZ_LLM_OPENAI_TASKS=brief_skills,resume) и после маскирования ПДн.
+    openai_base_url: str | None = None  # например https://openrouter.ai/api/v1
+    openai_api_key: SecretStr | None = None
+    openai_model: str = "qwen/qwen3-235b-a22b-2507"
+    openai_tasks: str = "brief_skills"
+
+    @property
+    def openai_task_set(self) -> frozenset[str]:
+        return frozenset(t.strip() for t in self.openai_tasks.split(",") if t.strip())
+
+    @property
+    def openai_configured(self) -> bool:
+        return bool(self.openai_base_url and self.openai_api_key)
 
     @property
     def effective_mode(self) -> str:

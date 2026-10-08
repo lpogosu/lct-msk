@@ -255,7 +255,9 @@ def contact_methods_list(company: Company) -> list[dict[str, str]]:
     return out
 
 
-def company_card(db: Session, company: Company, at: datetime, events: list[Any] | None = None) -> dict[str, Any]:
+def company_card(
+    db: Session, company: Company, at: datetime, events: list[Any] | None = None, trust: dict[str, Any] | None = None
+) -> dict[str, Any]:
     """Что кандидат видит о компании всегда, до решения: название, описание, R с разложением, способ связи.
 
     events — заранее загруженные события надёжности (списки грузят их пакетом)."""
@@ -270,5 +272,5 @@ def company_card(db: Session, company: Company, at: datetime, events: list[Any] 
         "personal_email_label": cfg().quotas.personal_email_label if company.personal_domain else None,
         "contact_methods": contact_methods_list(company),
         "reliability": reliability_dict(rel),
-        "trust": trust_of(db, company.id),
+        "trust": trust if trust is not None else trust_of(db, company.id),
     }

@@ -33,6 +33,7 @@ from app.models.contact import Application, ApplicationEvent, ContactDisclosure,
 from app.models.enums import UserRole, UserStatus, VacancyStatus
 from app.models.users import User
 from app.services.notify import notify_company, notify_user
+from app.trust.verification import trust_of_many
 
 from . import identity, webhooks
 from . import reliability as rel_store
@@ -420,7 +421,8 @@ def candidate_cards(ctx: Ctx, rows: list[Application], at: datetime) -> list[dic
     cids = list({v.company_id for v in vacs.values()})
     companies = {c.id: c for c in ctx.db.scalars(select(Company).where(Company.id.in_(cids)))}
     events = rel_store.events_by_company(ctx.db, cids)
-    comps = {cid: company_card(ctx.db, c, at, events.get(cid, [])) for cid, c in companies.items()}
+    trust = trust_of_many(ctx.db, cids)
+    comps = {cid: company_card(ctx.db, c, at, events.get(cid, []), trust.get(cid)) for cid, c in companies.items()}
     with prefetched(ctx.db, rows):
         return [candidate_card(ctx, r, None, at, comps) for r in rows]
 

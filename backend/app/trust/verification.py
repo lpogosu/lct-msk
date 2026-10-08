@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import re
 import uuid
+from collections.abc import Iterable
 from datetime import datetime
 from typing import Any
 
@@ -167,6 +168,13 @@ def _view(row: CompanyVerification | None) -> dict[str, Any]:
 def trust_of(db: Session, company_id: uuid.UUID) -> dict[str, Any]:
     """Публичная часть для кандидата: уровень и подпись. Реквизиты и детали проверок кандидату не показываем."""
     return _view(db.get(CompanyVerification, company_id))
+
+
+def trust_of_many(db: Session, company_ids: Iterable[uuid.UUID]) -> dict[uuid.UUID, dict[str, Any]]:
+    """trust_of для списка компаний одним запросом (списки входящих/откликов кандидата, docs/LOAD_TEST.md)."""
+    ids = list(dict.fromkeys(company_ids))
+    rows = {r.company_id: r for r in db.scalars(select(CompanyVerification).where(CompanyVerification.company_id.in_(ids)))} if ids else {}
+    return {cid: _view(rows.get(cid)) for cid in ids}
 
 
 def detail_of(db: Session, company_id: uuid.UUID) -> dict[str, Any]:

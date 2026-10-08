@@ -27,7 +27,6 @@ def _count(db, fn):
         result = fn()
     finally:
         event.remove(bind, "before_cursor_execute", hook)
-    print(*(q[:110].replace(chr(10),' ') for q in queries),sep=chr(10)); print('=====')
     return result, len(queries)
 
 

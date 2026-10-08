@@ -14,6 +14,7 @@ from __future__ import annotations
 import logging
 import random
 import uuid
+from collections.abc import Callable
 from datetime import timedelta
 from typing import Any
 
@@ -166,8 +167,24 @@ def ready_session(
     return None
 
 
+def escalating_examinee(base_theta: float, modules: dict[str, float], weak_module: str | None, step: float, after: int):
+    """Фабрика «абитуриента по номеру попытки»: после `after` неудач целевой модуль занижается ещё на `step` за попытку.
+
+    Оценка модуля из ~4–6 заданий шумная (разброс ≈ ±0,8), и при фиксированном «истинном» уровне нужный исход бывает
+    лишь у трети попыток; сдвиг истины делает последние попытки заведомо подходящими (без него сид «Ильи» флакал)."""
+
+    def make(attempt: int) -> SimulatedExaminee:
+        shift = step * max(0, attempt - after)
+        mt = dict(modules)
+        if weak_module is not None and shift:
+            mt[weak_module] = mt[weak_module] - shift
+        return SimulatedExaminee(theta=base_theta, module_theta=mt)
+
+    return make
+
+
 def confirmed_session(
-    db: Session, user: User, *, spec: str, grade: str, examinee: SimulatedExaminee, key: str, tries: int,
+    db: Session, user: User, *, spec: str, grade: str, examinee: SimulatedExaminee | Callable[[int], SimulatedExaminee], key: str, tries: int,
     want_grade: str, weak_module: str | None = None, weak_theta_max: float | None = None, extensions: str = "auto",
 ) -> Trace | None:
     """Полная сессия, после которой категория подтверждена на want_grade (и, если задано, оценка уровня по модулю
@@ -177,7 +194,8 @@ def confirmed_session(
         try:
             start = clock.now() - timedelta(days=1)
             with clock_at(start):
-                tr = run_session(db, user, spec=spec, claimed_grade=grade, examinee=examinee,
+                tr = run_session(db, user, spec=spec, claimed_grade=grade,
+                                 examinee=examinee(attempt) if callable(examinee) else examinee,
                                  rng=random.Random(f"{key}:{attempt}"), extensions=extensions)
             ok = _qual_grade(db, user, spec) == want_grade
             if ok and weak_module is not None:
@@ -265,7 +283,10 @@ def build_ilya(db: Session, settings: Settings) -> tuple[User, accounts.Credenti
     modules = {m: float(cfg["theta"]) for m in load_blueprint(cfg["spec"])}
     for m, delta in (cfg.get("weak_modules") or {}).items():
         modules[m] = float(cfg["theta"]) + float(delta)
-    examinee = SimulatedExaminee(theta=float(cfg["theta"]), module_theta=modules)
+    examinee = escalating_examinee(
+        float(cfg["theta"]), modules, cfg.get("ensure_unconfirmed_skill"),
+        float(cfg["escalate_step"]), int(cfg["escalate_after"]),
+    )
     tr = confirmed_session(
         db, user, spec=cfg["spec"], grade=cfg["grade"], examinee=examinee, key="ilya", tries=int(cfg["session_tries"]),
         want_grade=cfg["grade"], weak_module=cfg.get("ensure_unconfirmed_skill"),
@@ -274,7 +295,7 @@ def build_ilya(db: Session, settings: Settings) -> tuple[User, accounts.Credenti
     if tr is None:
         log.warning("ilya: нужный результат не получен за %s попыток — берём последнюю сессию как есть", cfg["session_tries"])
         with clock_at(clock.now() - timedelta(days=1)):
-            run_session(db, user, spec=cfg["spec"], claimed_grade=cfg["grade"], examinee=examinee,
+            run_session(db, user, spec=cfg["spec"], claimed_grade=cfg["grade"], examinee=examinee(int(cfg["session_tries"])),
                         rng=random.Random("ilya:fallback"), extensions="decline")
     row = get_row(db, user.id, cfg["spec"])
     sql_theta = ((row.subscores or {}).get("sql") or {}).get("theta") if row is not None else None
