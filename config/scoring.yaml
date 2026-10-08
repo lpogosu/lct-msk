@@ -113,7 +113,8 @@ explain:
   con_margin: -3.0                # «против»: c_i − m < −3 (кроме F)
   max_pros: 3
   # Порядок «против» — первый сработавший. Отсутствие ФСП не попадает никогда.
-  con_priority: [category_unconfirmed, must_unconfirmed, salary_above, format_mismatch, borderline, low_trust, stale_test, weak_component, nice_unconfirmed]
+  # Условия (зарплата, формат/город) — первыми: это жёсткие ограничения работодателя и множитель Cond в Score.
+  con_priority: [salary_above, format_mismatch, category_unconfirmed, must_unconfirmed, borderline, low_trust, stale_test, weak_component, nice_unconfirmed]
   component_names: { T: тест, K: стек, F: ФСП, A: свежесть, U: условия }
   component_titles: { T: Тест, K: Стек, F: ФСП, A: Свежесть, U: Условия }
 

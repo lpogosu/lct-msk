@@ -57,6 +57,8 @@ def item_to_store(i: SelectionItem, extras: Mapping[str, Any] | None = None) -> 
         "contributions": {k: _r(v) for k, v in i.contributions.items()},
         "G": _r(i.G),
         "Cov": _r(i.Cov),
+        "Cond": _r(i.Cond, 6),
+        "cond_parts": {k: _r(v, 6) for k, v in i.cond_parts.items()},
         "rank": i.rank,
         "category_rank": i.category_rank,
         "reasons": [
@@ -109,6 +111,9 @@ def item_from_store(d: Mapping[str, Any]) -> SelectionItem:
         contributions=MappingProxyType(dict(d["contributions"])),
         G=float(d["G"]),
         Cov=float(d["Cov"]),
+        # Версии до Cond: условия в снимок не писались — множитель 1,0 (Score и вклады в снимке уже итоговые).
+        Cond=float(d.get("Cond", 1.0)),
+        cond_parts=MappingProxyType({k: float(v) for k, v in (d.get("cond_parts") or {"salary": 1.0, "format": 1.0}).items()}),
         rank=d.get("rank"),
         category_rank=d.get("category_rank"),
         reasons=tuple(

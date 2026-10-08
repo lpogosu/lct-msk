@@ -160,6 +160,9 @@ class SelectionItem:
     has_fsp: bool
     confirmed: bool
     flags: frozenset[str]
+    # Множитель жёстких условий и его части (зарплата, формат): Score = Σ вкладов = 100·G·Cov·Cond·Σ w·x.
+    Cond: float = 1.0
+    cond_parts: Mapping[str, float] = field(default_factory=lambda: {"salary": 1.0, "format": 1.0})
 
     @property
     def visible(self) -> bool:
@@ -185,6 +188,8 @@ class SelectionItem:
             "components": {k: round(v, 2) for k, v in self.components.items()},
             "G": round(self.G, 4),
             "Cov": self.Cov,
+            "Cond": round(self.Cond, 4),
+            "cond_parts": {k: round(v, 4) for k, v in self.cond_parts.items()},
             "rank": self.rank,
             "category_rank": self.category_rank,
             "reasons": [
@@ -428,6 +433,8 @@ def build_version(
                 contributions=MappingProxyType(dict(r.c)),
                 G=r.G,
                 Cov=r.Cov,
+                Cond=r.cond,
+                cond_parts=MappingProxyType(dict(r.cond_parts)),
                 rank=overall_rank.get(key),
                 category_rank=cat_rank.get(key),
                 reasons=e.reasons,

@@ -107,6 +107,46 @@ function ScoreBars({
   )
 }
 
+type Factors = SelectionItem['factors']
+
+/**
+ * Множители Score: вклады выше уже учитывают их (Score = Σ вкладов = 100·G·Cov·Cond·Σ w·x).
+ * Показываем только те, что меньше 1, чтобы порядок подборки не менялся «молча».
+ */
+function FactorsNote({ factors }: { factors: Factors }) {
+  const rows: { key: string; label: string; value: number; sub?: string }[] = [
+    { key: 'g', label: 'Смежная категория (G)', value: factors.g },
+    { key: 'cov', label: 'Покрытие обязательных (Cov)', value: factors.cov },
+    {
+      key: 'cond',
+      label: 'Условия (Cond)',
+      value: factors.cond,
+      sub:
+        [factors.cond_salary < 1 && `зарплата ×${formatDecimal(factors.cond_salary, 2)}`, factors.cond_format < 1 && `формат или город ×${formatDecimal(factors.cond_format, 2)}`]
+          .filter(Boolean)
+          .join(', ') || undefined,
+    },
+  ].filter((r) => r.value < 1 - 1e-6)
+  if (rows.length === 0) return null
+  return (
+    <section aria-label="Множители Score" className="flex flex-col gap-1.5">
+      <BlockTitle>Множители, уже учтённые в вкладах</BlockTitle>
+      <ul className="m-0 flex list-none flex-col gap-1 p-0">
+        {rows.map((r) => (
+          <li key={r.key} className="flex flex-wrap items-baseline justify-between gap-x-3 t-body text-ink">
+            <span>
+              {r.label}
+              {r.sub && <span className="ml-1 t-small text-ink-3">({r.sub})</span>}
+            </span>
+            <span className="t-num-m text-danger-text">×{formatDecimal(r.value, 2)}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="t-small text-ink-3">Score = 100 · G · Cov · Cond · Σ вес × компонент; сумма вкладов выше равна Score.</p>
+    </section>
+  )
+}
+
 /**
  * Правая панель кандидата (Р6, Figma 28:5): слепая карточка с кольцом Score, разложением, «что вы просили и чем это
  * подтверждено», обобщённым ФСП, свежестью и заданиями. До «да» здесь нет ни ФИО, ни контактов — это CandidateBlind.
@@ -227,7 +267,10 @@ export function CandidatePanel({
       {card?.view === 'disclosed' && card.disclosed && <DisclosedBlock d={card.disclosed} />}
 
       {item ? (
-        <ScoreBars parts={item.parts} weights={weights} />
+        <>
+          <ScoreBars parts={item.parts} weights={weights} />
+          {item.factors && <FactorsNote factors={item.factors} />}
+        </>
       ) : bankItem ? (
         <ScoreBars parts={bankItem.parts} weights={weights} defs={BANK_PARTS} />
       ) : null}

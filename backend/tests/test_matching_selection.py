@@ -303,3 +303,25 @@ def test_exported_components_are_coarse():
     for item in v.to_dict()["items"]:
         for value in item["components"].values():
             assert round(value, 2) == value
+
+
+def test_snapshot_stores_cond_and_reproduces_score(v1):
+    """Снимок версии хранит Cond и его части: Score = 100·G·Cov·Cond·Σ w·x восстанавливается из снимка;
+    старый снимок без Cond читается как Cond = 1 (его Score уже итоговый)."""
+    from app.services.matching.store import item_from_store, item_to_store
+
+    cfg = ScoringConfig.load()
+    w = cfg.weights()
+    constrained = [i for i in v1.items if i.Cond < 1.0]
+    assert constrained, "в пуле должны быть кандидаты с невыполненными условиями"
+    for i in constrained[:20]:
+        back = item_from_store(item_to_store(i))
+        assert abs(back.Cond - i.Cond) < 1e-5
+        assert abs(back.Cond - back.cond_parts["salary"] * back.cond_parts["format"]) < 1e-5
+        sigma = sum(w[k] * back.components[k] for k in w)
+        assert abs(100 * back.G * back.Cov * back.Cond * sigma - back.score) < 0.05
+        con = back.con
+        assert con is not None and con.component == "U" and "Score ×" in con.text
+    stored = item_to_store(constrained[0])
+    del stored["Cond"], stored["cond_parts"]
+    assert item_from_store(stored).Cond == 1.0

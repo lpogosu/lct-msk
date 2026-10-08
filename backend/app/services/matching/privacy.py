@@ -307,6 +307,19 @@ def employer_chip(company_id: uuid.UUID, raw: Any, secret: str) -> dict[str, Any
     }
 
 
+def _factors(stored: Mapping[str, Any]) -> dict[str, Any]:
+    """Множители Score для панели доказательств: Score = Σ вкладов = 100·G·Cov·Cond·Σ w·x.
+    Старые версии без Cond в снимке — Cond = 1 (их Score не пересчитывается)."""
+    parts = stored.get("cond_parts") or {}
+    return {
+        "g": round(float(stored.get("G", 1.0)), 4),
+        "cov": round(float(stored.get("Cov", 1.0)), 4),
+        "cond": round(float(stored.get("Cond", 1.0)), 4),
+        "cond_salary": round(float(parts.get("salary", 1.0)), 4),
+        "cond_format": round(float(parts.get("format", 1.0)), 4),
+    }
+
+
 def employer_item(
     company_id: uuid.UUID,
     stored: Mapping[str, Any],
@@ -330,6 +343,7 @@ def employer_item(
         "score": stored["score_display"],
         "parts": dict(stored["parts"]),
         "components": {k: round(float(v), 2) for k, v in stored["components"].items()},
+        "factors": _factors(stored),
         "rank": stored.get("rank"),
         "category_rank": stored.get("category_rank"),
         "pros": [r for r in reasons if r["kind"] == "pro"],

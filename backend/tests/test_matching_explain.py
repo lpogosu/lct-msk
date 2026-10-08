@@ -194,7 +194,7 @@ def test_con_priority(change, code):
     assert e.con is not None and e.con.code == code
 
 
-def test_con_priority_order_must_beats_salary():
+def test_con_priority_order_salary_beats_must_beats_borderline():
     c = replace(
         _base(),
         modules={"http_api": ModuleScore(2.5, 0.2, "strong")},
@@ -204,6 +204,10 @@ def test_con_priority_order_must_beats_salary():
         borderline=True,
     )
     r, e = _one(c)
+    # Условия — жёсткие ограничения работодателя и множитель Cond: «против» №1 (con_priority в scoring.yaml).
+    assert e.con.code == "salary_above" and r.cond < 1.0
+    c = replace(c, salary_min=None)
+    r, e = _one(c)
     assert e.con.code == "must_unconfirmed"
     assert "Python" in e.con.text and "PostgreSQL" in e.con.text
     assert "Подтверждено 1 из 3 обязательных" in e.con.text
@@ -211,9 +215,9 @@ def test_con_priority_order_must_beats_salary():
 
 def test_salary_con_respects_visibility():
     r, e = _one(replace(_base(), salary_min=308_000, salary_visibility="signal"))
-    assert e.con.text == "Ожидания выше вашей вилки"
+    assert e.con.text.startswith("Ожидания выше вашей вилки") and "308" not in e.con.text
     r, e = _one(replace(_base(), salary_min=308_000, salary_visibility="exact"))
-    assert e.con.text == "Ожидания 308 000 ₽ на руки — выше верха вилки на 10%"
+    assert e.con.text.startswith("Ожидания 308 000 ₽ на руки — выше верха вилки до 280 000 ₽ на руки на 10%; Score ×")
 
 
 def test_without_fsp_no_con_about_fsp_even_if_far_below_median():
@@ -370,21 +374,21 @@ def test_unconfirmed_weak_test_con_does_not_mention_median():
 def test_format_con_accusative_and_region_wording():
     r, e = _one(replace(_base(), formats=frozenset({"remote"})))
     assert e.con.code == "format_mismatch"
-    assert e.con.text == "Формат не совпадает: рассматривает удалёнку"
+    assert e.con.text.startswith("Формат: только удалёнку, в брифе — ") and "Score ×" in e.con.text
     brief_kzn = replace(BRIEF, city="kazan")
     c = replace(_base(), city="innopolis", formats=frozenset({"hybrid"}))
     r = score_candidate(c, brief_kzn, ScoringContext.build(POOL))
     e = explain(r, MEDIANS, brief=brief_kzn)
-    assert e.con.text == "Другой город того же региона, переезд не рассматривает"
+    assert e.con.text.startswith("Другой город того же региона, переезд не рассматривает; Score ×")
     c2 = replace(c, city="spb")
     r2 = score_candidate(c2, brief_kzn, ScoringContext.build(POOL))
-    assert explain(r2, MEDIANS, brief=brief_kzn).con.text == "Другой регион, переезд не рассматривает"
+    assert explain(r2, MEDIANS, brief=brief_kzn).con.text.startswith("Другой регион, переезд не рассматривает; Score ×")
 
 
 def test_exact_salary_con_names_basis_when_it_differs_from_brief():
     # 360 000 до НДФЛ = 313 200 на руки — выше верха 280 000 на руки на 12%.
     r, e = _one(replace(_base(), salary_min=360_000, salary_net=False, salary_visibility="exact"))
-    assert e.con.text == "Ожидания 360 000 ₽ до вычета НДФЛ — выше верха вилки на 12%"
+    assert e.con.text.startswith("Ожидания 360 000 ₽ до вычета НДФЛ — выше верха вилки до 280 000 ₽ на руки на 12%")
 
 
 def test_stack_pro_wording_when_brief_has_only_nice_skills():
@@ -392,3 +396,19 @@ def test_stack_pro_wording_when_brief_has_only_nice_skills():
     r = score_candidate(_base(), brief, ScoringContext.build(POOL))
     e = explain(r, {"T": 100.0, "K": 0.0, "F": 100.0, "A": 100.0, "U": 100.0}, brief=brief)
     assert e.pros[0].text.startswith("Стек: подтверждено 1 из 2 навыков брифа")
+
+
+def test_condition_con_names_multiplier_and_numbers_add_up():
+    """Cond < 1 → первое «против» — конкретное условие с величиной множителя; Score = 100·G·Cov·Cond·Σ w·x."""
+    base = _one(_base())[0]
+    assert base.cond == 1.0
+    for c in (
+        replace(_base(), salary_min=308_000, salary_visibility="exact"),
+        replace(_base(), formats=frozenset({"remote"})),
+    ):
+        r, e = _one(c)
+        assert r.cond < 1.0
+        assert e.con is not None and e.con.component == "U" and "Score ×" in e.con.text
+        assert abs(r.cond - r.cond_parts["salary"] * r.cond_parts["format"]) < 1e-12
+        sigma = sum(float(r.weights[k]) * r.x[k] for k in r.x)
+        assert abs(r.score - 100 * r.G * r.Cov * r.cond * sigma) < 1e-9

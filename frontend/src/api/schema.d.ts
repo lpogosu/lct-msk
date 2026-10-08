@@ -12746,6 +12746,34 @@ export interface components {
              */
             confidence: number;
         };
+        /** ScoreFactorsOut */
+        ScoreFactorsOut: {
+            /**
+             * G
+             * @description G — смежность специализации/грейда (1,0 — основная категория)
+             */
+            g: number;
+            /**
+             * Cov
+             * @description Cov — множитель покрытия must (0,8 — подтверждено меньше половины)
+             */
+            cov: number;
+            /**
+             * Cond
+             * @description Cond = cond_salary · cond_format — множитель условий (1,0 — условия выполнены)
+             */
+            cond: number;
+            /**
+             * Cond Salary
+             * @description Часть Cond по зарплате: ожидания выше вилки
+             */
+            cond_salary: number;
+            /**
+             * Cond Format
+             * @description Часть Cond по формату/городу
+             */
+            cond_format: number;
+        };
         /**
          * ScoreSnapshotOut
          * @description Строка кандидата в подборке на момент приглашения/отклика (без id кандидата и доказательств — DECISIONS 20).
@@ -12842,6 +12870,8 @@ export interface components {
             components: {
                 [key: string]: number;
             };
+            /** @description Множители G, Cov, Cond: Score = Σ вкладов = 100·G·Cov·Cond·Σ w·x */
+            factors: components["schemas"]["ScoreFactorsOut"];
             /**
              * Rank
              * @description Место в «Общем топе» (null — скрыт фильтром)
@@ -37944,6 +37974,51 @@ export interface operations {
                     "application/json": components["schemas"]["GuardianConfirmOut"];
                 };
             };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Не найдено */
             404: {
                 headers: {
@@ -37954,6 +38029,21 @@ export interface operations {
                      * @example {
                      *       "code": "not_found",
                      *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
                      *     }
                      */
                     "application/json": components["schemas"]["ErrorResponse"];
@@ -43011,6 +43101,21 @@ export interface operations {
                     "application/json": components["schemas"]["ComplaintOut"][];
                 };
             };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Требуется вход или токен недействителен */
             401: {
                 headers: {
@@ -43081,6 +43186,21 @@ export interface operations {
                      * @example {
                      *       "code": "validation_error",
                      *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
                      *     }
                      */
                     "application/json": components["schemas"]["ErrorResponse"];
@@ -43112,6 +43232,21 @@ export interface operations {
                     "application/json": components["schemas"]["ComplaintOut"];
                 };
             };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Требуется вход или токен недействителен */
             401: {
                 headers: {
@@ -43182,6 +43317,21 @@ export interface operations {
                      * @example {
                      *       "code": "validation_error",
                      *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
                      *     }
                      */
                     "application/json": components["schemas"]["ErrorResponse"];
@@ -43207,6 +43357,21 @@ export interface operations {
                     "application/json": components["schemas"]["CompanyFlagsOut"][];
                 };
             };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Требуется вход или токен недействителен */
             401: {
                 headers: {
@@ -43277,6 +43442,21 @@ export interface operations {
                      * @example {
                      *       "code": "validation_error",
                      *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
                      *     }
                      */
                     "application/json": components["schemas"]["ErrorResponse"];
@@ -43308,6 +43488,21 @@ export interface operations {
                     "application/json": components["schemas"]["RevokeOut"];
                 };
             };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Требуется вход или токен недействителен */
             401: {
                 headers: {
@@ -43378,6 +43573,21 @@ export interface operations {
                      * @example {
                      *       "code": "validation_error",
                      *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
                      *     }
                      */
                     "application/json": components["schemas"]["ErrorResponse"];
@@ -43405,6 +43615,21 @@ export interface operations {
                     "application/json": components["schemas"]["RevokeOut"];
                 };
             };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Требуется вход или токен недействителен */
             401: {
                 headers: {
@@ -43475,6 +43700,21 @@ export interface operations {
                      * @example {
                      *       "code": "validation_error",
                      *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
                      *     }
                      */
                     "application/json": components["schemas"]["ErrorResponse"];

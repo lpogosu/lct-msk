@@ -39,10 +39,10 @@ def round1(x: float) -> float:
     return math.floor(x * 10.0 + 0.5 + 1e-9) / 10.0
 
 
-def fmt1(x: float, *, sign: bool = False) -> str:
-    """78.3 → «78,3»; со знаком: «+4,0» / «−1,9» (типографский минус)."""
-    v = round1(abs(x))
-    s = f"{v:.1f}".replace(".", ",")
+def fmt1(x: float, *, sign: bool = False, digits: int = 1) -> str:
+    """78.3 → «78,3»; со знаком: «+4,0» / «−1,9» (типографский минус). digits=2 — для множителей (×0,84)."""
+    v = round1(abs(x)) if digits == 1 else round(abs(x), digits)
+    s = f"{v:.{digits}f}".replace(".", ",")
     if sign:
         return ("−" if x < 0 and v > 0 else "+") + s
     return ("−" if x < 0 and v > 0 else "") + s
@@ -339,6 +339,7 @@ class ScoreResult:
     declared_overlap: int
     features: CandidateFeatures
     cond: float = 1.0  # множитель жёстких условий (зарплата, формат/город); 1,0 — условия выполнены
+    cond_parts: Mapping[str, float] = field(default_factory=lambda: {"salary": 1.0, "format": 1.0})  # Cond = salary·format
 
     @property
     def confirmed(self) -> bool:
@@ -645,8 +646,17 @@ def component_cond(u: UDetail, cfg: ScoringConfig) -> float:
     при чисто аддитивном U (10 баллов из 100) такой кандидат оставался в топе. Условия выполнены → 1,0, и
     формула сводится к прежней (контрольные примеры §4.2 не меняются). Обоснование — VALIDATION.md, «Условия как ограничение».
     """
+    parts = cond_parts(u, cfg)
+    return parts["salary"] * parts["format"]
+
+
+def cond_parts(u: UDetail, cfg: ScoringConfig) -> dict[str, float]:
+    """Сомножители Cond по отдельности — для разбора в карточке и снимка версии подборки."""
     cc = cfg.section("Cond")
-    return (1.0 - float(cc["salary_strength"]) * (1.0 - u.sal_fit)) * (1.0 - float(cc["format_strength"]) * (1.0 - u.fmt_fit))
+    return {
+        "salary": 1.0 - float(cc["salary_strength"]) * (1.0 - u.sal_fit),
+        "format": 1.0 - float(cc["format_strength"]) * (1.0 - u.fmt_fit),
+    }
 
 
 def score_from_components(
@@ -702,7 +712,8 @@ def score_candidate(c: CandidateFeatures, brief: BriefSpec, ctx: ScoringContext)
     # Cov: подтверждено (v_k ≥ 0,5) меньше половины must → ×0,8.
     cov = float(covc["factor"]) if must_total and must_conf < float(covc["min_share"]) * must_total else 1.0
     x = {"T": t.value, "K": k_val, "F": f.value, "A": a.value, "U": u.value}
-    cond = component_cond(u, cfg)
+    cparts = cond_parts(u, cfg)
+    cond = cparts["salary"] * cparts["format"]
     score, contrib = score_from_components(x, ctx.weights, g, cov, cond)
     tc = cfg.section("T")
     flags = set()
@@ -737,6 +748,7 @@ def score_candidate(c: CandidateFeatures, brief: BriefSpec, ctx: ScoringContext)
         declared_overlap=overlap,
         features=c,
         cond=cond,
+        cond_parts=_freeze(cparts),
     )
 
 

@@ -270,16 +270,26 @@ def _con(
     if code == "salary_above":
         if r.u.salary_above_pct is None:
             return None
+        # Конкретная причина множителя Cond и его величина: порядок подборки не меняется «молча».
+        mult = f"; Score ×{fmt1(r.cond_parts['salary'], digits=2)}"
+        cap = ""
+        if brief is not None and brief.salary_to:
+            cap_basis = "на руки" if brief.salary_net else "до вычета НДФЛ"
+            cap = f" до {_rub(brief.salary_to)} {cap_basis}"
         if f.salary_visibility == "exact" and f.salary_min is not None:
             # Базис называем всегда («на руки» / «до вычета НДФЛ»): сумма без подписи двусмысленна (DECISIONS п. 29).
             basis = " на руки" if f.salary_net else " до вычета НДФЛ"
-            text = f"Ожидания {_rub(f.salary_min)}{basis} — выше верха вилки на {int(round(r.u.salary_above_pct))}%"
+            text = (
+                f"Ожидания {_rub(f.salary_min)}{basis} — выше верха вилки{cap} "
+                f"на {int(round(r.u.salary_above_pct))}%{mult}"
+            )
         else:
-            text = "Ожидания выше вашей вилки"
+            text = f"Ожидания выше вашей вилки{cap}{mult}"
         return Reason("con", code, "U", text, (Evidence("prefs", r.candidate_id, "настройки кандидата"),))
     if code == "format_mismatch":
         if r.u.format_match:
             return None
+        mult = f"; Score ×{fmt1(r.cond_parts['format'], digits=2)}"
         if not r.u.city_ok:
             # До раскрытия работодатель видит только регион (концепция §4.5) — город кандидата не называем.
             same_region = False
@@ -287,10 +297,13 @@ def _con(
                 a, b = cat.cities.get(brief.city), cat.cities.get(f.city)
                 same_region = bool(a and b and a.region == b.region)
             where = "Другой город того же региона" if same_region else "Другой регион"
-            text = f"{where}, переезд не рассматривает"
+            text = f"{where}, переезд не рассматривает{mult}"
         else:
             fm = ", ".join(sorted(FORMAT_ACC.get(x, x) for x in f.formats)) or "другой формат"
-            text = f"Формат не совпадает: рассматривает {fm}"
+            want = ""
+            if brief is not None and brief.formats:
+                want = ", в брифе — " + ", ".join(sorted(FORMAT_ACC.get(x, x) for x in brief.formats))
+            text = f"Формат: только {fm}{want}{mult}"
         return Reason("con", code, "U", text, (Evidence("prefs", r.candidate_id, "настройки кандидата"),))
     if code == "borderline":
         if "borderline" not in r.flags:

@@ -24626,6 +24626,48 @@
               }
             }
           },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Не найдено",
             "content": {
@@ -24636,6 +24678,20 @@
                 "example": {
                   "code": "not_found",
                   "message": "Запись не найдена"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
                 }
               }
             }
@@ -30158,6 +30214,20 @@
               }
             }
           },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Требуется вход или токен недействителен",
             "content": {
@@ -30221,6 +30291,20 @@
                 "example": {
                   "code": "validation_error",
                   "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
                 },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
@@ -30277,6 +30361,20 @@
               }
             }
           },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Требуется вход или токен недействителен",
             "content": {
@@ -30340,6 +30438,20 @@
                 "example": {
                   "code": "validation_error",
                   "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
                 },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
@@ -30373,6 +30485,20 @@
               }
             }
           },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Требуется вход или токен недействителен",
             "content": {
@@ -30439,6 +30565,20 @@
                 "example": {
                   "code": "validation_error",
                   "message": "Проверьте заполнение полей"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
                 }
               }
             }
@@ -30497,6 +30637,20 @@
               }
             }
           },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Требуется вход или токен недействителен",
             "content": {
@@ -30560,6 +30714,20 @@
                 "example": {
                   "code": "validation_error",
                   "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
                 },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
@@ -30606,6 +30774,20 @@
               }
             }
           },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Требуется вход или токен недействителен",
             "content": {
@@ -30669,6 +30851,20 @@
                 "example": {
                   "code": "validation_error",
                   "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
                 },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
@@ -50773,6 +50969,44 @@
         ],
         "title": "ScalarField"
       },
+      "ScoreFactorsOut": {
+        "properties": {
+          "g": {
+            "type": "number",
+            "title": "G",
+            "description": "G — смежность специализации/грейда (1,0 — основная категория)"
+          },
+          "cov": {
+            "type": "number",
+            "title": "Cov",
+            "description": "Cov — множитель покрытия must (0,8 — подтверждено меньше половины)"
+          },
+          "cond": {
+            "type": "number",
+            "title": "Cond",
+            "description": "Cond = cond_salary · cond_format — множитель условий (1,0 — условия выполнены)"
+          },
+          "cond_salary": {
+            "type": "number",
+            "title": "Cond Salary",
+            "description": "Часть Cond по зарплате: ожидания выше вилки"
+          },
+          "cond_format": {
+            "type": "number",
+            "title": "Cond Format",
+            "description": "Часть Cond по формату/городу"
+          }
+        },
+        "type": "object",
+        "required": [
+          "g",
+          "cov",
+          "cond",
+          "cond_salary",
+          "cond_format"
+        ],
+        "title": "ScoreFactorsOut"
+      },
       "ScoreSnapshotOut": {
         "properties": {
           "score": {
@@ -50942,6 +51176,10 @@
             "type": "object",
             "title": "Components",
             "description": "Компоненты 0–1"
+          },
+          "factors": {
+            "$ref": "#/components/schemas/ScoreFactorsOut",
+            "description": "Множители G, Cov, Cond: Score = Σ вкладов = 100·G·Cov·Cond·Σ w·x"
           },
           "rank": {
             "anyOf": [
@@ -51137,6 +51375,7 @@
           "score",
           "parts",
           "components",
+          "factors",
           "rank",
           "category_rank",
           "pros",

@@ -446,6 +446,14 @@ class BadgeOut(BaseModel):
     label: str = Field(description="«новый», «▲3», «▼2», «скрыт»")
 
 
+class ScoreFactorsOut(BaseModel):
+    g: float = Field(description="G — смежность специализации/грейда (1,0 — основная категория)")
+    cov: float = Field(description="Cov — множитель покрытия must (0,8 — подтверждено меньше половины)")
+    cond: float = Field(description="Cond = cond_salary · cond_format — множитель условий (1,0 — условия выполнены)")
+    cond_salary: float = Field(description="Часть Cond по зарплате: ожидания выше вилки")
+    cond_format: float = Field(description="Часть Cond по формату/городу")
+
+
 class SelectionItemOut(BaseModel):
     ref: str = Field(description="Непрозрачная ссылка на кандидата в рамках компании")
     pseudonym: str = Field(description="Псевдоним «К-4821»")
@@ -456,6 +464,7 @@ class SelectionItemOut(BaseModel):
     score: float = Field(description="Score 0–100 (шаг 0,1)")
     parts: dict[str, float] = Field(description="Вклады T, K, F, A, U (Σ = Score)")
     components: dict[str, float] = Field(description="Компоненты 0–1")
+    factors: ScoreFactorsOut = Field(description="Множители G, Cov, Cond: Score = Σ вкладов = 100·G·Cov·Cond·Σ w·x")
     rank: int | None = Field(description="Место в «Общем топе» (null — скрыт фильтром)")
     category_rank: int | None
     pros: list[ReasonOut] = Field(description="До 3 «за»")

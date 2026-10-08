@@ -139,6 +139,8 @@ def test_demo_brief_end_to_end(client, employer, pool, db_session):
     for it in items:
         assert it["pseudonym"].startswith("К-") and len(it["pseudonym"]) == 6
         assert abs(sum(it["parts"].values()) - it["score"]) <= 0.1 + 1e-9  # Σ вкладов = Score
+        f = it["factors"]
+        assert abs(f["cond"] - f["cond_salary"] * f["cond_format"]) < 1e-3 and 0 < f["cond"] <= 1
         assert len(it["pros"]) <= 3
         assert it["con"] is None or it["con"]["code"] != "fsp"  # отсутствие ФСП в «против» — никогда
         assert it["test"]["band"] and it["test"].get("score") is None  # точный балл — только после раскрытия
