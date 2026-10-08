@@ -1,6 +1,7 @@
 import type { Schemas } from '@/api/types'
 import { formatDecimal } from '@/lib/format'
 import { Panel, Trace } from '@/ui'
+import { CompanyTrustBadge } from '@/features/trust/CompanyTrustBadge'
 import { Label, Tag } from './common'
 
 export interface CompanyCardData {
@@ -11,6 +12,7 @@ export interface CompanyCardData {
   personal_email_label?: string | null
   contact_methods: { method: string; label: string; value: string }[]
   reliability: Schemas['ReliabilityOut']
+  trust?: Schemas['CompanyTrustOut'] | null
 }
 
 /** Надёжность компании с разложением — единица доверия кандидата к приглашению (концепция §4.3, §4.5). */
@@ -53,9 +55,10 @@ export function CompanyCardView({ card, title = 'Так видит кандид�
       <div className="flex flex-col gap-1">
         <p className="t-name text-ink [overflow-wrap:anywhere]">{card.name}</p>
         {card.field && <p className="t-small text-ink-2">{card.field}</p>}
-        {card.personal_email_label && (
-          <p className="mt-1">
-            <Tag>{card.personal_email_label}</Tag>
+        {(card.personal_email_label || (card.trust && card.trust.level !== 'none')) && (
+          <p className="mt-1 flex flex-wrap items-center gap-1.5">
+            {card.personal_email_label && <Tag>{card.personal_email_label}</Tag>}
+            <CompanyTrustBadge trust={card.trust} />
           </p>
         )}
       </div>

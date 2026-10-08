@@ -193,6 +193,9 @@ export function CandidatePanel({
             {categoryName}
             {card?.test_date ? `, тест пройден ${card.test_date}` : ''}
           </p>
+          {card?.minor_notice && (
+            <p className="mt-2 inline-block rounded-panel bg-tint px-3 py-1.5 t-small text-brand">{card.minor_notice}</p>
+          )}
           {unconfirmed && (
             <p className="t-small text-ink-3">
               Грейд не подтверждён: категория заявлена, тестом пока не подтверждена. В подборке такие кандидаты стоят ниже подтверждённых.

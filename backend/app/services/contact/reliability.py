@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import uuid
+from collections.abc import Iterable
 from datetime import datetime
 from typing import Any
 
@@ -35,24 +36,40 @@ def record(db: Session, ev: ReliabilityEvent) -> ReliabilityEventRow:
     return row
 
 
+def _domain_event(r: ReliabilityEventRow) -> ReliabilityEvent:
+    return ReliabilityEvent(
+        company_id=str(r.company_id),
+        kind=r.kind,
+        at=r.at,
+        candidate_id=str(r.candidate_id) if r.candidate_id else None,
+        invitation_id=str(r.invitation_id) if r.invitation_id else None,
+        application_id=str(r.application_id) if r.application_id else None,
+    )
+
+
 def events_of(db: Session, company_id: uuid.UUID) -> list[ReliabilityEvent]:
     rows = db.scalars(select(ReliabilityEventRow).where(ReliabilityEventRow.company_id == company_id))
-    return [
-        ReliabilityEvent(
-            company_id=str(r.company_id),
-            kind=r.kind,
-            at=r.at,
-            candidate_id=str(r.candidate_id) if r.candidate_id else None,
-            invitation_id=str(r.invitation_id) if r.invitation_id else None,
-            application_id=str(r.application_id) if r.application_id else None,
-        )
-        for r in rows
-    ]
+    return [_domain_event(r) for r in rows]
 
 
-def company_reliability(db: Session, company_id: uuid.UUID, at: datetime) -> Reliability:
-    db.flush()  # события этого же запроса тоже учитываются
-    return compute_reliability(events_of(db, company_id), at, cfg())
+def events_by_company(db: Session, company_ids: Iterable[uuid.UUID]) -> dict[uuid.UUID, list[ReliabilityEvent]]:
+    """События надёжности нескольких компаний одним запросом (список входящих кандидата)."""
+    ids = list(dict.fromkeys(company_ids))
+    out: dict[uuid.UUID, list[ReliabilityEvent]] = {cid: [] for cid in ids}
+    if ids:
+        db.flush()
+        for r in db.scalars(select(ReliabilityEventRow).where(ReliabilityEventRow.company_id.in_(ids))):
+            out[r.company_id].append(_domain_event(r))
+    return out
+
+
+def company_reliability(
+    db: Session, company_id: uuid.UUID, at: datetime, events: list[ReliabilityEvent] | None = None
+) -> Reliability:
+    if events is None:
+        db.flush()  # события этого же запроса тоже учитываются
+        events = events_of(db, company_id)
+    return compute_reliability(events, at, cfg())
 
 
 def reliability_dict(rel: Reliability) -> dict[str, Any]:

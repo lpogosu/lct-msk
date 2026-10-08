@@ -1,4 +1,4 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api, unwrap } from '@/api/client'
 import type { Schemas } from '@/api/types'
 
@@ -227,10 +227,29 @@ export function usePin(id: string) {
 
 // --------------------------------------------------------------------------- приглашения
 
+const KANBAN_PAGE = 50
+
+/** Воронка постранично (курсор): первая страница и «Показать ещё»; счётчики колонок и воронка приходят по всем приглашениям. */
 export function useKanban(needId?: string | null) {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: [...qk.invitations, needId ?? 'all'],
-    queryFn: () => unwrap(api.GET('/api/invitations', { params: { query: { need_id: needId ?? undefined } } })),
+    initialPageParam: undefined as string | undefined,
+    queryFn: ({ pageParam }) =>
+      unwrap(
+        api.GET('/api/invitations', {
+          params: { query: { need_id: needId ?? undefined, limit: KANBAN_PAGE, cursor: pageParam } },
+        }),
+      ),
+    getNextPageParam: (last) => last.next_cursor ?? undefined,
+    // Страницы склеиваются в одну воронку: потребители видят прежнюю форму `Kanban`
+    select: (data): Kanban => {
+      const [first, ...rest] = data.pages
+      return {
+        ...first,
+        next_cursor: data.pages[data.pages.length - 1].next_cursor,
+        columns: first.columns.map((col, i) => ({ ...col, items: [col, ...rest.map((p) => p.columns[i])].flatMap((c) => c.items) })),
+      }
+    },
   })
 }
 

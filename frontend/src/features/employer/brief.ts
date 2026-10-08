@@ -1,6 +1,6 @@
 import type { ParseOut } from './api'
 import { FORMAT_LABEL_LOWER } from './dict'
-import { formatDecimal, formatInt } from '@/lib/format'
+import { formatDecimal, formatInt, withSalaryBasis } from '@/lib/format'
 
 // Разбор брифа → строки «Как мы поняли» и диапазоны подсветки цитат в тексте.
 // Индексы цитат (start/end) в ответе бэкенда — в символах Unicode (кодовых точках Python), а не в единицах UTF-16 JS:
@@ -149,12 +149,12 @@ export function buildMeaningRows(parse: ParseOut, text: string): MeaningRow[] {
     const s = parse.salary
     const money =
       s.salary_from && s.salary_to
-        ? `${formatInt(s.salary_from)} – ${formatInt(s.salary_to)} ₽`
-        : `${formatInt((s.salary_from ?? s.salary_to) as number)} ₽`
+        ? `${formatInt(s.salary_from)} – ${formatInt(s.salary_to)}\u00a0₽`
+        : `${formatInt((s.salary_from ?? s.salary_to) as number)}\u00a0₽`
     rows.push({
       key: 'salary',
       label: names((s.quotes ?? []).map((q) => q.text)).replace(', ', ' '),
-      meaning: `${money}${s.net === true ? ' на руки' : s.net === false ? ' до вычета НДФЛ' : ' (не указано — считаем «на руки»)'}${s.yearly ? ' (в год, пересчитано)' : ''}`,
+      meaning: `${s.net == null ? `${money} (не указано — считаем «на\u00a0руки»)` : withSalaryBasis(money, s.net)}${s.yearly ? ' (в год, пересчитано)' : ''}`,
       uncertain: s.net == null,
       ranges: s.quotes ?? [],
     })

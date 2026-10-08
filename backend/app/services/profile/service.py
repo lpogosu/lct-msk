@@ -44,6 +44,7 @@ from app.models.contact import Application, Feedback, Invitation
 from app.models.enums import ConsentPurpose, SalaryType, SalaryVisibility, SearchMode, UserRole
 from app.models.matching import ImpressionLog, NeedVersion, ProfileView
 from app.models.users import Consent, User
+from app.services.profile import guardian
 from app.services.profile.regions import REGIONS, region_name, region_of_city
 from app.services.profile.schemas import (
     BankStatusOut,
@@ -54,6 +55,7 @@ from app.services.profile.schemas import (
     DeclaredItemOut,
     ExperiencePeriodIO,
     FieldVisibilityOut,
+    GuardianStatusOut,
     MissingSkillOut,
     PreviewIn,
     PreviewOut,
@@ -313,6 +315,7 @@ def profile_out(db: Session, user: User, prof: CandidateProfile, now: datetime) 
         ),
         missing=missing,
         note=DECLARED_NOTE,
+        guardian=GuardianStatusOut.model_validate(guardian.status(prof, now)),
     )
 
 
@@ -338,13 +341,8 @@ def update_profile(db: Session, user: User, body: ProfileUpdateIn, meta: Request
         if region:
             prof.region_code = region
     if "birth_year" in fields:
-        if body.birth_year is not None and body.birth_year > now.year - 14:
-            raise ApiError(
-                422,
-                "validation_error",
-                "Проверьте заполнение полей",
-                [{"field": "birth_year", "message": "Платформа доступна с 14 лет", "type": "birth_year"}],
-            )
+        if guardian.too_young(body.birth_year, now):
+            raise guardian.too_young_error()
         from app.services.fsp_link.service import registry_birth_year
 
         registry_year = registry_birth_year(db, user.id)
@@ -357,6 +355,7 @@ def update_profile(db: Session, user: User, body: ProfileUpdateIn, meta: Request
                 [{"field": "birth_year", "message": "Год рождения подтверждён реестром ФСП — изменить его нельзя", "type": "registry"}],
             )
         prof.birth_year = body.birth_year
+        guardian.sync_flags(prof, now)
     if "declared_grade" in fields:
         prof.declared_grade = body.declared_grade
     if "roles" in fields:
@@ -648,9 +647,13 @@ def bank_status(db: Session, user: User, prof: CandidateProfile, d: _Draft, now:
         reasons.append("Дайте согласие на показ слепой карточки — без него работодатели вас не видят")
     if d.search_mode == SearchMode.hidden.value:
         reasons.append("Режим «Не ищу»: вы скрыты из банка и подборок")
-    hidden_below = int(load_config("contact")["minors"]["hidden_below_age"])
-    if prof.birth_year is not None and now.year - prof.birth_year - 1 < hidden_below:
-        reasons.append(f"До {hidden_below} лет профиль не виден работодателям")
+    minors = load_config("contact")["minors"]
+    if prof.birth_year is not None:
+        age = guardian.min_age(prof.birth_year, now)
+        if age < int(minors["hidden_below_age"]):
+            reasons.append(f"До {minors['hidden_below_age']} лет профиль не виден работодателям")
+        elif age < int(minors["guardian_consent_below_age"]) and not prof.guardian_consent:
+            reasons.append("Нужно согласие законного представителя: до него профиль не виден работодателям")
     if not user.is_active:
         reasons.append("Подтвердите email")
     return BankStatusOut(visible=not reasons, reasons=reasons)

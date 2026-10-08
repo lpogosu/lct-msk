@@ -575,6 +575,9 @@ def candidate_profile_view(
     )
     view["ref"] = alias.ref
     view["available"] = not hidden_here
+    # Кандидат 15–17 лет: только стажировка / лёгкий труд (config/contact.yaml -> minors). Возраст не раскрываем — только правило.
+    if payload.get("internship_only"):
+        view["minor_notice"] = load_config("contact")["minors"]["employer_notice"]
     view["fsp_line"] = payload.get("fsp_line")
     view["fsp_badges"] = list(payload.get("fsp_badges") or ())
     view["fsp_source"] = payload.get("fsp_source_label")

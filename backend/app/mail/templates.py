@@ -127,3 +127,55 @@ def _render_code_mail(
 </td></tr></table>
 </body></html>"""
     return RenderedMail(subject=subject, text=text, html=html)
+
+
+def guardian_confirm_link(public_base_url: str, token: str) -> str:
+    """Ссылка из письма законному представителю ведёт на публичный экран фронтенда /guardian-confirm."""
+    return f"{public_base_url.rstrip('/')}/guardian-confirm?{urlencode({'token': token})}"
+
+
+def render_guardian_consent(
+    guardian_name: str, candidate_hint: str, link: str, ttl_hours: int, app_name: str = "Взаимно"
+) -> RenderedMail:
+    """Письмо законному представителю кандидата 15–17 лет с одноразовой ссылкой подтверждения согласия."""
+    days = max(1, ttl_hours // 24)
+    subject = f"Согласие законного представителя — {app_name}"
+    body = (
+        f"Здравствуйте, {guardian_name}!\n\n"
+        f"Пользователь {candidate_hint} указал вас законным представителем (родителем, опекуном) на платформе «{app_name}» — "
+        "сервисе подбора ИТ-специалистов. Пользователю от 15 до 17 лет, поэтому до вашего согласия его профиль не виден работодателям.\n\n"
+        "Что именно вы разрешаете: обработку персональных данных несовершеннолетнего в рамках платформы и показ его слепой карточки "
+        "работодателям. Работодатели смогут предлагать ему только стажировку или лёгкий труд на неполный день. Контакты раскрываются "
+        "работодателю только после взаимного согласия самого пользователя.\n\n"
+        f"Чтобы подтвердить согласие, перейдите по ссылке (действует {days} дн.):\n{link}\n\n"
+        "Если вы не знаете этого пользователя или не согласны, ничего не делайте — профиль останется скрытым.\n\n"
+        f"— Команда «{app_name}»\n"
+    )
+    html = f"""<!doctype html>
+<html lang="ru">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{escape(subject)}</title></head>
+<body style="margin:0;padding:0;background:{_BG};font-family:Inter,Arial,sans-serif;color:{_TEXT}">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:{_BG};padding:24px 0">
+<tr><td align="center">
+<table role="presentation" width="480" cellpadding="0" cellspacing="0"
+       style="max-width:480px;width:100%;background:#FFFFFF;border-radius:12px;padding:32px">
+<tr><td style="font:700 20px Inter,Arial,sans-serif;color:{_PRIMARY};padding-bottom:16px">{escape(app_name)}</td></tr>
+<tr><td style="font:400 16px/24px Inter,Arial,sans-serif;padding-bottom:12px">Здравствуйте, {escape(guardian_name)}!</td></tr>
+<tr><td style="font:400 15px/22px Inter,Arial,sans-serif;padding-bottom:12px">
+Пользователь {escape(candidate_hint)} указал вас законным представителем на платформе «{escape(app_name)}».
+Ему от 15 до 17 лет, поэтому до вашего согласия его профиль не виден работодателям.</td></tr>
+<tr><td style="font:400 15px/22px Inter,Arial,sans-serif;padding-bottom:20px">
+Вы разрешаете обработку персональных данных несовершеннолетнего на платформе и показ его слепой карточки работодателям.
+Предложить ему можно только стажировку или лёгкий труд на неполный день. Контакты раскрываются только после взаимного
+согласия самого пользователя.</td></tr>
+<tr><td align="center" style="padding-bottom:24px">
+<a href="{escape(link, quote=True)}"
+   style="display:inline-block;background:{_PRIMARY};color:#FFFFFF;text-decoration:none;
+          font:600 16px Inter,Arial,sans-serif;padding:12px 24px;border-radius:8px">Подтвердить согласие</a></td></tr>
+<tr><td style="font:400 13px/20px Inter,Arial,sans-serif;color:{_MUTED}">
+Ссылка действует {days} дн. Если вы не знаете этого пользователя или не согласны, ничего не делайте — профиль останется скрытым.</td></tr>
+</table>
+</td></tr></table>
+</body></html>"""
+    return RenderedMail(subject=subject, text=body, html=html)

@@ -262,7 +262,7 @@
           "Аутентификация"
         ],
         "summary": "Регистрация по email",
-        "description": "Создаёт аккаунт в статусе `pending_email` и отправляет письмо с 6-значным кодом (действует 15 минут). Роль: `candidate` («Ищу работу») или `employer` («Нанимаю»). Согласие на обработку ПДн обязательно и записывается в журнал отдельной записью с версией текста. Повторная регистрация неподтверждённого email обновляет пароль и роль и отправляет новый код (с учётом лимита писем); подтвердить email можно только с паролем из последней регистрации. Ошибки: 409 `email_taken` — email уже подтверждён другим аккаунтом; 409 `consent_outdated` — устарела версия текста согласия; 422 — поля или требования к паролю; 429 — слишком частые запросы.",
+        "description": "Создаёт аккаунт в статусе `pending_email` и отправляет письмо с 6-значным кодом (действует 15 минут). Роль: `candidate` («Ищу работу») или `employer` («Нанимаю»). Согласие на обработку ПДн обязательно и записывается в журнал отдельной записью с версией текста. Повторная регистрация неподтверждённого email обновляет пароль и роль и отправляет новый код (с учётом лимита писем); подтвердить email можно только с паролем из последней регистрации. Ошибки: 422 `age_too_young` — кандидату меньше 15 лет; 409 `email_taken` — email уже подтверждён другим аккаунтом; 409 `consent_outdated` — устарела версия текста согласия; 422 — поля или требования к паролю; 429 — слишком частые запросы.",
         "operationId": "register_api_auth_register_post",
         "requestBody": {
           "content": {
@@ -2346,6 +2346,387 @@
         ]
       }
     },
+    "/api/companies/me/verification": {
+      "get": {
+        "tags": [
+          "Компании"
+        ],
+        "summary": "Метка «Проверенная компания»",
+        "description": "Добровольная метка доверия: уровень («Реквизиты проверены» / «Домен подтверждён» / не проверена), поданные реквизиты и результат каждой проверки. Метка ничего не блокирует: без неё приглашения и вакансии работают как раньше.",
+        "operationId": "get_verification_api_companies_me_verification_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerificationOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Компании"
+        ],
+        "summary": "Подать реквизиты на проверку",
+        "description": "ИНН (10/12 цифр) и ОГРН (13/15): проверяем контрольные суммы, находим компанию в учебном реестре (вымышленные организации), сверяем статус «действующая», название из профиля и домен корпоративной почты. Неудачная проверка — тоже ответ 200 со списком непрошедших проверок; ошибок блокировки нет. 400 — не цифры; 409 `verification_revoked` — метку снял модератор.",
+        "operationId": "submit_verification_api_companies_me_verification_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerificationIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerificationOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Компании"
+        ],
+        "summary": "Убрать метку",
+        "description": "Компания добровольно снимает метку и стирает поданные реквизиты. Снятую модератором метку так не вернуть.",
+        "operationId": "delete_verification_api_companies_me_verification_delete",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerificationOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
     "/api/companies/me/preview": {
       "get": {
         "tags": [
@@ -3264,6 +3645,264 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AccountDeleteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/candidates/me/guardian": {
+      "get": {
+        "tags": [
+          "Кандидат"
+        ],
+        "summary": "Согласие законного представителя",
+        "description": "Состояние согласия кандидата 15–17 лет: нужно ли оно, отправлено ли письмо, подтверждено ли. Для взрослого `required=false`.",
+        "operationId": "get_guardian_api_candidates_me_guardian_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuardianStatusOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Кандидат"
+        ],
+        "summary": "Запросить согласие законного представителя",
+        "description": "Кандидат 15–17 лет указывает ФИО и email представителя; на email уходит письмо со ссылкой подтверждения (в dev — Mailpit). До подтверждения профиль не виден работодателям. Повтор — не чаще раза в `guardian.resend_cooldown_minutes` на тот же адрес. 409 — кандидату согласие не нужно; 400 — имя или email неверны.",
+        "operationId": "post_guardian_api_candidates_me_guardian_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuardianRequestIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuardianStatusOut"
                 }
               }
             }
@@ -11542,6 +12181,38 @@
               "title": "Status"
             },
             "description": "Только приглашения в этом статусе"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "description": "Размер страницы карточек (по убыванию даты отправки)",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Размер страницы карточек (по убыванию даты отправки)"
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "`next_cursor` предыдущего ответа",
+              "title": "Cursor"
+            },
+            "description": "`next_cursor` предыдущего ответа"
           }
         ],
         "responses": {
@@ -11957,6 +12628,44 @@
               "title": "Status"
             },
             "description": "Только приглашения в этом статусе"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 200,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Размер страницы; без него — все (у кандидата их немного)",
+              "title": "Limit"
+            },
+            "description": "Размер страницы; без него — все (у кандидата их немного)"
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "`next_cursor` предыдущего ответа",
+              "title": "Cursor"
+            },
+            "description": "`next_cursor` предыдущего ответа"
           }
         ],
         "responses": {
@@ -16481,6 +17190,153 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/VacancyEmployerOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/vacancies/{vacancy_id}/report": {
+      "post": {
+        "tags": [
+          "Вакансии"
+        ],
+        "summary": "Пожаловаться на вакансию",
+        "description": "Кандидат сообщает о проблеме с вакансией: сбор резюме без вакансии, зарплата не та, не отвечают, фиктивная вакансия и др. (коды — `complaint_reasons` в карточке вакансии). Одна жалоба на вакансию; компания не уведомляется. Жалоба попадает в очередь модерации. 409 `complaint_exists` — уже жаловались.",
+        "operationId": "report_api_vacancies__vacancy_id__report_post",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "vacancy_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Vacancy Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ComplaintCreateIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VacancyCandidateDetail"
                 }
               }
             }
@@ -23741,6 +24597,80 @@
         ]
       }
     },
+    "/api/guardian/confirm": {
+      "post": {
+        "tags": [
+          "Кандидат"
+        ],
+        "summary": "Подтвердить согласие законного представителя",
+        "description": "Без входа: открывает представитель по ссылке из письма. Токен одноразовый и действует `guardian.token_ttl_hours`. 404 `guardian_token_invalid` — ссылка неверна или уже использована; 410 `guardian_token_expired` — срок вышел.",
+        "operationId": "confirm_api_guardian_confirm_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuardianConfirmIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuardianConfirmOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v/{code}": {
       "get": {
         "tags": [
@@ -29180,6 +30110,575 @@
         ]
       }
     },
+    "/api/admin/trust/complaints": {
+      "get": {
+        "tags": [
+          "Администрирование"
+        ],
+        "summary": "Очередь жалоб",
+        "description": "Жалобы кандидатов на приглашения и вакансии, новые сверху. `status`: open | upheld | dismissed; без фильтра — все.",
+        "operationId": "list_complaints_api_admin_trust_complaints_get",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(open|upheld|dismissed)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": "open",
+              "title": "Status"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ComplaintOut"
+                  },
+                  "title": "Response List Complaints Api Admin Trust Complaints Get"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/trust/complaints/{complaint_id}/resolve": {
+      "post": {
+        "tags": [
+          "Администрирование"
+        ],
+        "summary": "Разобрать жалобу",
+        "description": "`upheld` — подтверждена (считается в квоте компании; для причин fake_vacancy, payment_request, collects_resume снимает метку «Проверенная компания»), `dismissed` — отклонена (в квоте не считается). 409 — уже разобрана.",
+        "operationId": "resolve_complaint_api_admin_trust_complaints__complaint_id__resolve_post",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "complaint_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Complaint Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ComplaintResolveIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComplaintOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/trust/flags": {
+      "get": {
+        "tags": [
+          "Администрирование"
+        ],
+        "summary": "Автосигналы по компаниям",
+        "description": "Эвристики по данным платформы: много приглашений и ни одного принятого, вакансия висит без откликов, зарплата в приглашении ниже брифа, сообщения о расхождении условий. Ничего не блокируют — подсказка модератору.",
+        "operationId": "list_flags_api_admin_trust_flags_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CompanyFlagsOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Flags Api Admin Trust Flags Get"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/admin/trust/companies/{company_id}/revoke": {
+      "post": {
+        "tags": [
+          "Администрирование"
+        ],
+        "summary": "Отозвать метку «Проверенная компания»",
+        "description": "Метка пропадает у кандидатов сразу; компания работает как прежде, но подать реквизиты заново не может, пока отзыв не снят.",
+        "operationId": "revoke_api_admin_trust_companies__company_id__revoke_post",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Company Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevokeIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevokeOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/trust/companies/{company_id}/restore": {
+      "post": {
+        "tags": [
+          "Администрирование"
+        ],
+        "summary": "Снять отзыв метки",
+        "description": "Стирает отзыв и прежний результат: компания сможет подать реквизиты на проверку заново.",
+        "operationId": "restore_api_admin_trust_companies__company_id__restore_post",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Company Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevokeOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/skills": {
       "get": {
         "tags": [
@@ -30417,6 +31916,16 @@
           "r": {
             "type": "number",
             "title": "R"
+          },
+          "trust": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CompanyTrustOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "type": "object",
@@ -30424,7 +31933,8 @@
           "id",
           "name",
           "reliability",
-          "r"
+          "r",
+          "trust"
         ],
         "title": "ApplicationCompanyOut"
       },
@@ -33397,6 +34907,18 @@
             "title": "Available",
             "description": "Кандидат сейчас виден в подборе"
           },
+          "minor_notice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Minor Notice",
+            "description": "Кандидату 15–17 лет: только стажировка / лёгкий труд, неполный день"
+          },
           "note": {
             "anyOf": [
               {
@@ -33598,6 +35120,7 @@
           "pseudonym",
           "ref",
           "available",
+          "minor_notice",
           "note",
           "category",
           "grade_history",
@@ -35177,6 +36700,17 @@
               }
             ],
             "title": "Discrepancy Badge"
+          },
+          "trust": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CompanyTrustOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Метка «Проверенная компания»"
           }
         },
         "type": "object",
@@ -35186,7 +36720,8 @@
           "personal_email_label",
           "reliability",
           "r",
-          "discrepancy_badge"
+          "discrepancy_badge",
+          "trust"
         ],
         "title": "CompanyBriefOut"
       },
@@ -35258,6 +36793,17 @@
           },
           "reliability": {
             "$ref": "#/components/schemas/ReliabilityOut"
+          },
+          "trust": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CompanyTrustOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Метка «Проверенная компания» (необязательная)"
           }
         },
         "type": "object",
@@ -35270,10 +36816,43 @@
           "personal_email",
           "personal_email_label",
           "contact_methods",
-          "reliability"
+          "reliability",
+          "trust"
         ],
         "title": "CompanyCardOut",
         "description": "Что кандидат видит о компании всегда, до решения (концепция §4.5)."
+      },
+      "CompanyFlagsOut": {
+        "properties": {
+          "company_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Company Id"
+          },
+          "company_name": {
+            "type": "string",
+            "title": "Company Name"
+          },
+          "verification_level": {
+            "type": "string",
+            "title": "Verification Level"
+          },
+          "flags": {
+            "items": {
+              "$ref": "#/components/schemas/TrustFlagOut"
+            },
+            "type": "array",
+            "title": "Flags"
+          }
+        },
+        "type": "object",
+        "required": [
+          "company_id",
+          "company_name",
+          "verification_level",
+          "flags"
+        ],
+        "title": "CompanyFlagsOut"
       },
       "CompanyMeOut": {
         "properties": {
@@ -35376,7 +36955,18 @@
           "complaints_90d": {
             "type": "integer",
             "title": "Complaints 90D",
-            "description": "Жалобы кандидатов на приглашения компании за 90 дней"
+            "description": "Жалобы кандидатов на приглашения и вакансии компании за 90 дней (кроме отклонённых)"
+          },
+          "verification": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VerificationOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Метка «Проверенная компания» (добровольная)"
           },
           "preview": {
             "$ref": "#/components/schemas/CompanyCardOut",
@@ -35400,6 +36990,7 @@
           "quota",
           "reliability",
           "complaints_90d",
+          "verification",
           "preview"
         ],
         "title": "CompanyMeOut"
@@ -35541,6 +37132,238 @@
           "blocked"
         ],
         "title": "CompanySearchOut"
+      },
+      "CompanyTrustOut": {
+        "properties": {
+          "level": {
+            "type": "string",
+            "enum": [
+              "none",
+              "requisites",
+              "domain"
+            ],
+            "title": "Level",
+            "description": "none — не проверена; requisites — реквизиты проверены; domain — ещё и домен почты"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label",
+            "description": "Готовая подпись уровня"
+          },
+          "hint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hint",
+            "description": "Что именно проверено"
+          },
+          "verified": {
+            "type": "boolean",
+            "title": "Verified"
+          }
+        },
+        "type": "object",
+        "required": [
+          "level",
+          "label",
+          "hint",
+          "verified"
+        ],
+        "title": "CompanyTrustOut",
+        "description": "Метка «Проверенная компания» для кандидата: добровольная, не блокирует ничего (docs/TRUST_AND_SAFETY.md)."
+      },
+      "ComplaintCreateIn": {
+        "properties": {
+          "reason": {
+            "type": "string",
+            "title": "Reason",
+            "description": "Код причины из config/contact.yaml -> reasons.complaint"
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reason"
+        ],
+        "title": "ComplaintCreateIn"
+      },
+      "ComplaintOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "company_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Company Id"
+          },
+          "company_name": {
+            "type": "string",
+            "title": "Company Name"
+          },
+          "target_type": {
+            "type": "string",
+            "enum": [
+              "invitation",
+              "vacancy"
+            ],
+            "title": "Target Type"
+          },
+          "target_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Target Id"
+          },
+          "target_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Title"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "reason_label": {
+            "type": "string",
+            "title": "Reason Label"
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "open",
+              "upheld",
+              "dismissed"
+            ],
+            "title": "Status"
+          },
+          "status_label": {
+            "type": "string",
+            "title": "Status Label"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "resolved_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved At"
+          },
+          "resolution_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution Note"
+          },
+          "company_open_reporters": {
+            "type": "integer",
+            "title": "Company Open Reporters",
+            "description": "Сколько разных кандидатов жаловались на компанию в окне"
+          },
+          "verification_level": {
+            "type": "string",
+            "title": "Verification Level"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "company_id",
+          "company_name",
+          "target_type",
+          "target_id",
+          "target_title",
+          "reason",
+          "reason_label",
+          "comment",
+          "status",
+          "status_label",
+          "created_at",
+          "resolved_at",
+          "resolution_note",
+          "company_open_reporters",
+          "verification_level"
+        ],
+        "title": "ComplaintOut"
+      },
+      "ComplaintResolveIn": {
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": [
+              "upheld",
+              "dismissed"
+            ],
+            "title": "Decision"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 300
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "decision"
+        ],
+        "title": "ComplaintResolveIn"
       },
       "ConsentDocumentOut": {
         "properties": {
@@ -36800,6 +38623,18 @@
             "title": "Available",
             "description": "Кандидат сейчас виден в подборе"
           },
+          "minor_notice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Minor Notice",
+            "description": "Кандидату 15–17 лет: только стажировка / лёгкий труд, неполный день"
+          },
           "note": {
             "anyOf": [
               {
@@ -37001,6 +38836,7 @@
           "pseudonym",
           "ref",
           "available",
+          "minor_notice",
           "note",
           "category",
           "grade_history",
@@ -37046,6 +38882,18 @@
             "type": "boolean",
             "title": "Available",
             "description": "Кандидат сейчас виден в подборе"
+          },
+          "minor_notice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Minor Notice",
+            "description": "Кандидату 15–17 лет: только стажировка / лёгкий труд, неполный день"
           },
           "note": {
             "anyOf": [
@@ -37361,6 +39209,7 @@
           "pseudonym",
           "ref",
           "available",
+          "minor_notice",
           "note",
           "category",
           "grade_history",
@@ -39130,6 +40979,139 @@
         ],
         "title": "GrantConsentIn"
       },
+      "GuardianConfirmIn": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 20,
+            "title": "Token",
+            "description": "Токен из ссылки в письме"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "title": "GuardianConfirmIn"
+      },
+      "GuardianConfirmOut": {
+        "properties": {
+          "confirmed": {
+            "type": "boolean",
+            "title": "Confirmed"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "confirmed",
+          "message"
+        ],
+        "title": "GuardianConfirmOut"
+      },
+      "GuardianRequestIn": {
+        "properties": {
+          "guardian_name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 5,
+            "title": "Guardian Name",
+            "description": "ФИО законного представителя (родитель, опекун)"
+          },
+          "guardian_email": {
+            "type": "string",
+            "format": "email",
+            "title": "Guardian Email",
+            "description": "Email представителя — на него придёт ссылка подтверждения"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "guardian_name",
+          "guardian_email"
+        ],
+        "title": "GuardianRequestIn"
+      },
+      "GuardianStatusOut": {
+        "properties": {
+          "required": {
+            "type": "boolean",
+            "title": "Required",
+            "description": "Нужно ли согласие (кандидату 15–17 лет)"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "not_required",
+              "missing",
+              "pending",
+              "expired",
+              "confirmed"
+            ],
+            "title": "State",
+            "description": "missing — письмо не отправлено; pending — ждём подтверждения; expired — ссылка устарела; confirmed — согласие есть"
+          },
+          "state_label": {
+            "type": "string",
+            "title": "State Label",
+            "description": "Готовая подпись состояния",
+            "default": ""
+          },
+          "guardian_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Guardian Name",
+            "description": "ФИО представителя"
+          },
+          "guardian_email_masked": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Guardian Email Masked",
+            "description": "Email представителя с маской: i***@mail.ru"
+          },
+          "employer_rule": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Employer Rule",
+            "description": "Какое правило увидит работодатель"
+          }
+        },
+        "type": "object",
+        "required": [
+          "required",
+          "state",
+          "state_label",
+          "guardian_name",
+          "guardian_email_masked",
+          "employer_rule"
+        ],
+        "title": "GuardianStatusOut",
+        "description": "Согласие законного представителя кандидата 15–17 лет (SECURITY.md п. 1.4)."
+      },
       "HealthOut": {
         "properties": {
           "status": {
@@ -40594,13 +42576,27 @@
           },
           "new_count": {
             "type": "integer",
-            "title": "New Count"
+            "title": "New Count",
+            "description": "Непросмотренных во всём списке, а не только на странице"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor",
+            "description": "Курсор следующей страницы; null — страниц больше нет"
           }
         },
         "type": "object",
         "required": [
           "items",
-          "new_count"
+          "new_count",
+          "next_cursor"
         ],
         "title": "InvitationInboxOut"
       },
@@ -41507,6 +43503,26 @@
             ],
             "title": "Avg Rank At Send"
           },
+          "per_need": {
+            "items": {
+              "$ref": "#/components/schemas/NeedFunnelOut"
+            },
+            "type": "array",
+            "title": "Per Need",
+            "description": "Мини-воронка по каждому брифу — по всем приглашениям"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor",
+            "description": "Курсор следующей страницы карточек; null — это всё. Счётчики колонок и воронка — по всем приглашениям"
+          },
           "quota": {
             "$ref": "#/components/schemas/QuotaOut"
           }
@@ -41518,6 +43534,8 @@
           "decline_summary",
           "decline_hint",
           "avg_rank_at_send",
+          "per_need",
+          "next_cursor",
           "quota"
         ],
         "title": "KanbanOut"
@@ -42650,6 +44668,40 @@
           "text"
         ],
         "title": "NeedCreateIn"
+      },
+      "NeedFunnelOut": {
+        "properties": {
+          "need_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Need Id"
+          },
+          "sent": {
+            "type": "integer",
+            "title": "Sent"
+          },
+          "viewed": {
+            "type": "integer",
+            "title": "Viewed"
+          },
+          "countered": {
+            "type": "integer",
+            "title": "Countered"
+          },
+          "accepted": {
+            "type": "integer",
+            "title": "Accepted"
+          }
+        },
+        "type": "object",
+        "required": [
+          "need_id",
+          "sent",
+          "viewed",
+          "countered",
+          "accepted"
+        ],
+        "title": "NeedFunnelOut"
       },
       "NeedListOut": {
         "properties": {
@@ -44899,6 +46951,17 @@
             "type": "string",
             "title": "Note",
             "description": "Напоминание: заявленное не влияет на категорию и место в подборке"
+          },
+          "guardian": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GuardianStatusOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Согласие законного представителя (кандидаты 15–17 лет)"
           }
         },
         "type": "object",
@@ -44925,7 +46988,8 @@
           "industries",
           "resume",
           "missing",
-          "note"
+          "note",
+          "guardian"
         ],
         "title": "ProfileOut"
       },
@@ -45095,7 +47159,7 @@
               }
             ],
             "title": "Birth Year",
-            "description": "Год рождения"
+            "description": "Год рождения. Младше 15 лет (с учётом сомнения по году) — 422; 15–17 лет — нужно согласие представителя"
           },
           "declared_grade": {
             "anyOf": [
@@ -46559,6 +48623,23 @@
             "examples": [
               "2026-10-05"
             ]
+          },
+          "birth_year": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 2026,
+                "minimum": 1940
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Birth Year",
+            "description": "Год рождения (только для роли candidate). Младше 15 лет — 422 `age_too_young`, регистрация отклоняется. 15–17 лет — после входа потребуется согласие законного представителя",
+            "examples": [
+              2001
+            ]
           }
         },
         "additionalProperties": false,
@@ -47855,6 +49936,57 @@
           "note"
         ],
         "title": "ReviewOut"
+      },
+      "RevokeIn": {
+        "properties": {
+          "reason": {
+            "type": "string",
+            "title": "Reason",
+            "description": "complaints | wrong_data | other"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 300
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reason"
+        ],
+        "title": "RevokeIn"
+      },
+      "RevokeOut": {
+        "properties": {
+          "company_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Company Id"
+          },
+          "level": {
+            "type": "string",
+            "title": "Level"
+          },
+          "revoked": {
+            "type": "boolean",
+            "title": "Revoked"
+          }
+        },
+        "type": "object",
+        "required": [
+          "company_id",
+          "level",
+          "revoked"
+        ],
+        "title": "RevokeOut"
       },
       "RollbackIn": {
         "properties": {
@@ -51728,6 +53860,29 @@
         ],
         "title": "TraceStepOut"
       },
+      "TrustFlagOut": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "label",
+          "detail"
+        ],
+        "title": "TrustFlagOut"
+      },
       "TwinCoverageFamilyOut": {
         "properties": {
           "family_id": {
@@ -52205,6 +54360,20 @@
           "response_days": {
             "type": "integer",
             "title": "Response Days"
+          },
+          "reported": {
+            "type": "boolean",
+            "title": "Reported",
+            "description": "Вы уже пожаловались на эту вакансию",
+            "default": false
+          },
+          "complaint_reasons": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Complaint Reasons",
+            "description": "Причины жалобы: код → подпись"
           }
         },
         "type": "object",
@@ -52230,7 +54399,9 @@
           "application_status",
           "application_id",
           "consent",
-          "response_days"
+          "response_days",
+          "reported",
+          "complaint_reasons"
         ],
         "title": "VacancyCandidateDetail"
       },
@@ -53212,6 +55383,60 @@
         ],
         "title": "ValidationRunOut"
       },
+      "VerificationCheckOut": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "label",
+          "ok"
+        ],
+        "title": "VerificationCheckOut"
+      },
+      "VerificationIn": {
+        "properties": {
+          "inn": {
+            "type": "string",
+            "maxLength": 12,
+            "minLength": 10,
+            "title": "Inn",
+            "description": "ИНН: 10 цифр (организация) или 12 (ИП)",
+            "examples": [
+              "7701123451"
+            ]
+          },
+          "ogrn": {
+            "type": "string",
+            "maxLength": 15,
+            "minLength": 13,
+            "title": "Ogrn",
+            "description": "ОГРН: 13 цифр (организация) или 15 (ОГРНИП)",
+            "examples": [
+              "1027701123450"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "inn",
+          "ogrn"
+        ],
+        "title": "VerificationIn"
+      },
       "VerificationKitOut": {
         "properties": {
           "kit_id": {
@@ -53258,6 +55483,115 @@
           "shortfall"
         ],
         "title": "VerificationKitOut"
+      },
+      "VerificationOut": {
+        "properties": {
+          "level": {
+            "type": "string",
+            "enum": [
+              "none",
+              "requisites",
+              "domain"
+            ],
+            "title": "Level"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "hint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hint"
+          },
+          "verified": {
+            "type": "boolean",
+            "title": "Verified"
+          },
+          "submitted": {
+            "type": "boolean",
+            "title": "Submitted",
+            "description": "Реквизиты подавались"
+          },
+          "inn": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inn"
+          },
+          "ogrn": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ogrn"
+          },
+          "registry_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Registry Name",
+            "description": "Название по реестру (если запись найдена)"
+          },
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/VerificationCheckOut"
+            },
+            "type": "array",
+            "title": "Checks"
+          },
+          "revoked": {
+            "type": "boolean",
+            "title": "Revoked",
+            "default": false
+          },
+          "revoke_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revoke Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "level",
+          "label",
+          "hint",
+          "verified",
+          "submitted",
+          "inn",
+          "ogrn",
+          "registry_name",
+          "checks",
+          "revoked",
+          "revoke_reason"
+        ],
+        "title": "VerificationOut"
       },
       "VerificationPendingOut": {
         "properties": {

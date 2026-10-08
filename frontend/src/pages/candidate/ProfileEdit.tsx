@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { api, unwrap } from '@/api/client'
 import { ApiException, errorMessage } from '@/api/errors'
 import { SectionTitle, SkillChip } from '@/features/candidate/components/Bits'
+import { GuardianPanel } from '@/features/candidate/components/GuardianPanel'
 import { QueryBoundary } from '@/features/candidate/components/QueryBoundary'
 import { ResumeSection } from '@/features/candidate/profile/ResumeSection'
 import { qk, useProfile, type ProfileOut } from '@/features/candidate/queries'
@@ -24,6 +25,7 @@ interface Form {
   city: string
   current_employer: string
   education: string
+  birth_year: string
   declared_grade: string
   years: string
   months: string
@@ -39,6 +41,7 @@ function formFrom(p: ProfileOut): Form {
     city: p.city?.name ?? p.city_text ?? '',
     current_employer: p.current_employer ?? '',
     education: p.education ?? '',
+    birth_year: p.birth_year != null ? String(p.birth_year) : '',
     declared_grade: p.declared_grade?.code ?? '',
     years: p.experience_months != null ? String(Math.floor(p.experience_months / 12)) : '',
     months: p.experience_months != null ? String(p.experience_months % 12) : '',
@@ -59,9 +62,10 @@ export default function CandidateProfileEdit() {
               <h1 className="t-title text-brand">Профиль и резюме</h1>
               <p className="mt-2 t-body text-ink-2">{p.note}</p>
             </header>
+            <GuardianPanel profile={p} />
             <ResumeSection profile={p} />
             {p.resume.status !== 'draft' && (
-              <ProfileForm key={JSON.stringify([p.full_name, p.skills, p.experience_months, p.contact_email, p.phone, p.telegram, p.city, p.declared_grade, p.education, p.current_employer])} profile={p} />
+              <ProfileForm key={JSON.stringify([p.full_name, p.skills, p.experience_months, p.contact_email, p.phone, p.telegram, p.city, p.declared_grade, p.education, p.current_employer, p.birth_year])} profile={p} />
             )}
             <Link to="/candidate/profile/pdf" className="self-center t-label text-brand underline-offset-4 hover:underline">
               Скачать PDF-профиль
@@ -98,6 +102,7 @@ function ProfileForm({ profile }: { profile: ProfileOut }) {
             city: orNull(f.city),
             current_employer: orNull(f.current_employer),
             education: orNull(f.education),
+            ...(f.birth_year !== initial.birth_year ? { birth_year: f.birth_year ? Number(f.birth_year) : null } : {}),
             declared_grade: (f.declared_grade || null) as 'intern' | 'junior' | 'middle' | 'senior' | null,
             experience_months: months,
             skills: f.skills,
@@ -132,6 +137,16 @@ function ProfileForm({ profile }: { profile: ProfileOut }) {
       <Input label="Город" value={f.city} onChange={(e) => set('city', e.target.value)} placeholder="Москва" hint={profile.region ? `Субъект РФ, который видит работодатель: ${profile.region.name}` : undefined} />
       <Input label="Текущий работодатель" value={f.current_employer} onChange={(e) => set('current_employer', e.target.value)} hint="Скрыт до «да»." />
       <Input label="Образование" value={f.education} onChange={(e) => set('education', e.target.value)} hint="Необязательно. Скрыто до «да»." />
+
+      <Input
+        label="Год рождения"
+        inputMode="numeric"
+        maxLength={4}
+        value={f.birth_year}
+        onChange={(e) => set('birth_year', e.target.value.replace(/\D/g, '').slice(0, 4))}
+        hint="Работодателям не показывается. Платформа доступна с 15 лет; в 15–17 лет нужно согласие законного представителя."
+        error={issues.find((i) => i.field === 'birth_year')?.message}
+      />
 
       <div className="flex flex-col gap-2">
         <p className="t-label text-ink-2">Грейд как заявлен</p>

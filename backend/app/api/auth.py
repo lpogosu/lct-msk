@@ -89,7 +89,7 @@ def _refresh_cookie(request: Request, settings: Settings) -> str | None:
         "записывается в журнал отдельной записью с версией текста. Повторная регистрация неподтверждённого email "
         "обновляет пароль и роль и отправляет новый код (с учётом лимита писем); подтвердить email можно только "
         "с паролем из последней регистрации. "
-        "Ошибки: 409 `email_taken` — email уже подтверждён другим аккаунтом; 409 `consent_outdated` — устарела "
+        "Ошибки: 422 `age_too_young` — кандидату меньше 15 лет; 409 `email_taken` — email уже подтверждён другим аккаунтом; 409 `consent_outdated` — устарела "
         "версия текста согласия; 422 — поля или требования к паролю; 429 — слишком частые запросы."
     ),
     responses=error_responses(400, 401, 403, 404, 409, 422, 429, extra={409: "Email уже зарегистрирован или устарел текст согласия"}),
@@ -111,6 +111,7 @@ def register(
         password=body.password,
         role=body.role,
         consent_text_version=body.consent_text_version,
+        birth_year=body.birth_year,
         meta=meta,
     )
     return RegisterResponse(

@@ -86,6 +86,8 @@ specializations:
       sql: 0.20             # 7 общих семейств
       git_linux: 0.10       # 3 общих семейства
   - { code: mobile, name: Mobile, direction: mobile, status: survey_only }
+  # UI/UX-дизайн: по опросу, тест в дорожной карте. Как проверять объективно — docs/TESTING_MECHANISM.md, раздел «Дизайнеры».
+  - { code: uiux_design, name: UI/UX-дизайн, direction: design, status: survey_only }
   - { code: infosec, name: Информационная безопасность, direction: security, status: survey_only }
   - { code: backend_go, name: Backend (Go), direction: backend, status: survey_only }
   - { code: backend_java, name: Backend (Java/Kotlin), direction: backend, status: survey_only }

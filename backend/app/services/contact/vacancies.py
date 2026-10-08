@@ -26,6 +26,7 @@ from app.models.contact import Application, Vacancy
 from app.models.enums import NeedStatus, VacancyStatus
 from app.models.matching import Need
 from app.models.users import User
+from app.trust import complaints as trust_complaints
 
 from .common import cfg, now, rel
 from .company import company_of, require_complete
@@ -394,6 +395,7 @@ def candidate_list(db: Session, user: User, *, only_matching: bool) -> list[dict
                     "reliability": card["reliability"]["display"],
                     "r": card["reliability"]["r"],
                     "personal_email_label": card["personal_email_label"],
+                    "trust": card["trust"],
                 }
                 if card
                 else None,
@@ -455,4 +457,6 @@ def candidate_detail(db: Session, user: User, vacancy_id: uuid.UUID) -> dict[str
             "Согласие отзывается в журнале согласий",
         },
         "response_days": c.application.response_days,
+        "reported": trust_complaints.find(db, user.id, "vacancy", vac.id) is not None,
+        "complaint_reasons": trust_complaints.reasons(),
     }

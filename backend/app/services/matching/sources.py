@@ -558,9 +558,9 @@ _FP_PARTS: tuple[tuple[str, str], ...] = (
     ("id", "SELECT id, format('%s|%s|%s', status, email_verified, role) FROM users WHERE {where}"),
     (
         "user_id",
-        """SELECT user_id, format('%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s', search_mode, salary_min, salary_type,
+        """SELECT user_id, format('%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s', search_mode, salary_min, salary_type,
                   salary_visibility, formats, region_code, city, relocation, blocked_company_ids, industries,
-                  declared_skills, birth_year, is_minor)
+                  declared_skills, birth_year, is_minor, guardian_consent)
            FROM candidate_profiles WHERE {where}""",
     ),
     (

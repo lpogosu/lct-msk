@@ -1,6 +1,7 @@
 """ORM-модели «Взаимно». Импорт пакета регистрирует все таблицы в Base.metadata (нужно Alembic)."""
 
 from app.models import integration as _integration  # noqa: F401 — чат и ATS: в metadata, но вне __all__
+from app.models import trust as _trust  # noqa: F401 — метка компании и жалобы: в metadata, но вне __all__
 from app.models.candidate import (
     DEFAULT_FIELD_VISIBILITY,
     DISCLOSURE_FIELD_COLUMNS,

@@ -328,11 +328,17 @@ def register(
     role: str,
     consent_text_version: str | None,
     meta: RequestMeta,
+    birth_year: int | None = None,
 ) -> tuple[User, SendStatus]:
+    from app.services.profile import guardian  # локально: профиль импортирует этот модуль
+
     email = normalize_email(email)
     if role not in (UserRole.candidate.value, UserRole.employer.value):
         raise bad_request("role_not_allowed", "Регистрация доступна только соискателям и работодателям")
     _check_password_policy(password, settings)
+    if role == UserRole.candidate.value and guardian.too_young(birth_year, clock.now()):
+        # Младше 15 лет аккаунт не создаём вовсе: ничего не храним (config/contact.yaml -> minors, SECURITY.md п. 1.4)
+        raise guardian.too_young_error()
 
     user = get_user_by_email(db, email)
     if user is not None and (user.email_verified or user.status != UserStatus.pending_email.value):
@@ -360,6 +366,13 @@ def register(
         except IntegrityError:
             # Параллельная регистрация того же email успела раньше (UNIQUE users.email)
             raise conflict("email_taken", "Этот email уже зарегистрирован. Войдите в аккаунт", {"email": email}) from None
+    if role == UserRole.candidate.value and birth_year is not None:
+        profile = db.get(CandidateProfile, user.id)
+        if profile is None:
+            profile = CandidateProfile(user_id=user.id)
+            db.add(profile)
+        profile.birth_year = birth_year
+        guardian.sync_flags(profile, clock.now())
     # Отдельное согласие на обработку ПДн — отдельная запись журнала (152-ФЗ)
     grant_consent(
         db,

@@ -16,6 +16,12 @@ const publicRoutes: RouteObject = {
     { index: true, element: <Landing />, handle: { title: 'Главная' } },
     // Публичная сверка стандартизированного PDF-профиля по QR (ссылки /v/{code} печатает бэкенд)
     { path: 'v/:code', lazy: async () => ({ Component: (await import('@/pages/Verify')).default }), handle: { title: 'Сверка профиля' } },
+    // Подтверждение согласия законного представителя по ссылке из письма (backend/app/mail/templates.py: guardian_confirm_link)
+    {
+      path: 'guardian-confirm',
+      lazy: async () => ({ Component: (await import('@/pages/GuardianConfirm')).default }),
+      handle: { title: 'Согласие представителя' },
+    },
     // Вход для жюри: одноразовый кандидат, экспресс-тест, роли без пароля. Только DEMO_MODE (иначе страница сама скажет об этом)
     {
       path: 'jury',
@@ -180,6 +186,7 @@ const labRoutes: RouteObject = {
     { path: 'reconciliations', lazy: labPage(() => import('@/pages/lab/Reconciliations')), handle: { title: 'Сверки' } },
     { path: 'reconciliations/:id', lazy: labPage(() => import('@/pages/lab/ReconciliationAct')), handle: { title: 'Акт сверки' } },
     { path: 'validation', lazy: labPage(() => import('@/pages/lab/Validation')), handle: { title: 'Валидация' } },
+    { path: 'trust', lazy: labPage(() => import('@/pages/lab/Trust')), handle: { title: 'Жалобы и сигналы' } },
     { path: 'ai-stand', element: <Navigate to="/lab/sessions" replace /> },
   ],
 }

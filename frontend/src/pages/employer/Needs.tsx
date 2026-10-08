@@ -4,7 +4,7 @@ import { useCompany, useKanban, useNeeds, type NeedSummary } from '@/features/em
 import { LoadError, PageHead, PageSkeleton, Tag } from '@/features/employer/components/common'
 import { ProfileGate } from '@/features/employer/components/ProfileGate'
 import { NEED_STATUS_LABEL } from '@/features/employer/dict'
-import { formatDayMonth, formatRubRangeK } from '@/lib/format'
+import { formatDayMonth, formatRubRangeK, withSalaryBasis } from '@/lib/format'
 import { Button, Counters, EmptyState } from '@/ui'
 
 interface Funnel {
@@ -22,17 +22,10 @@ export default function Needs() {
 
   // мини-воронка по брифам: считаем приглашения из канбана по need_id
   const funnels = useMemo(() => {
+    // считает бэкенд по всем приглашениям: на странице канбана карточек может быть меньше
     const map = new Map<string, Funnel>()
-    for (const col of kanban.data?.columns ?? []) {
-      for (const it of col.items) {
-        if (!it.need_id) continue
-        const f = map.get(it.need_id) ?? { sent: 0, viewed: 0, countered: 0, accepted: 0 }
-        f.sent += 1
-        if (it.viewed) f.viewed += 1
-        if (it.status === 'countered') f.countered += 1
-        if (it.status === 'accepted' || it.contacts_open) f.accepted += 1
-        map.set(it.need_id, f)
-      }
+    for (const f of kanban.data?.per_need ?? []) {
+      map.set(f.need_id, { sent: f.sent, viewed: f.viewed, countered: f.countered, accepted: f.accepted })
     }
     return map
   }, [kanban.data])
@@ -105,7 +98,7 @@ function NeedRow({ need, funnel }: { need: NeedSummary; funnel?: Funnel }) {
           )}
         </div>
         <p className="mt-1 t-body text-ink-2">
-          {need.category} · {formatRubRangeK(need.salary_from, need.salary_to)} {need.salary_net ? 'на руки' : 'до вычета НДФЛ'}
+          {need.category} · {withSalaryBasis(formatRubRangeK(need.salary_from, need.salary_to), need.salary_net)}
         </p>
         <p className="mt-0.5 t-small text-ink-3">
           Создана {formatDayMonth(need.created_at)}

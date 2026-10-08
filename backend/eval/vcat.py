@@ -105,7 +105,9 @@ class Profile:
 
 
 def specializations() -> list[str]:
-    return [s["code"] for s in load_config("taxonomy")["specializations"]]
+    # Только направления, для которых описан синтетический профиль опроса. Новые survey_only-специализации
+    # (например, uiux_design: классификатор опроса её не предлагает, тест в дорожной карте) в прогон не входят.
+    return [s["code"] for s in load_config("taxonomy")["specializations"] if s["code"] in CORE_ACTIONS]
 
 
 def _all_actions() -> list[str]:

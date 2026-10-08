@@ -14,6 +14,7 @@ from typing import Annotated, Any, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.services.matching.schemas import CandidateCardOut
+from app.trust.schemas import VerificationOut
 
 # --- общее -------------------------------------------------------------------------------------
 
@@ -61,6 +62,15 @@ class ContactMethodOut(BaseModel):
     value: str
 
 
+class CompanyTrustOut(BaseModel):
+    """Метка «Проверенная компания» для кандидата: добровольная, не блокирует ничего (docs/TRUST_AND_SAFETY.md)."""
+
+    level: Literal["none", "requisites", "domain"] = Field(description="none — не проверена; requisites — реквизиты проверены; domain — ещё и домен почты")
+    label: str = Field(description="Готовая подпись уровня")
+    hint: str | None = Field(default=None, description="Что именно проверено")
+    verified: bool
+
+
 class CompanyCardOut(BaseModel):
     """Что кандидат видит о компании всегда, до решения (концепция §4.5)."""
 
@@ -73,6 +83,7 @@ class CompanyCardOut(BaseModel):
     personal_email_label: str | None = None
     contact_methods: list[ContactMethodOut]
     reliability: ReliabilityOut
+    trust: CompanyTrustOut | None = Field(default=None, description="Метка «Проверенная компания» (необязательная)")
 
 
 class CompanyBriefOut(BaseModel):
@@ -82,6 +93,7 @@ class CompanyBriefOut(BaseModel):
     reliability: str = Field(description="Строка надёжности для карточки")
     r: float
     discrepancy_badge: str | None = None
+    trust: CompanyTrustOut | None = Field(default=None, description="Метка «Проверенная компания»")
 
 
 class FeedbackLinkOut(BaseModel):
@@ -166,7 +178,8 @@ class CompanyMeOut(BaseModel):
     webhook: WebhookSettingsOut
     quota: QuotaOut
     reliability: ReliabilityOut
-    complaints_90d: int = Field(description="Жалобы кандидатов на приглашения компании за 90 дней")
+    complaints_90d: int = Field(description="Жалобы кандидатов на приглашения и вакансии компании за 90 дней (кроме отклонённых)")
+    verification: VerificationOut | None = Field(default=None, description="Метка «Проверенная компания» (добровольная)")
     preview: CompanyCardOut = Field(description="«Так видит кандидат»")
 
 
@@ -348,12 +361,25 @@ class DeclineSummaryOut(BaseModel):
     count: int
 
 
+class NeedFunnelOut(BaseModel):
+    need_id: uuid.UUID
+    sent: int
+    viewed: int
+    countered: int
+    accepted: int
+
+
 class KanbanOut(BaseModel):
     columns: list[KanbanColumnOut] = Field(description="Встречные условия — первой колонкой")
     funnel: dict[str, int]
     decline_summary: list[DeclineSummaryOut]
     decline_hint: str | None = None
     avg_rank_at_send: float | None = None
+    per_need: list[NeedFunnelOut] = Field(default_factory=list, description="Мини-воронка по каждому брифу — по всем приглашениям")
+    next_cursor: str | None = Field(
+        default=None,
+        description="Курсор следующей страницы карточек; null — это всё. Счётчики колонок и воронка — по всем приглашениям",
+    )
     quota: QuotaOut
 
 
@@ -471,7 +497,8 @@ class InvitationCandidateDetail(BaseModel):
 
 class InvitationInboxOut(BaseModel):
     items: list[InvitationCandidateCard]
-    new_count: int
+    new_count: int = Field(description="Непросмотренных во всём списке, а не только на странице")
+    next_cursor: str | None = Field(default=None, description="Курсор следующей страницы; null — страниц больше нет")
 
 
 class AcceptIn(_In):
@@ -594,6 +621,8 @@ class VacancyCandidateDetail(VacancyOut):
     application_id: uuid.UUID | None = None
     consent: dict[str, Any]
     response_days: int
+    reported: bool = Field(default=False, description="Вы уже пожаловались на эту вакансию")
+    complaint_reasons: dict[str, str] = Field(default_factory=dict, description="Причины жалобы: код → подпись")
 
 
 # --- отклики --------------------------------------------------------------------------------
@@ -647,6 +676,7 @@ class ApplicationCompanyOut(BaseModel):
     name: str
     reliability: str
     r: float
+    trust: CompanyTrustOut | None = None
 
 
 class ApplicationCandidateCard(BaseModel):

@@ -1,3 +1,4 @@
+import { CompanyTrustBadge } from '@/features/trust/CompanyTrustBadge'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
@@ -206,8 +207,9 @@ function CompanyLine({ d }: { d: InvitationDetail }) {
       <p className="mt-0.5 t-small text-ink-2">
         {[c.field, c.reliability.display].filter(Boolean).join('. ')}
       </p>
-      {(c.personal_email_label || c.reliability.discrepancy_badge) && (
+      {(c.personal_email_label || c.reliability.discrepancy_badge || (c.trust && c.trust.level !== 'none')) && (
         <div className="mt-2 flex flex-wrap gap-1.5">
+          <CompanyTrustBadge trust={c.trust} />
           {c.personal_email_label && <Chip tone="panel">{c.personal_email_label}</Chip>}
           {c.reliability.discrepancy_badge && <Chip tone="danger">{c.reliability.discrepancy_badge}</Chip>}
         </div>

@@ -139,6 +139,7 @@ class Settings(BaseSettings):
     rl_register_ip: str = "10/3600"
     rl_resend_ip: str = "20/3600"
     rl_refresh_ip: str = "60/60"
+    rl_guardian_ip: str = "20/3600"  # подтверждение согласия представителя по ссылке (публичный маршрут)
 
     # --- Почта ---
     mail_backend: Literal["smtp", "console"] = "smtp"
@@ -184,7 +185,7 @@ class Settings(BaseSettings):
         parse_trusted_proxies(v)  # ValueError → понятная ошибка запуска
         return v.strip()
 
-    @field_validator("rl_login_email", "rl_login_ip", "rl_verify_email", "rl_register_ip", "rl_resend_ip", "rl_refresh_ip")
+    @field_validator("rl_login_email", "rl_login_ip", "rl_verify_email", "rl_register_ip", "rl_resend_ip", "rl_refresh_ip", "rl_guardian_ip")
     @classmethod
     def _rate_format(cls, v: str) -> str:
         m = _RATE_RE.match(v)

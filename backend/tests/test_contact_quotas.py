@@ -299,8 +299,8 @@ def test_invite_only_after_card_opened_or_shortlisted():
     [
         {"search_mode": "hidden"},
         {"blocked_company_ids": frozenset({"co-1"})},
-        {"birth_year": 2012},  # младше 16 — не виден вовсе
-        {"birth_year": 2009},  # 16–17 — только стажировки
+        {"birth_year": 2012},  # младше 15 — не виден вовсе
+        {"birth_year": 2010},  # 15 лет без согласия представителя — не виден
     ],
 )
 def test_unavailable_candidate_reason_is_not_detailed(kw):
@@ -309,10 +309,17 @@ def test_unavailable_candidate_reason_is_not_detailed(kw):
     assert result.errors[0].message == "К-4821 сейчас не принимает приглашения"
 
 
-def test_minor_16_17_only_for_internship():
-    assert check(c=cand(birth_year=2009), is_internship=True).ok
-    assert check(c=cand(birth_year=2012), is_internship=True).error_codes == ["candidate_unavailable"]
-    assert check(c=cand(birth_year=2007)).ok
+def test_minor_15_17_need_guardian_and_only_internship():
+    ok = cand(birth_year=2009, guardian_consent=True)  # 16–17 лет с согласием представителя
+    assert check(c=ok, is_internship=True).ok
+    # согласие есть, но предложение не стажировка: причину называем прямо (работодатель видит плашку в карточке)
+    r = check(c=ok)
+    assert r.error_codes == ["minor_internship_only"] and "стажировку или лёгкий труд" in r.errors[0].message
+    # без согласия — как «не принимает приглашения», даже для стажировки
+    assert check(c=cand(birth_year=2009), is_internship=True).error_codes == ["candidate_unavailable"]
+    assert check(c=cand(birth_year=2010, guardian_consent=True), is_internship=True).ok  # ровно 15
+    assert check(c=cand(birth_year=2012, guardian_consent=True), is_internship=True).error_codes == ["candidate_unavailable"]
+    assert check(c=cand(birth_year=2007)).ok  # 18+: ограничений нет, согласие не нужно
 
 
 def test_weak_match_warns_but_does_not_block():

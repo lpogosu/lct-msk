@@ -198,15 +198,15 @@ def kanban(
     settings: SettingsDep,
     need_id: Annotated[uuid.UUID | None, Query(description="Только приглашения по этому брифу")] = None,
     status_: Annotated[str | None, Query(alias="status", description="Только приглашения в этом статусе")] = None,
+    limit: Annotated[int, Query(ge=1, le=200, description="Размер страницы карточек (по убыванию даты отправки)")] = 50,
+    cursor: Annotated[str | None, Query(description="`next_cursor` предыдущего ответа")] = None,
 ) -> dict[str, Any]:
     ctx = _ctx(db, None, settings)
     company = company_of(db, user)
-    rows = svc.employer_rows(db, company.id, need_id, None)
+    rows, next_cursor = svc.employer_page(db, company.id, need_id, status_, limit, cursor)
     refresh_rows(ctx, rows)
     ctx.finish()
-    if status_ is not None:
-        rows = [r for r in rows if r.status == status_]
-    out = svc.kanban(ctx, rows)
+    out = svc.kanban(ctx, company.id, need_id, rows, next_cursor)
     out["quota"] = quota_dict(db, company, user, now())
     return out
 
@@ -225,16 +225,15 @@ def inbox(
     db: DbSession,
     settings: SettingsDep,
     status_: Annotated[str | None, Query(alias="status", description="Только приглашения в этом статусе")] = None,
+    limit: Annotated[int | None, Query(ge=1, le=200, description="Размер страницы; без него — все (у кандидата их немного)")] = None,
+    cursor: Annotated[str | None, Query(description="`next_cursor` предыдущего ответа")] = None,
 ) -> dict[str, Any]:
     ctx = _ctx(db, None, settings)
-    rows = svc.candidate_rows(db, user.id, None)
+    rows, next_cursor = svc.candidate_page(db, user.id, status_, limit, cursor)
     refresh_rows(ctx, rows)
     ctx.finish()
-    if status_ is not None:
-        rows = [r for r in rows if r.status == status_]
-    at = now()
-    items = [svc.candidate_card(ctx, r, None, at) for r in rows]
-    return {"items": items, "new_count": sum(1 for i in items if i["is_new"])}
+    items = svc.candidate_cards(ctx, rows, now())
+    return {"items": items, "new_count": svc.candidate_new_count(db, user.id), "next_cursor": next_cursor}
 
 
 @router.get(

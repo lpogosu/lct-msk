@@ -143,6 +143,14 @@ export default function Invitations() {
               }}
             />
 
+            {kanban.hasNextPage && (
+              <div className="flex justify-center">
+                <Button variant="outline" loading={kanban.isFetchingNextPage} onClick={() => void kanban.fetchNextPage()}>
+                  Показать ещё
+                </Button>
+              </div>
+            )}
+
             <DeclineSummary kanban={k} />
           </>
         )

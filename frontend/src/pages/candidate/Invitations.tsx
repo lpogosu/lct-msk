@@ -1,3 +1,4 @@
+import { CompanyTrustBadge } from '@/features/trust/CompanyTrustBadge'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Chip } from '@/features/candidate/components/Bits'
@@ -103,6 +104,7 @@ function InvitationRow({ c }: { c: Card }) {
         {c.company?.name ?? 'Компания'}
         {c.company ? ` · ${c.company.reliability}` : ''}
       </p>
+      {c.company?.trust && c.company.trust.level !== 'none' && <CompanyTrustBadge trust={c.company.trust} className="mt-1.5" />}
       <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1">
         <Chip tone={c.status === 'accepted' ? 'tint' : 'panel'}>{c.status_label}</Chip>
         {active && c.timers.respond_by_text && <span className="t-small text-danger-text">ответить {c.timers.respond_by_text}</span>}

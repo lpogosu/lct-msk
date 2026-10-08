@@ -131,7 +131,8 @@ def test_config_values_match_concept():
     assert cfg.pair.pause_days == {"declined": 30, "counter_declined": 30, "expired": 14}
     assert cfg.pair.salary_exception_factor == 1.15
     assert cfg.matching.weak_score_below == 40
-    assert (cfg.minors.hidden_below_age, cfg.minors.internship_only_below_age) == (16, 18)
+    assert (cfg.minors.registration_min_age, cfg.minors.hidden_below_age) == (15, 15)
+    assert (cfg.minors.guardian_consent_below_age, cfg.minors.internship_only_below_age) == (18, 18)
     assert set(cfg.reasons.decline) == {
         "salary",
         "stack",

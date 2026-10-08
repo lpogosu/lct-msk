@@ -106,7 +106,7 @@ def test_hard_filters_block_list_cooldown_minor(client, db_session, employer, ma
     visible = seed_candidate(db_session, theta=0.9)
     blocker = seed_candidate(db_session, theta=0.8, blocked=[company])
     paused = seed_candidate(db_session, theta=0.7)
-    teen = seed_candidate(db_session, theta=0.6, birth_year=clock.now().year - 17)  # 16–17 лет
+    teen = seed_candidate(db_session, theta=0.6, birth_year=clock.now().year - 17)  # 16–17 лет, согласие представителя ниже
     db_session.add(
         Cooldown(company_id=company, candidate_id=paused, until=clock.now() + timedelta(days=20), reason="declined")
     )
@@ -118,12 +118,25 @@ def test_hard_filters_block_list_cooldown_minor(client, db_session, employer, ma
     shown = {resolve_ref(db_session, company, i["ref"]) for i in v["items"]}
     assert shown == {visible}
     assert v["hidden_n"] == 0  # жёсткие фильтры — не «Скрыто фильтрами», их просто нет
-    # Стажировка: 16–17 лет видны
+    # Стажировка: 16–17 лет без согласия законного представителя всё равно не видны
     nid2 = client.post(
         "/api/needs", json={"text": DEMO_BRIEF, "is_internship": True}, headers=employer.headers
     ).json()["id"]
     v2 = client.post(f"/api/needs/{nid2}/versions", json={}, headers=employer.headers).json()
-    assert {resolve_ref(db_session, company, i["ref"]) for i in v2["items"]} == {visible, teen}
+    assert {resolve_ref(db_session, company, i["ref"]) for i in v2["items"]} == {visible}
+    # С согласием — видны стажировке, карточка несёт плашку «Кандидату 15–17 лет: …», возраст не раскрывается
+    db_session.get(CandidateProfile, teen).guardian_consent = True
+    db_session.flush()
+    v2 = client.post(f"/api/needs/{nid2}/versions", json={}, headers=employer.headers).json()
+    by_id = {resolve_ref(db_session, company, i["ref"]): i for i in v2["items"]}
+    assert set(by_id) == {visible, teen}
+    card = client.get(f"/api/needs/{nid2}/candidates/{by_id[teen]['ref']}", headers=employer.headers).json()
+    assert card["minor_notice"] == "Кандидату 15–17 лет: только стажировка или лёгкий труд, неполный день"
+    assert "birth_year" not in str(card) and "guardian" not in str(card)
+    adult = client.get(f"/api/needs/{nid2}/candidates/{by_id[visible]['ref']}", headers=employer.headers).json()
+    assert adult.get("minor_notice") is None
+    db_session.get(CandidateProfile, teen).guardian_consent = False
+    db_session.flush()
     # Другая компания видит и блокировавшего не её кандидата, и того, с кем у неё нет паузы
     other = make_account("lead@yuzhny-bereg.ru", role="employer")
     other_company = db_session.get(User, other.user_id).company_id

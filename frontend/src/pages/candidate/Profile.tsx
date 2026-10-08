@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { authApi } from '@/api/auth'
 import { ROLE_LABEL, useAuth } from '@/auth/useAuth'
 import { Chip, Fact, RowLink } from '@/features/candidate/components/Bits'
+import { GuardianPanel } from '@/features/candidate/components/GuardianPanel'
 import { mainQualification, useFsp, useInbox, useProfile, useQualifications, useTasks } from '@/features/candidate/queries'
 import { formatDate } from '@/lib/format'
 import { Button, Panel, useToast } from '@/ui'
@@ -41,6 +42,8 @@ export default function CandidateProfile() {
           Всё, что вы пишете о себе, — «заявлено»: на категорию и место в подборке не влияет. Контакты видны работодателю только после вашего «да».
         </p>
       </header>
+
+      {profile.data && <GuardianPanel profile={profile.data} />}
 
       <nav aria-label="Разделы профиля">
         <ul className="m-0 flex list-none flex-col p-0">

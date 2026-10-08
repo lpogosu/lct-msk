@@ -5,6 +5,7 @@ import { ApiException, errorMessage } from '@/api/errors'
 import { qk, useCompany, useSaveCompany, type CompanyMe, type CompanyProfileIn } from '@/features/employer/api'
 import { BlockTitle, Label, LoadError, PageHead, PageSkeleton, Tag } from '@/features/employer/components/common'
 import { AtsPanel } from '@/features/employer/components/AtsPanel'
+import { VerificationPanel } from '@/features/employer/components/VerificationPanel'
 import { CompanyCardView } from '@/features/employer/components/CompanyCardView'
 import { Alert, Button, Input, Panel, Skeleton, TextArea, useToast } from '@/ui'
 
@@ -80,6 +81,9 @@ export default function CompanyProfile() {
           <>
             <ProfileForm me={company.data} />
             <div className="mt-14 border-t border-hairline pt-10">
+              <VerificationPanel />
+            </div>
+            <div className="mt-14 border-t border-hairline pt-10">
               <AtsPanel />
             </div>
           </>
@@ -116,8 +120,9 @@ function ProfileForm({ me }: { me: CompanyMe }) {
         form.phone.trim() && { method: 'phone', label: 'Телефон', value: form.phone.trim() },
       ].filter(Boolean) as { method: string; label: string; value: string }[],
       reliability: me.reliability,
+      trust: me.preview.trust,
     }),
-    [form, me.preview.personal_email_label, me.reliability],
+    [form, me.preview.personal_email_label, me.preview.trust, me.reliability],
   )
 
   function validate(): Errors {

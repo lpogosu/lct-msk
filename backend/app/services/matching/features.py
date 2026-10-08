@@ -240,7 +240,10 @@ def build_payloads(
         birth_year = getattr(prof, "birth_year", None)
         if birth_year is not None:
             age = min_possible_age(int(birth_year), now, ccfg)
-            age_ok = age >= ccfg.minors.hidden_below_age
+            # 15–17 лет видны работодателям только после согласия законного представителя (SECURITY.md п. 1.4)
+            age_ok = age >= ccfg.minors.hidden_below_age and (
+                age >= ccfg.minors.guardian_consent_below_age or bool(getattr(prof, "guardian_consent", False))
+            )
             internship_only = age < ccfg.minors.internship_only_below_age
         else:
             # Флаг «несовершеннолетний» без года рождения — скрываем (осторожно в пользу защиты ПДн).

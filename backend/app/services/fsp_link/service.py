@@ -42,7 +42,7 @@ from app.core import auth_service
 from app.core.access import ensure_role
 from app.core.audit import audit
 from app.core.auth_service import IssuedSession, RequestMeta, SendStatus
-from app.core.clock import relative_ru
+from app.core.clock import clock, relative_ru
 from app.core.configs import load_config
 from app.core.consents import (
     active_consents,
@@ -423,6 +423,9 @@ def _apply_minor_policy(db: Session, user_id: uuid.UUID, athlete: Athlete | None
     prof = db.get(CandidateProfile, user_id)
     if prof is not None:
         prof.birth_year = athlete.birth_date.year
+        from app.services.profile import guardian  # локально: профиль импортирует привязку ФСП
+
+        guardian.sync_flags(prof, clock.now())
 
 
 def registry_birth_year(db: Session, user_id: uuid.UUID) -> int | None:

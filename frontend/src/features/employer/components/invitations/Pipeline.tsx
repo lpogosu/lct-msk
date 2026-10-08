@@ -29,12 +29,13 @@ export function Pipeline({ kanban, handlers }: { kanban: Kanban; handlers: CardH
   const cols = useMemo(
     () =>
       STAGES.map((s) => {
-        const items = kanban.columns.filter((c) => (s.statuses as readonly string[]).includes(c.status)).flatMap((c) => c.items)
-        return { ...s, items }
+        const own = kanban.columns.filter((c) => (s.statuses as readonly string[]).includes(c.status))
+        // count — по всем приглашениям (страница может быть неполной), items — загруженные карточки
+        return { ...s, items: own.flatMap((c) => c.items), count: own.reduce((n, c) => n + c.count, 0) }
       }),
     [kanban],
   )
-  const waiting = cols[2].items.length
+  const waiting = cols[2].count
   const nodes: TraceNode[] = cols.map((c, i) => ({
     at: i / (cols.length - 1),
     variant: c.key === 'countered' && waiting > 0 ? 'current' : 'solid',
@@ -48,9 +49,9 @@ export function Pipeline({ kanban, handlers }: { kanban: Kanban; handlers: CardH
       <div className="grid gap-x-8 gap-y-10 md:grid-cols-2 lg:grid-cols-5">
         {cols.map((c) => (
           <section key={c.key} aria-label={c.label} className="min-w-0">
-            <h3 className={cn('flex items-baseline gap-2 pb-3 t-label', c.key === 'countered' && c.items.length > 0 ? 'text-brand' : 'text-ink')}>
+            <h3 className={cn('flex items-baseline gap-2 pb-3 t-label', c.key === 'countered' && c.count > 0 ? 'text-brand' : 'text-ink')}>
               {c.label}
-              <span className="font-mono text-[13px] font-normal text-ink-3">{c.items.length}</span>
+              <span className="font-mono text-[13px] font-normal text-ink-3">{c.count}</span>
             </h3>
             {c.items.length === 0 ? (
               <p className="border-t border-hairline pt-3 t-small text-ink-3">Пока никого</p>

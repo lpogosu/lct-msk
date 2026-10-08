@@ -7,8 +7,9 @@ interested | rejected(причина); кандидат может отозва�
 
 from __future__ import annotations
 
+import contextlib
 import uuid
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Iterable, Iterator, Mapping, Sequence
 from datetime import datetime
 from typing import Any
 
@@ -28,7 +29,7 @@ from app.contact.common import ContactError, Outcome
 from app.contact.statuses import ApplicationStatus as AS
 from app.core.errors import conflict, not_found
 from app.models.company import Company
-from app.models.contact import Application, ApplicationEvent, Feedback, Vacancy
+from app.models.contact import Application, ApplicationEvent, ContactDisclosure, Feedback, Vacancy
 from app.models.enums import UserRole, UserStatus, VacancyStatus
 from app.models.users import User
 from app.services.notify import notify_company, notify_user
@@ -55,8 +56,49 @@ PENDING = (AS.SUBMITTED, AS.VIEWED)
 # --- загрузка и сохранение ---------------------------------------------------------------------
 
 
+_PREFETCH = "contact_application_prefetch"
+
+
+@contextlib.contextmanager
+def prefetched(db: Session, rows: Iterable[Application]) -> Iterator[None]:
+    """Пакетная загрузка вакансий, событий и раскрытий для списка откликов (как store.prefetched у приглашений)."""
+    rows = list(rows)
+    ids = [r.id for r in rows]
+    cache: dict[str, Any] = {"events": {}, "disc": {}, "ids": set(ids)}
+    if ids:
+        vac_ids = list({r.vacancy_id for r in rows})
+        # Ссылка в кэше нужна: карта идентичности слабая, без неё db.get снова пойдёт в БД
+        cache["vacancies"] = list(db.scalars(select(Vacancy).where(Vacancy.id.in_(vac_ids))))
+        for e in db.scalars(
+            select(ApplicationEvent).where(ApplicationEvent.application_id.in_(ids)).order_by(ApplicationEvent.seq)
+        ):
+            cache["events"].setdefault(e.application_id, []).append(e)
+        for d in db.scalars(
+            select(ContactDisclosure)
+            .where(ContactDisclosure.basis == "application", ContactDisclosure.basis_id.in_(ids))
+            .order_by(ContactDisclosure.granted_at.desc())
+        ):
+            cache["disc"].setdefault(d.basis_id, d)
+    prev = db.info.get(_PREFETCH)
+    db.info[_PREFETCH] = cache
+    try:
+        yield
+    finally:
+        if prev is None:
+            db.info.pop(_PREFETCH, None)
+        else:
+            db.info[_PREFETCH] = prev
+
+
 def to_domain(db: Session, row: Application, *, disclosure: Any = False) -> DApp:
     vac = db.get(Vacancy, row.vacancy_id)
+    cache = db.info.get(_PREFETCH)
+    hit = cache is not None and row.id in cache["ids"]
+    event_rows = (
+        cache["events"].get(row.id, [])
+        if hit
+        else db.scalars(select(ApplicationEvent).where(ApplicationEvent.application_id == row.id).order_by(ApplicationEvent.seq))
+    )
     events = [
         DEvent(
             id=f"{row.id}-{e.seq:03d}",
@@ -71,11 +113,12 @@ def to_domain(db: Session, row: Application, *, disclosure: Any = False) -> DApp
             payload=dict(e.payload or {}),
             label=application_status_label(e.to_status, cfg()),
         )
-        for e in db.scalars(
-            select(ApplicationEvent).where(ApplicationEvent.application_id == row.id).order_by(ApplicationEvent.seq)
-        )
+        for e in event_rows
     ]
-    disc = domain_disclosure(disclosure_row(db, "application", row.id)) if disclosure is False else disclosure
+    if disclosure is False:
+        disc = domain_disclosure(cache["disc"].get(row.id) if hit else disclosure_row(db, "application", row.id))
+    else:
+        disc = disclosure
     assert vac is not None and row.sla_due_at is not None
     return DApp(
         id=str(row.id),
@@ -215,9 +258,11 @@ def persist(ctx: Ctx, row: Application, app: DApp, out: Outcome) -> None:
 def refresh_rows(ctx: Ctx, rows: Iterable[Application]) -> None:
     """Ленивое применение срока 7 дней: no_response датируется самим дедлайном (bad для надёжности)."""
     at = now()
-    for row in rows:
-        if row.status not in PENDING:
-            continue
+    rows = [r for r in rows if r.status in PENDING]
+    with prefetched(ctx.db, rows):
+        # Пробный прогон без блокировки (как у приглашений): срок обычно не наступил, и блокировать строку незачем
+        due = [r for r in rows if refresh_application(to_domain(ctx.db, r), at, cfg()).events]
+    for row in due:
         ctx.db.refresh(row, with_for_update=True)
         if row.status not in PENDING:
             continue
@@ -346,12 +391,52 @@ def _timers(app: DApp, at: datetime) -> dict[str, Any]:
     }
 
 
-def employer_card(ctx: Ctx, row: Application, app: DApp | None = None, at: datetime | None = None) -> dict[str, Any]:
+def employer_cards(ctx: Ctx, rows: list[Application], at: datetime) -> list[dict[str, Any]]:
+    """Карточки списка откликов: события, раскрытия и псевдонимы пакетом (число запросов не растёт с длиной)."""
+    if not rows:
+        return []
+    with prefetched(ctx.db, rows):
+        by_company: dict[uuid.UUID, list[Application]] = {}
+        for r in rows:
+            vac = ctx.db.get(Vacancy, r.vacancy_id)
+            assert vac is not None
+            by_company.setdefault(vac.company_id, []).append(r)
+        idents: dict[tuple[uuid.UUID, uuid.UUID], identity.Ident] = {}
+        for cid, rs in by_company.items():
+            for cand, ident in identity.aliases(ctx.db, ctx.secret, cid, [r.candidate_id for r in rs]).items():
+                idents[(cid, cand)] = ident
+        out = []
+        for r in rows:
+            vac = ctx.db.get(Vacancy, r.vacancy_id)
+            assert vac is not None
+            out.append(employer_card(ctx, r, None, at, idents.get((vac.company_id, r.candidate_id))))
+        return out
+
+
+def candidate_cards(ctx: Ctx, rows: list[Application], at: datetime) -> list[dict[str, Any]]:
+    if not rows:
+        return []
+    vacs = {v.id: v for v in ctx.db.scalars(select(Vacancy).where(Vacancy.id.in_({r.vacancy_id for r in rows})))}
+    cids = list({v.company_id for v in vacs.values()})
+    companies = {c.id: c for c in ctx.db.scalars(select(Company).where(Company.id.in_(cids)))}
+    events = rel_store.events_by_company(ctx.db, cids)
+    comps = {cid: company_card(ctx.db, c, at, events.get(cid, [])) for cid, c in companies.items()}
+    with prefetched(ctx.db, rows):
+        return [candidate_card(ctx, r, None, at, comps) for r in rows]
+
+
+def employer_card(
+    ctx: Ctx,
+    row: Application,
+    app: DApp | None = None,
+    at: datetime | None = None,
+    ident: identity.Ident | None = None,
+) -> dict[str, Any]:
     at = at or now()
     app = app or to_domain(ctx.db, row)
     company_id = uid(app.company_id)
     assert company_id is not None
-    ident = identity.alias(ctx.db, ctx.secret, company_id, row.candidate_id)
+    ident = ident or identity.alias(ctx.db, ctx.secret, company_id, row.candidate_id)
     snap = row.score_snapshot or {}
     return {
         "id": row.id,
@@ -434,12 +519,21 @@ def _feedback(db: Session, row: Application) -> list[dict[str, Any]]:
     ]
 
 
-def candidate_card(ctx: Ctx, row: Application, app: DApp | None = None, at: datetime | None = None) -> dict[str, Any]:
+def candidate_card(
+    ctx: Ctx,
+    row: Application,
+    app: DApp | None = None,
+    at: datetime | None = None,
+    comps: dict[uuid.UUID, dict[str, Any]] | None = None,
+) -> dict[str, Any]:
     at = at or now()
     app = app or to_domain(ctx.db, row)
     vac = ctx.db.get(Vacancy, row.vacancy_id)
-    company = ctx.db.get(Company, vac.company_id) if vac else None
-    comp = company_card(ctx.db, company, at) if company else None
+    if comps is not None:
+        comp = comps.get(vac.company_id) if vac else None
+    else:
+        company = ctx.db.get(Company, vac.company_id) if vac else None
+        comp = company_card(ctx.db, company, at) if company else None
     return {
         "id": row.id,
         "vacancy": vacancy_base(vac, at) if vac else None,
@@ -448,6 +542,7 @@ def candidate_card(ctx: Ctx, row: Application, app: DApp | None = None, at: date
             "name": comp["name"],
             "reliability": comp["reliability"]["display"],
             "r": comp["reliability"]["r"],
+            "trust": comp["trust"],
         }
         if comp
         else None,

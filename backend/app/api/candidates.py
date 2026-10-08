@@ -23,10 +23,13 @@ from app.models.users import User
 from app.services.account import delete_account
 from app.services.pdf import issue as pdf_issue
 from app.services.pdf.schemas import ProfilePdfInfoOut
+from app.services.profile import guardian
 from app.services.profile import service as profiles
 from app.services.profile.schemas import (
     CompanySearchOut,
     ConsentJournalOut,
+    GuardianRequestIn,
+    GuardianStatusOut,
     PreviewIn,
     PreviewOut,
     PrivacyOut,
@@ -108,6 +111,41 @@ def put_me(body: ProfileUpdateIn, user: CandidateUser, db: DbSession, meta: Meta
     now = clock.now()
     prof = profiles.update_profile(db, user, body, meta, now)
     return profiles.profile_out(db, user, prof, now)
+
+
+# --------------------------------------------------------------------------- законный представитель (15–17 лет)
+
+
+@router.get(
+    "/me/guardian",
+    response_model=GuardianStatusOut,
+    summary="Согласие законного представителя",
+    description="Состояние согласия кандидата 15–17 лет: нужно ли оно, отправлено ли письмо, подтверждено ли. Для взрослого `required=false`.",
+)
+def get_guardian(user: CandidateUser, db: DbSession) -> GuardianStatusOut:
+    prof = profiles.get_profile_row(db, user)
+    db.commit()
+    return GuardianStatusOut.model_validate(guardian.status(prof, clock.now()))
+
+
+@router.post(
+    "/me/guardian",
+    response_model=GuardianStatusOut,
+    summary="Запросить согласие законного представителя",
+    description=(
+        "Кандидат 15–17 лет указывает ФИО и email представителя; на email уходит письмо со ссылкой подтверждения (в dev — Mailpit). "
+        "До подтверждения профиль не виден работодателям. Повтор — не чаще раза в `guardian.resend_cooldown_minutes` на тот же адрес. "
+        "409 — кандидату согласие не нужно; 400 — имя или email неверны."
+    ),
+)
+def post_guardian(
+    body: GuardianRequestIn, user: CandidateUser, db: DbSession, settings: SettingsDep, mailer: MailerDep, meta: MetaDep
+) -> GuardianStatusOut:
+    prof = profiles.get_profile_row(db, user)
+    out = guardian.request_consent(
+        db, settings, mailer, user, prof, name=body.guardian_name, email=body.guardian_email, now=clock.now(), ip=meta.ip
+    )
+    return GuardianStatusOut.model_validate(out)
 
 
 # --------------------------------------------------------------------------- резюме (К7)

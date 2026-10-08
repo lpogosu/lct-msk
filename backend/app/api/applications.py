@@ -77,7 +77,7 @@ def mine(user: CandidateUser, db: DbSession, settings: SettingsDep) -> list[dict
     svc.refresh_rows(ctx, rows)
     ctx.finish()
     at = now()
-    return [svc.candidate_card(ctx, r, None, at) for r in rows]
+    return svc.candidate_cards(ctx, rows, at)
 
 
 @router.get(
@@ -156,7 +156,7 @@ def employer_list(
     if status_ is not None:
         rows = [r for r in rows if r.status == status_]
     at = now()
-    return svc.sort_by_score([svc.employer_card(ctx, r, None, at) for r in rows])
+    return svc.sort_by_score(svc.employer_cards(ctx, rows, at))
 
 
 @router.get(

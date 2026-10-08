@@ -63,6 +63,17 @@ def alias(db: Session, secret: str, company_id: uuid.UUID, candidate_id: uuid.UU
     return Ident(hmac_pseudonym(secret or default_secret(), str(company_id), str(candidate_id)), None)
 
 
+def aliases(db: Session, secret: str, company_id: uuid.UUID, candidate_ids: Iterable[uuid.UUID]) -> dict[uuid.UUID, Ident]:
+    """alias() для списка кандидатов за один-два запроса (списки приглашений и откликов, docs/LOAD_TEST.md)."""
+    ids = list(dict.fromkeys(candidate_ids))
+    if _matching() is not None:
+        from app.services.matching.privacy import get_aliases
+
+        found = get_aliases(db, company_id, ids, secret=secret or None)
+        return {cid: Ident(pseudonym=str(a.pseudonym), ref=getattr(a, "ref", None)) for cid, a in found.items()}
+    return {cid: alias(db, secret, company_id, cid) for cid in ids}
+
+
 def card_opened(db: Session, company_id: uuid.UUID, candidate_id: uuid.UUID) -> bool:
     """DECISIONS 7: открыта панель Р6 ИЛИ кандидат в шортлисте любого брифа компании."""
     m = _matching()

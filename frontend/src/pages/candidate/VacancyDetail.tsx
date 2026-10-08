@@ -1,3 +1,5 @@
+import { CompanyTrustBadge } from '@/features/trust/CompanyTrustBadge'
+import { VacancyReportSheet } from '@/features/trust/VacancyReportSheet'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -43,6 +45,7 @@ export default function CandidateVacancyDetail() {
 
 function View({ v }: { v: Detail }) {
   const [open, setOpen] = useState(false)
+  const [reportOpen, setReportOpen] = useState(false)
   const { range, unit } = salaryHero(v.salary.salary_from, v.salary.salary_to)
   const check = (v.how_we_check ?? null) as Check | null
   const parts = Object.entries(v.parts ?? {}).filter(([, n]) => n > 0)
@@ -54,6 +57,7 @@ function View({ v }: { v: Detail }) {
         <div>
           <h2 className="t-name text-ink">{v.company.name}</h2>
           <p className="mt-0.5 t-small text-ink-2">{[v.company.field, v.company.reliability.display].filter(Boolean).join('. ')}</p>
+          {v.company.trust && v.company.trust.level !== 'none' && <CompanyTrustBadge trust={v.company.trust} className="mt-2" />}
         </div>
       )}
 
@@ -123,7 +127,20 @@ function View({ v }: { v: Detail }) {
         )}
       </Panel>
 
+      {v.reported ? (
+        <p className="text-center t-small text-ink-3">Вы пожаловались на эту вакансию — спасибо, жалоба учтена.</p>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setReportOpen(true)}
+          className="self-center t-small text-ink-3 underline-offset-4 hover:text-ink hover:underline"
+        >
+          Пожаловаться на вакансию
+        </button>
+      )}
+
       <ApplySheet open={open} onClose={() => setOpen(false)} v={v} />
+      <VacancyReportSheet open={reportOpen} onClose={() => setReportOpen(false)} vacancyId={v.id} reasons={v.complaint_reasons ?? {}} />
     </div>
   )
 }

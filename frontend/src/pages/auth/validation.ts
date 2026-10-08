@@ -21,3 +21,11 @@ export function validateCode(value: string): string | null {
   if (!/^\s*\d{6}\s*$/.test(value)) return 'Код — 6 цифр из письма'
   return null
 }
+
+/** Год рождения кандидата. Порог возраста (15 лет) — на бэкенде, config/contact.yaml → minors; здесь только формат. */
+export function validateBirthYear(value: string): string | null {
+  const year = Number(value)
+  if (!/^\d{4}$/.test(value.trim())) return 'Укажите год рождения четырьмя цифрами'
+  if (year < 1940 || year > new Date().getFullYear()) return 'Проверьте год рождения'
+  return null
+}

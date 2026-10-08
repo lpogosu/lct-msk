@@ -43,6 +43,24 @@ class ResumeStateOut(BaseModel):
     has_text: bool = Field(default=False, description="Текст резюме сохранён (его увидит компания после раскрытия, если вы разрешите)")
 
 
+class GuardianStatusOut(BaseModel):
+    """Согласие законного представителя кандидата 15–17 лет (SECURITY.md п. 1.4)."""
+
+    required: bool = Field(description="Нужно ли согласие (кандидату 15–17 лет)")
+    state: Literal["not_required", "missing", "pending", "expired", "confirmed"] = Field(
+        description="missing — письмо не отправлено; pending — ждём подтверждения; expired — ссылка устарела; confirmed — согласие есть"
+    )
+    state_label: str = Field(default="", description="Готовая подпись состояния")
+    guardian_name: str | None = Field(default=None, description="ФИО представителя")
+    guardian_email_masked: str | None = Field(default=None, description="Email представителя с маской: i***@mail.ru")
+    employer_rule: str | None = Field(default=None, description="Какое правило увидит работодатель")
+
+
+class GuardianRequestIn(_In):
+    guardian_name: str = Field(min_length=5, max_length=200, description="ФИО законного представителя (родитель, опекун)")
+    guardian_email: EmailStr = Field(description="Email представителя — на него придёт ссылка подтверждения")
+
+
 class ProfileOut(BaseModel):
     user_id: uuid.UUID = Field(description="Идентификатор аккаунта")
     account_email: str = Field(description="Email аккаунта (логин)")
@@ -67,6 +85,7 @@ class ProfileOut(BaseModel):
     resume: ResumeStateOut = Field(description="Состояние загруженного резюме")
     missing: list[str] = Field(default_factory=list, description="Что ещё стоит заполнить")
     note: str = Field(description="Напоминание: заявленное не влияет на категорию и место в подборке")
+    guardian: GuardianStatusOut | None = Field(default=None, description="Согласие законного представителя (кандидаты 15–17 лет)")
 
 
 class ProfileUpdateIn(_In):
@@ -79,7 +98,7 @@ class ProfileUpdateIn(_In):
     city: str | None = Field(default=None, max_length=120, description="Город: код справочника (moscow) или название")
     current_employer: str | None = Field(default=None, max_length=200, description="Текущий работодатель")
     education: str | None = Field(default=None, max_length=300, description="Образование")
-    birth_year: int | None = Field(default=None, ge=1940, le=2026, description="Год рождения")
+    birth_year: int | None = Field(default=None, ge=1940, le=2026, description="Год рождения. Младше 15 лет (с учётом сомнения по году) — 422; 15–17 лет — нужно согласие представителя")
     declared_grade: Literal["intern", "junior", "middle", "senior"] | None = Field(default=None, description="Грейд как заявлен")
     roles: list[str] | None = Field(default=None, max_length=10, description="Коды ролей (config/skills.yaml: roles)")
     skills: list[str] | None = Field(default=None, max_length=80, description="Навыки: коды или названия (FastAPI, PostgreSQL)")

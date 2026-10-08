@@ -26,6 +26,8 @@ from app.services.contact.schemas import (
     VacancyPatchIn,
     VacancyPublishOut,
 )
+from app.trust import complaints as trust_complaints
+from app.trust.schemas import ComplaintCreateIn
 
 router = APIRouter(prefix="/vacancies", tags=["Вакансии"], responses=error_responses(400, 401, 403, 404, 409, 422, 429))
 
@@ -137,4 +139,20 @@ def candidate_list(
     ),
 )
 def candidate_detail(vacancy_id: uuid.UUID, user: CandidateUser, db: DbSession) -> dict[str, Any]:
+    return svc.candidate_detail(db, user, vacancy_id)
+
+
+@router.post(
+    "/{vacancy_id}/report",
+    response_model=VacancyCandidateDetail,
+    summary="Пожаловаться на вакансию",
+    description=(
+        "Кандидат сообщает о проблеме с вакансией: сбор резюме без вакансии, зарплата не та, не отвечают, фиктивная вакансия "
+        "и др. (коды — `complaint_reasons` в карточке вакансии). Одна жалоба на вакансию; компания не уведомляется. "
+        "Жалоба попадает в очередь модерации. 409 `complaint_exists` — уже жаловались."
+    ),
+)
+def report(vacancy_id: uuid.UUID, body: ComplaintCreateIn, user: CandidateUser, db: DbSession) -> dict[str, Any]:
+    trust_complaints.report_vacancy(db, user, vacancy_id, body.reason, body.comment, now())
+    db.commit()
     return svc.candidate_detail(db, user, vacancy_id)

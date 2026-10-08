@@ -5,7 +5,7 @@ import { authApi } from '@/api/auth'
 import { ApiException, errorMessage } from '@/api/errors'
 import { startSignup } from '@/auth/signupFlow'
 import { Alert, Button, Checkbox, Input, PasswordInput, Segmented, Skeleton } from '@/ui'
-import { validateEmail, validateNewPassword } from './validation'
+import { validateBirthYear, validateEmail, validateNewPassword } from './validation'
 
 type RoleChoice = 'candidate' | 'employer'
 
@@ -29,9 +29,10 @@ export default function Register() {
   const [role, setRole] = useState<RoleChoice>(initialRole)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [birthYear, setBirthYear] = useState('')
   const [consent, setConsent] = useState(false)
   const [showConsentText, setShowConsentText] = useState(false)
-  const [errors, setErrors] = useState<{ email?: string; password?: string; consent?: string; form?: string }>({})
+  const [errors, setErrors] = useState<{ email?: string; password?: string; birthYear?: string; consent?: string; form?: string }>({})
   const [loading, setLoading] = useState(false)
 
   // Актуальная версия текста согласия: отправляем её вместе с регистрацией (бэкенд журналирует)
@@ -43,9 +44,10 @@ export default function Register() {
     const next = {
       email: validateEmail(email) ?? undefined,
       password: validateNewPassword(password) ?? undefined,
+      birthYear: role === 'candidate' ? validateBirthYear(birthYear) ?? undefined : undefined,
       consent: consent ? undefined : 'Без согласия на обработку персональных данных создать аккаунт нельзя',
     }
-    if (next.email || next.password || next.consent) {
+    if (next.email || next.password || next.birthYear || next.consent) {
       setErrors(next)
       return
     }
@@ -57,6 +59,7 @@ export default function Register() {
         password,
         role,
         consent_personal_data: true,
+        birth_year: role === 'candidate' ? Number(birthYear) : null,
         consent_text_version: processing?.version ?? null,
       })
       if (res.status === 'active') {
@@ -79,8 +82,9 @@ export default function Register() {
           setErrors({
             email: issues.find((i) => i.field === 'email')?.message,
             password: issues.find((i) => i.field === 'password')?.message,
+            birthYear: issues.find((i) => i.field === 'birth_year')?.message,
             consent: issues.find((i) => i.field === 'consent_personal_data')?.message,
-            form: issues.some((i) => !['email', 'password', 'consent_personal_data'].includes(i.field ?? ''))
+            form: issues.some((i) => !['email', 'password', 'birth_year', 'consent_personal_data'].includes(i.field ?? ''))
               ? err.message
               : undefined,
           })
@@ -146,6 +150,23 @@ export default function Register() {
           error={errors.password}
           hint="Минимум 8 символов, хотя бы одна буква и одна цифра."
         />
+
+        {role === 'candidate' && (
+          <Input
+            label="Год рождения"
+            name="birth_year"
+            inputMode="numeric"
+            autoComplete="bday-year"
+            maxLength={4}
+            value={birthYear}
+            onChange={(e) => {
+              setBirthYear(e.target.value.replace(/\D/g, '').slice(0, 4))
+              setErrors((x) => ({ ...x, birthYear: undefined, form: undefined }))
+            }}
+            error={errors.birthYear}
+            hint="Платформа доступна с 15 лет. Если вам 15–17, понадобится согласие родителя или законного представителя; работодатели смогут предлагать только стажировку или лёгкий труд."
+          />
+        )}
 
         <div className="flex flex-col gap-2">
           <Checkbox

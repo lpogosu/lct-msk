@@ -55,6 +55,9 @@ class SenderState:
     account_id: str
     sends: tuple[SentRecord, ...] = ()
     reliability: Reliability | None = None
+    # Жалобы кандидатов (config/trust.yaml -> complaints): множитель квоты и причина. 1.0 — жалоб меньше порога.
+    complaint_factor: float = 1.0
+    complaint_reason: str | None = None
 
 
 @dataclass(frozen=True)
@@ -69,6 +72,7 @@ class CandidateState:
     received_at: tuple[datetime, ...] = ()  # когда кандидат получал приглашения (от любых компаний)
     blocked_company_ids: frozenset[str] = frozenset()
     birth_year: int | None = None
+    guardian_consent: bool = False  # согласие законного представителя (15–17 лет), config/contact.yaml -> minors
     card_opened: bool = False  # DECISIONS 7: открыта панель Р6 …
     shortlisted: bool = False  # … ИЛИ кандидат в шортлисте
     score: float | None = None
@@ -154,6 +158,9 @@ def quota_usage(
     if rel is not None and rel.quota_factor < 1.0:
         factor = rel.quota_factor
         reason = rel.discrepancy_badge or q.low_reliability.label
+    if sender.complaint_factor < factor:
+        factor = sender.complaint_factor
+        reason = sender.complaint_reason or reason
     limit = math.floor(q.new_per_owner * factor)
     # Когда освободится слот: окно должны покинуть (used − limit + 1) самых старых отправок. При квоте,
     # урезанной ×0.5, использовано может быть больше лимита — тогда ждать первой из них мало.
@@ -285,22 +292,25 @@ def check_invite(
     check = Check()
 
     # Недоступность не детализируем: причина (блок-лист, возраст, режим) — личное дело кандидата.
+    min_age = min_possible_age(candidate.birth_year, now, cfg) if candidate.birth_year is not None else None
     unavailable = (
         candidate.search_mode == "hidden"
         or sender.company_id in candidate.blocked_company_ids
         or (
-            candidate.birth_year is not None
+            min_age is not None
             and (
-                min_possible_age(candidate.birth_year, now, cfg) < cfg.minors.hidden_below_age
-                or (
-                    min_possible_age(candidate.birth_year, now, cfg) < cfg.minors.internship_only_below_age
-                    and not is_internship
-                )
+                min_age < cfg.minors.hidden_below_age
+                or (min_age < cfg.minors.guardian_consent_below_age and not candidate.guardian_consent)
             )
         )
     )
     if unavailable:
         check.error("candidate_unavailable", f"{p} сейчас не принимает приглашения")
+        return check
+    if min_age is not None and min_age < cfg.minors.internship_only_below_age and not is_internship:
+        # Кандидату 15–17 уже видно работодателю (согласие представителя есть), поэтому причину называем прямо:
+        # карточка несёт ту же плашку (config/contact.yaml -> minors.employer_notice).
+        check.error("minor_internship_only", f"{p}: {cfg.minors.invite_restriction}")
         return check
 
     check.merge(validate_salary_range(salary_from, salary_to, salary_type, cfg))

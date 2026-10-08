@@ -42,6 +42,17 @@ class RegisterRequest(_Strict):
         examples=["2026-10-05"],
     )
 
+    birth_year: int | None = Field(
+        default=None,
+        ge=1940,
+        le=2026,
+        description=(
+            "Год рождения (только для роли candidate). Младше 15 лет — 422 `age_too_young`, регистрация отклоняется. "
+            "15–17 лет — после входа потребуется согласие законного представителя"
+        ),
+        examples=[2001],
+    )
+
     @field_validator("consent_personal_data")
     @classmethod
     def _consent_given(cls, v: bool) -> bool:

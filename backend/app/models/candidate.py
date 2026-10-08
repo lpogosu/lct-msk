@@ -113,10 +113,16 @@ class CandidateProfile(TimestampMixin, Base):
     declared_grade: Mapped[str | None] = mapped_column(String(16))
     resume_uploaded_at: Mapped[datetime | None]
 
-    # --- Несовершеннолетние (концепция §4.3): до 16 не видны, 16–17 — только стажировки ---
+    # --- Несовершеннолетние (концепция §4.3): до 15 не допускаются, 15–17 — только стажировки и только с согласием представителя ---
     birth_year: Mapped[int | None] = mapped_column(SmallInteger)
     is_minor: Mapped[bool] = mapped_column(default=False, server_default=false())
     guardian_consent: Mapped[bool] = mapped_column(default=False, server_default=false())
+    # Законный представитель (15–17 лет): имя и email, одноразовая ссылка из письма (хранится хеш), отметки времени
+    guardian_name: Mapped[str | None] = mapped_column(String(200))
+    guardian_email: Mapped[str | None] = mapped_column(String(254))
+    guardian_token_hash: Mapped[str | None] = mapped_column(String(64), index=True)
+    guardian_requested_at: Mapped[datetime | None]
+    guardian_confirmed_at: Mapped[datetime | None]
 
     user: Mapped[User] = relationship(back_populates="candidate_profile")
 

@@ -18,6 +18,7 @@ from app.core.errors import conflict
 from app.models.company import Company
 from app.models.contact import Invitation
 from app.models.users import User
+from app.trust import complaints as trust_complaints
 
 from .common import cfg, now, rel
 from .reliability import company_reliability
@@ -81,12 +82,15 @@ def sent_records(db: Session, company: Company, user: User | None, at: datetime)
 
 
 def sender_state(db: Session, company: Company, user: User, at: datetime) -> SenderState:
+    factor, reason = trust_complaints.quota_factor(db, company.id, at)
     return SenderState(
         company_id=str(company.id),
         email=user.email,
         account_id=str(user.id),
         sends=tuple(sent_records(db, company, user, at)),
         reliability=company_reliability(db, company.id, at),
+        complaint_factor=factor,
+        complaint_reason=reason,
     )
 
 

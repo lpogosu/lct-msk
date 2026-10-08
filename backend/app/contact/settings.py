@@ -154,9 +154,21 @@ class MatchingCfg(_Frozen):
     weak_score_below: float
 
 
+class GuardianCfg(_Frozen):
+    token_ttl_hours: int
+    resend_cooldown_minutes: int
+    name_min_len: int
+    name_max_len: int
+
+
 class MinorsCfg(_Frozen):
+    registration_min_age: int
     hidden_below_age: int
+    guardian_consent_below_age: int
     internship_only_below_age: int
+    employer_notice: str
+    invite_restriction: str
+    guardian: GuardianCfg
 
 
 class DiscrepancyCfg(_Frozen):

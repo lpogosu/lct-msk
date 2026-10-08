@@ -15,6 +15,7 @@ from fastapi import APIRouter, Depends, Response
 from app.api.auth import _clear_refresh_cookie
 from app.api.deps import CurrentUser, DbSession, LimiterDep, MailerDep, MetaDep, SettingsDep, require_roles
 from app.api.schemas import AccountDeleteRequest, AccountDeleteResponse
+from app.core.audit import audit
 from app.core.errors import bad_request, conflict, error_responses, not_found
 from app.models.company import Company, WebhookDelivery
 from app.models.enums import UserRole
@@ -35,6 +36,8 @@ from app.services.contact.schemas import (
     WebhookLogOut,
     WebhookSettingsOut,
 )
+from app.trust import verification
+from app.trust.schemas import VerificationIn, VerificationOut
 
 router = APIRouter(prefix="/companies", tags=["Компании"], responses=error_responses(400, 401, 403, 404, 409, 422, 429))
 
@@ -103,6 +106,7 @@ def _me(db: DbSession, user: User, company: Company) -> CompanyMeOut:
         quota=quota_dict(db, company, user, at),  # type: ignore[arg-type]
         reliability=reliability_dict(company_reliability(db, company.id, at)),  # type: ignore[arg-type]
         complaints_90d=complaints_count(db, company.id, cfg().reliability.discrepancy.window_days),
+        verification=VerificationOut.model_validate(verification.detail_of(db, company.id)),
         preview=company_card(db, company, at),  # type: ignore[arg-type]
     )
 
@@ -170,8 +174,54 @@ def put_me(body: CompanyProfileIn, user: EmployerUser, db: DbSession) -> Company
         company.webhook_url = url
     sync_completion(company, now())
     company.updated_at = now()
+    verification.recheck(db, company, now())
     db.commit()
     return _me(db, user, company)
+
+
+@router.get(
+    "/me/verification",
+    response_model=VerificationOut,
+    summary="Метка «Проверенная компания»",
+    description=(
+        "Добровольная метка доверия: уровень («Реквизиты проверены» / «Домен подтверждён» / не проверена), поданные "
+        "реквизиты и результат каждой проверки. Метка ничего не блокирует: без неё приглашения и вакансии работают как раньше."
+    ),
+)
+def get_verification(user: EmployerUser, db: DbSession) -> VerificationOut:
+    company = company_of(db, user)
+    return VerificationOut.model_validate(verification.detail_of(db, company.id))
+
+
+@router.post(
+    "/me/verification",
+    response_model=VerificationOut,
+    summary="Подать реквизиты на проверку",
+    description=(
+        "ИНН (10/12 цифр) и ОГРН (13/15): проверяем контрольные суммы, находим компанию в учебном реестре (вымышленные "
+        "организации), сверяем статус «действующая», название из профиля и домен корпоративной почты. Неудачная проверка — тоже "
+        "ответ 200 со списком непрошедших проверок; ошибок блокировки нет. 400 — не цифры; 409 `verification_revoked` — метку снял модератор."
+    ),
+)
+def submit_verification(body: VerificationIn, user: EmployerUser, db: DbSession, meta: MetaDep) -> VerificationOut:
+    company = company_of(db, user)
+    verification.submit(db, company, body.inn, body.ogrn, now())
+    audit(db, "company.verification_submitted", actor_id=user.id, actor_role=user.role, entity_type="company", entity_id=company.id, ip=meta.ip)
+    db.commit()
+    return VerificationOut.model_validate(verification.detail_of(db, company.id))
+
+
+@router.delete(
+    "/me/verification",
+    response_model=VerificationOut,
+    summary="Убрать метку",
+    description="Компания добровольно снимает метку и стирает поданные реквизиты. Снятую модератором метку так не вернуть.",
+)
+def delete_verification(user: EmployerUser, db: DbSession) -> VerificationOut:
+    company = company_of(db, user)
+    verification.withdraw(db, company)
+    db.commit()
+    return VerificationOut.model_validate(verification.detail_of(db, company.id))
 
 
 @router.get(

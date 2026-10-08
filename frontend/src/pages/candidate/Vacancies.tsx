@@ -1,3 +1,4 @@
+import { CompanyTrustBadge } from '@/features/trust/CompanyTrustBadge'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -101,6 +102,7 @@ function VacancyRow({ v }: { v: VacancyItem }) {
         {v.company?.name ?? 'Компания'}
         {v.company ? ` · ${v.company.reliability}` : ''}
       </p>
+      {v.company?.trust && v.company.trust.level !== 'none' && <CompanyTrustBadge trust={v.company.trust} className="mt-1.5" />}
       <div className="mt-3 flex flex-wrap items-center gap-1.5">
         {v.category && <Chip tone="tint">{v.category}</Chip>}
         {v.format_label && <Chip tone="panel">{v.format_label}</Chip>}

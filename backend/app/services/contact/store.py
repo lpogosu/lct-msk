@@ -7,9 +7,10 @@
 
 from __future__ import annotations
 
+import contextlib
 import contextvars
 import uuid
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Iterator, Mapping
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 from typing import Any
@@ -178,12 +179,62 @@ def disclosure_row(db: Session, basis: str, basis_id: uuid.UUID) -> ContactDiscl
     )
 
 
+_PREFETCH = "contact_invitation_prefetch"
+
+
+@contextlib.contextmanager
+def prefetched(db: Session, rows: Iterable[Invitation]) -> Iterator[None]:
+    """Пакетная загрузка условий, событий, раскрытий и проверок исхода для списка приглашений: 4 запроса
+    на страницу вместо ~4 на каждое приглашение (нагрузочный тест, docs/LOAD_TEST.md). to_domain берёт данные
+    из пакета, пока контекст открыт; persist() выбрасывает изменённую строку, чтобы не читать устаревшее."""
+    ids = [r.id for r in rows]
+    cache: dict[str, dict[uuid.UUID, Any]] = {"terms": {}, "events": {}, "disc": {}, "oc": {}}
+    if ids:
+        for t in db.scalars(select(OfferTerms).where(OfferTerms.invitation_id.in_(ids)).order_by(OfferTerms.ver)):
+            cache["terms"].setdefault(t.invitation_id, []).append(t)
+        for e in db.scalars(
+            select(InvitationEvent).where(InvitationEvent.invitation_id.in_(ids)).order_by(InvitationEvent.seq)
+        ):
+            cache["events"].setdefault(e.invitation_id, []).append(e)
+        for d in db.scalars(
+            select(ContactDisclosure)
+            .where(ContactDisclosure.basis == "invitation", ContactDisclosure.basis_id.in_(ids))
+            .order_by(ContactDisclosure.granted_at.desc())
+        ):
+            cache["disc"].setdefault(d.basis_id, d)  # первая в порядке «свежее выше» = как limit(1) в disclosure_row
+        for oc in db.scalars(select(OutcomeCheck).where(OutcomeCheck.invitation_id.in_(ids))):
+            cache["oc"][oc.invitation_id] = oc
+    cache["ids"] = set(ids)  # type: ignore[assignment]
+    prev = db.info.get(_PREFETCH)
+    db.info[_PREFETCH] = cache
+    try:
+        yield
+    finally:
+        if prev is None:
+            db.info.pop(_PREFETCH, None)
+        else:
+            db.info[_PREFETCH] = prev
+
+
+def _forget(db: Session, invitation_id: uuid.UUID) -> None:
+    cache = db.info.get(_PREFETCH)
+    if cache:
+        cache["ids"].discard(invitation_id)
+
+
 def to_domain(db: Session, row: Invitation, *, disclosure: DDisclosure | None | bool = False) -> DInv:
     """ORM → доменное приглашение. disclosure=False — взять из БД; иначе — подставить переданное."""
-    terms = [
-        terms_from_row(t, row.vacancy_id)
-        for t in db.scalars(select(OfferTerms).where(OfferTerms.invitation_id == row.id).order_by(OfferTerms.ver))
-    ]
+    cache = db.info.get(_PREFETCH)
+    hit = cache is not None and row.id in cache["ids"]
+    if hit:
+        term_rows: Iterable[OfferTerms] = cache["terms"].get(row.id, [])
+        event_rows: Iterable[InvitationEvent] = cache["events"].get(row.id, [])
+    else:
+        term_rows = db.scalars(select(OfferTerms).where(OfferTerms.invitation_id == row.id).order_by(OfferTerms.ver))
+        event_rows = db.scalars(
+            select(InvitationEvent).where(InvitationEvent.invitation_id == row.id).order_by(InvitationEvent.seq)
+        )
+    terms = [terms_from_row(t, row.vacancy_id) for t in term_rows]
     events = [
         DEvent(
             id=f"{row.id}-{e.seq:03d}",
@@ -198,12 +249,14 @@ def to_domain(db: Session, row: Invitation, *, disclosure: DDisclosure | None | 
             payload=dict(e.payload or {}),
             label=status_label(e.to_status, cfg()),
         )
-        for e in db.scalars(
-            select(InvitationEvent).where(InvitationEvent.invitation_id == row.id).order_by(InvitationEvent.seq)
-        )
+        for e in event_rows
     ]
-    disc = domain_disclosure(disclosure_row(db, "invitation", row.id)) if disclosure is False else disclosure
-    oc = db.get(OutcomeCheck, row.id)
+    if disclosure is False:
+        d_row = cache["disc"].get(row.id) if hit else disclosure_row(db, "invitation", row.id)
+        disc = domain_disclosure(d_row)
+    else:
+        disc = disclosure
+    oc = cache["oc"].get(row.id) if hit else db.get(OutcomeCheck, row.id)
     reason = row.outcome_reason or {}
     return DInv(
         id=str(row.id),
@@ -299,6 +352,7 @@ def _copy_back(db: Session, row: Invitation, inv: DInv, comment: str | None) -> 
 def persist(ctx: Ctx, row: Invitation, inv: DInv, out: Outcome, *, comment: str | None = None) -> None:
     """Сохранить результат движка: поля, новые события, побочные эффекты, вебхуки."""
     db = ctx.db
+    _forget(db, row.id)
     _copy_back(db, row, inv, comment)
     for ev in out.events:
         db.add(
@@ -510,32 +564,36 @@ def refresh_rows(ctx: Ctx, rows: Iterable[Invitation]) -> None:
     """Применить истёкшие сроки (событие датируется дедлайном) и разослать созревшие напоминания."""
     at = now()
     c = cfg()
-    # Строки блокируются в одном порядке (по id): два параллельных чтения списка с пересекающимися приглашениями
-    # иначе берут блокировки навстречу друг другу и получают deadlock (нагрузочный тест, docs/LOAD_TEST.md)
-    for row in sorted(rows, key=lambda r: str(r.id)):
-        if not needs_refresh(row):
-            continue
-        # Пробный прогон без блокировки: чтение списка почти всегда ничего не меняет (срок не наступил, напоминаний нет),
-        # и блокировать «на всякий случай» каждую ожидающую строку на каждом GET незачем
-        probe = to_domain(ctx.db, row)
-        probe_out = refresh(probe, at, c)
-        if not (probe_out.events or probe_out.side_effects or due_reminders(probe, at, list(row.reminders_sent or []), c)):
-            continue
-        # Блокировка строки: два одновременных чтения не применят один и тот же срок дважды
-        ctx.db.refresh(row, with_for_update=True)
-        if not needs_refresh(row):
-            continue
-        inv = to_domain(ctx.db, row)
-        out = refresh(inv, at, c)
-        if out.events or out.side_effects:
-            persist(ctx, row, inv, out)
-        sent = list(row.reminders_sent or [])
-        for rem in due_reminders(inv, at, sent, c):
-            if rem.to == "candidate":
-                notify_user(ctx.db, row.candidate_id, "invitation", rem.text, entity_type="invitation", entity_id=row.id)
-            else:
-                notify_company(ctx.db, row.company_id, "invitation", rem.text, entity_type="invitation", entity_id=row.id)
-            sent.append(rem.kind)
-        if sent != list(row.reminders_sent or []):
-            row.reminders_sent = sent
+    rows = [r for r in rows if needs_refresh(r)]
+    # Пробный прогон читает связанные таблицы пакетом: 4 запроса на список, а не на каждую строку
+    with prefetched(ctx.db, rows):
+        # Строки блокируются в одном порядке (по id): два параллельных чтения списка с пересекающимися приглашениями
+        # иначе берут блокировки навстречу друг другу и получают deadlock (нагрузочный тест, docs/LOAD_TEST.md)
+        for row in sorted(rows, key=lambda r: str(r.id)):
+            if not needs_refresh(row):
+                continue
+            # Пробный прогон без блокировки: чтение списка почти всегда ничего не меняет (срок не наступил, напоминаний нет),
+            # и блокировать «на всякий случай» каждую ожидающую строку на каждом GET незачем
+            probe = to_domain(ctx.db, row)
+            probe_out = refresh(probe, at, c)
+            if not (probe_out.events or probe_out.side_effects or due_reminders(probe, at, list(row.reminders_sent or []), c)):
+                continue
+            # Блокировка строки: два одновременных чтения не применят один и тот же срок дважды
+            _forget(ctx.db, row.id)  # под блокировкой читаем свежие данные, а не пакет
+            ctx.db.refresh(row, with_for_update=True)
+            if not needs_refresh(row):
+                continue
+            inv = to_domain(ctx.db, row)
+            out = refresh(inv, at, c)
+            if out.events or out.side_effects:
+                persist(ctx, row, inv, out)
+            sent = list(row.reminders_sent or [])
+            for rem in due_reminders(inv, at, sent, c):
+                if rem.to == "candidate":
+                    notify_user(ctx.db, row.candidate_id, "invitation", rem.text, entity_type="invitation", entity_id=row.id)
+                else:
+                    notify_company(ctx.db, row.company_id, "invitation", rem.text, entity_type="invitation", entity_id=row.id)
+                sent.append(rem.kind)
+            if sent != list(row.reminders_sent or []):
+                row.reminders_sent = sent
     ctx.db.flush()

@@ -25,4 +25,5 @@ export { TopNav, type NavItem, type TopNavAccount, type TopNavProps } from './To
 export { Trace, TraceProgress, type TraceNode, type TraceProps, type TraceSegment } from './Trace'
 export { TraceDiagram, type TraceDiagramProps, type TraceDiagramRow, type TraceEnd } from './TraceDiagram'
 export { NODE_DESCRIPTION, NODE_LABEL, NodeLegend, TrustNode, type NodeKind, type TrustNodeProps } from './TrustNode'
+export { VerifiedMark, type VerifiedMarkProps } from './VerifiedMark'
 export { WorkInProgress, type WorkInProgressProps } from './WorkInProgress'

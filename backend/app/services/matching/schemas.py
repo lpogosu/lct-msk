@@ -616,6 +616,7 @@ class CandidateCardOut(BaseModel):
     pseudonym: str
     ref: str
     available: bool = Field(description="Кандидат сейчас виден в подборе")
+    minor_notice: str | None = Field(default=None, description="Кандидату 15–17 лет: только стажировка / лёгкий труд, неполный день")
     note: str | None = None
     category: CardCategoryOut | None
     grade_history: list[GradeChangeOut] = Field(default_factory=list)

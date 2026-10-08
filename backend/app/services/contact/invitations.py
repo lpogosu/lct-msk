@@ -8,6 +8,7 @@ DECISIONS 7) → ленивые сроки → снимки квоты/лими�
 
 from __future__ import annotations
 
+import base64
 import uuid
 from collections import Counter
 from collections.abc import Sequence
@@ -15,7 +16,7 @@ from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import case, func, select, tuple_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -47,14 +48,17 @@ from app.models.company import Company
 from app.models.contact import Cooldown, Feedback, Invitation, OfferTerms, Vacancy
 from app.models.enums import NeedStatus, UserRole, UserStatus
 from app.models.matching import Need
+from app.models.trust import TrustComplaint
 from app.models.users import User
 from app.services.notify import send_mail_safe
+from app.trust import complaints as trust_complaints
 
 from . import identity
 from .common import cfg, contact_error, issues, now, rel
 from .company import company_of, require_complete, sender_state
 from .profiles import candidate_for_employer, company_card, contact_methods_list
-from .store import Ctx, jsonable, persist, refresh_rows, terms_to_row, to_domain
+from .reliability import events_by_company
+from .store import Ctx, jsonable, persist, prefetched, refresh_rows, terms_to_row, to_domain
 
 # --- отправка ---------------------------------------------------------------------------------------
 
@@ -187,6 +191,7 @@ def candidate_state(
         received_at=_week_received(db, candidate_id, at),
         blocked_company_ids=frozenset(str(c) for c in ((profile.blocked_company_ids or []) if profile else [])),
         birth_year=profile.birth_year if profile else None,
+        guardian_consent=bool(profile.guardian_consent) if profile else False,
         card_opened=identity.card_opened(db, company.id, candidate_id),
         shortlisted=identity.shortlisted(db, company.id, candidate_id),
         score=float(score) if isinstance(score, int | float) else None,
@@ -564,20 +569,75 @@ def withdraw_pending_for_company(ctx: Ctx, company_id: uuid.UUID, actor_id: uuid
 # --- чтение -----------------------------------------------------------------------------------------
 
 
+def _filters(q: Any, **cond: Any) -> Any:
+    for col, val in cond.items():
+        if val is not None:
+            q = q.where(getattr(Invitation, col) == val)
+    return q
+
+
 def employer_rows(db: Session, company_id: uuid.UUID, need_id: uuid.UUID | None, status: str | None) -> list[Invitation]:
-    q = select(Invitation).where(Invitation.company_id == company_id)
-    if need_id is not None:
-        q = q.where(Invitation.need_id == need_id)
-    if status is not None:
-        q = q.where(Invitation.status == status)
-    return list(db.scalars(q.order_by(Invitation.created_at.desc())))
+    q = _filters(select(Invitation).where(Invitation.company_id == company_id), need_id=need_id, status=status)
+    return list(db.scalars(q.order_by(Invitation.created_at.desc(), Invitation.id.desc())))
 
 
 def candidate_rows(db: Session, candidate_id: uuid.UUID, status: str | None) -> list[Invitation]:
-    q = select(Invitation).where(Invitation.candidate_id == candidate_id)
-    if status is not None:
-        q = q.where(Invitation.status == status)
-    return list(db.scalars(q.order_by(Invitation.created_at.desc())))
+    q = _filters(select(Invitation).where(Invitation.candidate_id == candidate_id), status=status)
+    return list(db.scalars(q.order_by(Invitation.created_at.desc(), Invitation.id.desc())))
+
+
+def candidate_new_count(db: Session, candidate_id: uuid.UUID) -> int:
+    """Непросмотренные входящие (is_new: статус «отправлено» и не открыто) — агрегатом, не по странице."""
+    return int(
+        db.scalar(
+            select(func.count()).where(
+                Invitation.candidate_id == candidate_id, Invitation.status == str(S.SENT), Invitation.viewed_at.is_(None)
+            )
+        )
+        or 0
+    )
+
+
+def encode_cursor(row: Invitation) -> str:
+    raw = f"{row.created_at.isoformat()}|{row.id}"
+    return base64.urlsafe_b64encode(raw.encode()).decode().rstrip("=")
+
+
+def decode_cursor(cursor: str) -> tuple[datetime, uuid.UUID]:
+    try:
+        raw = base64.urlsafe_b64decode(cursor + "=" * (-len(cursor) % 4)).decode()
+        at, _, rid = raw.partition("|")
+        return datetime.fromisoformat(at), uuid.UUID(rid)
+    except ValueError:
+        raise bad_request("bad_cursor", "Неверный курсор страницы") from None
+
+
+def _page(q: Any, db: Session, limit: int | None, cursor: str | None) -> tuple[list[Invitation], str | None]:
+    """Страница по ключу (created_at, id) по убыванию: стабильна при новых приглашениях (в отличие от offset)."""
+    if cursor:
+        at, rid = decode_cursor(cursor)
+        q = q.where(tuple_(Invitation.created_at, Invitation.id) < tuple_(at, rid))
+    q = q.order_by(Invitation.created_at.desc(), Invitation.id.desc())
+    if limit is None:
+        return list(db.scalars(q)), None
+    rows = list(db.scalars(q.limit(limit + 1)))
+    more = len(rows) > limit
+    rows = rows[:limit]
+    return rows, (encode_cursor(rows[-1]) if more and rows else None)
+
+
+def employer_page(
+    db: Session, company_id: uuid.UUID, need_id: uuid.UUID | None, status: str | None, limit: int | None, cursor: str | None
+) -> tuple[list[Invitation], str | None]:
+    q = _filters(select(Invitation).where(Invitation.company_id == company_id), need_id=need_id, status=status)
+    return _page(q, db, limit, cursor)
+
+
+def candidate_page(
+    db: Session, candidate_id: uuid.UUID, status: str | None, limit: int | None, cursor: str | None
+) -> tuple[list[Invitation], str | None]:
+    q = _filters(select(Invitation).where(Invitation.candidate_id == candidate_id), status=status)
+    return _page(q, db, limit, cursor)
 
 
 def get_for_employer(db: Session, user: User, invitation_id: uuid.UUID) -> Invitation:
@@ -698,11 +758,13 @@ def employer_events(inv: DInv) -> list[dict[str, Any]]:
     return out
 
 
-def employer_card(ctx: Ctx, row: Invitation, inv: DInv | None = None, at: datetime | None = None) -> dict[str, Any]:
+def employer_card(
+    ctx: Ctx, row: Invitation, inv: DInv | None = None, at: datetime | None = None, ident: identity.Ident | None = None
+) -> dict[str, Any]:
     at = at or now()
     inv = inv or to_domain(ctx.db, row)
     t = inv.current_terms
-    ident = identity.alias(ctx.db, ctx.secret, row.company_id, row.candidate_id)
+    ident = ident or identity.alias(ctx.db, ctx.secret, row.company_id, row.candidate_id)
     return {
         "id": row.id,
         "pseudonym": row.pseudonym,
@@ -756,40 +818,89 @@ def employer_detail(ctx: Ctx, row: Invitation) -> dict[str, Any]:
     return card
 
 
-def kanban(ctx: Ctx, rows: list[Invitation]) -> dict[str, Any]:
-    """Р8: колонки по статусам (встречные — наверху), цифры воронки, сводка причин отказов с подсказкой."""
+def employer_cards(ctx: Ctx, rows: list[Invitation], at: datetime) -> list[dict[str, Any]]:
+    """Карточки списка: условия/события/раскрытия и псевдонимы грузятся пакетом, число запросов не зависит от длины."""
+    if not rows:
+        return []
+    with prefetched(ctx.db, rows):
+        idents = identity.aliases(ctx.db, ctx.secret, rows[0].company_id, [r.candidate_id for r in rows])
+        return [employer_card(ctx, r, None, at, idents.get(r.candidate_id)) for r in rows]
+
+
+def _funnel_stats(db: Session, company_id: uuid.UUID, need_id: uuid.UUID | None) -> dict[str, Any]:
+    """Колонки, воронка и причины отказов по ВСЕМ приглашениям (а не по странице): один запрос-агрегат."""
+    q = select(
+        Invitation.need_id,
+        Invitation.status,
+        Invitation.decline_reason,
+        func.count(),
+        func.count(Invitation.viewed_at),
+        func.count(Invitation.countered_at),
+        func.count(Invitation.accepted_at),
+        func.count(Invitation.contacted_at),
+        func.sum(case((Invitation.outcome == "hired", 1), else_=0)),
+        func.sum(case((Invitation.rank_at_send > 0, Invitation.rank_at_send), else_=0)),
+        func.sum(case((Invitation.rank_at_send > 0, 1), else_=0)),
+    ).where(Invitation.company_id == company_id)
+    q = _filters(q, need_id=need_id).group_by(Invitation.need_id, Invitation.status, Invitation.decline_reason)
+    by_status: Counter[str] = Counter()
+    reasons: Counter[str] = Counter()
+    funnel: Counter[str] = Counter()
+    per_need: dict[str, dict[str, int]] = {}
+    rank_sum = rank_n = 0
+    for need, st, reason, n, viewed, countered, accepted, contacted, hired, rsum, rn in db.execute(q):
+        by_status[st] += n
+        if need is not None:
+            f = per_need.setdefault(str(need), {"sent": 0, "viewed": 0, "countered": 0, "accepted": 0})
+            f["sent"] += n
+            f["viewed"] += viewed
+            f["countered"] += n if st == "countered" else 0
+            f["accepted"] += accepted
+        if st == "declined" and reason:
+            reasons[reason] += n
+        funnel.update(
+            {"sent": n, "viewed": viewed, "countered": countered, "accepted": accepted, "contacted": contacted, "hired": int(hired or 0)}
+        )
+        rank_sum += int(rsum or 0)
+        rank_n += int(rn or 0)
+    return {"by_status": by_status, "reasons": reasons, "funnel": funnel, "rank_sum": rank_sum, "rank_n": rank_n, "per_need": per_need}
+
+
+def kanban(
+    ctx: Ctx,
+    company_id: uuid.UUID,
+    need_id: uuid.UUID | None,
+    rows: list[Invitation],
+    next_cursor: str | None = None,
+) -> dict[str, Any]:
+    """Р8: колонки по статусам (встречные — наверху), цифры воронки, сводка причин отказов с подсказкой.
+
+    `rows` — одна страница карточек; счётчики колонок, воронка и сводка считаются агрегатом по всем приглашениям."""
     at = now()
     c = cfg()
-    cards = [employer_card(ctx, r, None, at) for r in rows]
+    cards = employer_cards(ctx, rows, at)
+    st = _funnel_stats(ctx.db, company_id, need_id)
     order = ["countered", "sent", "viewed", "accepted", "closed", "declined", "counter_declined", "expired", "withdrawn", "consent_revoked"]
     columns = []
-    for st in order:
-        items = [x for x in cards if x["status"] == st]
-        columns.append({"status": st, "label": c.status_labels.invitation[st], "count": len(items), "items": items})
-    funnel = {
-        "sent": len(rows),
-        "viewed": sum(1 for r in rows if r.viewed_at is not None),
-        "countered": sum(1 for r in rows if r.countered_at is not None),
-        "accepted": sum(1 for r in rows if r.accepted_at is not None),
-        "contacted": sum(1 for r in rows if r.contacted_at is not None),
-        "hired": sum(1 for r in rows if r.outcome == "hired"),
-    }
-    reasons = Counter(r.decline_reason for r in rows if r.status == "declined" and r.decline_reason)
-    summary = [
-        {"reason": k, "label": c.reasons.decline.get(k, k), "count": n} for k, n in reasons.most_common()
-    ]
+    for status in order:
+        items = [x for x in cards if x["status"] == status]
+        columns.append({"status": status, "label": c.status_labels.invitation[status], "count": st["by_status"].get(status, 0), "items": items})
+    funnel = {k: int(st["funnel"].get(k, 0)) for k in ("sent", "viewed", "countered", "accepted", "contacted", "hired")}
+    reasons = st["reasons"]
+    summary = [{"reason": k, "label": c.reasons.decline.get(k, k), "count": n} for k, n in reasons.most_common()]
     hint = None
     total = sum(reasons.values())
     if total and reasons.most_common(1)[0][0] in c.reasons.decline_suggest_counter:
         n = reasons.most_common(1)[0][1]
         hint = f"{n} из {total} отказов — из-за зарплаты: поднимите верх вилки, чтобы охватить больше кандидатов"
-    ranks = [r.rank_at_send for r in rows if r.rank_at_send]
     return {
         "columns": columns,
         "funnel": funnel,
         "decline_summary": summary,
         "decline_hint": hint,
-        "avg_rank_at_send": round(sum(ranks) / len(ranks), 1) if ranks else None,
+        "avg_rank_at_send": round(st["rank_sum"] / st["rank_n"], 1) if st["rank_n"] else None,
+        "per_need": [{"need_id": uuid.UUID(k), **v} for k, v in st["per_need"].items()],
+        "next_cursor": next_cursor,
     }
 
 
@@ -828,13 +939,34 @@ def _feedback_for_candidate(db: Session, row: Invitation) -> list[dict[str, Any]
     return out
 
 
-def candidate_card(ctx: Ctx, row: Invitation, inv: DInv | None = None, at: datetime | None = None) -> dict[str, Any]:
+def candidate_cards(ctx: Ctx, rows: list[Invitation], at: datetime) -> list[dict[str, Any]]:
+    """Карточки входящих пакетом: приглашения и компании с надёжностью — по одному запросу на страницу."""
+    if not rows:
+        return []
+    ids = list({r.company_id for r in rows})
+    companies = {c.id: c for c in ctx.db.scalars(select(Company).where(Company.id.in_(ids)))}
+    events = events_by_company(ctx.db, ids)
+    comps = {cid: company_card(ctx.db, c, at, events.get(cid, [])) for cid, c in companies.items()}
+    with prefetched(ctx.db, rows):
+        return [candidate_card(ctx, r, None, at, comps.get(r.company_id), preloaded=True) for r in rows]
+
+
+def candidate_card(
+    ctx: Ctx,
+    row: Invitation,
+    inv: DInv | None = None,
+    at: datetime | None = None,
+    comp: dict[str, Any] | None = None,
+    *,
+    preloaded: bool = False,
+) -> dict[str, Any]:
     """К9: вилка первой строкой, компания и надёжность, срок."""
     at = at or now()
     inv = inv or to_domain(ctx.db, row)
     t = inv.current_terms
-    company = ctx.db.get(Company, row.company_id)
-    comp = company_card(ctx.db, company, at) if company else None
+    if not preloaded:
+        company = ctx.db.get(Company, row.company_id)
+        comp = company_card(ctx.db, company, at) if company else None
     return {
         "id": row.id,
         "salary": _salary(t),
@@ -846,6 +978,7 @@ def candidate_card(ctx: Ctx, row: Invitation, inv: DInv | None = None, at: datet
             "reliability": comp["reliability"]["display"],
             "r": comp["reliability"]["r"],
             "discrepancy_badge": comp["reliability"]["discrepancy_badge"],
+            "trust": comp["trust"],
         }
         if comp
         else None,
@@ -929,61 +1062,37 @@ def mark_viewed_if_new(ctx: Ctx, row: Invitation, user: User) -> None:
 
 # --- «Пожаловаться» (антифейк, концепция §8.1: запись и счётчик) ---------------------------------
 
-COMPLAINT_DIRECTION = "complaint"
-
-
-def _complaint(db: Session, row: Invitation) -> Feedback | None:
-    return db.scalar(
-        select(Feedback).where(
-            Feedback.target_type == "invitation",
-            Feedback.target_id == row.id,
-            Feedback.direction == COMPLAINT_DIRECTION,
-        )
-    )
+def _complaint(db: Session, row: Invitation) -> TrustComplaint | None:
+    return trust_complaints.find(db, row.candidate_id, "invitation", row.id)
 
 
 def report(ctx: Ctx, row: Invitation, reason: str, comment: str | None) -> None:
-    """Жалоба кандидата на приглашение. Одна на приглашение; компания о ней не уведомляется (защита кандидата),
-    счётчик виден в профиле компании и модерации (концепция вне MVP — разбор администратором ФСП)."""
-    c = cfg()
-    if reason not in c.reasons.complaint:
-        raise bad_request(
-            "complaint_reason", "Выберите причину жалобы: " + ", ".join(v.lower() for v in c.reasons.complaint.values())
-        )
-    limit = c.counter_offer.comment_max_len
-    if comment and len(comment) > limit:
-        raise bad_request("comment_too_long", f"Комментарий — не длиннее {limit} символов")
-    if _complaint(ctx.db, row) is not None:
-        raise conflict("complaint_exists", "Вы уже пожаловались на это приглашение — спасибо, жалоба учтена")
-    ctx.db.add(
-        Feedback(
-            target_type="invitation",
-            target_id=row.id,
-            direction=COMPLAINT_DIRECTION,
-            reason_code=reason,
-            comment=(comment or "").strip() or None,
-            created_at=now(),
-        )
+    """Жалоба кандидата на приглашение. Одна на приглашение; компания о ней не уведомляется (защита кандидата).
+    Жалоба попадает в очередь модерации и учитывается в квоте компании (app/trust/complaints.py, TRUST_AND_SAFETY.md)."""
+    trust_complaints.file_complaint(
+        ctx.db,
+        ctx.db.get(User, row.candidate_id),
+        target_type="invitation",
+        target_id=row.id,
+        company_id=row.company_id,
+        reason=reason,
+        comment=comment,
+        at=now(),
     )
-    ctx.db.flush()
 
 
 def complaints_count(db: Session, company_id: uuid.UUID, days: int) -> int:
-    from sqlalchemy import func
-
+    """Жалобы кандидатов на компанию за окно (кроме отклонённых модератором)."""
     since = now() - timedelta(days=days)
     return int(
         db.scalar(
             select(func.count())
-            .select_from(Feedback)
-            .join(Invitation, Invitation.id == Feedback.target_id)
+            .select_from(TrustComplaint)
             .where(
-                Feedback.target_type == "invitation",
-                Feedback.direction == COMPLAINT_DIRECTION,
-                Invitation.company_id == company_id,
-                Feedback.created_at >= since,
+                TrustComplaint.company_id == company_id,
+                TrustComplaint.status.in_(trust_complaints.COUNTED),
+                TrustComplaint.created_at >= since,
             )
         )
         or 0
     )
-
