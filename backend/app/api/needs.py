@@ -32,6 +32,7 @@ from app.services.matching.schemas import (
     CandidateCardOut,
     CategoriesOut,
     CheckOut,
+    MarketSalaryOut,
     NeedCreateIn,
     NeedListOut,
     NeedOut,
@@ -140,6 +141,28 @@ def _view(db: DbSession, need: Need, nv, secret: str, tab: str, category: str | 
 def parse_brief(body: BriefParseIn, user: Employer, limiter: LimiterDep) -> ParseOut:
     _limit(limiter, "parse", user)
     return ParseOut.model_validate(svc.parse_preview(_brief_input(body)))
+
+
+@router.get(
+    "/market-salary",
+    response_model=MarketSalaryOut,
+    summary="Рыночная вилка для направления и грейда",
+    description=(
+        "Подсказка в форме брифа: квантили зарплат (p10–p90) по открытым данным вакансий «Работа в России» для "
+        "направления × грейда (если ячейка тонкая — по направлению целиком), в двух основаниях: `gross` — до НДФЛ "
+        "(так указано в источнике) и `net` — на руки. Выборка региональная и занижена относительно Москвы — "
+        "см. `note`. Если передать `salary_to` и `salary_net`, вернётся отношение верхней границы вилки к нижнему "
+        "квартилю рынка. Только подсказка: в Score и подбор не входит, вилку не блокирует."
+    ),
+)
+def market_salary(
+    user: Employer,
+    specialization: Annotated[str, Query(min_length=2, max_length=32, description="Код специализации, например backend_python")],
+    grade: Annotated[Literal["intern", "junior", "middle", "senior"] | None, Query(description="Грейд")] = None,
+    salary_to: Annotated[int | None, Query(ge=0, le=10_000_000, description="Верхняя граница вилки, ₽/мес")] = None,
+    salary_net: Annotated[bool, Query(description="Вилка указана на руки (true) или до НДФЛ (false)")] = True,
+) -> MarketSalaryOut:
+    return MarketSalaryOut.model_validate(svc.market_salary(specialization, grade, salary_to, salary_net))
 
 
 @router.post(

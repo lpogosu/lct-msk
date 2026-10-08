@@ -1,0 +1,283 @@
+{
+ "meta": {
+  "note": "Синонимы и сленг, добавленные в config/skills.yaml; термины из вакансий — с документной частотой в корпусе",
+  "corpus_df": {
+   "svn": 15,
+   "mvvm": 31,
+   "mvc": 17,
+   "mvp": 26,
+   "uml": 37,
+   "bpmn": 45,
+   "dhcp": 82,
+   "cisco": 35,
+   "mikrotik": 31,
+   "splunk": 30,
+   "vsphere": 11,
+   "esxi": 10,
+   "itil": 9,
+   "itsm": 15,
+   "scada": 13,
+   "modbus": 9,
+   "delphi": 13,
+   "redmine": 13,
+   "gigachat": 20,
+   "chatgpt": 11,
+   "deepseek": 13,
+   "rag": 23,
+   "bgp": 8
+  }
+ },
+ "aliases": {
+  "asyncio": [
+   "асинк",
+   "асинке",
+   "асинхронщина",
+   "асинхронка",
+   "асинхронный код",
+   "async io"
+  ],
+  "drf": [
+   "дрф",
+   "django rest"
+  ],
+  "pytest": [
+   "пайтест",
+   "питест",
+   "пайтесте"
+  ],
+  "postgresql": [
+   "pg",
+   "postgre sql",
+   "постгри"
+  ],
+  "kubernetes": [
+   "k8",
+   "kubectl",
+   "кубернетесе",
+   "куб ернетес"
+  ],
+  "docker": [
+   "докеры",
+   "докеризация",
+   "docker swarm",
+   "докер композ"
+  ],
+  "ci_cd": [
+   "ci-cd",
+   "cicd",
+   "си ай си ди",
+   "сиай сиди",
+   "автоматизация сборки и деплоя",
+   "автоматизация деплоя"
+  ],
+  "gitlab_ci": [
+   "gitlab runner",
+   "gitlab-runner",
+   "гитлаб ci",
+   "гитлаб си ай"
+  ],
+  "rabbitmq": [
+   "раббит",
+   "раббитмк",
+   "rabbit mq",
+   "rabbit-mq",
+   "раббитмq"
+  ],
+  "helm": [
+   "хельм",
+   "helm charts",
+   "helm-чарты"
+  ],
+  "victoriametrics": [
+   "victoria metrics",
+   "victoria-metrics",
+   "виктория метрикс"
+  ],
+  "load_testing": [
+   "нагрузочное",
+   "нагрузочного",
+   "нагрузочные тесты",
+   "нагрузочных тестов",
+   "тестировщик нагрузки",
+   "нагрузочным тестированием",
+   "стресс-тестирование"
+  ],
+  "api_testing": [
+   "rest api тесты",
+   "api тесты",
+   "тестирование rest",
+   "тестирование апи",
+   "rest-тесты",
+   "тесты api",
+   "тестирования rest"
+  ],
+  "manual_testing": [
+   "ручные тесты",
+   "ручных тестов",
+   "ручные",
+   "мануальное тестирование",
+   "мануальный тестировщик",
+   "manual testing",
+   "manual qa",
+   "тестовая документация",
+   "тестовой документации",
+   "чек-лист",
+   "тест-кейс",
+   "тестовые сценарии",
+   "баг-репорт",
+   "баг-трекинг"
+  ],
+  "test_automation": [
+   "автотестер",
+   "автотестирование",
+   "автотестирования",
+   "автоматизатор тестирования",
+   "автоматизированное тестирование",
+   "автоматизированного тестирования",
+   "автоматизация тестов",
+   "автотест",
+   "qa automation",
+   "automation qa",
+   "aqa"
+  ],
+  "networking_ops": [
+   "dhcp",
+   "cisco",
+   "mikrotik",
+   "микротик",
+   "eltex",
+   "bgp",
+   "ospf",
+   "lan",
+   "wi-fi",
+   "wifi",
+   "коммутаторы",
+   "маршрутизаторы",
+   "сетевое оборудование",
+   "сетевого оборудования"
+  ],
+  "virtualization": [
+   "vsphere",
+   "esxi",
+   "vmware vsphere",
+   "виртуальные машины",
+   "виртуальных машин"
+  ],
+  "siem": [
+   "splunk",
+   "qradar",
+   "arcsight"
+  ],
+  "git": [
+   "svn",
+   "subversion",
+   "mercurial"
+  ],
+  "design_patterns": [
+   "mvc",
+   "mvvm",
+   "mvp",
+   "mvi"
+  ],
+  "llm": [
+   "gigachat",
+   "gigachat api",
+   "chatgpt",
+   "deepseek",
+   "yandexgpt",
+   "gpt",
+   "rag",
+   "генеративные модели"
+  ],
+  "jira": [
+   "redmine",
+   "трекер задач",
+   "trello"
+  ],
+  "javascript": [
+   "жс",
+   "джс"
+  ],
+  "angular": [
+   "ангулар",
+   "ангуляре"
+  ],
+  "cypress": [
+   "сайпресс",
+   "цайпресс"
+  ],
+  "playwright": [
+   "плейрайт",
+   "плейврайт"
+  ],
+  "github_actions": [
+   "github action",
+   "гитхаб экшнс",
+   "gh actions",
+   "github workflows"
+  ],
+  "yandex_cloud": [
+   "yandex.cloud",
+   "яндекс.клауд",
+   "yc"
+  ],
+  "elasticsearch": [
+   "elastic search",
+   "эластиксёрч",
+   "эластиксерч",
+   "elk-стек"
+  ],
+  "scikit_learn": [
+   "scikit",
+   "сайкит лёрн",
+   "сайкит лерн"
+  ],
+  "gradient_boosting": [
+   "катбуст",
+   "лайтгбм",
+   "бустинг",
+   "бустинги"
+  ],
+  "pytorch": [
+   "торч",
+   "pytorch lightning"
+  ],
+  "swiftui": [
+   "свифтюай",
+   "свифт ui"
+  ],
+  "tech_docs": [
+   "uml",
+   "bpmn",
+   "c4 model",
+   "диаграммы uml"
+  ],
+  "highload": [
+   "high load",
+   "high-load"
+  ],
+  "ddd": [
+   "предметно-ориентированное проектирование"
+  ],
+  "nginx": [
+   "nginx plus",
+   "энжинкс"
+  ],
+  "terraform": [
+   "терраформом",
+   "terragrunt",
+   "opentofu"
+  ],
+  "ansible": [
+   "ansible playbook",
+   "плейбуки",
+   "плейбук"
+  ]
+ },
+ "new_skills": [
+  "delphi",
+  "appium",
+  "itil",
+  "scada"
+ ]
+}

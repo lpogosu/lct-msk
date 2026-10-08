@@ -160,6 +160,30 @@ class CategoryRecOut(BaseModel):
     selected: bool | None = Field(default=None, description="Выбрана для подборки")
 
 
+class MarketQuantilesOut(BaseModel):
+    p10: int
+    p25: int
+    p50: int
+    p75: int
+    p90: int
+
+
+class MarketSalaryOut(BaseModel):
+    """Рыночная вилка по открытым данным: только подсказка, в Score и подбор не входит."""
+
+    available: bool = Field(description="Есть ли достаточно данных (n ≥ порога) для направления")
+    scope: Literal["direction_grade", "direction"] | None = Field(default=None, description="По чему посчитано: направление × грейд или направление целиком")
+    grade: Grade | None = Field(default=None, description="Грейд ячейки (None — по направлению целиком)")
+    n: int | None = Field(default=None, description="Число вакансий с зарплатой в ячейке")
+    gross: MarketQuantilesOut | None = Field(default=None, description="₽/мес до НДФЛ (так указана зарплата в источнике)")
+    net: MarketQuantilesOut | None = Field(default=None, description="₽/мес на руки = gross·(1 − НДФЛ)")
+    source: str | None = None
+    fetched: str | None = Field(default=None, description="Дата выгрузки данных")
+    note: str | None = Field(default=None, description="Оговорка о смещении выборки")
+    ratio_to_p25: float | None = Field(default=None, description="Верхняя граница переданной вилки / нижний квартиль рынка (в gross)")
+    far_below: bool | None = Field(default=None, description="Вилка сильно ниже рынка (сигнал, не блокировка)")
+
+
 class ParseOut(BaseModel):
     parser_version: str = Field(description="Версия правил разбора")
     llm_used: bool = Field(default=False, description="LLM не использовалась: разбор на правилах")

@@ -20,6 +20,7 @@ import { BriefEditor } from '@/features/employer/components/BriefEditor'
 import { CategoriesPanel } from '@/features/employer/components/CategoriesPanel'
 import { CheckPanel } from '@/features/employer/components/CheckPanel'
 import { BlockTitle, LoadError, PageHead, PageSkeleton } from '@/features/employer/components/common'
+import { MarketHint } from '@/features/employer/components/MarketHint'
 import { MeaningTrace } from '@/features/employer/components/MeaningTrace'
 import { ReachHistogram } from '@/features/employer/components/ReachHistogram'
 import { SalaryFields, SalaryRangeSlider } from '@/features/employer/components/SalaryRange'
@@ -353,6 +354,12 @@ function BriefForm({ need }: { need: Need | null }) {
             onNet={(v) => setSalary({ from: eff.from, to: eff.to, net: v, touched: true })}
             error={salaryError}
             warning={salaryWarning}
+          />
+          <MarketHint
+            spec={edits.spec ?? parse?.spec?.top}
+            grade={edits.grade ?? parse?.grade?.top}
+            salaryTo={eff.to}
+            net={eff.net}
           />
           {sliderReady && (
             <div className="flex flex-col gap-3">

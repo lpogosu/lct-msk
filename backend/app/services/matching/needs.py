@@ -24,12 +24,15 @@ from sqlalchemy.orm import Session, make_transient_to_detached
 
 from app.contact.settings import get_contact_config
 from app.core.clock import clock
+from app.core.configs import load_config
 from app.core.errors import ApiError, conflict, not_found
 from app.matching import brief_parser as bp
+from app.matching import market
 from app.matching.coverage import (
     CategoryRecommendation,
     category_cards,
     family_catalog_from_registry,
+    family_info_from_registry,
     how_we_check,
     plan_check_set,
     recommend_categories,
@@ -271,6 +274,20 @@ def parse_out(d: Mapping[str, Any], categories: Sequence[Mapping[str, Any]] = ()
         },
         "categories": [dict(c) for c in categories],
     }
+
+
+def market_salary(spec: str, grade: str | None, salary_to: int | None, salary_net: bool) -> dict[str, Any]:
+    """Рыночная вилка (открытые данные) + отношение переданной вилки к p25. Подсказка, не влияет на Score."""
+    b = market.benchmark(spec, grade)
+    if b is None:
+        return {"available": False}
+    out: dict[str, Any] = {"available": True, **b}
+    if salary_to:
+        ratio = float(load_config("trust")["flags"]["salary_far_below_market"]["ratio"])
+        r = market.salary_vs_market(spec, grade, salary_to, salary_net, ratio)
+        if r:
+            out["ratio_to_p25"], out["far_below"] = r["ratio_to_p25"], r["far_below"]
+    return out
 
 
 def parse_preview(inp: BriefInput) -> dict[str, Any]:
@@ -622,7 +639,14 @@ def check_view(need: Need) -> dict[str, Any]:
     """«Как мы проверим» (§5.5): покрытие навыков брифа модулями теста, серый список и проверочный набор."""
     brief = need_brief(need)
     # План набора — до разбора навыков: «через проверочный набор» говорим только о навыках, попавших в его слоты
-    plan = plan_check_set(brief.must, family_catalog=family_catalog_from_registry(), seed=_seed(need.id))
+    plan = plan_check_set(
+        brief.must,
+        family_catalog=family_catalog_from_registry(),
+        family_info=family_info_from_registry(),
+        seed=_seed(need.id),
+        spec=brief.spec,
+        brief_grade=brief.grade,
+    )
     cov = how_we_check(brief.must, brief.nice, spec=brief.spec, check_set=plan)
     cat = get_catalog()
     return {

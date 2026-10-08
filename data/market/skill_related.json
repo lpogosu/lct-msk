@@ -1,0 +1,4390 @@
+{
+ "meta": {
+  "method": "npmi по совместной встречаемости в требованиях вакансий, n ≥ 8, npmi > 0,2",
+  "not_used_in_score": true
+ },
+ "related": {
+  "ab_testing": [
+   {
+    "skill": "python",
+    "n": 8,
+    "npmi": 0.218
+   },
+   {
+    "skill": "sql",
+    "n": 9,
+    "npmi": 0.206
+   }
+  ],
+  "agile": [
+   {
+    "skill": "scrum",
+    "n": 23,
+    "npmi": 0.757
+   },
+   {
+    "skill": "kanban",
+    "n": 8,
+    "npmi": 0.642
+   },
+   {
+    "skill": "confluence",
+    "n": 18,
+    "npmi": 0.53
+   },
+   {
+    "skill": "jira",
+    "n": 18,
+    "npmi": 0.444
+   },
+   {
+    "skill": "json",
+    "n": 9,
+    "npmi": 0.32
+   },
+   {
+    "skill": "tech_docs",
+    "n": 20,
+    "npmi": 0.29
+   }
+  ],
+  "airflow": [
+   {
+    "skill": "clickhouse",
+    "n": 13,
+    "npmi": 0.741
+   },
+   {
+    "skill": "etl",
+    "n": 15,
+    "npmi": 0.735
+   },
+   {
+    "skill": "ci_cd",
+    "n": 11,
+    "npmi": 0.399
+   },
+   {
+    "skill": "sql",
+    "n": 17,
+    "npmi": 0.334
+   },
+   {
+    "skill": "postgresql",
+    "n": 11,
+    "npmi": 0.318
+   },
+   {
+    "skill": "python",
+    "n": 13,
+    "npmi": 0.303
+   }
+  ],
+  "algorithms": [
+   {
+    "skill": "ssh",
+    "n": 28,
+    "npmi": 0.582
+   },
+   {
+    "skill": "siem",
+    "n": 30,
+    "npmi": 0.57
+   },
+   {
+    "skill": "machine_learning",
+    "n": 39,
+    "npmi": 0.508
+   },
+   {
+    "skill": "oracle",
+    "n": 38,
+    "npmi": 0.451
+   },
+   {
+    "skill": "data_structures",
+    "n": 27,
+    "npmi": 0.413
+   },
+   {
+    "skill": "http",
+    "n": 32,
+    "npmi": 0.406
+   }
+  ],
+  "allure": [
+   {
+    "skill": "appium",
+    "n": 8,
+    "npmi": 0.842
+   },
+   {
+    "skill": "selenium",
+    "n": 10,
+    "npmi": 0.836
+   },
+   {
+    "skill": "pytest",
+    "n": 9,
+    "npmi": 0.814
+   },
+   {
+    "skill": "teamcity",
+    "n": 8,
+    "npmi": 0.775
+   },
+   {
+    "skill": "graphql",
+    "n": 9,
+    "npmi": 0.764
+   },
+   {
+    "skill": "test_automation",
+    "n": 12,
+    "npmi": 0.682
+   }
+  ],
+  "android": [
+   {
+    "skill": "embedded",
+    "n": 42,
+    "npmi": 0.736
+   },
+   {
+    "skill": "cpp",
+    "n": 61,
+    "npmi": 0.663
+   },
+   {
+    "skill": "kotlin",
+    "n": 26,
+    "npmi": 0.661
+   },
+   {
+    "skill": "ios",
+    "n": 18,
+    "npmi": 0.629
+   },
+   {
+    "skill": "unit_testing",
+    "n": 19,
+    "npmi": 0.555
+   },
+   {
+    "skill": "bash",
+    "n": 43,
+    "npmi": 0.509
+   }
+  ],
+  "angular": [
+   {
+    "skill": "javascript",
+    "n": 13,
+    "npmi": 0.585
+   },
+   {
+    "skill": "html",
+    "n": 10,
+    "npmi": 0.566
+   },
+   {
+    "skill": "postgresql",
+    "n": 10,
+    "npmi": 0.336
+   },
+   {
+    "skill": "git",
+    "n": 9,
+    "npmi": 0.323
+   }
+  ],
+  "ansible": [
+   {
+    "skill": "terraform",
+    "n": 17,
+    "npmi": 0.746
+   },
+   {
+    "skill": "puppet",
+    "n": 8,
+    "npmi": 0.664
+   },
+   {
+    "skill": "grafana",
+    "n": 26,
+    "npmi": 0.655
+   },
+   {
+    "skill": "prometheus",
+    "n": 21,
+    "npmi": 0.647
+   },
+   {
+    "skill": "argocd",
+    "n": 11,
+    "npmi": 0.645
+   },
+   {
+    "skill": "helm",
+    "n": 11,
+    "npmi": 0.621
+   }
+  ],
+  "api_design": [
+   {
+    "skill": "postman",
+    "n": 24,
+    "npmi": 0.502
+   },
+   {
+    "skill": "rabbitmq",
+    "n": 31,
+    "npmi": 0.488
+   },
+   {
+    "skill": "api_testing",
+    "n": 14,
+    "npmi": 0.478
+   },
+   {
+    "skill": "allure",
+    "n": 13,
+    "npmi": 0.468
+   },
+   {
+    "skill": "graphql",
+    "n": 13,
+    "npmi": 0.468
+   },
+   {
+    "skill": "sqlalchemy",
+    "n": 8,
+    "npmi": 0.454
+   }
+  ],
+  "api_testing": [
+   {
+    "skill": "manual_testing",
+    "n": 17,
+    "npmi": 0.697
+   },
+   {
+    "skill": "postman",
+    "n": 9,
+    "npmi": 0.614
+   },
+   {
+    "skill": "test_automation",
+    "n": 9,
+    "npmi": 0.581
+   },
+   {
+    "skill": "api_design",
+    "n": 14,
+    "npmi": 0.478
+   },
+   {
+    "skill": "sql",
+    "n": 16,
+    "npmi": 0.339
+   }
+  ],
+  "appium": [
+   {
+    "skill": "pytest",
+    "n": 8,
+    "npmi": 0.891
+   },
+   {
+    "skill": "teamcity",
+    "n": 8,
+    "npmi": 0.891
+   },
+   {
+    "skill": "selenium",
+    "n": 8,
+    "npmi": 0.877
+   },
+   {
+    "skill": "allure",
+    "n": 8,
+    "npmi": 0.842
+   },
+   {
+    "skill": "graphql",
+    "n": 8,
+    "npmi": 0.842
+   },
+   {
+    "skill": "test_automation",
+    "n": 9,
+    "npmi": 0.71
+   }
+  ],
+  "appsec": [
+   {
+    "skill": "owasp",
+    "n": 9,
+    "npmi": 0.943
+   },
+   {
+    "skill": "kubernetes",
+    "n": 9,
+    "npmi": 0.525
+   },
+   {
+    "skill": "docker",
+    "n": 9,
+    "npmi": 0.457
+   }
+  ],
+  "argocd": [
+   {
+    "skill": "helm",
+    "n": 10,
+    "npmi": 0.823
+   },
+   {
+    "skill": "ansible",
+    "n": 11,
+    "npmi": 0.645
+   },
+   {
+    "skill": "prometheus",
+    "n": 9,
+    "npmi": 0.615
+   },
+   {
+    "skill": "kubernetes",
+    "n": 14,
+    "npmi": 0.579
+   },
+   {
+    "skill": "grafana",
+    "n": 9,
+    "npmi": 0.557
+   },
+   {
+    "skill": "ci_cd",
+    "n": 14,
+    "npmi": 0.525
+   }
+  ],
+  "aws": [
+   {
+    "skill": "gcp",
+    "n": 8,
+    "npmi": 0.886
+   },
+   {
+    "skill": "azure",
+    "n": 10,
+    "npmi": 0.874
+   },
+   {
+    "skill": "observability",
+    "n": 12,
+    "npmi": 0.326
+   },
+   {
+    "skill": "python",
+    "n": 10,
+    "npmi": 0.293
+   },
+   {
+    "skill": "linux",
+    "n": 11,
+    "npmi": 0.265
+   }
+  ],
+  "azure": [
+   {
+    "skill": "aws",
+    "n": 10,
+    "npmi": 0.874
+   },
+   {
+    "skill": "windows_server",
+    "n": 8,
+    "npmi": 0.435
+   },
+   {
+    "skill": "bash",
+    "n": 8,
+    "npmi": 0.387
+   },
+   {
+    "skill": "observability",
+    "n": 10,
+    "npmi": 0.308
+   },
+   {
+    "skill": "linux",
+    "n": 10,
+    "npmi": 0.269
+   },
+   {
+    "skill": "python",
+    "n": 8,
+    "npmi": 0.267
+   }
+  ],
+  "bash": [
+   {
+    "skill": "python",
+    "n": 114,
+    "npmi": 0.603
+   },
+   {
+    "skill": "embedded",
+    "n": 42,
+    "npmi": 0.596
+   },
+   {
+    "skill": "linux",
+    "n": 132,
+    "npmi": 0.591
+   },
+   {
+    "skill": "haproxy",
+    "n": 15,
+    "npmi": 0.537
+   },
+   {
+    "skill": "android",
+    "n": 43,
+    "npmi": 0.509
+   },
+   {
+    "skill": "consul",
+    "n": 10,
+    "npmi": 0.495
+   }
+  ],
+  "bitrix": [
+   {
+    "skill": "php",
+    "n": 11,
+    "npmi": 0.619
+   },
+   {
+    "skill": "onec",
+    "n": 12,
+    "npmi": 0.299
+   },
+   {
+    "skill": "integrations",
+    "n": 10,
+    "npmi": 0.254
+   }
+  ],
+  "c_lang": [
+   {
+    "skill": "linux",
+    "n": 8,
+    "npmi": 0.266
+   }
+  ],
+  "caching": [
+   {
+    "skill": "docker",
+    "n": 9,
+    "npmi": 0.409
+   },
+   {
+    "skill": "integrations",
+    "n": 11,
+    "npmi": 0.351
+   },
+   {
+    "skill": "postgresql",
+    "n": 8,
+    "npmi": 0.32
+   }
+  ],
+  "ci_cd": [
+   {
+    "skill": "docker",
+    "n": 75,
+    "npmi": 0.602
+   },
+   {
+    "skill": "jenkins",
+    "n": 35,
+    "npmi": 0.573
+   },
+   {
+    "skill": "gitlab",
+    "n": 30,
+    "npmi": 0.535
+   },
+   {
+    "skill": "teamcity",
+    "n": 13,
+    "npmi": 0.531
+   },
+   {
+    "skill": "argocd",
+    "n": 14,
+    "npmi": 0.525
+   },
+   {
+    "skill": "kubernetes",
+    "n": 50,
+    "npmi": 0.524
+   }
+  ],
+  "clickhouse": [
+   {
+    "skill": "airflow",
+    "n": 13,
+    "npmi": 0.741
+   },
+   {
+    "skill": "greenplum",
+    "n": 10,
+    "npmi": 0.613
+   },
+   {
+    "skill": "etl",
+    "n": 12,
+    "npmi": 0.573
+   },
+   {
+    "skill": "dwh",
+    "n": 9,
+    "npmi": 0.56
+   },
+   {
+    "skill": "hadoop",
+    "n": 8,
+    "npmi": 0.514
+   },
+   {
+    "skill": "postgresql",
+    "n": 20,
+    "npmi": 0.394
+   }
+  ],
+  "code_review": [
+   {
+    "skill": "oauth",
+    "n": 10,
+    "npmi": 0.546
+   },
+   {
+    "skill": "spring",
+    "n": 8,
+    "npmi": 0.449
+   },
+   {
+    "skill": "microservices",
+    "n": 15,
+    "npmi": 0.446
+   },
+   {
+    "skill": "ci_cd",
+    "n": 27,
+    "npmi": 0.444
+   },
+   {
+    "skill": "solid",
+    "n": 12,
+    "npmi": 0.42
+   },
+   {
+    "skill": "oop",
+    "n": 18,
+    "npmi": 0.413
+   }
+  ],
+  "confluence": [
+   {
+    "skill": "jira",
+    "n": 61,
+    "npmi": 0.856
+   },
+   {
+    "skill": "agile",
+    "n": 18,
+    "npmi": 0.53
+   },
+   {
+    "skill": "gitlab",
+    "n": 10,
+    "npmi": 0.36
+   },
+   {
+    "skill": "scrum",
+    "n": 8,
+    "npmi": 0.36
+   },
+   {
+    "skill": "json",
+    "n": 13,
+    "npmi": 0.351
+   },
+   {
+    "skill": "jenkins",
+    "n": 9,
+    "npmi": 0.318
+   }
+  ],
+  "consul": [
+   {
+    "skill": "elasticsearch",
+    "n": 9,
+    "npmi": 0.77
+   },
+   {
+    "skill": "grafana",
+    "n": 10,
+    "npmi": 0.664
+   },
+   {
+    "skill": "elk",
+    "n": 9,
+    "npmi": 0.655
+   },
+   {
+    "skill": "prometheus",
+    "n": 8,
+    "npmi": 0.654
+   },
+   {
+    "skill": "kubernetes",
+    "n": 10,
+    "npmi": 0.555
+   },
+   {
+    "skill": "bash",
+    "n": 10,
+    "npmi": 0.495
+   }
+  ],
+  "cpp": [
+   {
+    "skill": "embedded",
+    "n": 52,
+    "npmi": 0.692
+   },
+   {
+    "skill": "android",
+    "n": 61,
+    "npmi": 0.663
+   },
+   {
+    "skill": "unit_testing",
+    "n": 23,
+    "npmi": 0.502
+   },
+   {
+    "skill": "bash",
+    "n": 54,
+    "npmi": 0.457
+   },
+   {
+    "skill": "delphi",
+    "n": 10,
+    "npmi": 0.447
+   },
+   {
+    "skill": "kotlin",
+    "n": 18,
+    "npmi": 0.417
+   }
+  ],
+  "cryptography": [
+   {
+    "skill": "tcp_ip",
+    "n": 8,
+    "npmi": 0.296
+   },
+   {
+    "skill": "observability",
+    "n": 12,
+    "npmi": 0.251
+   },
+   {
+    "skill": "networking_ops",
+    "n": 12,
+    "npmi": 0.241
+   },
+   {
+    "skill": "linux",
+    "n": 12,
+    "npmi": 0.212
+   }
+  ],
+  "csharp": [
+   {
+    "skill": "dotnet",
+    "n": 22,
+    "npmi": 0.694
+   },
+   {
+    "skill": "entity_framework",
+    "n": 9,
+    "npmi": 0.654
+   },
+   {
+    "skill": "delphi",
+    "n": 11,
+    "npmi": 0.648
+   },
+   {
+    "skill": "oop",
+    "n": 20,
+    "npmi": 0.446
+   },
+   {
+    "skill": "javascript",
+    "n": 15,
+    "npmi": 0.368
+   },
+   {
+    "skill": "mssql",
+    "n": 13,
+    "npmi": 0.313
+   }
+  ],
+  "css": [
+   {
+    "skill": "html",
+    "n": 48,
+    "npmi": 0.915
+   },
+   {
+    "skill": "javascript",
+    "n": 38,
+    "npmi": 0.722
+   },
+   {
+    "skill": "jquery",
+    "n": 11,
+    "npmi": 0.672
+   },
+   {
+    "skill": "responsive",
+    "n": 9,
+    "npmi": 0.625
+   },
+   {
+    "skill": "layout",
+    "n": 10,
+    "npmi": 0.615
+   },
+   {
+    "skill": "react",
+    "n": 15,
+    "npmi": 0.564
+   }
+  ],
+  "data_analysis": [
+   {
+    "skill": "python",
+    "n": 9,
+    "npmi": 0.245
+   },
+   {
+    "skill": "sql",
+    "n": 10,
+    "npmi": 0.23
+   }
+  ],
+  "data_structures": [
+   {
+    "skill": "db_design",
+    "n": 26,
+    "npmi": 0.667
+   },
+   {
+    "skill": "algorithms",
+    "n": 27,
+    "npmi": 0.413
+   },
+   {
+    "skill": "code_review",
+    "n": 8,
+    "npmi": 0.252
+   }
+  ],
+  "db_design": [
+   {
+    "skill": "data_structures",
+    "n": 26,
+    "npmi": 0.667
+   }
+  ],
+  "delphi": [
+   {
+    "skill": "csharp",
+    "n": 11,
+    "npmi": 0.648
+   },
+   {
+    "skill": "oop",
+    "n": 9,
+    "npmi": 0.509
+   },
+   {
+    "skill": "cpp",
+    "n": 10,
+    "npmi": 0.447
+   },
+   {
+    "skill": "sql",
+    "n": 11,
+    "npmi": 0.305
+   }
+  ],
+  "design_patterns": [
+   {
+    "skill": "kotlin",
+    "n": 30,
+    "npmi": 0.649
+   },
+   {
+    "skill": "solid",
+    "n": 34,
+    "npmi": 0.622
+   },
+   {
+    "skill": "unit_testing",
+    "n": 23,
+    "npmi": 0.557
+   },
+   {
+    "skill": "appium",
+    "n": 9,
+    "npmi": 0.532
+   },
+   {
+    "skill": "oop",
+    "n": 37,
+    "npmi": 0.504
+   },
+   {
+    "skill": "hibernate",
+    "n": 9,
+    "npmi": 0.479
+   }
+  ],
+  "django": [
+   {
+    "skill": "redis",
+    "n": 11,
+    "npmi": 0.731
+   },
+   {
+    "skill": "rabbitmq",
+    "n": 9,
+    "npmi": 0.579
+   },
+   {
+    "skill": "docker",
+    "n": 12,
+    "npmi": 0.474
+   },
+   {
+    "skill": "postgresql",
+    "n": 11,
+    "npmi": 0.386
+   },
+   {
+    "skill": "python",
+    "n": 12,
+    "npmi": 0.353
+   },
+   {
+    "skill": "linux",
+    "n": 8,
+    "npmi": 0.205
+   }
+  ],
+  "dns": [
+   {
+    "skill": "ldap",
+    "n": 34,
+    "npmi": 0.613
+   },
+   {
+    "skill": "virtualization",
+    "n": 48,
+    "npmi": 0.553
+   },
+   {
+    "skill": "windows_server",
+    "n": 45,
+    "npmi": 0.542
+   },
+   {
+    "skill": "networking_ops",
+    "n": 87,
+    "npmi": 0.534
+   },
+   {
+    "skill": "tcp_ip",
+    "n": 48,
+    "npmi": 0.505
+   },
+   {
+    "skill": "haproxy",
+    "n": 10,
+    "npmi": 0.482
+   }
+  ],
+  "docker": [
+   {
+    "skill": "kubernetes",
+    "n": 80,
+    "npmi": 0.717
+   },
+   {
+    "skill": "ci_cd",
+    "n": 75,
+    "npmi": 0.602
+   },
+   {
+    "skill": "jenkins",
+    "n": 40,
+    "npmi": 0.602
+   },
+   {
+    "skill": "redis",
+    "n": 30,
+    "npmi": 0.577
+   },
+   {
+    "skill": "rabbitmq",
+    "n": 37,
+    "npmi": 0.542
+   },
+   {
+    "skill": "kafka",
+    "n": 48,
+    "npmi": 0.523
+   }
+  ],
+  "dotnet": [
+   {
+    "skill": "entity_framework",
+    "n": 9,
+    "npmi": 0.759
+   },
+   {
+    "skill": "csharp",
+    "n": 22,
+    "npmi": 0.694
+   },
+   {
+    "skill": "oop",
+    "n": 12,
+    "npmi": 0.411
+   },
+   {
+    "skill": "css",
+    "n": 8,
+    "npmi": 0.407
+   },
+   {
+    "skill": "javascript",
+    "n": 11,
+    "npmi": 0.395
+   },
+   {
+    "skill": "design_patterns",
+    "n": 13,
+    "npmi": 0.386
+   }
+  ],
+  "dwh": [
+   {
+    "skill": "greenplum",
+    "n": 14,
+    "npmi": 0.743
+   },
+   {
+    "skill": "etl",
+    "n": 18,
+    "npmi": 0.731
+   },
+   {
+    "skill": "hadoop",
+    "n": 9,
+    "npmi": 0.566
+   },
+   {
+    "skill": "clickhouse",
+    "n": 9,
+    "npmi": 0.56
+   },
+   {
+    "skill": "query_optimization",
+    "n": 9,
+    "npmi": 0.527
+   },
+   {
+    "skill": "sql",
+    "n": 23,
+    "npmi": 0.348
+   }
+  ],
+  "elasticsearch": [
+   {
+    "skill": "consul",
+    "n": 9,
+    "npmi": 0.77
+   },
+   {
+    "skill": "haproxy",
+    "n": 10,
+    "npmi": 0.729
+   },
+   {
+    "skill": "elk",
+    "n": 15,
+    "npmi": 0.617
+   },
+   {
+    "skill": "grafana",
+    "n": 15,
+    "npmi": 0.592
+   },
+   {
+    "skill": "prometheus",
+    "n": 12,
+    "npmi": 0.584
+   },
+   {
+    "skill": "kubernetes",
+    "n": 19,
+    "npmi": 0.548
+   }
+  ],
+  "elk": [
+   {
+    "skill": "prometheus",
+    "n": 30,
+    "npmi": 0.783
+   },
+   {
+    "skill": "grafana",
+    "n": 34,
+    "npmi": 0.76
+   },
+   {
+    "skill": "haproxy",
+    "n": 12,
+    "npmi": 0.669
+   },
+   {
+    "skill": "jenkins",
+    "n": 24,
+    "npmi": 0.658
+   },
+   {
+    "skill": "consul",
+    "n": 9,
+    "npmi": 0.655
+   },
+   {
+    "skill": "appium",
+    "n": 8,
+    "npmi": 0.639
+   }
+  ],
+  "embedded": [
+   {
+    "skill": "android",
+    "n": 42,
+    "npmi": 0.736
+   },
+   {
+    "skill": "cpp",
+    "n": 52,
+    "npmi": 0.692
+   },
+   {
+    "skill": "bash",
+    "n": 42,
+    "npmi": 0.596
+   },
+   {
+    "skill": "integrations",
+    "n": 46,
+    "npmi": 0.467
+   },
+   {
+    "skill": "python",
+    "n": 46,
+    "npmi": 0.458
+   },
+   {
+    "skill": "linux",
+    "n": 50,
+    "npmi": 0.418
+   }
+  ],
+  "english": [
+   {
+    "skill": "ssh",
+    "n": 29,
+    "npmi": 0.568
+   },
+   {
+    "skill": "siem",
+    "n": 31,
+    "npmi": 0.555
+   },
+   {
+    "skill": "unit_testing",
+    "n": 21,
+    "npmi": 0.463
+   },
+   {
+    "skill": "oracle",
+    "n": 37,
+    "npmi": 0.413
+   },
+   {
+    "skill": "kotlin",
+    "n": 18,
+    "npmi": 0.409
+   },
+   {
+    "skill": "machine_learning",
+    "n": 32,
+    "npmi": 0.408
+   }
+  ],
+  "entity_framework": [
+   {
+    "skill": "dotnet",
+    "n": 9,
+    "npmi": 0.759
+   },
+   {
+    "skill": "csharp",
+    "n": 9,
+    "npmi": 0.654
+   },
+   {
+    "skill": "rest",
+    "n": 8,
+    "npmi": 0.43
+   }
+  ],
+  "etl": [
+   {
+    "skill": "airflow",
+    "n": 15,
+    "npmi": 0.735
+   },
+   {
+    "skill": "dwh",
+    "n": 18,
+    "npmi": 0.731
+   },
+   {
+    "skill": "greenplum",
+    "n": 15,
+    "npmi": 0.689
+   },
+   {
+    "skill": "clickhouse",
+    "n": 12,
+    "npmi": 0.573
+   },
+   {
+    "skill": "power_bi",
+    "n": 8,
+    "npmi": 0.546
+   },
+   {
+    "skill": "spark",
+    "n": 9,
+    "npmi": 0.529
+   }
+  ],
+  "excel": [
+   {
+    "skill": "power_bi",
+    "n": 9,
+    "npmi": 0.519
+   },
+   {
+    "skill": "machine_learning",
+    "n": 8,
+    "npmi": 0.228
+   }
+  ],
+  "fastapi": [
+   {
+    "skill": "redis",
+    "n": 9,
+    "npmi": 0.63
+   },
+   {
+    "skill": "docker",
+    "n": 13,
+    "npmi": 0.459
+   },
+   {
+    "skill": "python",
+    "n": 17,
+    "npmi": 0.411
+   },
+   {
+    "skill": "postgresql",
+    "n": 13,
+    "npmi": 0.394
+   },
+   {
+    "skill": "api_design",
+    "n": 9,
+    "npmi": 0.368
+   },
+   {
+    "skill": "integrations",
+    "n": 9,
+    "npmi": 0.251
+   }
+  ],
+  "gcp": [
+   {
+    "skill": "aws",
+    "n": 8,
+    "npmi": 0.886
+   }
+  ],
+  "git": [
+   {
+    "skill": "jenkins",
+    "n": 33,
+    "npmi": 0.464
+   },
+   {
+    "skill": "design_patterns",
+    "n": 57,
+    "npmi": 0.463
+   },
+   {
+    "skill": "ci_cd",
+    "n": 63,
+    "npmi": 0.447
+   },
+   {
+    "skill": "unit_testing",
+    "n": 24,
+    "npmi": 0.446
+   },
+   {
+    "skill": "teamcity",
+    "n": 12,
+    "npmi": 0.438
+   },
+   {
+    "skill": "solid",
+    "n": 28,
+    "npmi": 0.417
+   }
+  ],
+  "github": [
+   {
+    "skill": "postgresql",
+    "n": 9,
+    "npmi": 0.38
+   },
+   {
+    "skill": "python",
+    "n": 8,
+    "npmi": 0.297
+   }
+  ],
+  "gitlab": [
+   {
+    "skill": "pytest",
+    "n": 11,
+    "npmi": 0.692
+   },
+   {
+    "skill": "jenkins",
+    "n": 23,
+    "npmi": 0.67
+   },
+   {
+    "skill": "appium",
+    "n": 8,
+    "npmi": 0.661
+   },
+   {
+    "skill": "teamcity",
+    "n": 9,
+    "npmi": 0.629
+   },
+   {
+    "skill": "selenium",
+    "n": 9,
+    "npmi": 0.616
+   },
+   {
+    "skill": "allure",
+    "n": 10,
+    "npmi": 0.611
+   }
+  ],
+  "gitlab_ci": [
+   {
+    "skill": "terraform",
+    "n": 10,
+    "npmi": 0.677
+   },
+   {
+    "skill": "helm",
+    "n": 8,
+    "npmi": 0.629
+   },
+   {
+    "skill": "kubernetes",
+    "n": 22,
+    "npmi": 0.591
+   },
+   {
+    "skill": "redis",
+    "n": 9,
+    "npmi": 0.531
+   },
+   {
+    "skill": "ansible",
+    "n": 11,
+    "npmi": 0.518
+   },
+   {
+    "skill": "ci_cd",
+    "n": 20,
+    "npmi": 0.5
+   }
+  ],
+  "go": [
+   {
+    "skill": "ci_cd",
+    "n": 15,
+    "npmi": 0.468
+   },
+   {
+    "skill": "kubernetes",
+    "n": 12,
+    "npmi": 0.456
+   },
+   {
+    "skill": "docker",
+    "n": 13,
+    "npmi": 0.407
+   },
+   {
+    "skill": "kafka",
+    "n": 8,
+    "npmi": 0.377
+   },
+   {
+    "skill": "python",
+    "n": 14,
+    "npmi": 0.304
+   },
+   {
+    "skill": "bash",
+    "n": 8,
+    "npmi": 0.292
+   }
+  ],
+  "grafana": [
+   {
+    "skill": "prometheus",
+    "n": 43,
+    "npmi": 0.917
+   },
+   {
+    "skill": "elk",
+    "n": 34,
+    "npmi": 0.76
+   },
+   {
+    "skill": "haproxy",
+    "n": 15,
+    "npmi": 0.719
+   },
+   {
+    "skill": "consul",
+    "n": 10,
+    "npmi": 0.664
+   },
+   {
+    "skill": "ansible",
+    "n": 26,
+    "npmi": 0.655
+   },
+   {
+    "skill": "yandex_cloud",
+    "n": 10,
+    "npmi": 0.63
+   }
+  ],
+  "graphql": [
+   {
+    "skill": "appium",
+    "n": 8,
+    "npmi": 0.842
+   },
+   {
+    "skill": "pytest",
+    "n": 9,
+    "npmi": 0.814
+   },
+   {
+    "skill": "selenium",
+    "n": 9,
+    "npmi": 0.8
+   },
+   {
+    "skill": "teamcity",
+    "n": 8,
+    "npmi": 0.775
+   },
+   {
+    "skill": "allure",
+    "n": 9,
+    "npmi": 0.764
+   },
+   {
+    "skill": "postman",
+    "n": 9,
+    "npmi": 0.625
+   }
+  ],
+  "greenplum": [
+   {
+    "skill": "dwh",
+    "n": 14,
+    "npmi": 0.743
+   },
+   {
+    "skill": "hadoop",
+    "n": 13,
+    "npmi": 0.703
+   },
+   {
+    "skill": "etl",
+    "n": 15,
+    "npmi": 0.689
+   },
+   {
+    "skill": "clickhouse",
+    "n": 10,
+    "npmi": 0.613
+   },
+   {
+    "skill": "spark",
+    "n": 8,
+    "npmi": 0.586
+   },
+   {
+    "skill": "postgresql",
+    "n": 16,
+    "npmi": 0.374
+   }
+  ],
+  "grpc": [
+   {
+    "skill": "kafka",
+    "n": 15,
+    "npmi": 0.545
+   },
+   {
+    "skill": "microservices",
+    "n": 11,
+    "npmi": 0.538
+   },
+   {
+    "skill": "rest",
+    "n": 17,
+    "npmi": 0.46
+   },
+   {
+    "skill": "rabbitmq",
+    "n": 8,
+    "npmi": 0.455
+   },
+   {
+    "skill": "ci_cd",
+    "n": 14,
+    "npmi": 0.439
+   },
+   {
+    "skill": "docker",
+    "n": 15,
+    "npmi": 0.439
+   }
+  ],
+  "hadoop": [
+   {
+    "skill": "spark",
+    "n": 20,
+    "npmi": 0.863
+   },
+   {
+    "skill": "hive",
+    "n": 10,
+    "npmi": 0.774
+   },
+   {
+    "skill": "greenplum",
+    "n": 13,
+    "npmi": 0.703
+   },
+   {
+    "skill": "dwh",
+    "n": 9,
+    "npmi": 0.566
+   },
+   {
+    "skill": "etl",
+    "n": 10,
+    "npmi": 0.525
+   },
+   {
+    "skill": "clickhouse",
+    "n": 8,
+    "npmi": 0.514
+   }
+  ],
+  "haproxy": [
+   {
+    "skill": "prometheus",
+    "n": 15,
+    "npmi": 0.784
+   },
+   {
+    "skill": "elasticsearch",
+    "n": 10,
+    "npmi": 0.729
+   },
+   {
+    "skill": "grafana",
+    "n": 15,
+    "npmi": 0.719
+   },
+   {
+    "skill": "elk",
+    "n": 12,
+    "npmi": 0.669
+   },
+   {
+    "skill": "nginx",
+    "n": 9,
+    "npmi": 0.615
+   },
+   {
+    "skill": "bash",
+    "n": 15,
+    "npmi": 0.537
+   }
+  ],
+  "helm": [
+   {
+    "skill": "argocd",
+    "n": 10,
+    "npmi": 0.823
+   },
+   {
+    "skill": "terraform",
+    "n": 8,
+    "npmi": 0.706
+   },
+   {
+    "skill": "prometheus",
+    "n": 12,
+    "npmi": 0.682
+   },
+   {
+    "skill": "gitlab_ci",
+    "n": 8,
+    "npmi": 0.629
+   },
+   {
+    "skill": "ansible",
+    "n": 11,
+    "npmi": 0.621
+   },
+   {
+    "skill": "grafana",
+    "n": 12,
+    "npmi": 0.62
+   }
+  ],
+  "hibernate": [
+   {
+    "skill": "spring",
+    "n": 9,
+    "npmi": 0.773
+   },
+   {
+    "skill": "microservices",
+    "n": 8,
+    "npmi": 0.567
+   },
+   {
+    "skill": "java",
+    "n": 11,
+    "npmi": 0.538
+   },
+   {
+    "skill": "kafka",
+    "n": 8,
+    "npmi": 0.487
+   },
+   {
+    "skill": "design_patterns",
+    "n": 9,
+    "npmi": 0.479
+   },
+   {
+    "skill": "postgresql",
+    "n": 10,
+    "npmi": 0.391
+   }
+  ],
+  "highload": [
+   {
+    "skill": "microservices",
+    "n": 8,
+    "npmi": 0.474
+   },
+   {
+    "skill": "kubernetes",
+    "n": 9,
+    "npmi": 0.396
+   },
+   {
+    "skill": "ci_cd",
+    "n": 10,
+    "npmi": 0.374
+   },
+   {
+    "skill": "java",
+    "n": 8,
+    "npmi": 0.356
+   },
+   {
+    "skill": "observability",
+    "n": 10,
+    "npmi": 0.226
+   }
+  ],
+  "hive": [
+   {
+    "skill": "hadoop",
+    "n": 10,
+    "npmi": 0.774
+   },
+   {
+    "skill": "spark",
+    "n": 8,
+    "npmi": 0.735
+   },
+   {
+    "skill": "python",
+    "n": 8,
+    "npmi": 0.297
+   }
+  ],
+  "html": [
+   {
+    "skill": "css",
+    "n": 48,
+    "npmi": 0.915
+   },
+   {
+    "skill": "javascript",
+    "n": 42,
+    "npmi": 0.716
+   },
+   {
+    "skill": "jquery",
+    "n": 12,
+    "npmi": 0.663
+   },
+   {
+    "skill": "responsive",
+    "n": 9,
+    "npmi": 0.589
+   },
+   {
+    "skill": "angular",
+    "n": 10,
+    "npmi": 0.566
+   },
+   {
+    "skill": "layout",
+    "n": 9,
+    "npmi": 0.547
+   }
+  ],
+  "http": [
+   {
+    "skill": "ssh",
+    "n": 32,
+    "npmi": 0.73
+   },
+   {
+    "skill": "siem",
+    "n": 29,
+    "npmi": 0.652
+   },
+   {
+    "skill": "tcp_ip",
+    "n": 47,
+    "npmi": 0.535
+   },
+   {
+    "skill": "machine_learning",
+    "n": 29,
+    "npmi": 0.497
+   },
+   {
+    "skill": "oracle",
+    "n": 32,
+    "npmi": 0.488
+   },
+   {
+    "skill": "rest",
+    "n": 46,
+    "npmi": 0.486
+   }
+  ],
+  "integration_testing": [
+   {
+    "skill": "react",
+    "n": 8,
+    "npmi": 0.482
+   },
+   {
+    "skill": "microservices",
+    "n": 8,
+    "npmi": 0.401
+   },
+   {
+    "skill": "docker",
+    "n": 13,
+    "npmi": 0.345
+   },
+   {
+    "skill": "ci_cd",
+    "n": 12,
+    "npmi": 0.343
+   },
+   {
+    "skill": "design_patterns",
+    "n": 10,
+    "npmi": 0.335
+   },
+   {
+    "skill": "api_design",
+    "n": 12,
+    "npmi": 0.334
+   }
+  ],
+  "integrations": [
+   {
+    "skill": "embedded",
+    "n": 46,
+    "npmi": 0.467
+   },
+   {
+    "skill": "android",
+    "n": 49,
+    "npmi": 0.392
+   },
+   {
+    "skill": "api_design",
+    "n": 66,
+    "npmi": 0.355
+   },
+   {
+    "skill": "caching",
+    "n": 11,
+    "npmi": 0.351
+   },
+   {
+    "skill": "json",
+    "n": 35,
+    "npmi": 0.324
+   },
+   {
+    "skill": "bash",
+    "n": 58,
+    "npmi": 0.305
+   }
+  ],
+  "ios": [
+   {
+    "skill": "android",
+    "n": 18,
+    "npmi": 0.629
+   },
+   {
+    "skill": "design_patterns",
+    "n": 11,
+    "npmi": 0.419
+   },
+   {
+    "skill": "oop",
+    "n": 8,
+    "npmi": 0.381
+   },
+   {
+    "skill": "rest",
+    "n": 9,
+    "npmi": 0.296
+   }
+  ],
+  "itil": [
+   {
+    "skill": "zabbix",
+    "n": 13,
+    "npmi": 0.525
+   },
+   {
+    "skill": "ansible",
+    "n": 11,
+    "npmi": 0.487
+   },
+   {
+    "skill": "elk",
+    "n": 9,
+    "npmi": 0.428
+   },
+   {
+    "skill": "ldap",
+    "n": 9,
+    "npmi": 0.421
+   },
+   {
+    "skill": "windows_server",
+    "n": 13,
+    "npmi": 0.382
+   },
+   {
+    "skill": "jira",
+    "n": 9,
+    "npmi": 0.315
+   }
+  ],
+  "java": [
+   {
+    "skill": "spring",
+    "n": 21,
+    "npmi": 0.614
+   },
+   {
+    "skill": "spring_boot",
+    "n": 18,
+    "npmi": 0.601
+   },
+   {
+    "skill": "kafka",
+    "n": 44,
+    "npmi": 0.569
+   },
+   {
+    "skill": "jenkins",
+    "n": 28,
+    "npmi": 0.54
+   },
+   {
+    "skill": "hibernate",
+    "n": 11,
+    "npmi": 0.538
+   },
+   {
+    "skill": "maven",
+    "n": 10,
+    "npmi": 0.527
+   }
+  ],
+  "javascript": [
+   {
+    "skill": "css",
+    "n": 38,
+    "npmi": 0.722
+   },
+   {
+    "skill": "html",
+    "n": 42,
+    "npmi": 0.716
+   },
+   {
+    "skill": "react",
+    "n": 26,
+    "npmi": 0.645
+   },
+   {
+    "skill": "jquery",
+    "n": 13,
+    "npmi": 0.626
+   },
+   {
+    "skill": "angular",
+    "n": 13,
+    "npmi": 0.585
+   },
+   {
+    "skill": "vue",
+    "n": 17,
+    "npmi": 0.581
+   }
+  ],
+  "jenkins": [
+   {
+    "skill": "openshift",
+    "n": 15,
+    "npmi": 0.694
+   },
+   {
+    "skill": "teamcity",
+    "n": 11,
+    "npmi": 0.676
+   },
+   {
+    "skill": "gitlab",
+    "n": 23,
+    "npmi": 0.67
+   },
+   {
+    "skill": "elk",
+    "n": 24,
+    "npmi": 0.658
+   },
+   {
+    "skill": "pytest",
+    "n": 10,
+    "npmi": 0.646
+   },
+   {
+    "skill": "appium",
+    "n": 8,
+    "npmi": 0.646
+   }
+  ],
+  "jira": [
+   {
+    "skill": "confluence",
+    "n": 61,
+    "npmi": 0.856
+   },
+   {
+    "skill": "agile",
+    "n": 18,
+    "npmi": 0.444
+   },
+   {
+    "skill": "manual_testing",
+    "n": 23,
+    "npmi": 0.436
+   },
+   {
+    "skill": "json",
+    "n": 21,
+    "npmi": 0.404
+   },
+   {
+    "skill": "spring_boot",
+    "n": 8,
+    "npmi": 0.392
+   },
+   {
+    "skill": "spring",
+    "n": 9,
+    "npmi": 0.387
+   }
+  ],
+  "jquery": [
+   {
+    "skill": "css",
+    "n": 11,
+    "npmi": 0.672
+   },
+   {
+    "skill": "html",
+    "n": 12,
+    "npmi": 0.663
+   },
+   {
+    "skill": "javascript",
+    "n": 13,
+    "npmi": 0.626
+   },
+   {
+    "skill": "sql",
+    "n": 8,
+    "npmi": 0.229
+   }
+  ],
+  "json": [
+   {
+    "skill": "soap",
+    "n": 54,
+    "npmi": 0.688
+   },
+   {
+    "skill": "rest",
+    "n": 40,
+    "npmi": 0.498
+   },
+   {
+    "skill": "jira",
+    "n": 21,
+    "npmi": 0.404
+   },
+   {
+    "skill": "api_design",
+    "n": 26,
+    "npmi": 0.379
+   },
+   {
+    "skill": "microservices",
+    "n": 13,
+    "npmi": 0.37
+   },
+   {
+    "skill": "confluence",
+    "n": 13,
+    "npmi": 0.351
+   }
+  ],
+  "kafka": [
+   {
+    "skill": "rabbitmq",
+    "n": 36,
+    "npmi": 0.661
+   },
+   {
+    "skill": "jenkins",
+    "n": 31,
+    "npmi": 0.628
+   },
+   {
+    "skill": "elk",
+    "n": 31,
+    "npmi": 0.619
+   },
+   {
+    "skill": "microservices",
+    "n": 33,
+    "npmi": 0.617
+   },
+   {
+    "skill": "openshift",
+    "n": 16,
+    "npmi": 0.595
+   },
+   {
+    "skill": "teamcity",
+    "n": 12,
+    "npmi": 0.59
+   }
+  ],
+  "kanban": [
+   {
+    "skill": "scrum",
+    "n": 9,
+    "npmi": 0.734
+   },
+   {
+    "skill": "agile",
+    "n": 8,
+    "npmi": 0.642
+   }
+  ],
+  "kotlin": [
+   {
+    "skill": "solid",
+    "n": 26,
+    "npmi": 0.79
+   },
+   {
+    "skill": "unit_testing",
+    "n": 20,
+    "npmi": 0.763
+   },
+   {
+    "skill": "android",
+    "n": 26,
+    "npmi": 0.661
+   },
+   {
+    "skill": "design_patterns",
+    "n": 30,
+    "npmi": 0.649
+   },
+   {
+    "skill": "math",
+    "n": 18,
+    "npmi": 0.625
+   },
+   {
+    "skill": "cpp",
+    "n": 18,
+    "npmi": 0.417
+   }
+  ],
+  "kubernetes": [
+   {
+    "skill": "docker",
+    "n": 80,
+    "npmi": 0.717
+   },
+   {
+    "skill": "prometheus",
+    "n": 31,
+    "npmi": 0.628
+   },
+   {
+    "skill": "grafana",
+    "n": 35,
+    "npmi": 0.598
+   },
+   {
+    "skill": "helm",
+    "n": 16,
+    "npmi": 0.597
+   },
+   {
+    "skill": "terraform",
+    "n": 17,
+    "npmi": 0.594
+   },
+   {
+    "skill": "gitlab_ci",
+    "n": 22,
+    "npmi": 0.591
+   }
+  ],
+  "layout": [
+   {
+    "skill": "css",
+    "n": 10,
+    "npmi": 0.615
+   },
+   {
+    "skill": "html",
+    "n": 9,
+    "npmi": 0.547
+   },
+   {
+    "skill": "javascript",
+    "n": 8,
+    "npmi": 0.457
+   }
+  ],
+  "ldap": [
+   {
+    "skill": "dns",
+    "n": 34,
+    "npmi": 0.613
+   },
+   {
+    "skill": "virtualization",
+    "n": 31,
+    "npmi": 0.545
+   },
+   {
+    "skill": "windows_server",
+    "n": 28,
+    "npmi": 0.522
+   },
+   {
+    "skill": "itil",
+    "n": 9,
+    "npmi": 0.421
+   },
+   {
+    "skill": "networking_ops",
+    "n": 40,
+    "npmi": 0.394
+   },
+   {
+    "skill": "zabbix",
+    "n": 11,
+    "npmi": 0.387
+   }
+  ],
+  "linux": [
+   {
+    "skill": "bash",
+    "n": 132,
+    "npmi": 0.591
+   },
+   {
+    "skill": "virtualization",
+    "n": 92,
+    "npmi": 0.469
+   },
+   {
+    "skill": "windows_server",
+    "n": 85,
+    "npmi": 0.451
+   },
+   {
+    "skill": "networking_ops",
+    "n": 174,
+    "npmi": 0.45
+   },
+   {
+    "skill": "zabbix",
+    "n": 49,
+    "npmi": 0.43
+   },
+   {
+    "skill": "dns",
+    "n": 75,
+    "npmi": 0.419
+   }
+  ],
+  "llm": [
+   {
+    "skill": "nlp",
+    "n": 11,
+    "npmi": 0.652
+   },
+   {
+    "skill": "mlops",
+    "n": 9,
+    "npmi": 0.546
+   },
+   {
+    "skill": "spark",
+    "n": 13,
+    "npmi": 0.543
+   },
+   {
+    "skill": "machine_learning",
+    "n": 24,
+    "npmi": 0.497
+   },
+   {
+    "skill": "hadoop",
+    "n": 12,
+    "npmi": 0.484
+   },
+   {
+    "skill": "openshift",
+    "n": 8,
+    "npmi": 0.448
+   }
+  ],
+  "load_testing": [
+   {
+    "skill": "manual_testing",
+    "n": 9,
+    "npmi": 0.496
+   }
+  ],
+  "machine_learning": [
+   {
+    "skill": "ssh",
+    "n": 28,
+    "npmi": 0.704
+   },
+   {
+    "skill": "siem",
+    "n": 29,
+    "npmi": 0.681
+   },
+   {
+    "skill": "mlops",
+    "n": 12,
+    "npmi": 0.601
+   },
+   {
+    "skill": "pytorch",
+    "n": 8,
+    "npmi": 0.544
+   },
+   {
+    "skill": "nlp",
+    "n": 8,
+    "npmi": 0.527
+   },
+   {
+    "skill": "oracle",
+    "n": 32,
+    "npmi": 0.517
+   }
+  ],
+  "manual_testing": [
+   {
+    "skill": "postman",
+    "n": 26,
+    "npmi": 0.703
+   },
+   {
+    "skill": "api_testing",
+    "n": 17,
+    "npmi": 0.697
+   },
+   {
+    "skill": "allure",
+    "n": 15,
+    "npmi": 0.665
+   },
+   {
+    "skill": "test_automation",
+    "n": 25,
+    "npmi": 0.647
+   },
+   {
+    "skill": "appium",
+    "n": 8,
+    "npmi": 0.59
+   },
+   {
+    "skill": "selenium",
+    "n": 10,
+    "npmi": 0.574
+   }
+  ],
+  "math": [
+   {
+    "skill": "unit_testing",
+    "n": 19,
+    "npmi": 0.65
+   },
+   {
+    "skill": "kotlin",
+    "n": 18,
+    "npmi": 0.625
+   },
+   {
+    "skill": "solid",
+    "n": 20,
+    "npmi": 0.593
+   },
+   {
+    "skill": "design_patterns",
+    "n": 22,
+    "npmi": 0.439
+   },
+   {
+    "skill": "android",
+    "n": 18,
+    "npmi": 0.438
+   },
+   {
+    "skill": "english",
+    "n": 24,
+    "npmi": 0.402
+   }
+  ],
+  "maven": [
+   {
+    "skill": "java",
+    "n": 10,
+    "npmi": 0.527
+   },
+   {
+    "skill": "git",
+    "n": 8,
+    "npmi": 0.363
+   }
+  ],
+  "message_queues": [
+   {
+    "skill": "rabbitmq",
+    "n": 9,
+    "npmi": 0.554
+   },
+   {
+    "skill": "kafka",
+    "n": 9,
+    "npmi": 0.466
+   },
+   {
+    "skill": "rest",
+    "n": 9,
+    "npmi": 0.355
+   },
+   {
+    "skill": "postgresql",
+    "n": 9,
+    "npmi": 0.31
+   },
+   {
+    "skill": "observability",
+    "n": 8,
+    "npmi": 0.217
+   }
+  ],
+  "microservices": [
+   {
+    "skill": "kafka",
+    "n": 33,
+    "npmi": 0.617
+   },
+   {
+    "skill": "oauth",
+    "n": 12,
+    "npmi": 0.601
+   },
+   {
+    "skill": "spring",
+    "n": 13,
+    "npmi": 0.589
+   },
+   {
+    "skill": "hibernate",
+    "n": 8,
+    "npmi": 0.567
+   },
+   {
+    "skill": "nosql",
+    "n": 11,
+    "npmi": 0.555
+   },
+   {
+    "skill": "spring_boot",
+    "n": 10,
+    "npmi": 0.546
+   }
+  ],
+  "mlops": [
+   {
+    "skill": "machine_learning",
+    "n": 12,
+    "npmi": 0.601
+   },
+   {
+    "skill": "llm",
+    "n": 9,
+    "npmi": 0.546
+   },
+   {
+    "skill": "ci_cd",
+    "n": 8,
+    "npmi": 0.383
+   },
+   {
+    "skill": "python",
+    "n": 8,
+    "npmi": 0.253
+   },
+   {
+    "skill": "observability",
+    "n": 8,
+    "npmi": 0.241
+   }
+  ],
+  "mongodb": [
+   {
+    "skill": "nosql",
+    "n": 9,
+    "npmi": 0.761
+   },
+   {
+    "skill": "rabbitmq",
+    "n": 9,
+    "npmi": 0.579
+   },
+   {
+    "skill": "kafka",
+    "n": 11,
+    "npmi": 0.549
+   },
+   {
+    "skill": "microservices",
+    "n": 8,
+    "npmi": 0.539
+   },
+   {
+    "skill": "kubernetes",
+    "n": 10,
+    "npmi": 0.492
+   },
+   {
+    "skill": "docker",
+    "n": 12,
+    "npmi": 0.474
+   }
+  ],
+  "mssql": [
+   {
+    "skill": "postgresql",
+    "n": 46,
+    "npmi": 0.413
+   },
+   {
+    "skill": "sql_indexes",
+    "n": 10,
+    "npmi": 0.385
+   },
+   {
+    "skill": "oracle",
+    "n": 22,
+    "npmi": 0.357
+   },
+   {
+    "skill": "mysql",
+    "n": 13,
+    "npmi": 0.355
+   },
+   {
+    "skill": "windows_server",
+    "n": 23,
+    "npmi": 0.335
+   },
+   {
+    "skill": "csharp",
+    "n": 13,
+    "npmi": 0.313
+   }
+  ],
+  "mysql": [
+   {
+    "skill": "php",
+    "n": 19,
+    "npmi": 0.615
+   },
+   {
+    "skill": "postgresql",
+    "n": 30,
+    "npmi": 0.429
+   },
+   {
+    "skill": "nginx",
+    "n": 8,
+    "npmi": 0.373
+   },
+   {
+    "skill": "mssql",
+    "n": 13,
+    "npmi": 0.355
+   },
+   {
+    "skill": "javascript",
+    "n": 11,
+    "npmi": 0.326
+   },
+   {
+    "skill": "oop",
+    "n": 11,
+    "npmi": 0.32
+   }
+  ],
+  "networking_ops": [
+   {
+    "skill": "dns",
+    "n": 87,
+    "npmi": 0.534
+   },
+   {
+    "skill": "virtualization",
+    "n": 86,
+    "npmi": 0.485
+   },
+   {
+    "skill": "linux",
+    "n": 174,
+    "npmi": 0.45
+   },
+   {
+    "skill": "bash",
+    "n": 81,
+    "npmi": 0.395
+   },
+   {
+    "skill": "windows_server",
+    "n": 67,
+    "npmi": 0.394
+   },
+   {
+    "skill": "ldap",
+    "n": 40,
+    "npmi": 0.394
+   }
+  ],
+  "nginx": [
+   {
+    "skill": "haproxy",
+    "n": 9,
+    "npmi": 0.615
+   },
+   {
+    "skill": "prometheus",
+    "n": 17,
+    "npmi": 0.61
+   },
+   {
+    "skill": "tls",
+    "n": 8,
+    "npmi": 0.581
+   },
+   {
+    "skill": "grafana",
+    "n": 19,
+    "npmi": 0.58
+   },
+   {
+    "skill": "redis",
+    "n": 12,
+    "npmi": 0.54
+   },
+   {
+    "skill": "zabbix",
+    "n": 14,
+    "npmi": 0.501
+   }
+  ],
+  "nlp": [
+   {
+    "skill": "llm",
+    "n": 11,
+    "npmi": 0.652
+   },
+   {
+    "skill": "machine_learning",
+    "n": 8,
+    "npmi": 0.527
+   },
+   {
+    "skill": "python",
+    "n": 10,
+    "npmi": 0.352
+   }
+  ],
+  "nodejs": [
+   {
+    "skill": "react",
+    "n": 8,
+    "npmi": 0.62
+   },
+   {
+    "skill": "rest",
+    "n": 9,
+    "npmi": 0.38
+   },
+   {
+    "skill": "postgresql",
+    "n": 9,
+    "npmi": 0.335
+   },
+   {
+    "skill": "integrations",
+    "n": 8,
+    "npmi": 0.259
+   }
+  ],
+  "nosql": [
+   {
+    "skill": "mongodb",
+    "n": 9,
+    "npmi": 0.761
+   },
+   {
+    "skill": "microservices",
+    "n": 11,
+    "npmi": 0.555
+   },
+   {
+    "skill": "kafka",
+    "n": 12,
+    "npmi": 0.496
+   },
+   {
+    "skill": "rabbitmq",
+    "n": 8,
+    "npmi": 0.472
+   },
+   {
+    "skill": "java",
+    "n": 12,
+    "npmi": 0.455
+   },
+   {
+    "skill": "kubernetes",
+    "n": 11,
+    "npmi": 0.441
+   }
+  ],
+  "numpy": [
+   {
+    "skill": "pandas",
+    "n": 12,
+    "npmi": 0.941
+   },
+   {
+    "skill": "machine_learning",
+    "n": 8,
+    "npmi": 0.496
+   },
+   {
+    "skill": "python",
+    "n": 13,
+    "npmi": 0.389
+   },
+   {
+    "skill": "sql",
+    "n": 8,
+    "npmi": 0.229
+   }
+  ],
+  "oauth": [
+   {
+    "skill": "microservices",
+    "n": 12,
+    "npmi": 0.601
+   },
+   {
+    "skill": "code_review",
+    "n": 10,
+    "npmi": 0.546
+   },
+   {
+    "skill": "kafka",
+    "n": 13,
+    "npmi": 0.539
+   },
+   {
+    "skill": "docker",
+    "n": 12,
+    "npmi": 0.414
+   },
+   {
+    "skill": "kubernetes",
+    "n": 8,
+    "npmi": 0.376
+   },
+   {
+    "skill": "api_design",
+    "n": 10,
+    "npmi": 0.374
+   }
+  ],
+  "observability": [
+   {
+    "skill": "grafana",
+    "n": 53,
+    "npmi": 0.492
+   },
+   {
+    "skill": "zabbix",
+    "n": 48,
+    "npmi": 0.476
+   },
+   {
+    "skill": "prometheus",
+    "n": 39,
+    "npmi": 0.456
+   },
+   {
+    "skill": "ansible",
+    "n": 40,
+    "npmi": 0.422
+   },
+   {
+    "skill": "haproxy",
+    "n": 15,
+    "npmi": 0.387
+   },
+   {
+    "skill": "yandex_cloud",
+    "n": 12,
+    "npmi": 0.37
+   }
+  ],
+  "onec": [
+   {
+    "skill": "bitrix",
+    "n": 12,
+    "npmi": 0.299
+   }
+  ],
+  "oop": [
+   {
+    "skill": "appium",
+    "n": 9,
+    "npmi": 0.577
+   },
+   {
+    "skill": "pytest",
+    "n": 10,
+    "npmi": 0.539
+   },
+   {
+    "skill": "teamcity",
+    "n": 10,
+    "npmi": 0.539
+   },
+   {
+    "skill": "delphi",
+    "n": 9,
+    "npmi": 0.509
+   },
+   {
+    "skill": "design_patterns",
+    "n": 37,
+    "npmi": 0.504
+   },
+   {
+    "skill": "selenium",
+    "n": 9,
+    "npmi": 0.495
+   }
+  ],
+  "openshift": [
+   {
+    "skill": "spring_boot",
+    "n": 9,
+    "npmi": 0.713
+   },
+   {
+    "skill": "jenkins",
+    "n": 15,
+    "npmi": 0.694
+   },
+   {
+    "skill": "kafka",
+    "n": 16,
+    "npmi": 0.595
+   },
+   {
+    "skill": "kubernetes",
+    "n": 17,
+    "npmi": 0.583
+   },
+   {
+    "skill": "java",
+    "n": 13,
+    "npmi": 0.487
+   },
+   {
+    "skill": "docker",
+    "n": 15,
+    "npmi": 0.468
+   }
+  ],
+  "oracle": [
+   {
+    "skill": "ssh",
+    "n": 29,
+    "npmi": 0.674
+   },
+   {
+    "skill": "siem",
+    "n": 29,
+    "npmi": 0.637
+   },
+   {
+    "skill": "machine_learning",
+    "n": 32,
+    "npmi": 0.517
+   },
+   {
+    "skill": "http",
+    "n": 32,
+    "npmi": 0.488
+   },
+   {
+    "skill": "soap",
+    "n": 41,
+    "npmi": 0.485
+   },
+   {
+    "skill": "tcp_ip",
+    "n": 42,
+    "npmi": 0.474
+   }
+  ],
+  "orm": [
+   {
+    "skill": "rest",
+    "n": 11,
+    "npmi": 0.433
+   },
+   {
+    "skill": "git",
+    "n": 11,
+    "npmi": 0.4
+   },
+   {
+    "skill": "ci_cd",
+    "n": 8,
+    "npmi": 0.383
+   },
+   {
+    "skill": "api_design",
+    "n": 8,
+    "npmi": 0.374
+   },
+   {
+    "skill": "docker",
+    "n": 8,
+    "npmi": 0.365
+   },
+   {
+    "skill": "postgresql",
+    "n": 8,
+    "npmi": 0.306
+   }
+  ],
+  "owasp": [
+   {
+    "skill": "appsec",
+    "n": 9,
+    "npmi": 0.943
+   },
+   {
+    "skill": "kubernetes",
+    "n": 9,
+    "npmi": 0.507
+   },
+   {
+    "skill": "docker",
+    "n": 9,
+    "npmi": 0.44
+   }
+  ],
+  "pandas": [
+   {
+    "skill": "numpy",
+    "n": 12,
+    "npmi": 0.941
+   },
+   {
+    "skill": "python",
+    "n": 15,
+    "npmi": 0.4
+   },
+   {
+    "skill": "postgresql",
+    "n": 8,
+    "npmi": 0.294
+   },
+   {
+    "skill": "sql",
+    "n": 11,
+    "npmi": 0.277
+   }
+  ],
+  "php": [
+   {
+    "skill": "bitrix",
+    "n": 11,
+    "npmi": 0.619
+   },
+   {
+    "skill": "mysql",
+    "n": 19,
+    "npmi": 0.615
+   },
+   {
+    "skill": "html",
+    "n": 18,
+    "npmi": 0.537
+   },
+   {
+    "skill": "css",
+    "n": 14,
+    "npmi": 0.499
+   },
+   {
+    "skill": "javascript",
+    "n": 17,
+    "npmi": 0.452
+   },
+   {
+    "skill": "git",
+    "n": 18,
+    "npmi": 0.293
+   }
+  ],
+  "postgresql": [
+   {
+    "skill": "nginx",
+    "n": 34,
+    "npmi": 0.495
+   },
+   {
+    "skill": "redis",
+    "n": 29,
+    "npmi": 0.488
+   },
+   {
+    "skill": "kubernetes",
+    "n": 57,
+    "npmi": 0.461
+   },
+   {
+    "skill": "kafka",
+    "n": 50,
+    "npmi": 0.451
+   },
+   {
+    "skill": "docker",
+    "n": 71,
+    "npmi": 0.449
+   },
+   {
+    "skill": "rabbitmq",
+    "n": 35,
+    "npmi": 0.441
+   }
+  ],
+  "postman": [
+   {
+    "skill": "appium",
+    "n": 8,
+    "npmi": 0.706
+   },
+   {
+    "skill": "manual_testing",
+    "n": 26,
+    "npmi": 0.703
+   },
+   {
+    "skill": "pytest",
+    "n": 9,
+    "npmi": 0.675
+   },
+   {
+    "skill": "selenium",
+    "n": 9,
+    "npmi": 0.661
+   },
+   {
+    "skill": "allure",
+    "n": 10,
+    "npmi": 0.657
+   },
+   {
+    "skill": "teamcity",
+    "n": 8,
+    "npmi": 0.639
+   }
+  ],
+  "power_bi": [
+   {
+    "skill": "etl",
+    "n": 8,
+    "npmi": 0.546
+   },
+   {
+    "skill": "excel",
+    "n": 9,
+    "npmi": 0.519
+   },
+   {
+    "skill": "sql",
+    "n": 16,
+    "npmi": 0.327
+   },
+   {
+    "skill": "python",
+    "n": 11,
+    "npmi": 0.271
+   }
+  ],
+  "prometheus": [
+   {
+    "skill": "grafana",
+    "n": 43,
+    "npmi": 0.917
+   },
+   {
+    "skill": "haproxy",
+    "n": 15,
+    "npmi": 0.784
+   },
+   {
+    "skill": "elk",
+    "n": 30,
+    "npmi": 0.783
+   },
+   {
+    "skill": "yandex_cloud",
+    "n": 10,
+    "npmi": 0.69
+   },
+   {
+    "skill": "helm",
+    "n": 12,
+    "npmi": 0.682
+   },
+   {
+    "skill": "consul",
+    "n": 8,
+    "npmi": 0.654
+   }
+  ],
+  "puppet": [
+   {
+    "skill": "ansible",
+    "n": 8,
+    "npmi": 0.664
+   },
+   {
+    "skill": "linux",
+    "n": 8,
+    "npmi": 0.306
+   }
+  ],
+  "pytest": [
+   {
+    "skill": "appium",
+    "n": 8,
+    "npmi": 0.891
+   },
+   {
+    "skill": "selenium",
+    "n": 9,
+    "npmi": 0.85
+   },
+   {
+    "skill": "teamcity",
+    "n": 8,
+    "npmi": 0.824
+   },
+   {
+    "skill": "allure",
+    "n": 9,
+    "npmi": 0.814
+   },
+   {
+    "skill": "graphql",
+    "n": 9,
+    "npmi": 0.814
+   },
+   {
+    "skill": "gitlab",
+    "n": 11,
+    "npmi": 0.692
+   }
+  ],
+  "python": [
+   {
+    "skill": "bash",
+    "n": 114,
+    "npmi": 0.603
+   },
+   {
+    "skill": "embedded",
+    "n": 46,
+    "npmi": 0.458
+   },
+   {
+    "skill": "fastapi",
+    "n": 17,
+    "npmi": 0.411
+   },
+   {
+    "skill": "cpp",
+    "n": 76,
+    "npmi": 0.406
+   },
+   {
+    "skill": "linux",
+    "n": 148,
+    "npmi": 0.405
+   },
+   {
+    "skill": "pandas",
+    "n": 15,
+    "npmi": 0.4
+   }
+  ],
+  "pytorch": [
+   {
+    "skill": "machine_learning",
+    "n": 8,
+    "npmi": 0.544
+   },
+   {
+    "skill": "docker",
+    "n": 9,
+    "npmi": 0.457
+   },
+   {
+    "skill": "python",
+    "n": 9,
+    "npmi": 0.343
+   }
+  ],
+  "query_optimization": [
+   {
+    "skill": "replication",
+    "n": 10,
+    "npmi": 0.539
+   },
+   {
+    "skill": "dwh",
+    "n": 9,
+    "npmi": 0.527
+   },
+   {
+    "skill": "sql_indexes",
+    "n": 8,
+    "npmi": 0.495
+   },
+   {
+    "skill": "etl",
+    "n": 8,
+    "npmi": 0.425
+   },
+   {
+    "skill": "postgresql",
+    "n": 22,
+    "npmi": 0.384
+   },
+   {
+    "skill": "kubernetes",
+    "n": 11,
+    "npmi": 0.332
+   }
+  ],
+  "rabbitmq": [
+   {
+    "skill": "redis",
+    "n": 23,
+    "npmi": 0.706
+   },
+   {
+    "skill": "kafka",
+    "n": 36,
+    "npmi": 0.661
+   },
+   {
+    "skill": "pytest",
+    "n": 10,
+    "npmi": 0.625
+   },
+   {
+    "skill": "appium",
+    "n": 8,
+    "npmi": 0.625
+   },
+   {
+    "skill": "graphql",
+    "n": 11,
+    "npmi": 0.603
+   },
+   {
+    "skill": "teamcity",
+    "n": 9,
+    "npmi": 0.593
+   }
+  ],
+  "react": [
+   {
+    "skill": "typescript",
+    "n": 21,
+    "npmi": 0.82
+   },
+   {
+    "skill": "javascript",
+    "n": 26,
+    "npmi": 0.645
+   },
+   {
+    "skill": "nodejs",
+    "n": 8,
+    "npmi": 0.62
+   },
+   {
+    "skill": "vue",
+    "n": 10,
+    "npmi": 0.579
+   },
+   {
+    "skill": "css",
+    "n": 15,
+    "npmi": 0.564
+   },
+   {
+    "skill": "html",
+    "n": 15,
+    "npmi": 0.524
+   }
+  ],
+  "redis": [
+   {
+    "skill": "django",
+    "n": 11,
+    "npmi": 0.731
+   },
+   {
+    "skill": "rabbitmq",
+    "n": 23,
+    "npmi": 0.706
+   },
+   {
+    "skill": "fastapi",
+    "n": 9,
+    "npmi": 0.63
+   },
+   {
+    "skill": "docker",
+    "n": 30,
+    "npmi": 0.577
+   },
+   {
+    "skill": "nginx",
+    "n": 12,
+    "npmi": 0.54
+   },
+   {
+    "skill": "gitlab_ci",
+    "n": 9,
+    "npmi": 0.531
+   }
+  ],
+  "replication": [
+   {
+    "skill": "sql_indexes",
+    "n": 10,
+    "npmi": 0.591
+   },
+   {
+    "skill": "query_optimization",
+    "n": 10,
+    "npmi": 0.539
+   },
+   {
+    "skill": "kubernetes",
+    "n": 10,
+    "npmi": 0.341
+   },
+   {
+    "skill": "windows_server",
+    "n": 10,
+    "npmi": 0.331
+   },
+   {
+    "skill": "postgresql",
+    "n": 15,
+    "npmi": 0.312
+   },
+   {
+    "skill": "observability",
+    "n": 19,
+    "npmi": 0.301
+   }
+  ],
+  "responsive": [
+   {
+    "skill": "css",
+    "n": 9,
+    "npmi": 0.625
+   },
+   {
+    "skill": "html",
+    "n": 9,
+    "npmi": 0.589
+   },
+   {
+    "skill": "javascript",
+    "n": 9,
+    "npmi": 0.53
+   }
+  ],
+  "rest": [
+   {
+    "skill": "soap",
+    "n": 97,
+    "npmi": 0.729
+   },
+   {
+    "skill": "ssh",
+    "n": 30,
+    "npmi": 0.558
+   },
+   {
+    "skill": "siem",
+    "n": 29,
+    "npmi": 0.508
+   },
+   {
+    "skill": "json",
+    "n": 40,
+    "npmi": 0.498
+   },
+   {
+    "skill": "http",
+    "n": 46,
+    "npmi": 0.486
+   },
+   {
+    "skill": "graphql",
+    "n": 15,
+    "npmi": 0.484
+   }
+  ],
+  "s3": [
+   {
+    "skill": "postgresql",
+    "n": 8,
+    "npmi": 0.35
+   },
+   {
+    "skill": "python",
+    "n": 9,
+    "npmi": 0.325
+   },
+   {
+    "skill": "observability",
+    "n": 9,
+    "npmi": 0.313
+   },
+   {
+    "skill": "linux",
+    "n": 9,
+    "npmi": 0.276
+   }
+  ],
+  "scada": [
+   {
+    "skill": "tech_docs",
+    "n": 11,
+    "npmi": 0.283
+   }
+  ],
+  "scikit_learn": [
+   {
+    "skill": "python",
+    "n": 9,
+    "npmi": 0.362
+   }
+  ],
+  "scrum": [
+   {
+    "skill": "agile",
+    "n": 23,
+    "npmi": 0.757
+   },
+   {
+    "skill": "kanban",
+    "n": 9,
+    "npmi": 0.734
+   },
+   {
+    "skill": "confluence",
+    "n": 8,
+    "npmi": 0.36
+   },
+   {
+    "skill": "jira",
+    "n": 9,
+    "npmi": 0.315
+   },
+   {
+    "skill": "ci_cd",
+    "n": 10,
+    "npmi": 0.273
+   },
+   {
+    "skill": "design_patterns",
+    "n": 8,
+    "npmi": 0.258
+   }
+  ],
+  "selenium": [
+   {
+    "skill": "appium",
+    "n": 8,
+    "npmi": 0.877
+   },
+   {
+    "skill": "pytest",
+    "n": 9,
+    "npmi": 0.85
+   },
+   {
+    "skill": "allure",
+    "n": 10,
+    "npmi": 0.836
+   },
+   {
+    "skill": "teamcity",
+    "n": 8,
+    "npmi": 0.81
+   },
+   {
+    "skill": "graphql",
+    "n": 9,
+    "npmi": 0.8
+   },
+   {
+    "skill": "test_automation",
+    "n": 12,
+    "npmi": 0.72
+   }
+  ],
+  "siem": [
+   {
+    "skill": "ssh",
+    "n": 29,
+    "npmi": 0.873
+   },
+   {
+    "skill": "machine_learning",
+    "n": 29,
+    "npmi": 0.681
+   },
+   {
+    "skill": "http",
+    "n": 29,
+    "npmi": 0.652
+   },
+   {
+    "skill": "oracle",
+    "n": 29,
+    "npmi": 0.637
+   },
+   {
+    "skill": "soap",
+    "n": 30,
+    "npmi": 0.575
+   },
+   {
+    "skill": "algorithms",
+    "n": 30,
+    "npmi": 0.57
+   }
+  ],
+  "soap": [
+   {
+    "skill": "rest",
+    "n": 97,
+    "npmi": 0.729
+   },
+   {
+    "skill": "json",
+    "n": 54,
+    "npmi": 0.688
+   },
+   {
+    "skill": "ssh",
+    "n": 30,
+    "npmi": 0.613
+   },
+   {
+    "skill": "siem",
+    "n": 30,
+    "npmi": 0.575
+   },
+   {
+    "skill": "teamcity",
+    "n": 11,
+    "npmi": 0.492
+   },
+   {
+    "skill": "oracle",
+    "n": 41,
+    "npmi": 0.485
+   }
+  ],
+  "solid": [
+   {
+    "skill": "kotlin",
+    "n": 26,
+    "npmi": 0.79
+   },
+   {
+    "skill": "unit_testing",
+    "n": 18,
+    "npmi": 0.656
+   },
+   {
+    "skill": "design_patterns",
+    "n": 34,
+    "npmi": 0.622
+   },
+   {
+    "skill": "math",
+    "n": 20,
+    "npmi": 0.593
+   },
+   {
+    "skill": "android",
+    "n": 20,
+    "npmi": 0.497
+   },
+   {
+    "skill": "code_review",
+    "n": 12,
+    "npmi": 0.42
+   }
+  ],
+  "spark": [
+   {
+    "skill": "hadoop",
+    "n": 20,
+    "npmi": 0.863
+   },
+   {
+    "skill": "hive",
+    "n": 8,
+    "npmi": 0.735
+   },
+   {
+    "skill": "greenplum",
+    "n": 8,
+    "npmi": 0.586
+   },
+   {
+    "skill": "llm",
+    "n": 13,
+    "npmi": 0.543
+   },
+   {
+    "skill": "etl",
+    "n": 9,
+    "npmi": 0.529
+   },
+   {
+    "skill": "machine_learning",
+    "n": 13,
+    "npmi": 0.511
+   }
+  ],
+  "spring": [
+   {
+    "skill": "spring_boot",
+    "n": 12,
+    "npmi": 0.783
+   },
+   {
+    "skill": "hibernate",
+    "n": 9,
+    "npmi": 0.773
+   },
+   {
+    "skill": "java",
+    "n": 21,
+    "npmi": 0.614
+   },
+   {
+    "skill": "microservices",
+    "n": 13,
+    "npmi": 0.589
+   },
+   {
+    "skill": "kafka",
+    "n": 15,
+    "npmi": 0.545
+   },
+   {
+    "skill": "code_review",
+    "n": 8,
+    "npmi": 0.449
+   }
+  ],
+  "spring_boot": [
+   {
+    "skill": "spring",
+    "n": 12,
+    "npmi": 0.783
+   },
+   {
+    "skill": "openshift",
+    "n": 9,
+    "npmi": 0.713
+   },
+   {
+    "skill": "java",
+    "n": 18,
+    "npmi": 0.601
+   },
+   {
+    "skill": "kafka",
+    "n": 14,
+    "npmi": 0.562
+   },
+   {
+    "skill": "microservices",
+    "n": 10,
+    "npmi": 0.546
+   },
+   {
+    "skill": "jenkins",
+    "n": 9,
+    "npmi": 0.543
+   }
+  ],
+  "sql": [
+   {
+    "skill": "soap",
+    "n": 93,
+    "npmi": 0.463
+   },
+   {
+    "skill": "oracle",
+    "n": 73,
+    "npmi": 0.45
+   },
+   {
+    "skill": "etl",
+    "n": 38,
+    "npmi": 0.423
+   },
+   {
+    "skill": "rest",
+    "n": 97,
+    "npmi": 0.406
+   },
+   {
+    "skill": "ssh",
+    "n": 30,
+    "npmi": 0.381
+   },
+   {
+    "skill": "window_functions",
+    "n": 19,
+    "npmi": 0.365
+   }
+  ],
+  "sql_indexes": [
+   {
+    "skill": "transactions",
+    "n": 8,
+    "npmi": 0.685
+   },
+   {
+    "skill": "replication",
+    "n": 10,
+    "npmi": 0.591
+   },
+   {
+    "skill": "query_optimization",
+    "n": 8,
+    "npmi": 0.495
+   },
+   {
+    "skill": "mssql",
+    "n": 10,
+    "npmi": 0.385
+   },
+   {
+    "skill": "sql",
+    "n": 21,
+    "npmi": 0.321
+   },
+   {
+    "skill": "postgresql",
+    "n": 13,
+    "npmi": 0.295
+   }
+  ],
+  "sqlalchemy": [
+   {
+    "skill": "api_design",
+    "n": 8,
+    "npmi": 0.454
+   },
+   {
+    "skill": "postgresql",
+    "n": 9,
+    "npmi": 0.417
+   },
+   {
+    "skill": "git",
+    "n": 8,
+    "npmi": 0.399
+   },
+   {
+    "skill": "python",
+    "n": 9,
+    "npmi": 0.362
+   }
+  ],
+  "ssh": [
+   {
+    "skill": "siem",
+    "n": 29,
+    "npmi": 0.873
+   },
+   {
+    "skill": "http",
+    "n": 32,
+    "npmi": 0.73
+   },
+   {
+    "skill": "machine_learning",
+    "n": 28,
+    "npmi": 0.704
+   },
+   {
+    "skill": "oracle",
+    "n": 29,
+    "npmi": 0.674
+   },
+   {
+    "skill": "tcp_ip",
+    "n": 35,
+    "npmi": 0.655
+   },
+   {
+    "skill": "soap",
+    "n": 30,
+    "npmi": 0.613
+   }
+  ],
+  "statistics": [
+   {
+    "skill": "machine_learning",
+    "n": 9,
+    "npmi": 0.356
+   },
+   {
+    "skill": "python",
+    "n": 20,
+    "npmi": 0.316
+   },
+   {
+    "skill": "sql",
+    "n": 20,
+    "npmi": 0.272
+   },
+   {
+    "skill": "algorithms",
+    "n": 8,
+    "npmi": 0.233
+   }
+  ],
+  "stored_procedures": [
+   {
+    "skill": "postgresql",
+    "n": 9,
+    "npmi": 0.31
+   },
+   {
+    "skill": "sql",
+    "n": 10,
+    "npmi": 0.242
+   }
+  ],
+  "superset": [
+   {
+    "skill": "python",
+    "n": 9,
+    "npmi": 0.309
+   },
+   {
+    "skill": "sql",
+    "n": 8,
+    "npmi": 0.244
+   }
+  ],
+  "tableau": [
+   {
+    "skill": "python",
+    "n": 8,
+    "npmi": 0.297
+   },
+   {
+    "skill": "sql",
+    "n": 8,
+    "npmi": 0.26
+   }
+  ],
+  "tcp_ip": [
+   {
+    "skill": "ssh",
+    "n": 35,
+    "npmi": 0.655
+   },
+   {
+    "skill": "siem",
+    "n": 31,
+    "npmi": 0.568
+   },
+   {
+    "skill": "http",
+    "n": 47,
+    "npmi": 0.535
+   },
+   {
+    "skill": "dns",
+    "n": 48,
+    "npmi": 0.505
+   },
+   {
+    "skill": "oracle",
+    "n": 42,
+    "npmi": 0.474
+   },
+   {
+    "skill": "virtualization",
+    "n": 38,
+    "npmi": 0.381
+   }
+  ],
+  "teamcity": [
+   {
+    "skill": "appium",
+    "n": 8,
+    "npmi": 0.891
+   },
+   {
+    "skill": "pytest",
+    "n": 8,
+    "npmi": 0.824
+   },
+   {
+    "skill": "selenium",
+    "n": 8,
+    "npmi": 0.81
+   },
+   {
+    "skill": "allure",
+    "n": 8,
+    "npmi": 0.775
+   },
+   {
+    "skill": "graphql",
+    "n": 8,
+    "npmi": 0.775
+   },
+   {
+    "skill": "jenkins",
+    "n": 11,
+    "npmi": 0.676
+   }
+  ],
+  "tech_docs": [
+   {
+    "skill": "haproxy",
+    "n": 9,
+    "npmi": 0.307
+   },
+   {
+    "skill": "json",
+    "n": 28,
+    "npmi": 0.297
+   },
+   {
+    "skill": "agile",
+    "n": 20,
+    "npmi": 0.29
+   },
+   {
+    "skill": "scada",
+    "n": 11,
+    "npmi": 0.283
+   },
+   {
+    "skill": "scrum",
+    "n": 14,
+    "npmi": 0.258
+   },
+   {
+    "skill": "confluence",
+    "n": 23,
+    "npmi": 0.256
+   }
+  ],
+  "terraform": [
+   {
+    "skill": "ansible",
+    "n": 17,
+    "npmi": 0.746
+   },
+   {
+    "skill": "helm",
+    "n": 8,
+    "npmi": 0.706
+   },
+   {
+    "skill": "gitlab_ci",
+    "n": 10,
+    "npmi": 0.677
+   },
+   {
+    "skill": "prometheus",
+    "n": 10,
+    "npmi": 0.603
+   },
+   {
+    "skill": "kubernetes",
+    "n": 17,
+    "npmi": 0.594
+   },
+   {
+    "skill": "grafana",
+    "n": 10,
+    "npmi": 0.543
+   }
+  ],
+  "test_automation": [
+   {
+    "skill": "selenium",
+    "n": 12,
+    "npmi": 0.72
+   },
+   {
+    "skill": "appium",
+    "n": 9,
+    "npmi": 0.71
+   },
+   {
+    "skill": "allure",
+    "n": 12,
+    "npmi": 0.682
+   },
+   {
+    "skill": "manual_testing",
+    "n": 25,
+    "npmi": 0.647
+   },
+   {
+    "skill": "pytest",
+    "n": 9,
+    "npmi": 0.642
+   },
+   {
+    "skill": "teamcity",
+    "n": 9,
+    "npmi": 0.642
+   }
+  ],
+  "tls": [
+   {
+    "skill": "nginx",
+    "n": 8,
+    "npmi": 0.581
+   },
+   {
+    "skill": "dns",
+    "n": 8,
+    "npmi": 0.422
+   },
+   {
+    "skill": "docker",
+    "n": 10,
+    "npmi": 0.41
+   },
+   {
+    "skill": "ci_cd",
+    "n": 8,
+    "npmi": 0.37
+   },
+   {
+    "skill": "bash",
+    "n": 8,
+    "npmi": 0.361
+   },
+   {
+    "skill": "linux",
+    "n": 14,
+    "npmi": 0.327
+   }
+  ],
+  "transactions": [
+   {
+    "skill": "sql_indexes",
+    "n": 8,
+    "npmi": 0.685
+   },
+   {
+    "skill": "sql",
+    "n": 8,
+    "npmi": 0.229
+   }
+  ],
+  "typescript": [
+   {
+    "skill": "react",
+    "n": 21,
+    "npmi": 0.82
+   },
+   {
+    "skill": "vue",
+    "n": 8,
+    "npmi": 0.572
+   },
+   {
+    "skill": "javascript",
+    "n": 17,
+    "npmi": 0.564
+   },
+   {
+    "skill": "css",
+    "n": 9,
+    "npmi": 0.475
+   },
+   {
+    "skill": "html",
+    "n": 8,
+    "npmi": 0.408
+   },
+   {
+    "skill": "docker",
+    "n": 10,
+    "npmi": 0.299
+   }
+  ],
+  "unit_testing": [
+   {
+    "skill": "kotlin",
+    "n": 20,
+    "npmi": 0.763
+   },
+   {
+    "skill": "solid",
+    "n": 18,
+    "npmi": 0.656
+   },
+   {
+    "skill": "math",
+    "n": 19,
+    "npmi": 0.65
+   },
+   {
+    "skill": "design_patterns",
+    "n": 23,
+    "npmi": 0.557
+   },
+   {
+    "skill": "android",
+    "n": 19,
+    "npmi": 0.555
+   },
+   {
+    "skill": "cpp",
+    "n": 23,
+    "npmi": 0.502
+   }
+  ],
+  "unix_tools": [
+   {
+    "skill": "linux",
+    "n": 11,
+    "npmi": 0.293
+   }
+  ],
+  "vault": [
+   {
+    "skill": "prometheus",
+    "n": 8,
+    "npmi": 0.593
+   },
+   {
+    "skill": "grafana",
+    "n": 8,
+    "npmi": 0.536
+   },
+   {
+    "skill": "kubernetes",
+    "n": 8,
+    "npmi": 0.431
+   },
+   {
+    "skill": "ci_cd",
+    "n": 8,
+    "npmi": 0.383
+   },
+   {
+    "skill": "docker",
+    "n": 8,
+    "npmi": 0.365
+   },
+   {
+    "skill": "postgresql",
+    "n": 10,
+    "npmi": 0.361
+   }
+  ],
+  "virtualization": [
+   {
+    "skill": "windows_server",
+    "n": 54,
+    "npmi": 0.583
+   },
+   {
+    "skill": "dns",
+    "n": 48,
+    "npmi": 0.553
+   },
+   {
+    "skill": "ldap",
+    "n": 31,
+    "npmi": 0.545
+   },
+   {
+    "skill": "zabbix",
+    "n": 29,
+    "npmi": 0.52
+   },
+   {
+    "skill": "networking_ops",
+    "n": 86,
+    "npmi": 0.485
+   },
+   {
+    "skill": "linux",
+    "n": 92,
+    "npmi": 0.469
+   }
+  ],
+  "vue": [
+   {
+    "skill": "javascript",
+    "n": 17,
+    "npmi": 0.581
+   },
+   {
+    "skill": "react",
+    "n": 10,
+    "npmi": 0.579
+   },
+   {
+    "skill": "typescript",
+    "n": 8,
+    "npmi": 0.572
+   },
+   {
+    "skill": "redis",
+    "n": 8,
+    "npmi": 0.525
+   },
+   {
+    "skill": "rest",
+    "n": 14,
+    "npmi": 0.386
+   },
+   {
+    "skill": "soap",
+    "n": 10,
+    "npmi": 0.342
+   }
+  ],
+  "websocket": [
+   {
+    "skill": "rest",
+    "n": 8,
+    "npmi": 0.394
+   }
+  ],
+  "window_functions": [
+   {
+    "skill": "sql",
+    "n": 19,
+    "npmi": 0.365
+   },
+   {
+    "skill": "python",
+    "n": 13,
+    "npmi": 0.303
+   },
+   {
+    "skill": "postgresql",
+    "n": 9,
+    "npmi": 0.269
+   }
+  ],
+  "windows_server": [
+   {
+    "skill": "virtualization",
+    "n": 54,
+    "npmi": 0.583
+   },
+   {
+    "skill": "dns",
+    "n": 45,
+    "npmi": 0.542
+   },
+   {
+    "skill": "ldap",
+    "n": 28,
+    "npmi": 0.522
+   },
+   {
+    "skill": "bash",
+    "n": 47,
+    "npmi": 0.471
+   },
+   {
+    "skill": "zabbix",
+    "n": 24,
+    "npmi": 0.469
+   },
+   {
+    "skill": "linux",
+    "n": 85,
+    "npmi": 0.451
+   }
+  ],
+  "yandex_cloud": [
+   {
+    "skill": "prometheus",
+    "n": 10,
+    "npmi": 0.69
+   },
+   {
+    "skill": "grafana",
+    "n": 10,
+    "npmi": 0.63
+   },
+   {
+    "skill": "elk",
+    "n": 8,
+    "npmi": 0.587
+   },
+   {
+    "skill": "kubernetes",
+    "n": 9,
+    "npmi": 0.491
+   },
+   {
+    "skill": "dns",
+    "n": 8,
+    "npmi": 0.463
+   },
+   {
+    "skill": "bash",
+    "n": 8,
+    "npmi": 0.402
+   }
+  ],
+  "zabbix": [
+   {
+    "skill": "grafana",
+    "n": 25,
+    "npmi": 0.627
+   },
+   {
+    "skill": "ansible",
+    "n": 19,
+    "npmi": 0.563
+   },
+   {
+    "skill": "itil",
+    "n": 13,
+    "npmi": 0.525
+   },
+   {
+    "skill": "virtualization",
+    "n": 29,
+    "npmi": 0.52
+   },
+   {
+    "skill": "nginx",
+    "n": 14,
+    "npmi": 0.501
+   },
+   {
+    "skill": "prometheus",
+    "n": 13,
+    "npmi": 0.478
+   }
+  ]
+ }
+}

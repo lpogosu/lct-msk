@@ -66,11 +66,11 @@ categories:
 skills:
   # ---------------------------------------------------------------- Python
   python: { name: Python, cat: lang_python, modules: [python_core], aliases: [python, python3, питон, пайтон, py, cpython] }
-  asyncio: { name: asyncio, cat: python_lib, modules: [python_core], aliases: [asyncio, async/await, асинхронный python, асинхронное программирование] }
+  asyncio: { name: asyncio, cat: python_lib, modules: [python_core], aliases: [asyncio, async/await, асинхронный python, асинхронное программирование, асинк, асинке, асинхронщина, асинхронка, асинхронный код, async io] }
   aiohttp: { name: aiohttp, cat: python_web, modules: [python_core, http_api], aliases: [aiohttp] }
   django: { name: Django, cat: python_web, modules: [python_core, sql, http_api], aliases: [django, джанго, джанга] }
-  drf: { name: Django REST Framework, cat: python_web, modules: [python_core, http_api], aliases: [drf, django rest framework, django rest] }
-  fastapi: { name: FastAPI, cat: python_web, modules: [python_core, http_api], aliases: [fastapi, fast api, фастапи, фаст апи] }
+  drf: { name: Django REST Framework, cat: python_web, modules: [python_core, http_api], aliases: [drf, django rest framework, django rest, дрф] }
+  fastapi: { name: FastAPI, cat: python_web, modules: [python_core, http_api, fastapi_core], aliases: [fastapi, fast api, фастапи, фаст апи] }
   flask: { name: Flask, cat: python_web, modules: [python_core, http_api], aliases: [flask, фласк] }
   tornado: { name: Tornado, cat: python_web, modules: [python_core, http_api], aliases: [tornado] }
   starlette: { name: Starlette, cat: python_web, modules: [python_core, http_api], aliases: [starlette] }
@@ -79,10 +79,10 @@ skills:
   alembic: { name: Alembic, cat: python_lib, modules: [python_core, sql], aliases: [alembic] }
   psycopg: { name: psycopg, cat: python_lib, modules: [python_core, sql], aliases: [psycopg, psycopg2, psycopg3] }
   asyncpg: { name: asyncpg, cat: python_lib, modules: [python_core, sql], aliases: [asyncpg] }
-  pydantic: { name: Pydantic, cat: python_lib, modules: [python_core], aliases: [pydantic, пидантик] }
+  pydantic: { name: Pydantic, cat: python_lib, modules: [python_core, fastapi_core], aliases: [pydantic, пидантик] }
   marshmallow: { name: marshmallow, cat: python_lib, modules: [python_core], aliases: [marshmallow] }
-  celery: { name: Celery, cat: python_lib, modules: [python_core], aliases: [celery, селери, сельдерей] }
-  pytest: { name: pytest, cat: python_lib, modules: [python_core, qa_testing], spec: { qa: 2.0, backend_python: 1.0, data_ml: 0.5, fullstack: 0.4 }, aliases: [pytest] }
+  celery: { name: Celery, cat: python_lib, modules: [python_core, mq_core], aliases: [celery, селери, сельдерей] }
+  pytest: { name: pytest, cat: python_lib, modules: [python_core, qa_testing], spec: { qa: 2.0, backend_python: 1.0, data_ml: 0.5, fullstack: 0.4 }, aliases: [pytest, пайтест, питест, пайтесте] }
   unittest: { name: unittest, cat: python_lib, modules: [python_core], aliases: [unittest] }
   mypy: { name: Типизация Python, cat: python_lib, modules: [python_core], aliases: [mypy, type hints, тайпхинты, аннотации типов] }
   python_linters: { name: Линтеры Python, cat: python_lib, modules: [python_core], aliases: [flake8, pylint, ruff, isort] }
@@ -104,16 +104,16 @@ skills:
   streamlit: { name: Streamlit, cat: python_lib, modules: [python_core], spec: { data_ml: 1.5 }, aliases: [streamlit, gradio] }
 
   # ---------------------------------------------------------------- Data Science / ML (не тестируется)
-  scikit_learn: { name: scikit-learn, cat: data_ml, untestable: true, aliases: [scikit-learn, sklearn, scikit learn, склерн] }
-  pytorch: { name: PyTorch, cat: data_ml, untestable: true, aliases: [pytorch, torch, пайторч] }
+  scikit_learn: { name: scikit-learn, cat: data_ml, untestable: true, aliases: [scikit-learn, sklearn, scikit learn, склерн, scikit, сайкит лёрн] }
+  pytorch: { name: PyTorch, cat: data_ml, untestable: true, aliases: [pytorch, torch, пайторч, торч, pytorch lightning] }
   tensorflow: { name: TensorFlow, cat: data_ml, untestable: true, aliases: [tensorflow, тензорфлоу] }
   keras: { name: Keras, cat: data_ml, untestable: true, aliases: [keras] }
-  gradient_boosting: { name: Градиентный бустинг, cat: data_ml, untestable: true, aliases: [xgboost, lightgbm, catboost, градиентный бустинг, gradient boosting] }
+  gradient_boosting: { name: Градиентный бустинг, cat: data_ml, untestable: true, aliases: [xgboost, lightgbm, catboost, градиентный бустинг, gradient boosting, катбуст, лайтгбм, бустинг, бустинги] }
   transformers: { name: Hugging Face Transformers, cat: data_ml, untestable: true, aliases: [transformers, hugging face, huggingface, bert] }
   opencv: { name: OpenCV, cat: data_ml, untestable: true, aliases: [opencv, cv2] }
   nltk: { name: NLTK и spaCy, cat: data_ml, untestable: true, aliases: [nltk, spacy] }
   langchain: { name: LangChain, cat: data_ml, untestable: true, aliases: [langchain, llamaindex] }
-  llm: { name: LLM, cat: data_ml, untestable: true, aliases: [llm, большие языковые модели, языковые модели, промпт-инжиниринг, prompt engineering] }
+  llm: { name: LLM, cat: data_ml, untestable: true, aliases: [llm, большие языковые модели, языковые модели, промпт-инжиниринг, prompt engineering, gigachat, gigachat api, chatgpt, deepseek, yandexgpt, gpt, rag, генеративные модели] }
   machine_learning: { name: Машинное обучение, cat: data_ml, untestable: true, aliases: [machine learning, машинное обучение, машинного обучения, ml] }
   deep_learning: { name: Глубокое обучение, cat: data_ml, untestable: true, aliases: [deep learning, глубокое обучение, нейронные сети, нейросети, нейросетей] }
   nlp: { name: NLP, cat: data_ml, untestable: true, aliases: [nlp, обработка естественного языка] }
@@ -141,7 +141,7 @@ skills:
   excel: { name: Excel, cat: bi, untestable: true, aliases: [excel, эксель, google sheets, гугл-таблицы] }
 
   # ---------------------------------------------------------------- JavaScript / TypeScript
-  javascript: { name: JavaScript, cat: lang_js, modules: [js_core], aliases: [javascript, js, джаваскрипт, яваскрипт, ecmascript, es6, es2015, vanilla js] }
+  javascript: { name: JavaScript, cat: lang_js, modules: [js_core], aliases: [javascript, js, джаваскрипт, яваскрипт, ecmascript, es6, es2015, vanilla js, жс, джс] }
   typescript: { name: TypeScript, cat: lang_js, modules: [js_core], aliases: [typescript, ts, тайпскрипт, тайпскрипте] }
   nodejs: { name: Node.js, cat: node, modules: [js_core, http_api], aliases: [node.js, nodejs, node js, node, нода, ноде, нодой, ноджс] }
   express: { name: Express, cat: node, modules: [js_core, http_api], aliases: [express, express.js, expressjs] }
@@ -164,7 +164,7 @@ skills:
   vue: { name: Vue, cat: frontend, modules: [js_core], aliases: [vue, vue.js, vuejs, vue js, vue3, vue 3, вью, вьюшка] }
   pinia: { name: Pinia и Vuex, cat: frontend, modules: [js_core], aliases: [pinia, vuex] }
   nuxt: { name: Nuxt, cat: frontend, modules: [js_core], aliases: [nuxt, nuxt.js, nuxtjs] }
-  angular: { name: Angular, cat: frontend, modules: [js_core], aliases: [angular, angularjs, ангуляр] }
+  angular: { name: Angular, cat: frontend, modules: [js_core], aliases: [angular, angularjs, ангуляр, ангулар, ангуляре] }
   rxjs: { name: RxJS, cat: frontend, modules: [js_core], aliases: [rxjs, ngrx] }
   svelte: { name: Svelte, cat: frontend, modules: [js_core], aliases: [svelte, sveltekit, solidjs] }
   jquery: { name: jQuery, cat: frontend, modules: [js_core, html_css], aliases: [jquery, джквери] }
@@ -214,7 +214,7 @@ skills:
 
   # ---------------------------------------------------------------- SQL и реляционные БД
   sql: { name: SQL, cat: sql, modules: [sql], aliases: [sql, эскуэль, скуль, sql-запросы, sql-запросов] }
-  postgresql: { name: PostgreSQL, cat: sql, modules: [sql], aliases: [postgresql, postgres, postgre, pgsql, psql, постгрес, постгресс, постгре, постгря, постгрю, постгрей, постгресql] }
+  postgresql: { name: PostgreSQL, cat: sql, modules: [sql, pg_core], aliases: [postgresql, postgres, postgre, pgsql, psql, постгрес, постгресс, постгре, постгря, постгрю, постгрей, постгресql, pg, postgre sql, постгри] }
   mysql: { name: MySQL, cat: sql, modules: [sql], aliases: [mysql, мускул, май эскуэль, mariadb, percona] }
   sqlite: { name: SQLite, cat: sql, modules: [sql], aliases: [sqlite, sqlite3] }
   oracle: { name: Oracle Database, cat: sql, modules: [sql], aliases: [oracle, оракл, pl/sql, plsql] }
@@ -231,9 +231,9 @@ skills:
   replication: { name: Репликация и шардирование, cat: sql, modules: [sql], aliases: [репликация, репликации, шардирование, шардирования, партиционирование, sharding, replication] }
   db_migrations: { name: Миграции БД, cat: sql, modules: [sql], aliases: [миграции бд, миграции базы данных, миграциями, flyway, liquibase] }
   # ---------------------------------------------------------------- NoSQL (не тестируется)
-  redis: { name: Redis, cat: nosql, untestable: true, aliases: [redis, редис, редиска, valkey] }
+  redis: { name: Redis, cat: nosql, modules: [redis_core], aliases: [redis, редис, редиска, valkey] }
   mongodb: { name: MongoDB, cat: nosql, untestable: true, aliases: [mongodb, mongo, монго, монгу, монге, монгой, монгодб] }
-  elasticsearch: { name: Elasticsearch, cat: nosql, untestable: true, aliases: [elasticsearch, elastic, эластик, эластиком, opensearch] }
+  elasticsearch: { name: Elasticsearch, cat: nosql, untestable: true, aliases: [elasticsearch, elastic, эластик, эластиком, opensearch, elastic search, эластиксёрч, elk-стек] }
   cassandra: { name: Cassandra, cat: nosql, untestable: true, aliases: [cassandra, кассандра, scylladb, scylla] }
   dynamodb: { name: DynamoDB, cat: nosql, untestable: true, aliases: [dynamodb] }
   neo4j: { name: Neo4j, cat: nosql, untestable: true, aliases: [neo4j, графовые бд, графовые базы данных] }
@@ -275,18 +275,18 @@ skills:
   regex: { name: Регулярные выражения, cat: cs, modules: [python_core, js_core], aliases: [регулярные выражения, регулярных выражений, регулярки, regex, regexp] }
   concurrency: { name: Многопоточность и конкурентность, cat: cs, modules: [python_core], aliases: [многопоточность, многопоточности, многопоточное программирование, конкурентность, multithreading, concurrency, multiprocessing, параллельное программирование] }
   # ---------------------------------------------------------------- Архитектура (не тестируется)
-  design_patterns: { name: Паттерны проектирования, cat: arch, untestable: true, aliases: [паттерны проектирования, паттернов проектирования, паттерны, design patterns, gof] }
+  design_patterns: { name: Паттерны проектирования, cat: arch, untestable: true, aliases: [паттерны проектирования, паттернов проектирования, паттерны, design patterns, gof, mvc, mvvm, mvp, mvi] }
   solid: { name: SOLID, cat: arch, untestable: true, aliases: [solid, yagni] }
-  ddd: { name: DDD, cat: arch, untestable: true, aliases: [ddd, domain-driven design, domain driven design] }
+  ddd: { name: DDD, cat: arch, untestable: true, aliases: [ddd, domain-driven design, domain driven design, предметно-ориентированное проектирование] }
   clean_architecture: { name: Чистая архитектура, cat: arch, untestable: true, aliases: [чистая архитектура, чистой архитектуры, clean architecture, гексагональная архитектура, hexagonal architecture] }
   system_design: { name: System Design, cat: arch, untestable: true, aliases: [system design, системный дизайн, проектирование систем, архитектура систем, проектирование архитектуры] }
-  highload: { name: Highload, cat: arch, untestable: true, aliases: [highload, хайлоад, высоконагруженные системы, высоконагруженных систем, высокие нагрузки, высоких нагрузок] }
+  highload: { name: Highload, cat: arch, untestable: true, aliases: [highload, хайлоад, высоконагруженные системы, высоконагруженных систем, высокие нагрузки, высоких нагрузок, high load, high-load] }
   event_driven: { name: Event-driven, cat: arch, untestable: true, aliases: [event-driven, event driven, событийно-ориентированная архитектура, eda-архитектура, saga, transactional outbox, outbox] }
   cqrs: { name: CQRS и Event Sourcing, cat: arch, untestable: true, aliases: [cqrs, event sourcing] }
   distributed_systems: { name: Распределённые системы, cat: arch, untestable: true, aliases: [распределенные системы, распределенных систем, distributed systems, cap-теорема, консенсус] }
 
   # ---------------------------------------------------------------- Git и Linux
-  git: { name: Git, cat: os_vcs, modules: [git_linux], aliases: [git, гит, гитом, git flow, gitflow, системы контроля версий, vcs] }
+  git: { name: Git, cat: os_vcs, modules: [git_linux], aliases: [git, гит, гитом, git flow, gitflow, системы контроля версий, vcs, svn, subversion, mercurial] }
   github: { name: GitHub, cat: os_vcs, modules: [git_linux], aliases: [github, гитхаб] }
   gitlab: { name: GitLab, cat: os_vcs, modules: [git_linux], aliases: [gitlab, гитлаб, bitbucket] }
   linux: { name: Linux, cat: os_vcs, modules: [git_linux, devops_core], aliases: [linux, линукс, unix, юникс, ubuntu, убунту, debian, centos, rhel, astra linux, астра линукс, alt linux, "*nix"] }
@@ -299,32 +299,32 @@ skills:
   makefile: { name: Make, cat: os_vcs, modules: [git_linux], aliases: [makefile, cmake] }
 
   # ---------------------------------------------------------------- DevOps (не тестируется)
-  docker: { name: Docker, cat: devops, modules: [devops_core], aliases: [docker, докер, докером, докере, dockerfile, docker-compose, docker compose, контейнеризация, контейнеризации, контейнеры, контейнеров, podman] }
-  kubernetes: { name: Kubernetes, cat: devops, modules: [devops_core], aliases: [kubernetes, k8s, k3s, кубернетес, кубернетис, кубер, кубера, кубере, кубы, кубах] }
-  helm: { name: Helm, cat: devops, untestable: true, aliases: [helm, хелм, kustomize] }
+  docker: { name: Docker, cat: devops, modules: [devops_core], aliases: [docker, докер, докером, докере, dockerfile, docker-compose, docker compose, контейнеризация, контейнеризации, контейнеры, контейнеров, podman, докеры, докеризация, докер композ] }
+  kubernetes: { name: Kubernetes, cat: devops, modules: [devops_core], aliases: [kubernetes, k8s, k3s, кубернетес, кубернетис, кубер, кубера, кубере, кубы, кубах, k8, kubectl, кубернетесе, куб ернетес] }
+  helm: { name: Helm, cat: devops, untestable: true, aliases: [helm, хелм, kustomize, хельм, helm charts, helm-чарты] }
   openshift: { name: OpenShift, cat: devops, untestable: true, aliases: [openshift, docker swarm, nomad] }
-  terraform: { name: Terraform, cat: devops, untestable: true, aliases: [terraform, терраформ, pulumi, iac, infrastructure as code] }
-  ansible: { name: Ansible, cat: devops, untestable: true, aliases: [ansible, ансибл, saltstack] }
+  terraform: { name: Terraform, cat: devops, untestable: true, aliases: [terraform, терраформ, pulumi, iac, infrastructure as code, терраформом, terragrunt, opentofu] }
+  ansible: { name: Ansible, cat: devops, untestable: true, aliases: [ansible, ансибл, saltstack, ansible playbook, плейбуки, плейбук] }
   puppet: { name: Puppet, cat: devops, untestable: true, aliases: [puppet] }
   vagrant: { name: Vagrant, cat: devops, untestable: true, aliases: [vagrant, packer] }
-  ci_cd: { name: CI/CD, cat: devops, modules: [devops_core], aliases: [ci/cd, ci cd, ci, cicd, continuous integration, непрерывная интеграция, пайплайны, пайплайнов, pipelines] }
+  ci_cd: { name: CI/CD, cat: devops, modules: [devops_core], aliases: [ci/cd, ci cd, ci, cicd, continuous integration, непрерывная интеграция, пайплайны, пайплайнов, pipelines, ci-cd, си ай си ди, сиай сиди, автоматизация сборки и деплоя, автоматизация деплоя] }
   jenkins: { name: Jenkins, cat: devops, untestable: true, aliases: [jenkins, дженкинс] }
-  gitlab_ci: { name: GitLab CI, cat: devops, modules: [devops_core], aliases: [gitlab ci, gitlab-ci, gitlab ci/cd] }
-  github_actions: { name: GitHub Actions, cat: devops, modules: [devops_core], aliases: [github actions] }
+  gitlab_ci: { name: GitLab CI, cat: devops, modules: [devops_core], aliases: [gitlab ci, gitlab-ci, gitlab ci/cd, gitlab runner, gitlab-runner, гитлаб ci, гитлаб си ай] }
+  github_actions: { name: GitHub Actions, cat: devops, modules: [devops_core], aliases: [github actions, github action, гитхаб экшнс, gh actions, github workflows] }
   teamcity: { name: TeamCity, cat: devops, untestable: true, aliases: [teamcity, тимсити] }
   argocd: { name: Argo CD, cat: devops, untestable: true, aliases: [argocd, argo cd, gitops] }
-  nginx: { name: Nginx, cat: devops, modules: [devops_core], aliases: [nginx, нгинкс, энджинкс, энжинкс, traefik, caddy] }
+  nginx: { name: Nginx, cat: devops, modules: [devops_core], aliases: [nginx, нгинкс, энджинкс, энжинкс, traefik, caddy, nginx plus] }
   haproxy: { name: HAProxy, cat: devops, untestable: true, aliases: [haproxy, балансировка нагрузки, балансировщик нагрузки, load balancing, load balancer] }
   consul: { name: Consul, cat: devops, untestable: true, aliases: [consul, etcd, zookeeper] }
   vault: { name: Vault, cat: devops, untestable: true, aliases: [vault, hashicorp vault] }
   istio: { name: Istio и service mesh, cat: devops, untestable: true, aliases: [istio, envoy, service mesh, linkerd] }
-  virtualization: { name: Виртуализация, cat: devops, untestable: true, aliases: [vmware, proxmox, kvm, виртуализация, виртуализации, hyper-v] }
+  virtualization: { name: Виртуализация, cat: devops, untestable: true, aliases: [vmware, proxmox, kvm, виртуализация, виртуализации, hyper-v, vsphere, esxi, vmware vsphere, виртуальные машины, виртуальных машин] }
   openstack: { name: OpenStack, cat: devops, untestable: true, aliases: [openstack] }
   ceph: { name: Ceph, cat: devops, untestable: true, aliases: [ceph, glusterfs] }
   keycloak: { name: Keycloak, cat: devops, untestable: true, aliases: [keycloak, кейклок] }
   ldap: { name: LDAP и Active Directory, cat: devops, untestable: true, aliases: [ldap, active directory, freeipa] }
   windows_server: { name: Windows Server, cat: devops, untestable: true, aliases: [windows server, powershell, iis] }
-  networking_ops: { name: Сетевое администрирование, cat: devops, untestable: true, aliases: [iptables, vpn, wireguard, openvpn, маршрутизация, vlan] }
+  networking_ops: { name: Сетевое администрирование, cat: devops, untestable: true, aliases: [iptables, vpn, wireguard, openvpn, маршрутизация, vlan, dhcp, cisco, mikrotik, микротик, eltex, bgp, ospf, lan, wi-fi, wifi, коммутаторы, маршрутизаторы, сетевое оборудование, сетевого оборудования] }
   # ---------------------------------------------------------------- Мониторинг
   prometheus: { name: Prometheus, cat: monitoring, untestable: true, aliases: [prometheus, прометеус, прометей, alertmanager] }
   grafana: { name: Grafana, cat: monitoring, untestable: true, aliases: [grafana, графана, графане] }
@@ -332,19 +332,19 @@ skills:
   elk: { name: ELK, cat: monitoring, untestable: true, aliases: [elk, elk stack, kibana, logstash, кибана, loki, fluentd] }
   sentry: { name: Sentry, cat: monitoring, untestable: true, aliases: [sentry] }
   tracing: { name: Трейсинг, cat: monitoring, untestable: true, aliases: [jaeger, opentelemetry, otel, трейсинг, distributed tracing] }
-  victoriametrics: { name: VictoriaMetrics, cat: monitoring, untestable: true, aliases: [victoriametrics] }
+  victoriametrics: { name: VictoriaMetrics, cat: monitoring, untestable: true, aliases: [victoriametrics, victoria-metrics, виктория метрикс] }
   observability: { name: Мониторинг и логирование, cat: monitoring, untestable: true, aliases: [мониторинг, мониторинга, observability, логирование, логирования, алертинг] }
   # ---------------------------------------------------------------- Облака
   aws: { name: AWS, cat: cloud, untestable: true, aliases: [aws, amazon web services, ec2, aws lambda] }
   gcp: { name: Google Cloud, cat: cloud, untestable: true, aliases: [gcp, google cloud, bigquery] }
   azure: { name: Azure, cat: cloud, untestable: true, aliases: [azure, ажур] }
-  yandex_cloud: { name: Yandex Cloud, cat: cloud, untestable: true, aliases: [yandex cloud, яндекс облако, яндекс.облако, яндекс клауд] }
+  yandex_cloud: { name: Yandex Cloud, cat: cloud, untestable: true, aliases: [yandex cloud, яндекс облако, яндекс.облако, яндекс клауд, yandex.cloud, яндекс.клауд, yc] }
   vk_cloud: { name: VK Cloud, cat: cloud, untestable: true, aliases: [vk cloud, cloud.ru, selectel, селектел] }
   s3: { name: S3-хранилища, cat: cloud, untestable: true, aliases: [s3, minio, объектное хранилище] }
   cdn: { name: CDN, cat: cloud, untestable: true, aliases: [cdn, cloudflare] }
   # ---------------------------------------------------------------- Очереди и брокеры
-  kafka: { name: Kafka, cat: broker, untestable: true, aliases: [kafka, кафка, кафку, кафке, кафкой, кафки, apache kafka, kafka streams] }
-  rabbitmq: { name: RabbitMQ, cat: broker, untestable: true, aliases: [rabbitmq, rabbit, рэббит, реббит, рэбит, кролик, кроликом] }
+  kafka: { name: Kafka, cat: broker, modules: [mq_core], aliases: [kafka, кафка, кафку, кафке, кафкой, кафки, apache kafka, kafka streams] }
+  rabbitmq: { name: RabbitMQ, cat: broker, modules: [mq_core], aliases: [rabbitmq, rabbit, рэббит, реббит, рэбит, кролик, кроликом, раббит, раббитмк, rabbit mq, rabbit-mq, раббитмq] }
   nats: { name: NATS, cat: broker, untestable: true, aliases: [nats] }
   activemq: { name: ActiveMQ, cat: broker, untestable: true, aliases: [activemq, artemis, ibm mq] }
   zeromq: { name: ZeroMQ, cat: broker, untestable: true, aliases: [zeromq, zmq] }
@@ -393,7 +393,7 @@ skills:
   # ---------------------------------------------------------------- Мобильная разработка
   swift: { name: Swift, cat: mobile, untestable: true, aliases: [swift, свифт] }
   objective_c: { name: Objective-C, cat: mobile, untestable: true, aliases: [objective-c, objective c, objc] }
-  swiftui: { name: SwiftUI, cat: mobile, untestable: true, aliases: [swiftui, uikit, combine] }
+  swiftui: { name: SwiftUI, cat: mobile, untestable: true, aliases: [swiftui, uikit, combine, свифтюай, свифт ui] }
   ios: { name: iOS, cat: mobile, untestable: true, aliases: [ios, айос, xcode] }
   android: { name: Android, cat: mobile, untestable: true, aliases: [android, андроид, android sdk, android studio] }
   jetpack_compose: { name: Jetpack Compose, cat: mobile, untestable: true, aliases: [jetpack compose, jetpack, compose multiplatform, kmp] }
@@ -402,24 +402,24 @@ skills:
   react_native: { name: React Native, cat: mobile, modules: [react, js_core], spec: { mobile: 3.0, frontend_js: 1.0 }, aliases: [react native, react-native, реакт нейтив, expo] }
   firebase: { name: Firebase, cat: mobile, untestable: true, spec: { mobile: 1.5 }, aliases: [firebase, файрбейс, push-уведомления] }
   # ---------------------------------------------------------------- QA
-  manual_testing: { name: Ручное тестирование, cat: qa, modules: [qa_testing], aliases: [ручное тестирование, ручного тестирования, тест-кейсы, тест-кейсов, тест-дизайн, чек-листы, баг-репорты, test cases, test design] }
-  test_automation: { name: Автоматизация тестирования, cat: qa, modules: [qa_testing], aliases: [автотесты, автотестов, автотестами, автоматизация тестирования, автоматизации тестирования, test automation] }
+  manual_testing: { name: Ручное тестирование, cat: qa, modules: [qa_testing], aliases: [ручное тестирование, ручного тестирования, тест-кейсы, тест-кейсов, тест-дизайн, чек-листы, баг-репорты, test cases, test design, ручные тесты, ручных тестов, ручные, мануальное тестирование, мануальный тестировщик, manual testing, manual qa, тестовая документация, тестовой документации, чек-лист, тест-кейс, тестовые сценарии, баг-репорт, баг-трекинг] }
+  test_automation: { name: Автоматизация тестирования, cat: qa, modules: [qa_testing], aliases: [автотесты, автотестов, автотестами, автоматизация тестирования, автоматизации тестирования, test automation, автотестер, автотестирование, автотестирования, автоматизатор тестирования, автоматизированное тестирование, автоматизированного тестирования, автоматизация тестов, автотест, automation qa] }
   selenium: { name: Selenium, cat: qa, untestable: true, aliases: [selenium, селениум, selenide, webdriver] }
-  cypress: { name: Cypress, cat: qa, untestable: true, aliases: [cypress] }
-  playwright: { name: Playwright, cat: qa, untestable: true, aliases: [playwright, puppeteer] }
+  cypress: { name: Cypress, cat: qa, untestable: true, aliases: [cypress, сайпресс, цайпресс] }
+  playwright: { name: Playwright, cat: qa, untestable: true, aliases: [playwright, puppeteer, плейрайт, плейврайт] }
   postman: { name: Postman, cat: qa, untestable: true, aliases: [postman, постман, insomnia] }
   jmeter: { name: JMeter, cat: qa, untestable: true, aliases: [jmeter, джиметр, gatling, k6] }
   locust: { name: Locust, cat: qa, untestable: true, aliases: [locust] }
   allure: { name: Allure, cat: qa, untestable: true, aliases: [allure, testrail, testit, test it, zephyr] }
   unit_testing: { name: Модульные тесты, cat: qa, modules: [qa_testing], spec: { qa: 1.0 }, aliases: [юнит-тесты, юнит-тестов, юнит тесты, unit-тесты, unit-тестов, unit tests, unit testing, модульное тестирование, модульные тесты, покрытие тестами] }
-  load_testing: { name: Нагрузочное тестирование, cat: qa, untestable: true, aliases: [нагрузочное тестирование, нагрузочного тестирования, load testing, performance testing] }
+  load_testing: { name: Нагрузочное тестирование, cat: qa, untestable: true, aliases: [нагрузочное тестирование, нагрузочного тестирования, load testing, performance testing, нагрузочное, нагрузочного, нагрузочные тесты, нагрузочных тестов, тестировщик нагрузки, нагрузочным тестированием, стресс-тестирование] }
   tdd: { name: TDD/BDD, cat: qa, untestable: true, spec: { qa: 1.0 }, aliases: [tdd, bdd, cucumber, gherkin] }
-  api_testing: { name: Тестирование API, cat: qa, modules: [http_api, qa_testing], aliases: [тестирование api, тестирования api, api testing, api-тесты, api-тестов] }
+  api_testing: { name: Тестирование API, cat: qa, modules: [http_api, qa_testing], aliases: [тестирование api, тестирования api, api testing, api-тесты, api-тестов, rest api тесты, api тесты, тестирование rest, тестирование апи, rest-тесты, тесты api, тестирования rest] }
   integration_testing: { name: Интеграционное тестирование, cat: qa, untestable: true, aliases: [интеграционное тестирование, интеграционные тесты, интеграционных тестов, e2e, e2e-тесты, end-to-end] }
   # ---------------------------------------------------------------- Безопасность
   owasp: { name: OWASP, cat: security, untestable: true, aliases: [owasp, owasp top 10, xss, csrf, sql-инъекции, sql injection] }
   pentest: { name: Пентест, cat: security, untestable: true, aliases: [пентест, пентеста, pentest, penetration testing, тестирование на проникновение, red team] }
-  siem: { name: SIEM, cat: security, untestable: true, aliases: [siem, soc, ids/ips, ids, ips, maxpatrol] }
+  siem: { name: SIEM, cat: security, untestable: true, aliases: [siem, soc, ids/ips, ids, ips, maxpatrol, splunk, qradar, arcsight] }
   burp: { name: Burp Suite, cat: security, untestable: true, aliases: [burp, burp suite, owasp zap, metasploit] }
   wireshark: { name: Wireshark, cat: security, untestable: true, aliases: [wireshark, tcpdump, nmap] }
   cryptography: { name: Криптография, cat: security, untestable: true, aliases: [криптография, криптографии, cryptography, шифрование, pki, гост-криптография] }
@@ -430,10 +430,10 @@ skills:
   agile: { name: Agile, cat: process, untestable: true, aliases: [agile, аджайл, эджайл] }
   scrum: { name: Scrum, cat: process, untestable: true, aliases: [scrum, скрам, скрамом] }
   kanban: { name: Kanban, cat: process, untestable: true, aliases: [kanban, канбан] }
-  jira: { name: Jira, cat: process, untestable: true, aliases: [jira, джира, джире, youtrack, yandex tracker, яндекс трекер] }
+  jira: { name: Jira, cat: process, untestable: true, aliases: [jira, джира, джире, youtrack, yandex tracker, яндекс трекер, redmine, трекер задач, trello] }
   confluence: { name: Confluence, cat: process, untestable: true, aliases: [confluence, конфлюенс, notion] }
   code_review: { name: Код-ревью, cat: process, untestable: true, aliases: [code review, код-ревью, код ревью, ревью кода, code-review, ревьюить] }
-  tech_docs: { name: Техническая документация, cat: process, untestable: true, aliases: [техническая документация, технической документации, документирование кода, adr] }
+  tech_docs: { name: Техническая документация, cat: process, untestable: true, aliases: [техническая документация, технической документации, документирование кода, adr, uml, bpmn, c4 model, диаграммы uml] }
   english: { name: Английский язык, cat: spoken, untestable: true, aliases: [английский, английского, английским, english, английский язык, upper-intermediate, intermediate] }
   # ---------------------------------------------------------------- Встраиваемые, геймдев, блокчейн, дизайн
   embedded: { name: Встраиваемые системы, cat: embedded, untestable: true, aliases: [embedded, встраиваемые системы, встраиваемых систем, микроконтроллеры, микроконтроллеров, stm32, arduino, ардуино, rtos] }
@@ -448,6 +448,12 @@ skills:
   ui_ux: { name: UI/UX, cat: design, untestable: true, aliases: [ui/ux, ux/ui, ux, ui-kit, дизайн-система, дизайн-системы, design system] }
 
 # Роли в команде (резюме: «роли»; бриф: сигнал специализации, вес на специализации).
+  # ---------------------------------------------------------------- Из открытых вакансий (data/market/)
+  delphi: { name: Delphi, cat: lang_other, untestable: true, aliases: [delphi, делфи, object pascal] }
+  appium: { name: Appium, cat: qa, untestable: true, aliases: [appium, аппиум, uiautomator, espresso] }
+  itil: { name: ITIL и ITSM, cat: process, untestable: true, aliases: [itil, itsm, service desk, сервис деск, helpdesk, хелпдеск] }
+  scada: { name: SCADA и АСУ ТП, cat: embedded, untestable: true, aliases: [scada, скада, асу тп, modbus, plc, программируемые контроллеры] }
+
 roles:
   backend_dev: { name: Backend-разработчик, aliases: [backend-разработчик, бэкенд-разработчик, бекенд-разработчик, backend developer, backend engineer, бэкендер, бэкендщик, серверный разработчик], spec: { backend_python: 1.0, backend_go: 1.0, backend_java: 1.0 } }
   frontend_dev: { name: Frontend-разработчик, aliases: [frontend-разработчик, фронтенд-разработчик, frontend developer, frontend engineer, фронтендер, фронтендщик, верстальщик, верстальщика], spec: { frontend_js: 1.0 } }

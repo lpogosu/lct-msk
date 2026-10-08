@@ -1,0 +1,879 @@
+{
+  "n": 62,
+  "skills": {
+    "precision": 0.9673024523160763,
+    "recall": 0.9491978609625669,
+    "f1": 0.9581646423751686
+  },
+  "must": {
+    "precision": 0.9758064516129032,
+    "recall": 0.7333333333333333,
+    "f1": 0.8373702422145329
+  },
+  "spec_top1": 0.9838709677419355,
+  "grade_exact": 1.0,
+  "salary_exact": 0.9516129032258065,
+  "salary_basis_accuracy": 0.9722222222222222,
+  "formats_exact": 1.0,
+  "city_accuracy": 0.9838709677419355,
+  "rows": [
+    {
+      "id": "h01",
+      "spec": [
+        "backend_python",
+        "backend_python"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [
+        "asyncio",
+        "python"
+      ],
+      "extra": []
+    },
+    {
+      "id": "h02",
+      "spec": [
+        "backend_python",
+        "backend_python"
+      ],
+      "grade": [
+        "junior",
+        "junior"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h03",
+      "spec": [
+        "backend_python",
+        "backend_python"
+      ],
+      "grade": [
+        "senior",
+        "senior"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h04",
+      "spec": [
+        "backend_python",
+        "backend_python"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [
+        "gitlab_ci",
+        "pytest",
+        "rabbitmq"
+      ],
+      "extra": [
+        "ci_cd",
+        "gitlab"
+      ]
+    },
+    {
+      "id": "h05",
+      "spec": [
+        "backend_python",
+        "backend_python"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [
+        "django"
+      ],
+      "extra": []
+    },
+    {
+      "id": "h06",
+      "spec": [
+        "backend_python",
+        "backend_python"
+      ],
+      "grade": [
+        "intern",
+        "intern"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h07",
+      "spec": [
+        "backend_python",
+        "backend_python"
+      ],
+      "grade": [
+        "senior",
+        "senior"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h08",
+      "spec": [
+        "backend_python",
+        "backend_python"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h09",
+      "spec": [
+        "backend_python",
+        "backend_python"
+      ],
+      "grade": [
+        "junior",
+        "junior"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h10",
+      "spec": [
+        "backend_python",
+        "backend_python"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h11",
+      "spec": [
+        "backend_python",
+        "backend_python"
+      ],
+      "grade": [
+        "senior",
+        "senior"
+      ],
+      "missed": [],
+      "extra": [
+        "integrations"
+      ]
+    },
+    {
+      "id": "h12",
+      "spec": [
+        "data_ml",
+        "data_ml"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h13",
+      "spec": [
+        "data_ml",
+        "data_ml"
+      ],
+      "grade": [
+        "senior",
+        "senior"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h14",
+      "spec": [
+        "data_ml",
+        "data_ml"
+      ],
+      "grade": [
+        "junior",
+        "junior"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h15",
+      "spec": [
+        "frontend_js",
+        "frontend_js"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [
+        "css",
+        "nextjs"
+      ],
+      "extra": [
+        "layout"
+      ]
+    },
+    {
+      "id": "h16",
+      "spec": [
+        "frontend_js",
+        "frontend_js"
+      ],
+      "grade": [
+        "junior",
+        "junior"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h17",
+      "spec": [
+        "frontend_js",
+        "frontend_js"
+      ],
+      "grade": [
+        "senior",
+        "senior"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h18",
+      "spec": [
+        "frontend_js",
+        "frontend_js"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h19",
+      "spec": [
+        "frontend_js",
+        "frontend_js"
+      ],
+      "grade": [
+        "junior",
+        "junior"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h20",
+      "spec": [
+        "frontend_js",
+        "frontend_js"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h21",
+      "spec": [
+        "frontend_js",
+        "frontend_js"
+      ],
+      "grade": [
+        "senior",
+        "senior"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h22",
+      "spec": [
+        "fullstack",
+        "fullstack"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h23",
+      "spec": [
+        "backend_python",
+        "fullstack"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h24",
+      "spec": [
+        "fullstack",
+        "fullstack"
+      ],
+      "grade": [
+        "junior",
+        "junior"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h25",
+      "spec": [
+        "fullstack",
+        "fullstack"
+      ],
+      "grade": [
+        "senior",
+        "senior"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h26",
+      "spec": [
+        "qa",
+        "qa"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h27",
+      "spec": [
+        "qa",
+        "qa"
+      ],
+      "grade": [
+        "junior",
+        "junior"
+      ],
+      "missed": [
+        "api_testing"
+      ],
+      "extra": [
+        "api_design"
+      ]
+    },
+    {
+      "id": "h28",
+      "spec": [
+        "qa",
+        "qa"
+      ],
+      "grade": [
+        "senior",
+        "senior"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h29",
+      "spec": [
+        "qa",
+        "qa"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [
+        "api_testing",
+        "test_automation"
+      ],
+      "extra": [
+        "rest"
+      ]
+    },
+    {
+      "id": "h30",
+      "spec": [
+        "qa",
+        "qa"
+      ],
+      "grade": [
+        "senior",
+        "senior"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h31",
+      "spec": [
+        "qa",
+        "qa"
+      ],
+      "grade": [
+        "intern",
+        "intern"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h32",
+      "spec": [
+        "qa",
+        "qa"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [
+        "load_testing"
+      ],
+      "extra": []
+    },
+    {
+      "id": "h33",
+      "spec": [
+        "devops",
+        "devops"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [
+        "gitlab_ci",
+        "helm"
+      ],
+      "extra": [
+        "ci_cd",
+        "gitlab",
+        "observability"
+      ]
+    },
+    {
+      "id": "h34",
+      "spec": [
+        "devops",
+        "devops"
+      ],
+      "grade": [
+        "senior",
+        "senior"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h35",
+      "spec": [
+        "devops",
+        "devops"
+      ],
+      "grade": [
+        "junior",
+        "junior"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h36",
+      "spec": [
+        "devops",
+        "devops"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h37",
+      "spec": [
+        "devops",
+        "devops"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [
+        "networking_ops"
+      ],
+      "extra": []
+    },
+    {
+      "id": "h38",
+      "spec": [
+        "devops",
+        "devops"
+      ],
+      "grade": [
+        "senior",
+        "senior"
+      ],
+      "missed": [
+        "victoriametrics"
+      ],
+      "extra": [
+        "influxdb"
+      ]
+    },
+    {
+      "id": "h39",
+      "spec": [
+        "backend_go",
+        "backend_go"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h40",
+      "spec": [
+        "backend_java",
+        "backend_java"
+      ],
+      "grade": [
+        "senior",
+        "senior"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h41",
+      "spec": [
+        "backend_java",
+        "backend_java"
+      ],
+      "grade": [
+        "junior",
+        "junior"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h42",
+      "spec": [
+        "backend_go",
+        "backend_go"
+      ],
+      "grade": [
+        "senior",
+        "senior"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h43",
+      "spec": [
+        "mobile",
+        "mobile"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h44",
+      "spec": [
+        "mobile",
+        "mobile"
+      ],
+      "grade": [
+        "junior",
+        "junior"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h45",
+      "spec": [
+        "uiux_design",
+        "uiux_design"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h46",
+      "spec": [
+        "infosec",
+        "infosec"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h47",
+      "spec": [
+        "backend_python",
+        "backend_python"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h48",
+      "spec": [
+        "backend_python",
+        "backend_python"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h49",
+      "spec": [
+        "backend_python",
+        "backend_python"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h50",
+      "spec": [
+        "frontend_js",
+        "frontend_js"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h51",
+      "spec": [
+        "devops",
+        "devops"
+      ],
+      "grade": [
+        "junior",
+        "junior"
+      ],
+      "missed": [
+        "gitlab_ci"
+      ],
+      "extra": [
+        "ci_cd",
+        "gitlab"
+      ]
+    },
+    {
+      "id": "h52",
+      "spec": [
+        "qa",
+        "qa"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [
+        "manual_testing"
+      ],
+      "extra": []
+    },
+    {
+      "id": "h53",
+      "spec": [
+        "backend_python",
+        "backend_python"
+      ],
+      "grade": [
+        "senior",
+        "senior"
+      ],
+      "missed": [
+        "asyncio"
+      ],
+      "extra": []
+    },
+    {
+      "id": "h54",
+      "spec": [
+        "backend_python",
+        "backend_python"
+      ],
+      "grade": [
+        "junior",
+        "junior"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h55",
+      "spec": [
+        "frontend_js",
+        "frontend_js"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h56",
+      "spec": [
+        "backend_java",
+        "backend_java"
+      ],
+      "grade": [
+        "senior",
+        "senior"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h57",
+      "spec": [
+        "data_ml",
+        "data_ml"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h58",
+      "spec": [
+        "fullstack",
+        "fullstack"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h59",
+      "spec": [
+        "qa",
+        "qa"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h60",
+      "spec": [
+        "devops",
+        "devops"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h61",
+      "spec": [
+        "data_ml",
+        "data_ml"
+      ],
+      "grade": [
+        "junior",
+        "junior"
+      ],
+      "missed": [],
+      "extra": []
+    },
+    {
+      "id": "h62",
+      "spec": [
+        "backend_python",
+        "backend_python"
+      ],
+      "grade": [
+        "middle",
+        "middle"
+      ],
+      "missed": [],
+      "extra": []
+    }
+  ]
+}

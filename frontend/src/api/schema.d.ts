@@ -1129,6 +1129,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/needs/market-salary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Рыночная вилка для направления и грейда
+         * @description Подсказка в форме брифа: квантили зарплат (p10–p90) по открытым данным вакансий «Работа в России». Только подсказка: в Score и подбор не входит.
+         */
+        get: operations["market_salary_api_needs_market_salary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/needs/parse": {
         parameters: {
             query?: never;
@@ -10436,6 +10456,32 @@ export interface components {
             notes: string[];
             /** Scoring Config Version */
             scoring_config_version: string;
+        };
+        /** MarketQuantilesOut */
+        MarketQuantilesOut: {
+            p10: number;
+            p25: number;
+            p50: number;
+            p75: number;
+            p90: number;
+        };
+        /**
+         * MarketSalaryOut
+         * @description Рыночная вилка по открытым данным: только подсказка, в Score и подбор не входит.
+         */
+        MarketSalaryOut: {
+            /** @description Есть ли достаточно данных (n ≥ порога) для направления */
+            available: boolean;
+            scope?: ("direction_grade" | "direction") | null;
+            grade?: ("intern" | "junior" | "middle" | "senior") | null;
+            n?: number | null;
+            gross?: components["schemas"]["MarketQuantilesOut"] | null;
+            net?: components["schemas"]["MarketQuantilesOut"] | null;
+            source?: string | null;
+            fetched?: string | null;
+            note?: string | null;
+            ratio_to_p25?: number | null;
+            far_below?: boolean | null;
         };
         /** ParseOut */
         ParseOut: {
@@ -24068,6 +24114,35 @@ export interface operations {
                      *     }
                      */
                     "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    market_salary_api_needs_market_salary_get: {
+        parameters: {
+            query: {
+                /** @description Код специализации, например backend_python */
+                specialization: string;
+                /** @description Грейд */
+                grade?: ("intern" | "junior" | "middle" | "senior") | null;
+                /** @description Верхняя граница вилки, ₽/мес */
+                salary_to?: number | null;
+                /** @description Вилка указана на руки (true) или до НДФЛ (false) */
+                salary_net?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MarketSalaryOut"];
                 };
             };
         };

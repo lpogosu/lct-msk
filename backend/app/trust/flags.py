@@ -13,6 +13,7 @@ from typing import Any
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.matching.market import salary_vs_market
 from app.models.company import Company, ReliabilityEventRow
 from app.models.contact import Application, Invitation, OfferTerms, Vacancy
 from app.models.matching import Need
@@ -73,6 +74,25 @@ def _salary_below_brief(db: Session, company_id: uuid.UUID, c: dict[str, Any]) -
     return f"Приглашений с зарплатой ниже брифа: {len(low)}" if len(low) >= int(c["min_invitations"]) else None
 
 
+def _salary_far_below_market(db: Session, company_id: uuid.UUID, c: dict[str, Any]) -> str | None:
+    """Вилка брифа сильно ниже рынка (открытые данные): сигнал, не блокировка. Основание gross/net учитывается."""
+    needs = db.scalars(select(Need).where(Need.company_id == company_id, Need.status.in_(c["statuses"]))).all()
+    low = []
+    for n in needs:
+        r = salary_vs_market(n.specialization, n.grade, n.salary_to, bool(n.salary_net), float(c["ratio"]))
+        if r and r["far_below"]:
+            low.append((n.title or n.specialization or "бриф", n.salary_to, r["benchmark"]["gross"]["p25"]))
+    if len(low) < int(c["min_needs"]):
+        return None
+    t, to, p25 = low[0]
+
+    def money(x: int) -> str:
+        return f"{x:,}".replace(",", " ") + " ₽"
+
+    return (f"Брифов с вилкой сильно ниже рынка: {len(low)} (например, «{t}»: до {money(to)}; "
+            f"нижний квартиль рынка — {money(p25)} до НДФЛ)")
+
+
 def _terms_discrepancy(db: Session, company_id: uuid.UUID, at: datetime, c: dict[str, Any], window_days: int) -> str | None:
     n = int(
         db.scalar(
@@ -96,6 +116,7 @@ def company_flags(db: Session, company_id: uuid.UUID, at: datetime) -> list[dict
         "many_invites_no_outcomes": _many_invites_no_outcomes(db, company_id, at, fc["many_invites_no_outcomes"]),
         "vacancy_idle": _vacancy_idle(db, company_id, at, fc["vacancy_idle"]),
         "salary_below_brief": _salary_below_brief(db, company_id, fc["salary_below_brief"]),
+        "salary_far_below_market": _salary_far_below_market(db, company_id, fc["salary_far_below_market"]),
         "terms_discrepancy": _terms_discrepancy(db, company_id, at, fc["terms_discrepancy"], window),
     }
     return [{"code": code, "label": fc[code]["label"], "detail": detail} for code, detail in found.items() if detail]
