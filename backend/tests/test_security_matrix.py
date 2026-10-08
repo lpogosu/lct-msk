@@ -26,6 +26,7 @@ PUBLIC_PREFIXES = (
     "/api/auth/",
     "/api/health",
     "/api/v/",
+    "/api/credentials/verify",  # публичная проверка паспорта навыков: любой, кому прислали файл или ссылку
     "/api/demo/",
     "/api/jury/",
     "/api/consents/documents",

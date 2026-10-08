@@ -124,15 +124,20 @@ spec_relevance:
 # инфраструктуру, поэтому ФСП не даёт доказательства навыков Docker, nginx, pytest (вклад ФСП в F идёт через spec_relevance).
 module_relevance:
   algo:     { algo: 1.0, python_core: 0.5, js_core: 0.3, sql: 0.2, git_linux: 0.2, http_api: 0.1,
-              react: 0.0, html_css: 0.0, qa_testing: 0.0, devops_core: 0.0 }
+              react: 0.0, html_css: 0.0, qa_testing: 0.0, devops_core: 0.0, redis_core: 0.0, mq_core: 0.0,
+              pg_core: 0.1, fastapi_core: 0.1 }
   product:  { http_api: 0.8, sql: 0.6, python_core: 0.6, js_core: 0.6, react: 0.6, git_linux: 0.6,
-              html_css: 0.5, algo: 0.3, qa_testing: 0.0, devops_core: 0.0 }
+              html_css: 0.5, algo: 0.3, qa_testing: 0.0, devops_core: 0.0, redis_core: 0.0, mq_core: 0.0,
+              pg_core: 0.5, fastapi_core: 0.6 }
   bas:      { python_core: 0.4, algo: 0.4, git_linux: 0.3, sql: 0.0, http_api: 0.0, js_core: 0.0,
-              react: 0.0, html_css: 0.0, qa_testing: 0.0, devops_core: 0.0 }
+              react: 0.0, html_css: 0.0, qa_testing: 0.0, devops_core: 0.0, redis_core: 0.0, mq_core: 0.0,
+              pg_core: 0.0, fastapi_core: 0.0 }
   robotics: { python_core: 0.4, algo: 0.4, git_linux: 0.4, sql: 0.0, http_api: 0.1, js_core: 0.0,
-              react: 0.0, html_css: 0.0, qa_testing: 0.0, devops_core: 0.0 }
+              react: 0.0, html_css: 0.0, qa_testing: 0.0, devops_core: 0.0, redis_core: 0.0, mq_core: 0.0,
+              pg_core: 0.0, fastapi_core: 0.0 }
   infosec:  { git_linux: 0.7, http_api: 0.6, sql: 0.5, python_core: 0.4, algo: 0.3, js_core: 0.3,
-              html_css: 0.2, react: 0.1, qa_testing: 0.0, devops_core: 0.0 }
+              html_css: 0.2, react: 0.1, qa_testing: 0.0, devops_core: 0.0, redis_core: 0.0, mq_core: 0.0,
+              pg_core: 0.4, fastapi_core: 0.4 }
 
 # Обобщение места до раскрытия (концепция §4.5, §6.2): пара «ЕКП + точное место» выдаёт человека.
 # Первая подходящая полоса; место берётся худшее из диапазона; share = место / N.

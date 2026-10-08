@@ -147,7 +147,7 @@ def test_fsp_redirect_uri_is_consistent_end_to_end():
     realm = json.loads((root / "deploy" / "keycloak" / "realm-fsp.json").read_text(encoding="utf-8"))
     assert uri in realm["clients"][0]["redirectUris"]
     routes = (root / "frontend" / "src" / "app" / "routes.tsx").read_text(encoding="utf-8")
-    assert "path: 'fsp/callback'" in routes  # страница на этом адресе есть во фронтенде
+    assert "path: 'candidate/fsp/callback'" in routes  # страница на этом адресе есть во фронтенде
     compose = (root / "docker-compose.yml").read_text(encoding="utf-8")
     assert "candidate/fsp/callback" in compose and "/auth/fsp/callback" not in compose
 

@@ -21,7 +21,7 @@ from app.services.contact import interest as svc
 from app.services.contact.common import now, rel
 from app.services.contact.schemas import InterestIn, InterestSentOut, InterestStatusOut
 
-router = APIRouter(prefix="/interest", tags=["Сигнал интереса"], responses=error_responses(400, 401, 403, 404, 409, 422))
+router = APIRouter(prefix="/interest", tags=["Сигнал интереса"], responses=error_responses(400, 401, 403, 404, 409, 422, 429))
 
 CandidateUser = Annotated[User, Depends(require_roles(UserRole.candidate))]
 

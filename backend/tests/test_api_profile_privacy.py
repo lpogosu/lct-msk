@@ -248,11 +248,11 @@ def test_visibility_stats_with_impressions_and_missing_skill(client, make_accoun
         db_session.add(need)
         db_session.flush()
         items = [
-            {"candidate_id": other, "chips": [{"skill_id": "kafka", "kind": "must", "state": "declared"}]},
+            {"candidate_id": other, "chips": [{"skill_id": "pytorch", "kind": "must", "state": "declared"}]},
             {
                 "candidate_id": str(acc.user_id),
                 "chips": [
-                    {"skill_id": "kafka", "kind": "must", "state": "no_data"},
+                    {"skill_id": "pytorch", "kind": "must", "state": "no_data"},
                     {"skill_id": "python", "kind": "must", "state": "confirmed"},
                     {"skill_id": "docker", "kind": "nice", "state": "declared"},
                 ],
@@ -271,6 +271,6 @@ def test_visibility_stats_with_impressions_and_missing_skill(client, make_accoun
     assert s["top10"] == 1  # лучшие позиции в подборках: 3, 12, 21 (показ месячной давности не считается)
     assert s["median_position"] == 12.0
     assert s["profile_views"] == 1
-    assert s["missing_skill"]["skill"] == "kafka" and s["missing_skill"]["count"] == 3
-    assert "не проверяет" in s["missing_skill"]["action"]  # Kafka тестом не проверяется — честная подсказка
+    assert s["missing_skill"]["skill"] == "pytorch" and s["missing_skill"]["count"] == 3
+    assert "не проверяет" in s["missing_skill"]["action"]  # PyTorch тестом не проверяется — честная подсказка
     assert "в 3 подборках, в 1 — в топ-10" in s["message"]

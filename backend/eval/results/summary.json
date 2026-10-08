@@ -2,9 +2,9 @@
  "meta": {
   "mode": "full",
   "seed": 20261005,
-  "git_sha": "86a7d0632bcdf3b1f2c2ed117ab0ed904ccfbe43",
-  "bank_families": 91,
-  "scoring_config_version": "1-9daad5d773"
+  "git_sha": "c4c83a4f312090a0202932c9a4cb96c157732070",
+  "bank_families": 102,
+  "scoring_config_version": "1-dc239901d9"
  },
  "command": "cd backend && uv run python -m eval.validate",
  "tiles": [
@@ -325,7 +325,7 @@
    "kind": "matching",
    "section": "Подбор",
    "label": "P@10 по оракулу, test-брифы, сквозной режим",
-   "value": 0.615,
+   "value": 0.61,
    "op": "ge",
    "target": 0.6,
    "format": "num",
@@ -442,7 +442,7 @@
    "kind": "matching",
    "section": "Устойчивость",
    "label": "Стабильность топ-10 при пересдаче (overlap@10)",
-   "value": 0.28,
+   "value": 0.285,
    "op": "ge",
    "target": 0.7,
    "format": "num",
@@ -455,11 +455,11 @@
    "kind": "matching",
    "section": "Устойчивость",
    "label": "Жаккар топ-10 после «добавлен nice-навык»",
-   "value": 0.9727,
+   "value": 0.9636,
    "op": "ge",
    "target": 0.6,
    "format": "num",
-   "value_text": "0,97",
+   "value_text": "0,96",
    "target_text": "≥ 0,60",
    "pass": true
   },
@@ -468,7 +468,7 @@
    "kind": "matching",
    "section": "Устойчивость",
    "label": "Падение P@10 при сдвиге веса на ±0,05 (максимум)",
-   "value": 0.01,
+   "value": 0.005,
    "op": "le",
    "target": 0.05,
    "format": "num",
@@ -494,11 +494,11 @@
    "kind": "matching",
    "section": "Устойчивость",
    "label": "Накрутка навыков: сдвиг ранга вверх, BM25 (ожидание ≥ 10)",
-   "value": 523.727,
+   "value": 522.463,
    "op": "ge",
    "target": 10,
    "format": "num1",
-   "value_text": "523,7",
+   "value_text": "522,5",
    "target_text": "≥ 10,0",
    "pass": true
   },
@@ -507,14 +507,14 @@
    "kind": "matching",
    "section": "Экспозиция",
    "label": "Кандидаты без ФСП: условное отношение экспозиции, топ-10",
-   "value": 0.9298,
+   "value": 0.9213,
    "op": "between",
    "target": [
     0.8,
     1.25
    ],
    "format": "num",
-   "value_text": "0,93",
+   "value_text": "0,92",
    "target_text": "0,80–1,25",
    "pass": true
   },
@@ -523,7 +523,7 @@
    "kind": "matching",
    "section": "Экспозиция",
    "label": "Кандидаты без ФСП: условное отношение экспозиции, топ-50",
-   "value": 0.9404,
+   "value": 0.9449,
    "op": "between",
    "target": [
     0.8,
@@ -578,7 +578,7 @@
    "kind": "matching",
    "section": "Объяснения",
    "label": "Без доказательства довода №1 Score падает не меньше превышения над медианой",
-   "value": 0.9577,
+   "value": 0.9588,
    "op": "ge",
    "target": 1.0,
    "format": "share",
@@ -591,11 +591,11 @@
    "kind": "matching",
    "section": "Производительность",
    "label": "p95 сборки версии подборки, мс",
-   "value": 119.7589,
+   "value": 210.5639,
    "op": "le",
    "target": 300,
    "format": "num0",
-   "value_text": "120",
+   "value_text": "211",
    "target_text": "≤ 300",
    "pass": true
   }
@@ -769,7 +769,7 @@
     "leak": {
      "n": 100,
      "coalition": 20,
-     "leaked_share_of_spec_bank": 1.0,
+     "leaked_share_of_spec_bank": 0.8,
      "theta_gain_mean": -1.7636,
      "theta_gain_ci95": [
       -1.9107,
@@ -778,15 +778,15 @@
      "false_pass_honest": 0.15,
      "false_pass_with_leak": 0.0,
      "share_flagged_foreign_key": 1.0,
-     "detector_active_families": 28,
-     "bank_families": 44,
+     "detector_active_families": 39,
+     "bank_families": 55,
      "median_key_collision": 0.0
     },
     "twin": {
-     "families": 44,
-     "families_with_twin": 22,
-     "instances": 264,
-     "twin_built_share": 0.4962,
+     "families": 55,
+     "families_with_twin": 33,
+     "instances": 330,
+     "twin_built_share": 0.597,
      "twin_key_differs_share_of_built": 1.0,
      "no_twin_reasons": {
       "format_unsupported": 48,

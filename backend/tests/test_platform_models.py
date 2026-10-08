@@ -53,7 +53,7 @@ def _company(db, domain=None, personal=False) -> m.Company:
 def test_all_model_tables_exist(db_engine):
     tables = set(inspect(db_engine).get_table_names())
     assert MODEL_TABLES <= tables
-    assert len(MODEL_TABLES) == 41
+    assert len(MODEL_TABLES) == 42  # +credentials (цифровой паспорт навыков)
     expected = {
         "users", "email_codes", "refresh_tokens", "consents", "audit_log", "companies", "webhook_deliveries",
         "candidate_profiles", "survey_responses", "candidate_features", "item_family_params", "item_instances",

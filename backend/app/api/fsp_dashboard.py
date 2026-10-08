@@ -18,7 +18,7 @@ from app.models.users import User
 from app.services.fsp_dashboard import service
 from app.services.fsp_dashboard.kanon import Cell
 
-router = APIRouter(prefix="/fsp/dashboard", tags=["ФСП"])
+router = APIRouter(prefix="/fsp/dashboard", tags=["ФСП"], responses=error_responses())
 
 Viewer = Annotated[User, Depends(require_roles(UserRole.methodist, UserRole.admin))]
 

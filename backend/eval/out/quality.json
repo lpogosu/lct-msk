@@ -4,9 +4,9 @@
   "quick": false,
   "synthetic": true,
   "durations_s": {
-   "dif": 97.9,
-   "drift": 140.5,
-   "exposure": 109.9
+   "dif": 46.0,
+   "drift": 63.4,
+   "exposure": 53.4
   }
  },
  "dif": {

@@ -156,7 +156,12 @@ def _key_error(e: keys.SigningKeyUnavailable) -> ApiError:
 # --- кандидат --------------------------------------------------------------------------------
 
 
-@router.get("/me", response_model=CredentialListOut, summary="Мои паспорта и что можно выпустить")
+@router.get(
+    "/me",
+    response_model=CredentialListOut,
+    summary="Мои паспорта и что можно выпустить",
+    description="Выпущенные паспорта навыков и список того, что можно выпустить сейчас (категории и подтверждённые достижения ФСП).",
+)
 def my_credentials(user: CandidateUser, db: DbSession, settings: SettingsDep) -> CredentialListOut:
     now = clock.now()
     try:
@@ -171,7 +176,13 @@ def my_credentials(user: CandidateUser, db: DbSession, settings: SettingsDep) ->
     )
 
 
-@router.post("/me", response_model=CredentialOut, status_code=201, summary="Выпустить паспорт")
+@router.post(
+    "/me",
+    response_model=CredentialOut,
+    status_code=201,
+    summary="Выпустить паспорт",
+    description="Подписывает паспорт навыков по категории или достижению ФСП. Имя в паспорт попадает только по явному выбору владельца.",
+)
 def issue_credential(body: CredentialIssueIn, user: CandidateUser, db: DbSession, settings: SettingsDep, meta: MetaDep) -> CredentialOut:
     now = clock.now()
     try:
@@ -183,9 +194,16 @@ def issue_credential(body: CredentialIssueIn, user: CandidateUser, db: DbSession
     return _out(row, settings, now)
 
 
+class CredentialDocumentOut(BaseModel):
+    """Подписанный документ Open Badges 3.0 как есть: набор полей задаёт стандарт, не мы."""
+
+    model_config = ConfigDict(extra="allow")
+
+
 @router.get(
     "/me/{credential_id}/file",
     summary="Скачать паспорт (JSON)",
+    response_model=CredentialDocumentOut,
     response_class=JSONResponse,
     description="Подписанный документ целиком (Open Badges 3.0, proof eddsa-jcs-2022). Его можно отправить кому угодно и проверить на странице /v.",
 )
@@ -199,7 +217,12 @@ def download_credential(credential_id: uuid.UUID, user: CandidateUser, db: DbSes
     )
 
 
-@router.post("/me/{credential_id}/revoke", response_model=CredentialOut, summary="Отозвать паспорт")
+@router.post(
+    "/me/{credential_id}/revoke",
+    response_model=CredentialOut,
+    summary="Отозвать паспорт",
+    description="Владелец отзывает паспорт: проверка по коду и по файлу после этого покажет «отозван».",
+)
 def revoke_credential(credential_id: uuid.UUID, user: CandidateUser, db: DbSession, settings: SettingsDep, meta: MetaDep) -> CredentialOut:
     now = clock.now()
     row = service.get_owned(db, user.id, credential_id)
@@ -231,7 +254,12 @@ def did_json(settings: SettingsDep) -> JSONResponse:
     return _did_response(settings)
 
 
-@router.get("/status/{list_id}", summary="Список отзыва (Bitstring Status List)")
+@router.get(
+    "/status/{list_id}",
+    response_model=CredentialDocumentOut,
+    summary="Список отзыва (Bitstring Status List)",
+    description="Публичный подписанный список отзыва паспортов (W3C Bitstring Status List); по нему проверяющие узнают, что паспорт отозван.",
+)
 def status_list(list_id: Annotated[str, Path(max_length=16)], db: DbSession, settings: SettingsDep) -> JSONResponse:
     if list_id != get_credentials_config().status_list_id:
         raise ApiError(404, "status_list_not_found", "Список отзыва не найден")

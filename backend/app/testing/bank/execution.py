@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import os
 import shutil
 import sqlite3
 import subprocess
@@ -15,6 +16,15 @@ from typing import Any
 
 class ExecutionError(RuntimeError):
     pass
+
+
+def _python_env() -> dict[str, str]:
+    env = {"PYTHONIOENCODING": "utf-8", "PYTHONHASHSEED": "0"}
+    # В Windows без SYSTEMROOT не импортируется asyncio/socket (Winsock) → падали семейства с fastapi/starlette.
+    for k in ("SYSTEMROOT", "SystemRoot"):
+        if k in os.environ:
+            env[k] = os.environ[k]
+    return env
 
 
 def run_python(code: str, timeout: float = 5.0) -> str:
@@ -27,7 +37,7 @@ def run_python(code: str, timeout: float = 5.0) -> str:
         text=True,
         timeout=timeout,
         encoding="utf-8",
-        env={"PYTHONIOENCODING": "utf-8", "PYTHONHASHSEED": "0"},
+        env=_python_env(),
     )
     if proc.returncode != 0:
         raise ExecutionError(f"python exit {proc.returncode}: {proc.stderr.strip()[-500:]}")

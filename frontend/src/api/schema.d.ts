@@ -3177,6 +3177,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/fsp/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Кадровый резерв ФСП: агрегаты
+         * @description Воронка «участник соревнований → тест → категория → подборки → приглашение → «Взаимно» → нанят» в сравнении с остальными кандидатами, разрезы по дисциплинам, округам и регионам, специализации × грейду, динамика по неделям, число компаний, медианы оферт «ФСП / без ФСП» и спрос против предложения. Ячейки с числом людей меньше k скрыты («<5»). Роли: методист, админ.
+         */
+        get: operations["get_dashboard_api_fsp_dashboard_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/fsp/dashboard/export.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Кадровый резерв ФСП: выгрузка CSV
+         * @description Те же агрегаты плоской таблицей (раздел; строка; показатель; значение). Скрытые ячейки остаются «<5». UTF-8 с BOM, разделитель «;».
+         */
+        get: operations["export_csv_api_fsp_dashboard_export_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/guardian/confirm": {
         parameters: {
             query?: never;
@@ -4072,10 +4112,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Мои паспорта и что можно выпустить */
+        /**
+         * Мои паспорта и что можно выпустить
+         * @description Выпущенные паспорта навыков и список того, что можно выпустить сейчас (категории и подтверждённые достижения ФСП).
+         */
         get: operations["my_credentials_api_credentials_me_get"];
         put?: never;
-        /** Выпустить паспорт */
+        /**
+         * Выпустить паспорт
+         * @description Подписывает паспорт навыков по категории или достижению ФСП. Имя в паспорт попадает только по явному выбору владельца.
+         */
         post: operations["issue_credential_api_credentials_me_post"];
         delete?: never;
         options?: never;
@@ -4112,7 +4158,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Отозвать паспорт */
+        /**
+         * Отозвать паспорт
+         * @description Владелец отзывает паспорт: проверка по коду и по файлу после этого покажет «отозван».
+         */
         post: operations["revoke_credential_api_credentials_me__credential_id__revoke_post"];
         delete?: never;
         options?: never;
@@ -4127,7 +4176,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Список отзыва (Bitstring Status List) */
+        /**
+         * Список отзыва (Bitstring Status List)
+         * @description Публичный подписанный список отзыва паспортов (W3C Bitstring Status List); по нему проверяющие узнают, что паспорт отозван.
+         */
         get: operations["status_list_api_credentials_status__list_id__get"];
         put?: never;
         post?: never;
@@ -5728,6 +5780,17 @@ export interface components {
              */
             file: string;
         };
+        /** BreakRow */
+        BreakRow: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Stages */
+            stages: {
+                [key: string]: components["schemas"]["Cell"];
+            };
+        };
         /** BriefOut */
         BriefOut: {
             /** Spec */
@@ -6290,6 +6353,28 @@ export interface components {
              * @enum {string}
              */
             grade: "intern" | "junior" | "middle" | "senior";
+        };
+        /**
+         * Cell
+         * @description Число в ячейке панели. n = None, если ячейка скрыта по k-анонимности (тогда text = «<k»).
+         */
+        Cell: {
+            /**
+             * N
+             * @description Число или null, если скрыто (меньше порога k)
+             */
+            n: number | null;
+            /**
+             * Text
+             * @description Что показать: число или «<5»
+             */
+            text: string;
+            /**
+             * Suppressed
+             * @description Ячейка скрыта по k-анонимности
+             * @default false
+             */
+            suppressed: boolean;
         };
         /** CertaintyOut */
         CertaintyOut: {
@@ -7347,6 +7432,13 @@ export interface components {
             /** Reason */
             reason: string | null;
         };
+        /**
+         * CredentialDocumentOut
+         * @description Подписанный документ Open Badges 3.0 как есть: набор полей задаёт стандарт, не мы.
+         */
+        CredentialDocumentOut: {
+            [key: string]: unknown;
+        };
         /** CredentialIssueIn */
         CredentialIssueIn: {
             /**
@@ -7482,6 +7574,38 @@ export interface components {
              */
             holder_name: string | null;
         };
+        /** DashboardOut */
+        DashboardOut: {
+            /** As Of */
+            as_of: string;
+            /** K Min */
+            k_min: number;
+            /**
+             * Synthetic
+             * @description Данные демонстрационные (мок реестра ФСП)
+             */
+            synthetic: boolean;
+            /** Note */
+            note: string | null;
+            /** Funnel */
+            funnel: components["schemas"]["StageRow"][];
+            /** By Discipline */
+            by_discipline: components["schemas"]["BreakRow"][];
+            /** By District */
+            by_district: components["schemas"]["BreakRow"][];
+            by_region: components["schemas"]["RegionBlock"];
+            spec_grade: components["schemas"]["SpecGradeBlock"];
+            timeline: components["schemas"]["Timeline"];
+            /** Companies */
+            companies: {
+                [key: string]: components["schemas"]["Cell"];
+            };
+            salary: components["schemas"]["SalaryBlock"];
+            /** Demand Supply */
+            demand_supply: components["schemas"]["DemandRow"][];
+            /** Privacy Note */
+            privacy_note: string;
+        };
         /** DecisionOut */
         DecisionOut: {
             /**
@@ -7584,6 +7708,28 @@ export interface components {
              * Format: uuid
              */
             batch_id: string;
+        };
+        /** DemandRow */
+        DemandRow: {
+            /** Spec */
+            spec: string;
+            /** Spec Label */
+            spec_label: string;
+            /** Grade */
+            grade: string;
+            /** Grade Label */
+            grade_label: string;
+            /** @description Компаний с потребностью за период или опубликованной вакансией в категории */
+            demand_companies: components["schemas"]["Cell"];
+            /** @description Спортсменов ФСП с подтверждённой категорией, открытых к предложениям */
+            supply_fsp: components["schemas"]["Cell"];
+            /** @description Все кандидаты платформы с этой категорией (для масштаба) */
+            supply_all: components["schemas"]["Cell"];
+            /**
+             * Status
+             * @description deficit | balance | surplus | few_data | no_demand
+             */
+            status: string;
         };
         /** DemoAccountOut */
         DemoAccountOut: {
@@ -8879,6 +9025,13 @@ export interface components {
              */
             note: string | null;
         };
+        /** GradeCol */
+        GradeCol: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+        };
         /** GradeRef */
         GradeRef: {
             /**
@@ -9836,7 +9989,7 @@ export interface components {
             employer_available: boolean;
             /**
              * Lab Available
-             * @description Аккаунт жюри для лаборатории собран
+             * @description Аккаунт жюри для лаборатории и панели ФСП собран
              */
             lab_available: boolean;
         };
@@ -9844,10 +9997,10 @@ export interface components {
         JuryPersonaIn: {
             /**
              * Persona
-             * @description employer — HR демо-компании; lab — лаборатория методиста (жюри)
+             * @description employer — HR демо-компании; lab — лаборатория методиста (жюри); fsp — панель ФСП «Кадровый резерв» (тот же аккаунт жюри)
              * @enum {string}
              */
-            persona: "employer" | "lab";
+            persona: "employer" | "lab" | "fsp";
         };
         /** JuryPersonaOut */
         JuryPersonaOut: {
@@ -9874,7 +10027,7 @@ export interface components {
              * Persona
              * @enum {string}
              */
-            persona: "employer" | "lab";
+            persona: "employer" | "lab" | "fsp";
             /**
              * Path
              * @description Куда вести фронтенд
@@ -12422,6 +12575,14 @@ export interface components {
              */
             demo_assisted: boolean;
         };
+        /** RegionBlock */
+        RegionBlock: {
+            /** Rows */
+            rows: components["schemas"]["BreakRow"][];
+            other: components["schemas"]["BreakRow"] | null;
+            /** Regions Total */
+            regions_total: number;
+        };
         /** RegisterRequest */
         RegisterRequest: {
             /**
@@ -13134,6 +13295,15 @@ export interface components {
              */
             currency: string;
         };
+        /** SalaryBlock */
+        SalaryBlock: {
+            /** Rows */
+            rows: components["schemas"]["SalaryRow"][];
+            /** Ndfl Rate */
+            ndfl_rate: number;
+            /** Basis */
+            basis: string;
+        };
         /** SalaryCheckOut */
         SalaryCheckOut: {
             /**
@@ -13151,6 +13321,20 @@ export interface components {
              * @description Отношение верха вилки к низу
              */
             ratio: number | null;
+        };
+        /** SalaryCohort */
+        SalaryCohort: {
+            n: components["schemas"]["Cell"];
+            /**
+             * Median Net
+             * @description Медиана, руб./мес «на руки»; null, если скрыта
+             */
+            median_net: number | null;
+            /**
+             * Median Gross
+             * @description Та же медиана «до НДФЛ»
+             */
+            median_gross: number | null;
         };
         /** SalaryOut */
         SalaryOut: {
@@ -13212,6 +13396,15 @@ export interface components {
             p50: number;
             /** P75 */
             p75: number;
+        };
+        /** SalaryRow */
+        SalaryRow: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            fsp: components["schemas"]["SalaryCohort"];
+            other: components["schemas"]["SalaryCohort"];
         };
         /** SalarySignalOut */
         SalarySignalOut: {
@@ -14039,6 +14232,24 @@ export interface components {
              */
             quotes: components["schemas"]["QuoteOut"][];
         };
+        /** SpecGradeBlock */
+        SpecGradeBlock: {
+            /** Grades */
+            grades: components["schemas"]["GradeCol"][];
+            /** Rows */
+            rows: components["schemas"]["SpecGradeRow"][];
+        };
+        /** SpecGradeRow */
+        SpecGradeRow: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Cells */
+            cells: {
+                [key: string]: components["schemas"]["Cell"];
+            };
+        };
         /** SpecOption */
         SpecOption: {
             /**
@@ -14079,6 +14290,24 @@ export interface components {
              * @description Вероятность по ответам опроса, 0–1
              */
             probability: number;
+        };
+        /** StageRow */
+        StageRow: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** @description Спортсмены ФСП (привязан ФСП ID) */
+            fsp: components["schemas"]["Cell"];
+            /** @description Остальные кандидаты платформы — для сравнения */
+            other: components["schemas"]["Cell"];
+            /**
+             * Fsp Rate
+             * @description Доля от предыдущей стадии, %; null, если ячейка или знаменатель скрыты
+             */
+            fsp_rate: number | null;
+            /** Other Rate */
+            other_rate: number | null;
         };
         /** StatusIn */
         StatusIn: {
@@ -14735,6 +14964,18 @@ export interface components {
              * @description Перцентиль — только после раскрытия
              */
             percentile: number | null;
+        };
+        /** Timeline */
+        Timeline: {
+            /**
+             * Weeks
+             * @description Понедельники начала недель, ISO-дата
+             */
+            weeks: string[];
+            /** Series */
+            series: {
+                [key: string]: components["schemas"]["Cell"][];
+            };
         };
         /** TimersOut */
         TimersOut: {
@@ -37746,6 +37987,21 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     send_api_interest_post: {
@@ -37860,6 +38116,21 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     revoke_api_interest__signal_id__revoke_post: {
@@ -37967,6 +38238,21 @@ export interface operations {
                      * @example {
                      *       "code": "validation_error",
                      *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
                      *     }
                      */
                     "application/json": components["schemas"]["ErrorResponse"];
@@ -39409,6 +39695,259 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_dashboard_api_fsp_dashboard_get: {
+        parameters: {
+            query?: {
+                /** @description Недель в графике */
+                weeks?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    export_csv_api_fsp_dashboard_export_csv_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description CSV */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": unknown;
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
@@ -45580,7 +46119,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["CredentialDocumentOut"];
                 };
             };
             /** @description Некорректный запрос */
@@ -45834,7 +46373,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["CredentialDocumentOut"];
                 };
             };
             /** @description Некорректный запрос */

@@ -23495,6 +23495,20 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -23613,6 +23627,20 @@
                 "example": {
                   "code": "validation_error",
                   "message": "Проверьте заполнение полей"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
                 }
               }
             }
@@ -23738,6 +23766,20 @@
                 "example": {
                   "code": "validation_error",
                   "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
                 },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
@@ -25305,6 +25347,274 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/fsp/dashboard": {
+      "get": {
+        "tags": [
+          "ФСП"
+        ],
+        "summary": "Кадровый резерв ФСП: агрегаты",
+        "description": "Воронка «участник соревнований → тест → категория → подборки → приглашение → «Взаимно» → нанят» в сравнении с остальными кандидатами, разрезы по дисциплинам, округам и регионам, специализации × грейду, динамика по неделям, число компаний, медианы оферт «ФСП / без ФСП» и спрос против предложения. Ячейки с числом людей меньше k скрыты («<5»). Роли: методист, админ.",
+        "operationId": "get_dashboard_api_fsp_dashboard_get",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "weeks",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 52,
+                  "minimum": 4
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Недель в графике",
+              "title": "Weeks"
+            },
+            "description": "Недель в графике"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/fsp/dashboard/export.csv": {
+      "get": {
+        "tags": [
+          "ФСП"
+        ],
+        "summary": "Кадровый резерв ФСП: выгрузка CSV",
+        "description": "Те же агрегаты плоской таблицей (раздел; строка; показатель; значение). Скрытые ячейки остаются «<5». UTF-8 с BOM, разделитель «;».",
+        "operationId": "export_csv_api_fsp_dashboard_export_csv_get",
+        "responses": {
+          "200": {
+            "description": "CSV",
+            "content": {
+              "text/csv": {}
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
                 }
               }
             }
@@ -31726,6 +32036,7 @@
           "Паспорт навыков"
         ],
         "summary": "Мои паспорта и что можно выпустить",
+        "description": "Выпущенные паспорта навыков и список того, что можно выпустить сейчас (категории и подтверждённые достижения ФСП).",
         "operationId": "my_credentials_api_credentials_me_get",
         "responses": {
           "200": {
@@ -31848,6 +32159,7 @@
           "Паспорт навыков"
         ],
         "summary": "Выпустить паспорт",
+        "description": "Подписывает паспорт навыков по категории или достижению ФСП. Имя в паспорт попадает только по явному выбору владельца.",
         "operationId": "issue_credential_api_credentials_me_post",
         "requestBody": {
           "content": {
@@ -32006,7 +32318,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/CredentialDocumentOut"
+                }
               }
             }
           },
@@ -32117,6 +32431,7 @@
           "Паспорт навыков"
         ],
         "summary": "Отозвать паспорт",
+        "description": "Владелец отзывает паспорт: проверка по коду и по файлу после этого покажет «отозван».",
         "operationId": "revoke_credential_api_credentials_me__credential_id__revoke_post",
         "security": [
           {
@@ -32253,6 +32568,7 @@
           "Паспорт навыков"
         ],
         "summary": "Список отзыва (Bitstring Status List)",
+        "description": "Публичный подписанный список отзыва паспортов (W3C Bitstring Status List); по нему проверяющие узнают, что паспорт отозван.",
         "operationId": "status_list_api_credentials_status__list_id__get",
         "parameters": [
           {
@@ -32271,7 +32587,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/CredentialDocumentOut"
+                }
               }
             }
           },
@@ -36335,6 +36653,32 @@
         ],
         "title": "Body_upload_resume_api_candidates_me_resume_post"
       },
+      "BreakRow": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "stages": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Cell"
+            },
+            "type": "object",
+            "title": "Stages"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "stages"
+        ],
+        "title": "BreakRow"
+      },
       "BriefOut": {
         "properties": {
           "spec": {
@@ -37639,6 +37983,41 @@
           "grade"
         ],
         "title": "CategoryRefIn"
+      },
+      "Cell": {
+        "properties": {
+          "n": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N",
+            "description": "Число или null, если скрыто (меньше порога k)"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text",
+            "description": "Что показать: число или «<5»"
+          },
+          "suppressed": {
+            "type": "boolean",
+            "title": "Suppressed",
+            "description": "Ячейка скрыта по k-анонимности",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "n",
+          "text",
+          "suppressed"
+        ],
+        "title": "Cell",
+        "description": "Число в ячейке панели. n = None, если ячейка скрыта по k-анонимности (тогда text = «<k»)."
       },
       "CertaintyOut": {
         "properties": {
@@ -40035,6 +40414,13 @@
         ],
         "title": "CredentialCheckOut"
       },
+      "CredentialDocumentOut": {
+        "properties": {},
+        "additionalProperties": true,
+        "type": "object",
+        "title": "CredentialDocumentOut",
+        "description": "Подписанный документ Open Badges 3.0 как есть: набор полей задаёт стандарт, не мы."
+      },
       "CredentialIssueIn": {
         "properties": {
           "kind": {
@@ -40349,6 +40735,103 @@
         ],
         "title": "CredentialSummaryOut"
       },
+      "DashboardOut": {
+        "properties": {
+          "as_of": {
+            "type": "string",
+            "title": "As Of"
+          },
+          "k_min": {
+            "type": "integer",
+            "title": "K Min"
+          },
+          "synthetic": {
+            "type": "boolean",
+            "title": "Synthetic",
+            "description": "Данные демонстрационные (мок реестра ФСП)"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "funnel": {
+            "items": {
+              "$ref": "#/components/schemas/StageRow"
+            },
+            "type": "array",
+            "title": "Funnel"
+          },
+          "by_discipline": {
+            "items": {
+              "$ref": "#/components/schemas/BreakRow"
+            },
+            "type": "array",
+            "title": "By Discipline"
+          },
+          "by_district": {
+            "items": {
+              "$ref": "#/components/schemas/BreakRow"
+            },
+            "type": "array",
+            "title": "By District"
+          },
+          "by_region": {
+            "$ref": "#/components/schemas/RegionBlock"
+          },
+          "spec_grade": {
+            "$ref": "#/components/schemas/SpecGradeBlock"
+          },
+          "timeline": {
+            "$ref": "#/components/schemas/Timeline"
+          },
+          "companies": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Cell"
+            },
+            "type": "object",
+            "title": "Companies"
+          },
+          "salary": {
+            "$ref": "#/components/schemas/SalaryBlock"
+          },
+          "demand_supply": {
+            "items": {
+              "$ref": "#/components/schemas/DemandRow"
+            },
+            "type": "array",
+            "title": "Demand Supply"
+          },
+          "privacy_note": {
+            "type": "string",
+            "title": "Privacy Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "as_of",
+          "k_min",
+          "synthetic",
+          "note",
+          "funnel",
+          "by_discipline",
+          "by_district",
+          "by_region",
+          "spec_grade",
+          "timeline",
+          "companies",
+          "salary",
+          "demand_supply",
+          "privacy_note"
+        ],
+        "title": "DashboardOut"
+      },
       "DecisionOut": {
         "properties": {
           "code": {
@@ -40553,6 +41036,55 @@
           "batch_id"
         ],
         "title": "DeletedOut"
+      },
+      "DemandRow": {
+        "properties": {
+          "spec": {
+            "type": "string",
+            "title": "Spec"
+          },
+          "spec_label": {
+            "type": "string",
+            "title": "Spec Label"
+          },
+          "grade": {
+            "type": "string",
+            "title": "Grade"
+          },
+          "grade_label": {
+            "type": "string",
+            "title": "Grade Label"
+          },
+          "demand_companies": {
+            "$ref": "#/components/schemas/Cell",
+            "description": "Компаний с потребностью за период или опубликованной вакансией в категории"
+          },
+          "supply_fsp": {
+            "$ref": "#/components/schemas/Cell",
+            "description": "Спортсменов ФСП с подтверждённой категорией, открытых к предложениям"
+          },
+          "supply_all": {
+            "$ref": "#/components/schemas/Cell",
+            "description": "Все кандидаты платформы с этой категорией (для масштаба)"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "deficit | balance | surplus | few_data | no_demand"
+          }
+        },
+        "type": "object",
+        "required": [
+          "spec",
+          "spec_label",
+          "grade",
+          "grade_label",
+          "demand_companies",
+          "supply_fsp",
+          "supply_all",
+          "status"
+        ],
+        "title": "DemandRow"
       },
       "DemoAccountOut": {
         "properties": {
@@ -43464,6 +43996,24 @@
         ],
         "title": "GradeCardOut"
       },
+      "GradeCol": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "label"
+        ],
+        "title": "GradeCol"
+      },
       "GradeRef": {
         "properties": {
           "code": {
@@ -46065,7 +46615,7 @@
           "lab_available": {
             "type": "boolean",
             "title": "Lab Available",
-            "description": "Аккаунт жюри для лаборатории собран"
+            "description": "Аккаунт жюри для лаборатории и панели ФСП собран"
           }
         },
         "type": "object",
@@ -46087,10 +46637,11 @@
             "type": "string",
             "enum": [
               "employer",
-              "lab"
+              "lab",
+              "fsp"
             ],
             "title": "Persona",
-            "description": "employer — HR демо-компании; lab — лаборатория методиста (жюри)"
+            "description": "employer — HR демо-компании; lab — лаборатория методиста (жюри); fsp — панель ФСП «Кадровый резерв» (тот же аккаунт жюри)"
           }
         },
         "type": "object",
@@ -46126,7 +46677,8 @@
             "type": "string",
             "enum": [
               "employer",
-              "lab"
+              "lab",
+              "fsp"
             ],
             "title": "Persona"
           },
@@ -51714,6 +52266,38 @@
         ],
         "title": "ReconciliationRowOut"
       },
+      "RegionBlock": {
+        "properties": {
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/BreakRow"
+            },
+            "type": "array",
+            "title": "Rows"
+          },
+          "other": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BreakRow"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "regions_total": {
+            "type": "integer",
+            "title": "Regions Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rows",
+          "other",
+          "regions_total"
+        ],
+        "title": "RegionBlock"
+      },
       "RegisterRequest": {
         "properties": {
           "email": {
@@ -53309,6 +53893,32 @@
         ],
         "title": "Salary"
       },
+      "SalaryBlock": {
+        "properties": {
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/SalaryRow"
+            },
+            "type": "array",
+            "title": "Rows"
+          },
+          "ndfl_rate": {
+            "type": "number",
+            "title": "Ndfl Rate"
+          },
+          "basis": {
+            "type": "string",
+            "title": "Basis"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rows",
+          "ndfl_rate",
+          "basis"
+        ],
+        "title": "SalaryBlock"
+      },
       "SalaryCheckOut": {
         "properties": {
           "status": {
@@ -53348,6 +53958,44 @@
           "ratio"
         ],
         "title": "SalaryCheckOut"
+      },
+      "SalaryCohort": {
+        "properties": {
+          "n": {
+            "$ref": "#/components/schemas/Cell"
+          },
+          "median_net": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Net",
+            "description": "Медиана, руб./мес «на руки»; null, если скрыта"
+          },
+          "median_gross": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Gross",
+            "description": "Та же медиана «до НДФЛ»"
+          }
+        },
+        "type": "object",
+        "required": [
+          "n",
+          "median_net",
+          "median_gross"
+        ],
+        "title": "SalaryCohort"
       },
       "SalaryOut": {
         "properties": {
@@ -53474,6 +54122,32 @@
         ],
         "title": "SalaryQuantilesOut",
         "description": "Ожидания по зарплате «на руки», ₽/мес, округлены до ступени гистограммы (точные значения людей не показываем)."
+      },
+      "SalaryRow": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "fsp": {
+            "$ref": "#/components/schemas/SalaryCohort"
+          },
+          "other": {
+            "$ref": "#/components/schemas/SalaryCohort"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "fsp",
+          "other"
+        ],
+        "title": "SalaryRow"
       },
       "SalarySignalOut": {
         "properties": {
@@ -55156,6 +55830,56 @@
         ],
         "title": "SourcedOut"
       },
+      "SpecGradeBlock": {
+        "properties": {
+          "grades": {
+            "items": {
+              "$ref": "#/components/schemas/GradeCol"
+            },
+            "type": "array",
+            "title": "Grades"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/SpecGradeRow"
+            },
+            "type": "array",
+            "title": "Rows"
+          }
+        },
+        "type": "object",
+        "required": [
+          "grades",
+          "rows"
+        ],
+        "title": "SpecGradeBlock"
+      },
+      "SpecGradeRow": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "cells": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Cell"
+            },
+            "type": "object",
+            "title": "Cells"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "cells"
+        ],
+        "title": "SpecGradeRow"
+      },
       "SpecOption": {
         "properties": {
           "code": {
@@ -55213,6 +55937,59 @@
           "probability"
         ],
         "title": "SpecProbability"
+      },
+      "StageRow": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "fsp": {
+            "$ref": "#/components/schemas/Cell",
+            "description": "Спортсмены ФСП (привязан ФСП ID)"
+          },
+          "other": {
+            "$ref": "#/components/schemas/Cell",
+            "description": "Остальные кандидаты платформы — для сравнения"
+          },
+          "fsp_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fsp Rate",
+            "description": "Доля от предыдущей стадии, %; null, если ячейка или знаменатель скрыты"
+          },
+          "other_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Other Rate"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "fsp",
+          "other",
+          "fsp_rate",
+          "other_rate"
+        ],
+        "title": "StageRow"
       },
       "StatusIn": {
         "properties": {
@@ -56756,6 +57533,34 @@
           "percentile"
         ],
         "title": "TestBandOut"
+      },
+      "Timeline": {
+        "properties": {
+          "weeks": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Weeks",
+            "description": "Понедельники начала недель, ISO-дата"
+          },
+          "series": {
+            "additionalProperties": {
+              "items": {
+                "$ref": "#/components/schemas/Cell"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Series"
+          }
+        },
+        "type": "object",
+        "required": [
+          "weeks",
+          "series"
+        ],
+        "title": "Timeline"
       },
       "TimersOut": {
         "properties": {

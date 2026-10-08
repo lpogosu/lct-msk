@@ -59,7 +59,12 @@ def test_instant_confirmation_of_lower_grade(api, bank, make_account):
     assert err["code"] == "no_extension_offer"
 
 
-def test_down_extension_continues_same_posterior(api, bank, make_account):
+def test_down_extension_continues_same_posterior(api, bank, make_account, monkeypatch):
+    # Тест про правила добора, а не про прогрев: в малом тестовом пуле (по 4 клона) перебор уровней в find_scenario
+    # расходует запас, и «пул готовится» (503) перекрыл бы ожидаемое 409. Порог готовности здесь отключаем.
+    from app.services.testing import limits
+
+    monkeypatch.setattr(limits, "POOL_READY_MIN_FREE", 0)
     acc, s, run1, res = find_scenario(api, bank, make_account, "middle", NEAR_MIDDLE, _down(False))
     offer = res["offers"][0]
     assert offer["direction"] == "down" and not offer["instant"] and offer["max_items"] == 8

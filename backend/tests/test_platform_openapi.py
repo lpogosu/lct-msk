@@ -81,8 +81,8 @@ def test_success_responses_have_models(spec):
             continue
         ok = next(c for c in op["responses"] if c.startswith("2"))
         content = op["responses"][ok]["content"]
-        if "application/json" not in content:  # бинарные ответы (PDF-профиль) — без JSON-модели
-            assert set(content) <= {"application/pdf"}, f"{method} {path}: неожиданный тип {set(content)}"
+        if "application/json" not in content:  # бинарные/файловые ответы (PDF-профиль, CSV-выгрузка) — без JSON-модели
+            assert set(content) <= {"application/pdf", "text/csv"}, f"{method} {path}: неожиданный тип {set(content)}"
             continue
         schema = content["application/json"]["schema"]
         assert "$ref" in schema or schema.get("type") == "array", f"{method} {path}: нет модели ответа"
