@@ -10,7 +10,7 @@ from app.core.clock import clock
 from app.core.errors import error_responses
 from app.services.profile import guardian
 
-router = APIRouter(prefix="/guardian", tags=["Кандидат"], responses=error_responses(404, 422, 429, extra={410: "Срок ссылки истёк"}))
+router = APIRouter(prefix="/guardian", tags=["Кандидат"], responses=error_responses(400, 401, 403, 404, 409, 422, 429, extra={410: "Срок ссылки истёк"}))
 
 
 class GuardianConfirmIn(BaseModel):

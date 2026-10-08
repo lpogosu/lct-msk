@@ -39,6 +39,9 @@ from app.models.testing import (
     ValidationRun,
 )
 from app.models.users import AuditLog, Consent, EmailCode, RefreshToken, User
+from app.services.anticheat import (
+    models as _anticheat,  # noqa: F401, E402 — антиподсказчик: в metadata, вне __all__
+)
 
 __all__ = [
     "DEFAULT_FIELD_VISIBILITY",

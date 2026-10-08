@@ -25,7 +25,7 @@ from app.trust.schemas import (
     RevokeOut,
 )
 
-router = APIRouter(prefix="/admin/trust", tags=["Администрирование"], responses=error_responses(401, 403, 404, 409, 422))
+router = APIRouter(prefix="/admin/trust", tags=["Администрирование"], responses=error_responses())
 
 Moderator = Annotated[User, Depends(require_roles(UserRole.admin, UserRole.methodist))]
 

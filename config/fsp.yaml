@@ -107,16 +107,17 @@ skill_evidence_factor: 0.8
 
 # m(d, s): дисциплина → специализация (коды из taxonomy.yaml). F = max_d m(d, s)·VSS_d/100.
 spec_relevance:
+  # uiux_design: соревновательные дисциплины ФСП дизайн не доказывают; только продуктовая смежность (0.3), остальное 0.0.
   algo:     { backend_python: 0.8, backend_go: 0.8, backend_java: 0.8, data_ml: 0.8, fullstack: 0.6,
-              frontend_js: 0.4, mobile: 0.5, infosec: 0.5, devops: 0.4, qa: 0.4 }
+              frontend_js: 0.4, mobile: 0.5, infosec: 0.5, devops: 0.4, qa: 0.4, uiux_design: 0.0 }
   product:  { fullstack: 0.9, backend_python: 0.8, backend_go: 0.8, backend_java: 0.8, frontend_js: 0.8,
-              mobile: 0.7, data_ml: 0.5, qa: 0.5, devops: 0.5, infosec: 0.3 }
+              mobile: 0.7, data_ml: 0.5, qa: 0.5, devops: 0.5, infosec: 0.3, uiux_design: 0.3 }
   bas:      { data_ml: 0.6, backend_python: 0.3, backend_go: 0.2, backend_java: 0.2, fullstack: 0.2,
-              frontend_js: 0.1, mobile: 0.3, devops: 0.3, qa: 0.2, infosec: 0.2 }
+              frontend_js: 0.1, mobile: 0.3, devops: 0.3, qa: 0.2, infosec: 0.2, uiux_design: 0.0 }
   robotics: { data_ml: 0.6, backend_python: 0.3, backend_go: 0.3, backend_java: 0.2, fullstack: 0.2,
-              frontend_js: 0.1, mobile: 0.3, devops: 0.3, qa: 0.2, infosec: 0.2 }
+              frontend_js: 0.1, mobile: 0.3, devops: 0.3, qa: 0.2, infosec: 0.2, uiux_design: 0.0 }
   infosec:  { infosec: 0.9, devops: 0.7, backend_python: 0.5, backend_go: 0.5, backend_java: 0.5,
-              fullstack: 0.4, frontend_js: 0.3, qa: 0.4, mobile: 0.3, data_ml: 0.3 }
+              fullstack: 0.4, frontend_js: 0.3, qa: 0.4, mobile: 0.3, data_ml: 0.3, uiux_design: 0.0 }
 
 # m(d, k): дисциплина → модуль теста (коды модулей из taxonomy.yaml). Навык брифа → модули — в подборе.
 # qa_testing и devops_core: 0.0 во всех строках — соревновательное программирование не доказывает тест-дизайн и

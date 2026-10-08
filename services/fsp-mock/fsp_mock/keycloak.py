@@ -33,6 +33,7 @@ CLIENT_SECRET = "vzaimno-demo-secret"  # только демо; в проде �
 # фронтенда с теми же параметрами. Локально и на домене стенда; шаблонов (*) нет — open redirect не нужен.
 _PUBLIC = "https://${VZ_PUBLIC_DOMAIN:vzaimno.example}"
 REDIRECT_URIS = [
+    "http://localhost/candidate/fsp/callback",  # за reverse-proxy compose на :80
     "http://localhost:5173/candidate/fsp/callback",
     "http://localhost:8000/api/fsp/callback",
     f"{_PUBLIC}/candidate/fsp/callback",
@@ -263,7 +264,7 @@ def build_realm(snapshot: RegistrySnapshot, users: list[DemoUser] | None = None)
                 "webOrigins": ["+"],
                 "attributes": {
                     "pkce.code.challenge.method": "S256",
-                    "post.logout.redirect.uris": f"http://localhost:8000/*##http://localhost:5173/*##{_PUBLIC}/*",
+                    "post.logout.redirect.uris": f"http://localhost:8000/*##http://localhost/*##http://localhost:5173/*##{_PUBLIC}/*",
                     "oauth2.device.authorization.grant.enabled": "false",
                     "backchannel.logout.session.required": "true",
                 },
