@@ -413,11 +413,11 @@ def aggregate_session(
     # --- одно попадание на класс: предпочитаем «после предупреждения», затем более раннее
     best: dict[str, TwinObservation] = {}
     for o in exact:
-        k = _class_key(o, ev.one_hit_per)
-        cur = best.get(k)
+        class_key = _class_key(o, ev.one_hit_per)
+        cur = best.get(class_key)
         rank = (phases[o.seq] == AFTER, -o.seq)
         if cur is None or rank > (phases[cur.seq] == AFTER, -cur.seq):
-            best[k] = o
+            best[class_key] = o
     counted_seqs = {o.seq for o in best.values()}
 
     def evidence_of(o: TwinObservation) -> TwinEvidence:

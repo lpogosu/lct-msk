@@ -589,12 +589,12 @@ def _collect_strings(
         if re.fullmatch(r"[A-Za-z]", body[0]):
             an.labels.add(body[0].lower())
             an.label_pool.add(body[0])
-    for i, (body, offset) in bodies.items():
+    for i, (lit, offset) in bodies.items():
         t = tokens[i]
-        is_label = re.fullmatch(r"[A-Za-z]", body) is not None
-        if (body_counts[body] >= 2 and not is_label) or len(body) > params.string_max_len:
+        is_label = re.fullmatch(r"[A-Za-z]", lit) is not None
+        if (body_counts[lit] >= 2 and not is_label) or len(lit) > params.string_max_len:
             continue
-        if "\\" in body or any(ch.isspace() for ch in body) or _CYR.search(body):
+        if "\\" in lit or any(ch.isspace() for ch in lit) or _CYR.search(lit):
             continue
         prev = tokens[i - 1] if i > 0 else None
         nxt = tokens[i + 1] if i + 1 < len(tokens) else None
@@ -607,9 +607,9 @@ def _collect_strings(
                 continue
         base = t.start + offset
         if is_label:
-            an.strings.append(StrLiteral(i, t, "string_label", base, base + 1, body, swap=body_counts[body] >= 2))
+            an.strings.append(StrLiteral(i, t, "string_label", base, base + 1, lit, swap=body_counts[lit] >= 2))
             continue
-        for m in re.finditer(r"\d+", body):
+        for m in re.finditer(r"\d+", lit):
             an.strings.append(StrLiteral(i, t, "string_digits", base + m.start(), base + m.end(), m.group(0)))
 
 

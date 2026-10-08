@@ -5,6 +5,7 @@ import { authApi } from '@/api/auth'
 import { ApiException, errorMessage } from '@/api/errors'
 import { startSignup } from '@/auth/signupFlow'
 import { Alert, Button, Checkbox, Input, PasswordInput, Segmented, Skeleton } from '@/ui'
+import { FspIdButton } from './FspIdButton'
 import { validateBirthYear, validateEmail, validateNewPassword } from './validation'
 
 type RoleChoice = 'candidate' | 'employer'
@@ -216,6 +217,13 @@ export default function Register() {
           Получить код
         </Button>
       </form>
+
+      {role === 'candidate' && (
+        <div className="flex flex-col gap-3">
+          <p className="t-small text-ink-3 text-center">или без пароля и письма</p>
+          <FspIdButton />
+        </div>
+      )}
 
       <p className="t-body text-ink-2">
         Уже есть аккаунт?{' '}

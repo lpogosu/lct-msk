@@ -21,6 +21,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/health/pool": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Готовность пула заданий
+         * @description Без входа. После `docker compose up` пул одноразовых заданий греет сервис pool (≈ 2 минуты): пока `ready=false`, тест не стартует, а экран брифинга и /jury показывают «Готовим одноразовые задания…» с прогрессом. `?specialization=` — готовность по одной специализации.
+         */
+        get: operations["pool_readiness_api_health_pool_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/health/live": {
         parameters: {
             query?: never;
@@ -758,7 +778,7 @@ export interface paths {
         };
         get?: never;
         /**
-         * Шаг 1: отрасли
+         * Шаг 1: сфера бизнеса
          * @description Отрасли интереса — только фасет для подбора, в оценку не входят. После завершённого опроса этот шаг начинает новую версию анкеты (прошлые ответы подставляются).
          */
         put: operations["step_industries_api_survey_steps_industries_put"];
@@ -1129,26 +1149,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/needs/market-salary": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Рыночная вилка для направления и грейда
-         * @description Подсказка в форме брифа: квантили зарплат (p10–p90) по открытым данным вакансий «Работа в России». Только подсказка: в Score и подбор не входит.
-         */
-        get: operations["market_salary_api_needs_market_salary_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/needs/parse": {
         parameters: {
             query?: never;
@@ -1163,6 +1163,26 @@ export interface paths {
          * @description Детерминированный разбор на правилах (≤ 300 мс): вилка, навыки must/nice с источником и цитатой, вероятности специализации и грейда, формат и город, не больше одного уточняющего вопроса, проверка вилки (DECISIONS п. 6: 1,6–2,0× — предупреждение, > 2,0× — блок) и рекомендованные категории. Ничего не сохраняет. Правки работодателя (spec, grade, must, nice, formats, city) применяются поверх разбора с источником «вручную». Если включён шлюз LLM (по умолчанию выключен), он только добавляет пропущенные правилами навыки — с цитатой, найденной в тексте, и источником «YandexGPT» / «GigaChat»; в ранжировании LLM не участвует. 422 `brief_invalid` — недопустимая правка (например, больше 5 обязательных навыков).
          */
         post: operations["parse_brief_api_needs_parse_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/needs/market-salary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Рыночная вилка для направления и грейда
+         * @description Подсказка в форме брифа: квантили зарплат (p10–p90) по открытым данным вакансий «Работа в России» для направления × грейда (если ячейка тонкая — по направлению целиком), в двух основаниях: `gross` — до НДФЛ (так указано в источнике) и `net` — на руки. Выборка региональная и занижена относительно Москвы — см. `note`. Если передать `salary_to` и `salary_net`, вернётся отношение верхней границы вилки к нижнему квартилю рынка. Только подсказка: в Score и подбор не входит, вилку не блокирует.
+         */
+        get: operations["market_salary_api_needs_market_salary_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -2893,6 +2913,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/interest/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Мои сигналы интереса
+         * @description Остаток («осталось 2 из 2»), когда освободится слот, действующие сигналы и текст отдельного согласия.
+         */
+        get: operations["my_status_api_interest_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/interest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Отправить сигнал интереса
+         * @description Укажите вакансию или компанию. Лимит — config/contact.yaml → interest (по умолчанию 2 за 30 дней, живёт 60 дней; отзыв лимит не возвращает). Нужно отдельное согласие (`consent: true` при первом сигнале). Работодатель увидит сигнал только после того, как сам откроет вашу карточку или закрепит вас в шортлисте; на Score он не влияет. 409 `interest_limit` — сигналы закончились, `interest_exists` — компании уже отправлен.
+         */
+        post: operations["send_api_interest_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/interest/{signal_id}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Отозвать сигнал
+         * @description Сигнал сразу пропадает у работодателя. Использованный слот не возвращается.
+         */
+        post: operations["revoke_api_interest__signal_id__revoke_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/fsp/availability": {
         parameters: {
             query?: never;
@@ -3411,6 +3491,26 @@ export interface paths {
          * @description Запускает в фоне расчёт двойников для свободных экземпляров (одно семейство или все). Расчёт — запуски кода, у части семейств он занимает секунды, поэтому делается заранее, а не при выдаче задания. Прогресс — в «Покрытии».
          */
         post: operations["twins_precompute_api_lab_twins_precompute_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/lab/quality": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Качество заданий: DIF, дрейф, экспозиция
+         * @description Монитор психометрического качества (docs/TESTING_MECHANISM.md): дрейф сложности семейств по ответам после калибровки (Δb с 95% ДИ, флаг при превышении порога из config/testing.yaml), экспозиция семейств по решённым сессиям и результат проверки DIF (Мантель–Хензель, классы ETS A/B/C) на синтетической популяции с внедрёнными смещёнными заданиями.
+         */
+        get: operations["quality_api_lab_quality_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -3959,6 +4059,118 @@ export interface paths {
          * @description Стирает отзыв и прежний результат: компания сможет подать реквизиты на проверку заново.
          */
         post: operations["restore_api_admin_trust_companies__company_id__restore_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/credentials/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Мои паспорта и что можно выпустить */
+        get: operations["my_credentials_api_credentials_me_get"];
+        put?: never;
+        /** Выпустить паспорт */
+        post: operations["issue_credential_api_credentials_me_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/credentials/me/{credential_id}/file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Скачать паспорт (JSON)
+         * @description Подписанный документ целиком (Open Badges 3.0, proof eddsa-jcs-2022). Его можно отправить кому угодно и проверить на странице /v.
+         */
+        get: operations["download_credential_api_credentials_me__credential_id__file_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/credentials/me/{credential_id}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Отозвать паспорт */
+        post: operations["revoke_credential_api_credentials_me__credential_id__revoke_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/credentials/status/{list_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Список отзыва (Bitstring Status List) */
+        get: operations["status_list_api_credentials_status__list_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/credentials/verify/{code}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Проверить паспорт по коду из QR
+         * @description Публично, без входа и без ПДн (имя владельца не показывается). Каждая проверка отдельно: формат, издатель, подпись, срок, реестр, отзыв.
+         */
+        get: operations["verify_by_code_api_credentials_verify__code__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/credentials/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Проверить загруженный файл паспорта
+         * @description Тело запроса — содержимое JSON-файла как есть (Content-Type любой). Изменённый хотя бы на один байт файл не пройдёт проверку подписи.
+         */
+        post: operations["verify_file_api_credentials_verify_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -5277,6 +5489,8 @@ export interface components {
              * @description Подпись статуса: «Отправлено», «Просмотрено», …
              */
             invitation_label: string | null;
+            /** @description Сигнал интереса кандидата к вашей компании (если карточка открыта) */
+            interest: components["schemas"]["InterestBadgeOut"] | null;
             /**
              * Hidden By
              * @description Фильтры, скрывшие кандидата (группа «Скрыто»)
@@ -5681,6 +5895,8 @@ export interface components {
              * @description Незавершённая сессия (продолжить)
              */
             active_session_id: string | null;
+            /** @description Готовность пула заданий; пока не готов — can_start.code = pool_warming_up */
+            pool: components["schemas"]["PoolReadinessOut"] | null;
         };
         /** CalibrateIn */
         CalibrateIn: {
@@ -5785,6 +6001,11 @@ export interface components {
             freshness: components["schemas"]["app__services__matching__schemas__FreshnessOut"] | null;
             /** Industries */
             industries: string[];
+            /**
+             * Work History
+             * @description Опыт без названий компаний: роль и срок. Заявлено кандидатом, в Score не входит
+             */
+            work_history: components["schemas"]["WorkHistoryOut"][];
             /** Formats */
             formats: string[];
             /** Search Mode */
@@ -5815,6 +6036,8 @@ export interface components {
             region: string | null;
             /** @description Строка текущей версии подборки брифа */
             selection: components["schemas"]["SelectionItemOut"] | null;
+            /** @description Сигнал интереса кандидата (отдельно от Score; DECISIONS 24) */
+            interest: components["schemas"]["InterestBadgeOut"] | null;
             /** @description Раскрытые данные (только после «да») */
             disclosed: components["schemas"]["DisclosedOut"] | null;
         };
@@ -6982,7 +7205,7 @@ export interface components {
          * @description Отдельные согласия (152-ФЗ): каждое — своя запись в журнале с версией текста.
          * @enum {string}
          */
-        ConsentPurpose: "processing" | "blind_card" | "fsp_enrichment" | "contact_disclosure" | "test_logging" | "calibration";
+        ConsentPurpose: "processing" | "blind_card" | "fsp_enrichment" | "contact_disclosure" | "test_logging" | "calibration" | "interest_signal";
         /** ConsentStateOut */
         ConsentStateOut: {
             /**
@@ -7112,6 +7335,152 @@ export interface components {
              * @enum {string}
              */
             via: "standard" | "check_set" | "interview";
+        };
+        /** CredentialCheckOut */
+        CredentialCheckOut: {
+            /** Id */
+            id: string;
+            /** Ok */
+            ok: boolean;
+            /** Label */
+            label: string;
+            /** Reason */
+            reason: string | null;
+        };
+        /** CredentialIssueIn */
+        CredentialIssueIn: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "category" | "fsp";
+            /** Ref */
+            ref: string;
+            /**
+             * Include Name
+             * @description Указать ФИО в паспорте. По умолчанию — только псевдонимный идентификатор
+             * @default false
+             */
+            include_name: boolean;
+        };
+        /** CredentialListOut */
+        CredentialListOut: {
+            /** Items */
+            items: components["schemas"]["CredentialOut"][];
+            /** Offers */
+            offers: components["schemas"]["CredentialOfferOut"][];
+            /** Issuer Did */
+            issuer_did: string;
+            /** Disclaimer */
+            disclaimer: string;
+        };
+        /** CredentialOfferOut */
+        CredentialOfferOut: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "category" | "fsp";
+            /**
+             * Ref
+             * @description Что выпускать: код специализации или id достижения (виден только владельцу)
+             */
+            ref: string;
+            /** Title */
+            title: string;
+            /** Detail */
+            detail: string;
+        };
+        /** CredentialOut */
+        CredentialOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "category" | "fsp";
+            /** Title */
+            title: string;
+            /** Code */
+            code: string;
+            /** Verify Url */
+            verify_url: string;
+            /**
+             * Qr
+             * @description QR-код ссылки проверки (PNG, data URI)
+             */
+            qr: string;
+            /**
+             * Issued At
+             * Format: date-time
+             */
+            issued_at: string;
+            /**
+             * Valid Until
+             * Format: date-time
+             */
+            valid_until: string;
+            /** Revoked At */
+            revoked_at: string | null;
+            /** Include Name */
+            include_name: boolean;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "active" | "revoked" | "expired";
+            /**
+             * Demo Issuer
+             * @default true
+             */
+            demo_issuer: boolean;
+            /** Disclaimer */
+            disclaimer: string;
+        };
+        /** CredentialResultOut */
+        CredentialResultOut: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "score" | "sem";
+            /** Value */
+            value: string;
+        };
+        /** CredentialSummaryOut */
+        CredentialSummaryOut: {
+            /** Title */
+            title: string;
+            /** Achievement */
+            achievement: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "category" | "fsp";
+            /** Issuer Name */
+            issuer_name: string;
+            /** Issuer Id */
+            issuer_id: string;
+            /** Issued On */
+            issued_on: string;
+            /** Valid Until */
+            valid_until: string | null;
+            /** Tested On */
+            tested_on: string | null;
+            /** Results */
+            results: components["schemas"]["CredentialResultOut"][];
+            /** Narrative */
+            narrative: string | null;
+            /**
+             * Holder Name
+             * @description Только при проверке файла, где владелец сам указал имя
+             */
+            holder_name: string | null;
         };
         /** DecisionOut */
         DecisionOut: {
@@ -7387,6 +7756,8 @@ export interface components {
              * @description Выписка из протокола ФСП с номером ЕКП
              */
             fsp_extract: string | null;
+            /** @description «Паспорт проверен ✓» — действующий подписанный паспорт навыков */
+            skills_passport: components["schemas"]["SkillsPassportOut"] | null;
         };
         /** DisclosureInfoOut */
         DisclosureInfoOut: {
@@ -7400,6 +7771,45 @@ export interface components {
              * @description Какие поля разрешил показать кандидат
              */
             fields: string[];
+        };
+        /** DriftRowOut */
+        DriftRowOut: {
+            /**
+             * Family Id
+             * @description Семейство заданий
+             */
+            family_id: string;
+            /** Specialization */
+            specialization: string;
+            /**
+             * N
+             * @description Ответов после последней калибровки семейства
+             */
+            n: number;
+            /**
+             * Observed P
+             * @description Доля верных
+             */
+            observed_p: number | null;
+            /**
+             * Expected P
+             * @description Ожидаемая доля верных при калиброванной сложности
+             */
+            expected_p: number | null;
+            /**
+             * D B
+             * @description Сдвиг сложности, логиты; < 0 — стало легче
+             */
+            d_b: number | null;
+            /** Ci Lo */
+            ci_lo: number | null;
+            /** Ci Hi */
+            ci_hi: number | null;
+            /**
+             * Flag
+             * @description drift | watch | ok | n/a
+             */
+            flag: string;
         };
         /**
          * EmployerCandidateBlind
@@ -7448,6 +7858,11 @@ export interface components {
             freshness: components["schemas"]["app__services__matching__schemas__FreshnessOut"] | null;
             /** Industries */
             industries: string[];
+            /**
+             * Work History
+             * @description Опыт без названий компаний: роль и срок. Заявлено кандидатом, в Score не входит
+             */
+            work_history: components["schemas"]["WorkHistoryOut"][];
             /** Formats */
             formats: string[];
             /** Search Mode */
@@ -7478,6 +7893,8 @@ export interface components {
             region: string | null;
             /** @description Строка текущей версии подборки брифа */
             selection: components["schemas"]["SelectionItemOut"] | null;
+            /** @description Сигнал интереса кандидата (отдельно от Score; DECISIONS 24) */
+            interest: components["schemas"]["InterestBadgeOut"] | null;
             /** @description Раскрытые данные (только после «да») */
             disclosed: components["schemas"]["DisclosedOut"] | null;
         };
@@ -7528,6 +7945,11 @@ export interface components {
             freshness: components["schemas"]["app__services__matching__schemas__FreshnessOut"] | null;
             /** Industries */
             industries: string[];
+            /**
+             * Work History
+             * @description Опыт без названий компаний: роль и срок. Заявлено кандидатом, в Score не входит
+             */
+            work_history: components["schemas"]["WorkHistoryOut"][];
             /** Formats */
             formats: string[];
             /** Search Mode */
@@ -7558,6 +7980,8 @@ export interface components {
             region: string | null;
             /** @description Строка текущей версии подборки брифа */
             selection: components["schemas"]["SelectionItemOut"] | null;
+            /** @description Сигнал интереса кандидата (отдельно от Score; DECISIONS 24) */
+            interest: components["schemas"]["InterestBadgeOut"] | null;
             /** @description Раскрытые данные (только после «да») */
             disclosed: components["schemas"]["DisclosedOut"] | null;
             /**
@@ -7801,6 +8225,23 @@ export interface components {
              * @description Компания
              */
             company: string | null;
+        };
+        /** ExposureRowOut */
+        ExposureRowOut: {
+            /** Family Id */
+            family_id: string;
+            /** Specialization */
+            specialization: string;
+            /**
+             * Sessions
+             * @description Сессий, где семейство показано
+             */
+            sessions: number;
+            /**
+             * Exposure
+             * @description Доля решённых сессий шкалы, где показано семейство
+             */
+            exposure: number;
         };
         /**
          * ExpressResultOut
@@ -8550,6 +8991,16 @@ export interface components {
              */
             demo_mode: boolean;
             /**
+             * Pool Ready
+             * @description Готов ли пул одноразовых заданий (#14); null — не определено
+             */
+            pool_ready: boolean | null;
+            /**
+             * Pool Progress
+             * @description Доля готовых семейств заданий, 0…1
+             */
+            pool_progress: number | null;
+            /**
              * Time
              * Format: date-time
              * @description Текущее время по часам приложения (в DEMO_MODE — со смещением)
@@ -8652,6 +9103,111 @@ export interface components {
             /** Note */
             note: string;
         };
+        /** InterestActiveOut */
+        InterestActiveOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Company Id
+             * Format: uuid
+             */
+            company_id: string;
+            /** Company Name */
+            company_name: string | null;
+            /** Vacancy Id */
+            vacancy_id: string | null;
+            /**
+             * Sent
+             * @description Когда отправлен (относительно)
+             */
+            sent: string | null;
+            /**
+             * Expires
+             * @description Когда истечёт (относительно)
+             */
+            expires: string | null;
+        };
+        /**
+         * InterestBadgeOut
+         * @description Сигнал интереса кандидата (DECISIONS 24). Отдельный сигнал, не часть Score; виден только после открытия карточки.
+         */
+        InterestBadgeOut: {
+            /**
+             * Label
+             * @description «Взаимный интерес»
+             */
+            label: string;
+            /**
+             * Text
+             * @description «Кандидат отметил интерес к вашей компании»
+             */
+            text: string;
+            /** Hint */
+            hint: string;
+            /**
+             * Sent
+             * @description Когда отправлен (относительно)
+             */
+            sent: string | null;
+            /**
+             * Expires
+             * @description Когда истечёт (относительно)
+             */
+            expires: string | null;
+        };
+        /** InterestIn */
+        InterestIn: {
+            /** Vacancy Id */
+            vacancy_id?: string | null;
+            /** Company Id */
+            company_id?: string | null;
+            /**
+             * Consent
+             * @description Отдельная галочка согласия (нужна, если ещё не давали)
+             * @default false
+             */
+            consent: boolean;
+        };
+        /** InterestSentOut */
+        InterestSentOut: {
+            signal: components["schemas"]["InterestActiveOut"];
+            status: components["schemas"]["InterestStatusOut"];
+        };
+        /** InterestStatusOut */
+        InterestStatusOut: {
+            /**
+             * Limit
+             * @description Сигналов за окно (config/contact.yaml → interest.per_window)
+             */
+            limit: number;
+            /** Remaining */
+            remaining: number;
+            /** Window Days */
+            window_days: number;
+            /** Lifetime Days */
+            lifetime_days: number;
+            /**
+             * Label
+             * @description «осталось 2 из 2»
+             */
+            label: string;
+            /**
+             * Next Slot In
+             * @description Когда освободится слот (если сигналов нет)
+             */
+            next_slot_in: string | null;
+            /** Consent Text */
+            consent_text: string;
+            /** Consent Text Version */
+            consent_text_version: string;
+            /** Consent Given */
+            consent_given: boolean;
+            /** Active */
+            active: components["schemas"]["InterestActiveOut"][];
+        };
         /** InvitationBatchIn */
         InvitationBatchIn: {
             /** Need Id */
@@ -8747,6 +9303,13 @@ export interface components {
             terms_history: components["schemas"]["TermsOut"][];
             /** Why You */
             why_you: string[];
+            /**
+             * Team
+             * @description О команде из брифа (E-02); в Score не входит
+             */
+            team: {
+                [key: string]: unknown;
+            } | null;
             /** Salary Vs Min */
             salary_vs_min: string | null;
             counter: components["schemas"]["CounterOut"] | null;
@@ -9795,6 +10358,71 @@ export interface components {
              */
             password: string;
         };
+        /** MarketQuantilesOut */
+        MarketQuantilesOut: {
+            /** P10 */
+            p10: number;
+            /** P25 */
+            p25: number;
+            /** P50 */
+            p50: number;
+            /** P75 */
+            p75: number;
+            /** P90 */
+            p90: number;
+        };
+        /**
+         * MarketSalaryOut
+         * @description Рыночная вилка по открытым данным: только подсказка, в Score и подбор не входит.
+         */
+        MarketSalaryOut: {
+            /**
+             * Available
+             * @description Есть ли достаточно данных (n ≥ порога) для направления
+             */
+            available: boolean;
+            /**
+             * Scope
+             * @description По чему посчитано: направление × грейд или направление целиком
+             */
+            scope: ("direction_grade" | "direction") | null;
+            /**
+             * Grade
+             * @description Грейд ячейки (None — по направлению целиком)
+             */
+            grade: ("intern" | "junior" | "middle" | "senior") | null;
+            /**
+             * N
+             * @description Число вакансий с зарплатой в ячейке
+             */
+            n: number | null;
+            /** @description ₽/мес до НДФЛ (так указана зарплата в источнике) */
+            gross: components["schemas"]["MarketQuantilesOut"] | null;
+            /** @description ₽/мес на руки = gross·(1 − НДФЛ) */
+            net: components["schemas"]["MarketQuantilesOut"] | null;
+            /** Source */
+            source: string | null;
+            /**
+             * Fetched
+             * @description Дата выгрузки данных
+             */
+            fetched: string | null;
+            /**
+             * Note
+             * @description Оговорка о смещении выборки
+             */
+            note: string | null;
+            /**
+             * Ratio To P25
+             * @description Верхняя граница переданной вилки / нижний квартиль рынка (в gross)
+             */
+            ratio_to_p25: number | null;
+            /**
+             * Far Below
+             * @description Вилка сильно ниже рынка (сигнал, не блокировка)
+             */
+            far_below: boolean | null;
+        };
         /** MeOut */
         MeOut: {
             /** Company */
@@ -9972,6 +10600,8 @@ export interface components {
              * @description true — на руки, false — до НДФЛ
              */
             salary_net?: boolean | null;
+            /** @description О команде (необязательно) */
+            team?: components["schemas"]["TeamIn"] | null;
             /**
              * Title
              * @description Название брифа (по умолчанию — категория)
@@ -10075,6 +10705,13 @@ export interface components {
              * @description Категории брифа и их выбор
              */
             categories: components["schemas"]["CategoryRecOut"][];
+            /**
+             * Team
+             * @description О команде (E-02): size, role, stack_context, about
+             */
+            team: {
+                [key: string]: unknown;
+            };
         };
         /** NeedPatchIn */
         NeedPatchIn: {
@@ -10114,6 +10751,8 @@ export interface components {
              * @default false
              */
             clear_city: boolean;
+            /** @description О команде: пустой объект очищает */
+            team?: components["schemas"]["TeamIn"] | null;
             /**
              * Text
              * @description Новый текст брифа
@@ -10457,32 +11096,6 @@ export interface components {
             /** Scoring Config Version */
             scoring_config_version: string;
         };
-        /** MarketQuantilesOut */
-        MarketQuantilesOut: {
-            p10: number;
-            p25: number;
-            p50: number;
-            p75: number;
-            p90: number;
-        };
-        /**
-         * MarketSalaryOut
-         * @description Рыночная вилка по открытым данным: только подсказка, в Score и подбор не входит.
-         */
-        MarketSalaryOut: {
-            /** @description Есть ли достаточно данных (n ≥ порога) для направления */
-            available: boolean;
-            scope?: ("direction_grade" | "direction") | null;
-            grade?: ("intern" | "junior" | "middle" | "senior") | null;
-            n?: number | null;
-            gross?: components["schemas"]["MarketQuantilesOut"] | null;
-            net?: components["schemas"]["MarketQuantilesOut"] | null;
-            source?: string | null;
-            fetched?: string | null;
-            note?: string | null;
-            ratio_to_p25?: number | null;
-            far_below?: boolean | null;
-        };
         /** ParseOut */
         ParseOut: {
             /**
@@ -10606,6 +11219,39 @@ export interface components {
              * @description Доля совпадающих ключей (детектор «чужого ключа» работает при < 2%)
              */
             key_collision_rate: number;
+        };
+        /** PoolReadinessOut */
+        PoolReadinessOut: {
+            /**
+             * Ready
+             * @description Пул одноразовых заданий готов (после `docker compose up` его греет сервис pool)
+             */
+            ready: boolean;
+            /**
+             * Families Total
+             * @description Семейств заданий в проверке
+             */
+            families_total: number;
+            /**
+             * Families Ready
+             * @description Из них с достаточным запасом свободных экземпляров
+             */
+            families_ready: number;
+            /**
+             * Progress
+             * @description Доля готовых семейств, 0…1 — для полосы прогресса
+             */
+            progress: number;
+            /**
+             * Eta S
+             * @description Ориентир ожидания, секунд (0 — готово)
+             */
+            eta_s: number;
+            /**
+             * Message
+             * @description Текст для экрана: «Готовим одноразовые задания…»
+             */
+            message: string;
         };
         /** PrecomputeIn */
         PrecomputeIn: {
@@ -11244,6 +11890,35 @@ export interface components {
              * @default false
              */
             is_fullstack: boolean;
+        };
+        /** QualityOut */
+        QualityOut: {
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            /** Drift Threshold B */
+            drift_threshold_b: number;
+            /** Drift Min N */
+            drift_min_n: number;
+            /** Drift */
+            drift: components["schemas"]["DriftRowOut"][];
+            /** Drift Flagged */
+            drift_flagged: number;
+            /** Exposure */
+            exposure: components["schemas"]["ExposureRowOut"][];
+            /** Exposure R Max */
+            exposure_r_max: number;
+            /**
+             * Synthetic
+             * @description Прогон eval.fairness на синтетике (DIF по классам ETS, дрейф с внедрённой утечкой, Симпсон–Хеттер); null — прогона нет
+             */
+            synthetic: {
+                [key: string]: unknown;
+            } | null;
+            /** Synthetic Note */
+            synthetic_note: string;
         };
         /** QuestionOptionOut */
         QuestionOptionOut: {
@@ -12987,6 +13662,8 @@ export interface components {
              * @description Подпись статуса: «Отправлено», «Просмотрено», …
              */
             invitation_label: string | null;
+            /** @description Сигнал интереса кандидата к вашей компании (если карточка открыта) */
+            interest: components["schemas"]["InterestBadgeOut"] | null;
         };
         /** SendResultOut */
         SendResultOut: {
@@ -13322,6 +13999,22 @@ export interface components {
              * @description Почему навык не проверяется тестом
              */
             untestable_reason: string | null;
+        };
+        /**
+         * SkillsPassportOut
+         * @description Подписанный «Цифровой паспорт навыков» кандидата прошёл проверку (демонстрационный издатель).
+         */
+        SkillsPassportOut: {
+            /** Verified */
+            verified: boolean;
+            /** Count */
+            count: number;
+            /** Label */
+            label: string;
+            /** Titles */
+            titles: string[];
+            /** Issuer */
+            issuer: string;
         };
         /** SourcedOut */
         SourcedOut: {
@@ -13938,6 +14631,32 @@ export interface components {
             /** Empty Text */
             empty_text: string | null;
         };
+        /**
+         * TeamIn
+         * @description E-02: необязательные поля «о команде». Кандидат видит их в приглашении и вакансии; в Score не входят.
+         */
+        TeamIn: {
+            /**
+             * Size
+             * @description Сколько человек в команде
+             */
+            size?: number | null;
+            /**
+             * Role
+             * @description Роль нанимаемого в команде, например «второй backend»
+             */
+            role?: string | null;
+            /**
+             * Stack Context
+             * @description Контекст стека: что уже есть в проекте
+             */
+            stack_context?: string | null;
+            /**
+             * About
+             * @description О команде: чем занимается, как работает
+             */
+            about?: string | null;
+        };
         /** TermsBlock */
         TermsBlock: {
             /** Ver */
@@ -14440,6 +15159,13 @@ export interface components {
             how_we_check: {
                 [key: string]: unknown;
             } | null;
+            /**
+             * Team
+             * @description О команде (E-02): size, role, stack_context, about
+             */
+            team: {
+                [key: string]: unknown;
+            } | null;
             /** Application Status */
             application_status: string | null;
             /** Application Id */
@@ -14463,6 +15189,8 @@ export interface components {
             complaint_reasons: {
                 [key: string]: string;
             };
+            /** @description Сигнал интереса к компании (DECISIONS 24) */
+            interest: components["schemas"]["VacancyInterestOut"] | null;
         };
         /** VacancyCandidateItem */
         VacancyCandidateItem: {
@@ -14523,10 +15251,36 @@ export interface components {
         VacancyCreateIn: {
             /**
              * Need Id
-             * Format: uuid
-             * @description Бриф, который публикуется как вакансия
+             * @description Бриф, который публикуется как вакансия. Без него — прямая вакансия (X-04): нужны title, specialization, grade и вилка; бриф создаётся автоматически
              */
-            need_id: string;
+            need_id?: string | null;
+            /**
+             * Specialization
+             * @description Направление (код), для вакансии без брифа
+             */
+            specialization?: string | null;
+            /**
+             * Grade
+             * @description Грейд, для вакансии без брифа
+             */
+            grade?: ("intern" | "junior" | "middle" | "senior") | null;
+            /**
+             * Must
+             * @description Обязательные навыки (id справочника)
+             */
+            must?: string[] | null;
+            /**
+             * Nice
+             * @description Желательные навыки (id справочника)
+             */
+            nice?: string[] | null;
+            /**
+             * Team
+             * @description О команде: size, role, stack_context, about (E-02)
+             */
+            team?: {
+                [key: string]: unknown;
+            } | null;
             /** Title */
             title?: string | null;
             /** Description */
@@ -14586,6 +15340,25 @@ export interface components {
             how_we_check: {
                 [key: string]: unknown;
             } | null;
+        };
+        /**
+         * VacancyInterestOut
+         * @description Блок «Отправить сигнал интереса» в карточке вакансии.
+         */
+        VacancyInterestOut: {
+            /**
+             * Sent
+             * @description Сигнал этой компании уже действует
+             */
+            sent: boolean;
+            /** Signal Id */
+            signal_id: string | null;
+            /** Remaining */
+            remaining: number;
+            /** Limit */
+            limit: number;
+            /** Label */
+            label: string;
         };
         /** VacancyItem */
         VacancyItem: {
@@ -14993,6 +15766,28 @@ export interface components {
              */
             borderline: boolean;
         };
+        /** VerifyCredentialOut */
+        VerifyCredentialOut: {
+            /** Valid */
+            valid: boolean;
+            /** Message */
+            message: string;
+            /** Checks */
+            checks: components["schemas"]["CredentialCheckOut"][];
+            /**
+             * Reasons
+             * @description Что не так — по-русски (пусто, если всё в порядке)
+             */
+            reasons: string[];
+            summary: components["schemas"]["CredentialSummaryOut"] | null;
+            /**
+             * Demo Issuer
+             * @default true
+             */
+            demo_issuer: boolean;
+            /** Disclaimer */
+            disclaimer: string;
+        };
         /** VerifyEmailRequest */
         VerifyEmailRequest: {
             /**
@@ -15396,6 +16191,26 @@ export interface components {
             /** Event Id Header */
             event_id_header: string;
         };
+        /** WorkHistoryOut */
+        WorkHistoryOut: {
+            /**
+             * Role
+             * @description Должность (без названия компании)
+             */
+            role: string;
+            /**
+             * Duration
+             * @description Срок: «2 г. 3 мес.»
+             */
+            duration: string;
+            /** Months */
+            months: number;
+            /**
+             * Current
+             * @description Работает сейчас
+             */
+            current: boolean;
+        };
         /** ValidationOut */
         app__api__admin__ValidationOut: {
             /**
@@ -15787,6 +16602,133 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HealthOut"];
+                };
+            };
+        };
+    };
+    pool_readiness_api_health_pool_get: {
+        parameters: {
+            query?: {
+                specialization?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PoolReadinessOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -24118,6 +25060,135 @@ export interface operations {
             };
         };
     };
+    parse_brief_api_needs_parse_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BriefParseIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParseOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     market_salary_api_needs_market_salary_get: {
         parameters: {
             query: {
@@ -24143,30 +25214,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MarketSalaryOut"];
-                };
-            };
-        };
-    };
-    parse_brief_api_needs_parse_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["BriefParseIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ParseOut"];
                 };
             };
             /** @description Некорректный запрос */
@@ -26400,6 +27447,10 @@ export interface operations {
                 hidden_page?: number;
                 /** @description Бриф для отметки «уже в шортлисте» */
                 need_id?: string | null;
+                /** @description true — только кандидаты, отметившие интерес к вашей компании (видны лишь по открытым карточкам) */
+                interest?: boolean | null;
+                /** @description Сначала кандидаты с сигналом интереса (Score не меняется) */
+                interest_first?: boolean;
             };
             header?: never;
             path?: never;
@@ -36587,6 +37638,342 @@ export interface operations {
             };
         };
     };
+    my_status_api_interest_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InterestStatusOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    send_api_interest_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InterestIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InterestSentOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    revoke_api_interest__signal_id__revoke_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                signal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InterestStatusOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     availability_api_fsp_availability_get: {
         parameters: {
             query?: never;
@@ -39985,6 +41372,131 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PrecomputeOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    quality_api_lab_quality_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QualityOut"];
                 };
             };
             /** @description Некорректный запрос */
@@ -43688,6 +45200,897 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RevokeOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    my_credentials_api_credentials_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CredentialListOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    issue_credential_api_credentials_me_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CredentialIssueIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CredentialOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    download_credential_api_credentials_me__credential_id__file_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                credential_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    revoke_credential_api_credentials_me__credential_id__revoke_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                credential_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CredentialOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    status_list_api_credentials_status__list_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                list_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    verify_by_code_api_credentials_verify__code__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VerifyCredentialOut"];
+                };
+            };
+            /** @description Некорректный запрос */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "bad_request",
+                     *       "message": "Запрос не может быть выполнен"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Требуется вход или токен недействителен */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "unauthorized",
+                     *       "message": "Требуется вход в систему"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Недостаточно прав */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "forbidden",
+                     *       "message": "Недостаточно прав для этого действия"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Не найдено */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "not_found",
+                     *       "message": "Запись не найдена"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Конфликт состояния */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "conflict",
+                     *       "message": "Действие противоречит текущему состоянию"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Ошибка валидации полей */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "validation_error",
+                     *       "message": "Проверьте заполнение полей"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Слишком много запросов */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "code": "rate_limited",
+                     *       "message": "Слишком много запросов. Повторите через 30 с"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    verify_file_api_credentials_verify_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": Record<string, never>;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VerifyCredentialOut"];
                 };
             };
             /** @description Некорректный запрос */

@@ -71,6 +71,8 @@ class Need(UUIDPkMixin, TimestampMixin, Base):
     categories: Mapped[list[Any]] = mapped_column(default=list, server_default=JSONB_EMPTY_ARRAY)
     parsed: Mapped[dict[str, Any]] = mapped_column(default=dict, server_default=JSONB_EMPTY_OBJECT)  # полный вывод парсера
     clarifying_question: Mapped[dict[str, Any] | None]
+    # E-02: «о команде» — размер, роль в команде, контекст стека, текст. Показывается кандидату, в Score не входит.
+    team: Mapped[dict[str, Any]] = mapped_column(default=dict, server_default=JSONB_EMPTY_OBJECT)
     parser_version: Mapped[str | None] = mapped_column(String(32))
     llm_used: Mapped[bool] = mapped_column(default=False, server_default=false())
     current_version_id: Mapped[uuid.UUID | None] = mapped_column(

@@ -2,7 +2,7 @@ import { useDemoMode } from '@/features/demo/api'
 import { Button, Illustration, type IllustrationName, NodeLegend, Panel, TraceDiagram, type TraceDiagramRow } from '@/ui'
 
 const CANDIDATE_STEPS: TraceDiagramRow[] = [
-  { label: 'Опрос', evidence: 'Отрасли, действия за год, технологии и стаж — пять минут.', end: 'claimed' },
+  { label: 'Опрос', evidence: 'Сфера бизнеса, действия за год, технологии и стаж — пять минут.', end: 'claimed' },
   { label: 'Тест', evidence: 'Адаптивный: задания подбираются под ваши ответы, у каждого свой вариант.', end: 'test' },
   { label: 'Категория', evidence: '«Специализация × грейд» — по тесту, а не по тексту резюме.', end: 'fsp' },
 ]

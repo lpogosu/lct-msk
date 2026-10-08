@@ -12,6 +12,7 @@ FROM nginx:1.27.5-alpine AS runtime
 # Шаблон обрабатывается entrypoint-ом nginx: ${VZ_BACKEND_UPSTREAM} подставляется при старте
 COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 COPY security-headers.conf /etc/nginx/security-headers.conf
+COPY csp.conf /etc/nginx/csp.conf
 COPY --from=build /app/dist /usr/share/nginx/html
 ENV VZ_BACKEND_UPSTREAM=backend:8000 \
     VZ_REAL_IP_FROM=127.0.0.1 \

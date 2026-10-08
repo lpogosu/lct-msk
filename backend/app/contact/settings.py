@@ -141,6 +141,23 @@ class CandidateLimitsCfg(_Frozen):
         return self
 
 
+class InterestCfg(_Frozen):
+    per_window: int
+    window_days: int
+    lifetime_days: int
+    consent_text_version: str
+    badge: str
+    badge_short: str
+    badge_hint: str
+    consent_text: str
+
+    @model_validator(mode="after")
+    def _positive(self) -> InterestCfg:
+        if min(self.per_window, self.window_days, self.lifetime_days) < 1:
+            raise ValueError("interest: per_window, window_days, lifetime_days должны быть положительными")
+        return self
+
+
 class PairCfg(_Frozen):
     one_active_per_pair: bool
     pause_days: dict[str, int]
@@ -425,6 +442,7 @@ class ContactConfig(_Frozen):
     status_labels: StatusLabelsCfg
     quotas: QuotasCfg
     candidate_limits: CandidateLimitsCfg
+    interest: InterestCfg
     pair: PairCfg
     matching: MatchingCfg
     minors: MinorsCfg

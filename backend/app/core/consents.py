@@ -84,6 +84,12 @@ CONSENT_DOCUMENTS: dict[ConsentPurpose, ConsentDocument] = {
         "Согласие на использование обезличенных ответов для калибровки",
         "Ваши ответы без имени и контактов помогут уточнить сложность заданий.",
     ),
+    ConsentPurpose.interest_signal: ConsentDocument(
+        ConsentPurpose.interest_signal,
+        str(load_config("contact")["interest"]["consent_text_version"]),
+        "Согласие на сигнал интереса компании",
+        str(load_config("contact")["interest"]["consent_text"]),
+    ),
 }
 
 # Цели, которые нельзя выдать через общий журнал: они требуют контекста (компания, приглашение/отклик)

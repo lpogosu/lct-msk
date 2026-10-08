@@ -39,6 +39,7 @@ from app.services.anticheat.schemas import (
 from app.services.demo.jury_admin import validation_result
 from app.services.testing import lab as svc
 from app.services.testing import limits
+from app.services.testing import quality as quality_svc
 from app.services.testing.schemas import (
     BankOut,
     CalibrateIn,
@@ -334,6 +335,20 @@ def twins_precompute(
     families = [body.family_id] if body.family_id else None
     background.add_task(twin_precompute.run_background, db.get_bind(), families, body.per_family)
     return PrecomputeOut(accepted=True, families=1 if families else len(known), message=_RC.text("precompute_started_ru"))
+
+
+@router.get(
+    "/quality",
+    response_model=quality_svc.QualityOut,
+    summary="Качество заданий: DIF, дрейф, экспозиция",
+    description=(
+        "Монитор психометрического качества (docs/TESTING_MECHANISM.md): дрейф сложности семейств по ответам после калибровки "
+        "(Δb с 95% ДИ, флаг при превышении порога из config/testing.yaml), экспозиция семейств по решённым сессиям и результат "
+        "проверки DIF (Мантель–Хензель, классы ETS A/B/C) на синтетической популяции с внедрёнными смещёнными заданиями."
+    ),
+)
+def quality(user: Methodist, db: DbSession) -> quality_svc.QualityOut:  # noqa: ARG001
+    return quality_svc.quality_out(db)
 
 
 @router.get(

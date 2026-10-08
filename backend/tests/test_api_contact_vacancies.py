@@ -170,3 +170,46 @@ def test_vacancy_validation_and_ownership(client, make_account, db_session, froz
     assert client.patch(f"/api/vacancies/{vac['id']}", json={"title": "x"}, headers=other.headers).status_code == 404
     mine = client.get("/api/vacancies/mine", headers=emp.headers).json()
     assert len(mine) == 1 and mine[0]["applications_total"] == 0
+
+
+def test_direct_vacancy_without_brief_creates_need_and_shows_team(client, make_account, db_session, frozen_clock, features):
+    """X-04 и E-02: вакансия без брифа создаёт служебный бриф; «о команде» видна кандидату, подбор по брифу работает."""
+    emp = make_employer(client, make_account, db_session)
+    cand = make_candidate(make_account, db_session)
+    # без обязательных полей — понятная ошибка
+    r = client.post("/api/vacancies", json={"title": "Backend"}, headers=emp.headers)
+    assert r.status_code == 400 and r.json()["code"] == "vacancy_fields_required"
+    team = {"size": 6, "role": "второй backend", "stack_context": "Python, FastAPI, PostgreSQL", "about": "Платёжный сервис"}
+    r = client.post(
+        "/api/vacancies",
+        json={
+            "title": "Backend-разработчик в платежи",
+            "specialization": "backend_python",
+            "grade": "middle",
+            "salary_from": 220000,
+            "salary_to": 280000,
+            "salary_type": "net",
+            "format": "hybrid",
+            "city": "moscow",
+            "must": ["python", "postgresql"],
+            "nice": ["kafka"],
+            "description": "Развиваем платёжный сервис.",
+            "team": {**team, "junk": "x"},
+        },
+        headers=emp.headers,
+    )
+    assert r.status_code == 201, r.text
+    vac = r.json()["vacancy"]
+    assert vac["need_id"] and vac["title"] == "Backend-разработчик в платежи"
+    need = client.get(f"/api/needs/{vac['need_id']}", headers=emp.headers).json()
+    assert need["brief"]["spec"] == "backend_python" and need["brief"]["grade"] == "middle"
+    assert need["brief"]["must"] == ["python", "postgresql"] and need["team"] == team
+    # кандидат видит «о команде» в вакансии
+    d = client.get(f"/api/vacancies/{vac['id']}", headers=cand.headers).json()
+    assert d["team"] == team
+    # подбор по этому брифу строится (бриф полноценный)
+    v = client.post(f"/api/needs/{vac['need_id']}/versions", json={}, headers=emp.headers)
+    assert v.status_code in (200, 201), v.text
+    # правка «о команде» брифа не создаёт новую версию подборки и не меняет Score-поля
+    p = client.patch(f"/api/needs/{vac['need_id']}", json={"team": {"size": 8}}, headers=emp.headers)
+    assert p.status_code == 200 and p.json()["need"]["team"] == {"size": 8} and p.json()["version"] is None

@@ -71,6 +71,8 @@ def bank_search(
     page: Annotated[int, Query(ge=1, le=200, description="Страница (по 10)")] = 1,
     hidden_page: Annotated[int, Query(ge=1, le=200, description="Страница группы «Скрыто фильтрами»")] = 1,
     need_id: Annotated[uuid.UUID | None, Query(description="Бриф для отметки «уже в шортлисте»")] = None,
+    interest: Annotated[bool | None, Query(description="true — только кандидаты, отметившие интерес к вашей компании (видны лишь по открытым карточкам)")] = None,
+    interest_first: Annotated[bool, Query(description="Сначала кандидаты с сигналом интереса (Score не меняется)")] = False,
 ) -> BankOut:
     _limit(limiter, user)
     if need_id is not None:
@@ -87,6 +89,8 @@ def bank_search(
         page=page,
         hidden_page=hidden_page,
         need_id=need_id,
+        interest=interest,
+        interest_first=interest_first,
     )
     out = BankOut.model_validate(svc.bank_search(db, user, q, secret=secret))
     db.commit()  # псевдонимы сохраняются при первом показе

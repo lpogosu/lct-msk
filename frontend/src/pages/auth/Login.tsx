@@ -4,6 +4,7 @@ import { authApi } from '@/api/auth'
 import { ApiException, errorMessage } from '@/api/errors'
 import { startSignup } from '@/auth/signupFlow'
 import { Alert, Button, Input, PasswordInput } from '@/ui'
+import { FspIdButton } from './FspIdButton'
 import { validateEmail } from './validation'
 
 export default function Login() {
@@ -81,6 +82,11 @@ export default function Login() {
           Войти
         </Button>
       </form>
+
+      <div className="flex flex-col gap-3">
+        <p className="t-small text-ink-3 text-center">или</p>
+        <FspIdButton />
+      </div>
 
       <div className="flex flex-col gap-2 t-body text-ink-2">
         <p>

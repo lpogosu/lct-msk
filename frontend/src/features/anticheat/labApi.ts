@@ -66,6 +66,15 @@ export function useLabBank(specialization: string) {
   })
 }
 
+export function useLabQuality() {
+  return useQuery({
+    queryKey: ['lab', 'quality'] as const,
+    queryFn: () => unwrap(api.GET('/api/lab/quality')),
+    retry: false,
+    staleTime: 60_000,
+  })
+}
+
 export function useClones(familyId: string, n = 3) {
   return useQuery({
     queryKey: labKeys.clones(familyId, n),

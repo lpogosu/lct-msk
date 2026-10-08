@@ -113,7 +113,7 @@ def test_require_roles_dependency(app, client, make_account):
 def test_consent_documents_public(client):
     docs = client.get("/api/consents/documents").json()
     purposes = {d["purpose"]: d for d in docs}
-    assert set(purposes) == {"processing", "blind_card", "fsp_enrichment", "contact_disclosure", "test_logging", "calibration"}
+    assert set(purposes) == {"processing", "blind_card", "fsp_enrichment", "contact_disclosure", "test_logging", "calibration", "interest_signal"}
     assert purposes["processing"]["required_for_registration"] is True
     assert purposes["processing"]["revocable_in_journal"] is False
     assert purposes["blind_card"]["revocable_in_journal"] is True

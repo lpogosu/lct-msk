@@ -543,3 +543,26 @@ def test_demo_login_never_in_prod():
     )
     assert fsp.demo_allowed(prod) is False
     assert fsp.demo_allowed(Settings(_env_file=None, env="dev")) is True
+
+
+def test_demo_mode_fsp_signup_logs_in_without_email_code(client, db_session, test_settings, frozen_clock, registry):
+    """Q-13: «Войти через ФСП ID» без Keycloak в DEMO — аккаунт создаётся и сессия открывается сразу, достижения импортируются."""
+    test_settings.demo_mode = True
+    r = client.post(
+        "/api/fsp/demo-login",
+        json={"sub": CHAMPION, "mode": "login", "consent_personal_data": True, "consent_fsp_enrichment": True},
+    )
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["result"] == "logged_in" and body["demo"] is True
+    assert body["token"]["user"]["role"] == "candidate" and r.cookies.get("vz_refresh")
+    user = db_session.get(User, uuid.UUID(body["token"]["user"]["id"]))
+    assert user.status == "active" and user.email_verified and user.password_hash is None
+    me = client.get("/api/fsp/me", headers={"Authorization": f"Bearer {body['token']['access_token']}"}).json()
+    assert me["state"] == "linked" and me["consent_fsp_enrichment"] is True
+    link = db_session.scalar(select(FspLink).where(FspLink.user_id == user.id))
+    assert link.achievements is not None
+    # повторный вход тем же ФСП ID — в тот же аккаунт
+    client.cookies.clear()
+    again = client.post("/api/fsp/demo-login", json={"sub": CHAMPION, "mode": "login"}).json()
+    assert again["result"] == "logged_in" and again["token"]["user"]["id"] == body["token"]["user"]["id"]

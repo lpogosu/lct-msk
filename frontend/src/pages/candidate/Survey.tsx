@@ -22,7 +22,7 @@ interface Draft {
   chosenSpec: string | null
 }
 
-const STEP_TITLES = ['Отрасли', 'Что делали руками', 'Технологии и стаж', 'Специализация'] as const
+const STEP_TITLES = ['Сфера бизнеса', 'Что делали руками', 'Технологии и стаж', 'Направление'] as const
 
 function draftFrom(state: SurveyState): Draft {
   const a = state.answers
@@ -204,7 +204,7 @@ function StepIndustries({ form, draft, patch }: StepProps) {
       <p className="t-body text-ink-2">
         Где вам интересно работать? Это только фильтр для подбора: на уровень и категорию он не влияет. Можно ничего не выбирать.
       </p>
-      <div className="flex flex-wrap gap-2.5" role="group" aria-label="Отрасли">
+      <div className="flex flex-wrap gap-2.5" role="group" aria-label="Сфера бизнеса">
         {form.industries.map((i) => {
           const on = draft.industries.includes(i.code)
           return (
@@ -444,7 +444,7 @@ function StepSpec({ form, draft, patch }: StepProps) {
   return (
     <div className="flex flex-col gap-5">
       <p className="t-body text-ink-2">Выберите направление, по которому хотите получить категорию. Подсказка классификатора ни к чему не обязывает: решаете вы.</p>
-      <div role="radiogroup" aria-label="Специализация" className="flex flex-col gap-2.5">
+      <div role="radiogroup" aria-label="Направление" className="flex flex-col gap-2.5">
         {form.specializations.map((s) => {
           const on = chosen === s.code
           const chip = STATUS_CHIP[s.status] ?? STATUS_CHIP.active

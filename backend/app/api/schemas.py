@@ -198,6 +198,8 @@ class HealthOut(BaseModel):
     db: Literal["ok", "unavailable"] = Field(description="Состояние PostgreSQL")
     version: str = Field(description="Версия бэкенда")
     demo_mode: bool = Field(description="Включён ли DEMO_MODE")
+    pool_ready: bool | None = Field(default=None, description="Готов ли пул одноразовых заданий (#14); null — не определено")
+    pool_progress: float | None = Field(default=None, description="Доля готовых семейств заданий, 0…1")
     time: datetime = Field(description="Текущее время по часам приложения (в DEMO_MODE — со смещением)")
 
 

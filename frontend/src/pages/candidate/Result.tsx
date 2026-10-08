@@ -292,7 +292,7 @@ function BlindSection({ r }: { r: ResultOut }) {
       {consent.given ? (
         <p className="t-small text-ink-3">
           Вы разрешили показывать слепую карточку (версия текста {consent.version}). Отозвать согласие можно в{' '}
-          <Link to="/candidate/consents" className="text-brand underline-offset-4 hover:underline">
+          <Link to="/candidate/consents" className="text-brand underline-offset-4 underline">
             журнале согласий
           </Link>
           .

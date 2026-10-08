@@ -1,7 +1,7 @@
 import { formatDecimal } from '@/lib/format'
 import { Button, Identicon } from '@/ui'
 import type { ShortlistEntry } from '../../api'
-import { BlockTitle, Tag } from '../common'
+import { BlockTitle, InterestTag, Tag } from '../common'
 
 /**
  * Шортлист 📌 (живёт отдельно от версий): кандидат, не прошедший фильтры текущей версии или выпавший из неё,
@@ -54,6 +54,7 @@ export function Shortlist({
                   {e.item && <span className="font-normal text-ink-3">{e.item.category} · Score {formatDecimal(e.item.score, 0)}</span>}
                   {e.mark === 'yellow' && <Tag tone="warn">не в текущей версии</Tag>}
                   {e.item?.invitation_label && <Tag tone="brand">{e.item.invitation_label}</Tag>}
+                  <InterestTag interest={e.item?.interest} />
                 </p>
                 {e.reason && <p className="t-small text-ink-3">{e.reason}</p>}
                 {e.note && <p className="t-small text-ink-2">Заметка: {e.note}</p>}

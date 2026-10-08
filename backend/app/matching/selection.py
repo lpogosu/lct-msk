@@ -49,7 +49,7 @@ FILTER_LABELS: Mapping[str, str] = MappingProxyType(
         "skill": "Навык подтверждён",
         "min_score": "Score не ниже",
         "active": "Активен за 30 дней",
-        "industry": "Отрасль интереса",
+        "industry": "Сфера бизнеса",
         "grade": "Грейд",
         "confirmed_only": "Только подтверждённые тестом",
         "exclude": "Скрыть вручную",
@@ -122,15 +122,15 @@ def filter_reason(f: Filter, r: ScoreResult, cfg: ScoringConfig, cat: SkillCatal
         return None if any(t.days_ago <= days for t in feat.tasks) else f"Нет задач за {int(days)} дней"
     if f.code == "industry":
         codes = set(f.value if isinstance(f.value, tuple) else (f.value,))
-        return None if codes & set(feat.industries) else "Другая отрасль интереса"
+        return None if codes & set(feat.industries) else "Другая сфера бизнеса"
     if f.code == "grade":
         grades = set(f.value if isinstance(f.value, tuple) else (f.value,))
         return None if r.grade in grades else "Грейд не входит в фильтр"
     if f.code == "confirmed_only":
         return None if feat.confirmed else "Категория заявлена, тестом не подтверждена"
     if f.code == "exclude":
-        ids = set(f.value if isinstance(f.value, tuple) else (f.value,))
-        return "Скрыт вручную" if r.candidate_id in ids else None
+        excluded = set(f.value if isinstance(f.value, tuple) else (f.value,))
+        return "Скрыт вручную" if r.candidate_id in excluded else None
     raise SelectionError(f"Неизвестный фильтр: {f.code}")
 
 
@@ -246,7 +246,7 @@ class SelectionVersion:
 
     # ---- представления
     def visible(self) -> tuple[SelectionItem, ...]:
-        return tuple(sorted((i for i in self.items if i.rank is not None), key=lambda i: i.rank))
+        return tuple(sorted((i for i in self.items if i.rank is not None), key=lambda i: i.rank or 0))
 
     def overall_top(self, limit: int | None = None) -> tuple[SelectionItem, ...]:
         v = self.visible()
@@ -279,9 +279,9 @@ class SelectionVersion:
                 out.setdefault((i.spec, i.grade), []).append(i)
         return {
             k: tuple(
-                sorted(v, key=lambda i: i.category_rank)[:limit]
+                sorted(v, key=lambda i: i.category_rank or 0)[:limit]
                 if limit
-                else sorted(v, key=lambda i: i.category_rank)
+                else sorted(v, key=lambda i: i.category_rank or 0)
             )
             for k, v in out.items()
         }
@@ -364,7 +364,7 @@ def build_version(
     pool = list(pool)
     if categories is None:
         categories = sorted({(c.spec, c.grade) for c in pool})
-    cats = tuple(dict.fromkeys(tuple(c) for c in categories))
+    cats: tuple[tuple[str, str], ...] = tuple(dict.fromkeys((str(c[0]), str(c[1])) for c in categories))
     in_scope = [c for c in pool if (c.spec, c.grade) in cats]
     ctx = ScoringContext.build(pool, preset=preset, cfg=cfg, catalog=cat, category_stats=category_stats)
     results = [score_candidate(c, brief, ctx) for c in in_scope]

@@ -3,7 +3,7 @@ import { cn } from '@/lib/cn'
 import { formatDecimal } from '@/lib/format'
 import { Identicon, Ruler } from '@/ui'
 import type { SelectionItem } from '../../api'
-import { Tag } from '../common'
+import { InterestTag, Tag } from '../common'
 
 const FLAG_LABEL: Record<string, string> = {
   borderline: 'тест на границе грейда',
@@ -95,7 +95,7 @@ export function SelectionTable({
             >
               <td className="relative py-4 pl-3 align-middle">
                 {selected && <span aria-hidden="true" className="absolute inset-y-0 left-0 w-0.5 bg-brand" />}
-                <span className={cn('t-num-l', selected ? 'text-brand' : 'text-steel')}>{hidden ? '·' : (it.rank ?? '·')}</span>
+                <span className={cn('t-num-l', selected ? 'text-brand' : 'text-[#85868D]')}>{hidden ? '·' : (it.rank ?? '·')}</span>
               </td>
               <td className="py-4 pr-4">
                 <div className="flex items-center gap-3">
@@ -112,6 +112,7 @@ export function SelectionTable({
                         </span>
                       )}
                       {it.invitation_label && <Tag tone="brand">{it.invitation_label}</Tag>}
+                      <InterestTag interest={it.interest} />
                     </div>
                     <p className="t-small text-ink-2">{it.category}</p>
                     {it.weak_match && <p className="t-small text-ink-3">слабое соответствие брифу</p>}

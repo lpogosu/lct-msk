@@ -12,6 +12,11 @@
 	# API: проксируем в бэкенд. Caddy — крайний прокси, поэтому X-Forwarded-For ПЕРЕЗАПИСЫВАЕМ адресом клиента:
 	# всё, что клиент прислал в этом заголовке, отбрасывается (по нему считаются лимиты входа и регистрации).
 	# Бэкенд верит заголовку только от подсети compose (VZ_FORWARDED_ALLOW_IPS=172.29.80.0/24).
+	# did:web издателя паспортов навыков: публичный ключ по стандартному адресу (docs/CREDENTIALS.md)
+	handle /.well-known/did.json {
+		reverse_proxy backend:8000
+	}
+
 	handle /api/* {
 		reverse_proxy backend:8000 {
 			header_up X-Forwarded-For {remote_host}

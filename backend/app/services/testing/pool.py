@@ -149,6 +149,47 @@ def pool_stats(db: Session, family_ids: Iterable[str] | None = None) -> dict[str
     return {fid: FamilyPoolStats(int(t), int(f), int(s), int(lg)) for fid, t, f, s, lg in db.execute(q)}
 
 
+@dataclass(frozen=True)
+class PoolReadiness:
+    ready: bool
+    families_total: int
+    families_ready: int
+    progress: float  # 0…1: доля семейств с достаточным запасом
+    eta_s: int  # ориентир ожидания, 0 — готово
+    message: str
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "ready": self.ready,
+            "families_total": self.families_total,
+            "families_ready": self.families_ready,
+            "progress": self.progress,
+            "eta_s": self.eta_s,
+            "message": self.message,
+        }
+
+
+def readiness(db: Session, spec: str | None = None) -> PoolReadiness:
+    """Готов ли пул одноразовых заданий (#14): после `docker compose up` его ≈ 2 минуты генерирует сервис pool.
+    Пока не готов — тест не стартует, а экран говорит «готовим задания», а не падает ошибкой."""
+    from app.services.testing.limits import POOL_READY_MIN_FREE, POOL_READY_SHARE, POOL_WARMUP_ETA_S
+
+    fams = [f.id for f in families_for(spec)]
+    stats = pool_stats(db, fams) if fams else {}
+    ready_n = sum(1 for fid in fams if stats.get(fid, EMPTY_STATS).free >= POOL_READY_MIN_FREE)
+    total = len(fams)
+    share = ready_n / total if total else 1.0
+    ok = share >= POOL_READY_SHARE
+    return PoolReadiness(
+        ready=ok,
+        families_total=total,
+        families_ready=ready_n,
+        progress=round(share, 3),
+        eta_s=0 if ok else max(5, round(POOL_WARMUP_ETA_S * (1 - share))),
+        message="Пул заданий готов" if ok else "Готовим одноразовые задания… около 2 минут. Страница обновится сама",
+    )
+
+
 def plan_indices(total: int, free: int, next_index: int, n: int, min_free: int) -> list[int]:
     """Какие номера экземпляров догенерировать: пул до n экземпляров (прерванную генерацию продолжаем
     со следующего номера), затем долив до n свободных, когда свободных меньше min_free.

@@ -91,6 +91,7 @@ def _brief_input(body: BriefParseIn | NeedCreateIn) -> svc.BriefInput:
         formats=list(body.formats) if body.formats is not None else None,
         city=body.city,
         clear_city=body.clear_city,
+        team=team.model_dump() if (team := getattr(body, "team", None)) is not None else None,
     )
 
 
@@ -248,6 +249,7 @@ def patch_need(
         formats=list(body.formats) if body.formats is not None else None,
         city=body.city,
         clear_city=body.clear_city,
+        team=body.team.model_dump() if body.team is not None else None,
     )
     res = svc.update_need(
         db,

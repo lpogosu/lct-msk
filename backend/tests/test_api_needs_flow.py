@@ -50,7 +50,7 @@ def test_parse_demo_brief_chips_with_quotes(client, employer):
         assert DEMO_BRIEF[q["start"] : q["end"]] == q["text"], c
         assert c["source"] == "правило"
     kafka = next(c for c in p["skills"] if c["skill_id"] == "kafka")
-    assert kafka["marker"] and "плюсом" in kafka["marker"]["text"] and kafka["untestable"] is True
+    assert kafka["marker"] and "плюсом" in kafka["marker"]["text"] and kafka["untestable"] is False
     assert p["spec"]["top"] == "backend_python" and p["spec"]["top_name"] == "Backend (Python)"
     assert p["grade"]["top"] == "middle"
     assert p["salary"]["salary_from"] == 220_000 and p["salary"]["salary_to"] == 280_000 and p["salary"]["net"] is True
@@ -113,13 +113,14 @@ def test_demo_brief_end_to_end(client, employer, pool, db_session):
     r = client.get(f"/api/needs/{nid}/check", headers=employer.headers)
     assert r.status_code == 200, r.text
     chk = r.json()
-    assert {u["skill_id"] for u in chk["untestable"]} == {"kafka"}
-    assert {c["skill_id"] for c in chk["covered"]} == {"python", "fastapi", "postgresql", "docker"}
+    assert chk["untestable"] == []  # Kafka — модуль проверочного набора (mq_core); nice-навык «на интервью»
+    assert {c["skill_id"] for c in chk["covered"]} == {"python", "fastapi", "postgresql", "docker", "kafka"}
     assert {c["skill_id"]: c["via"] for c in chk["covered"]} == {
-        "python": "standard", "fastapi": "standard", "postgresql": "standard", "docker": "interview",
+        # FastAPI и PostgreSQL — must: их особенности (fastapi_core, pg_core) наблюдает проверочный набор
+        "python": "standard", "fastapi": "check_set", "postgresql": "check_set", "docker": "interview", "kafka": "interview",
     }
     assert "проверьте на интервью" in next(c["text"] for c in chk["covered"] if c["skill_id"] == "docker")
-    assert abs(sum(m["weight"] for m in chk["module_weights"]) - 1.0) < 1e-6
+    assert abs(sum(m["weight"] for m in chk["module_weights"]) - 1.0) < 5e-3  # веса округлены до 0,001
     assert 3 <= len(chk["check_set"]["slots"]) <= 5 and chk["check_set"]["total_minutes"] <= 15
 
     # v1

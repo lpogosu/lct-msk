@@ -96,4 +96,5 @@ def client_ip(request: Request) -> str:
 
 def get_rate_limiter(request: Request) -> RateLimiter:
     """FastAPI-зависимость: лимитер живёт в app.state (свой у каждого экземпляра приложения)."""
-    return request.app.state.rate_limiter
+    limiter: RateLimiter = request.app.state.rate_limiter
+    return limiter

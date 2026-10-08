@@ -170,6 +170,15 @@ class GradeCardOut(BaseModel):
     note: str | None = Field(default=None, description="Почему грейд сейчас недоступен и когда станет доступен")
 
 
+class PoolReadinessOut(BaseModel):
+    ready: bool = Field(description="Пул одноразовых заданий готов (после `docker compose up` его греет сервис pool)")
+    families_total: int = Field(description="Семейств заданий в проверке")
+    families_ready: int = Field(description="Из них с достаточным запасом свободных экземпляров")
+    progress: float = Field(description="Доля готовых семейств, 0…1 — для полосы прогресса")
+    eta_s: int = Field(description="Ориентир ожидания, секунд (0 — готово)")
+    message: str = Field(description="Текст для экрана: «Готовим одноразовые задания…»")
+
+
 class BriefingOut(BaseModel):
     specialization: CodeLabel = Field(description="Специализация")
     testable: bool = Field(description="По специализации есть тест")
@@ -195,6 +204,7 @@ class BriefingOut(BaseModel):
     next_change_allowed_at: datetime | None = Field(default=None, description="Ближайшая возможная смена грейда")
     next_change_in: str | None = Field(default=None, description="То же — относительно («через 90 дней»)")
     active_session_id: uuid.UUID | None = Field(default=None, description="Незавершённая сессия (продолжить)")
+    pool: PoolReadinessOut | None = Field(default=None, description="Готовность пула заданий; пока не готов — can_start.code = pool_warming_up")
 
 
 class SessionCreateIn(_In):

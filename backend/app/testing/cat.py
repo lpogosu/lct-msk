@@ -99,12 +99,16 @@ class CatConfig:
     subscore_min_items: int = 2
     tag_p: float = 0.8
     confirmed_floor_grade: str = "junior"
+    # Контроль экспозиции Симпсона–Хеттера (config/testing.yaml → quality.sympson_hetter). Выключен по умолчанию.
+    sh_enabled: bool = False
+    sh_k: Mapping[str, float] = field(default_factory=dict)
 
     @classmethod
     def from_config(cls, testing: dict[str, Any] | None = None) -> CatConfig:
         t = testing if testing is not None else load_config("testing")
         c, e, s = t["cat"], t["extension"], t["subscores"]
         pt = c["pretest"]
+        sh = (t.get("quality") or {}).get("sympson_hetter") or {}
         return cls(
             n_min=int(c["n_min"]),
             n_max=int(c["n_max"]),
@@ -136,6 +140,8 @@ class CatConfig:
             subscore_min_items=int(s["min_items"]),
             tag_p=float(s["tag_p"]),
             confirmed_floor_grade=str(s.get("confirmed_floor_grade", "junior")),
+            sh_enabled=bool(sh.get("enabled", False)),
+            sh_k={str(k): float(v) for k, v in (sh.get("k") or {}).items()},
         )
 
 
@@ -598,13 +604,30 @@ def select_next(
     ranked = sorted(
         ((info_at(t, f.item_params(spec, scale)), f) for f in within), key=lambda p: (-p[0], p[1].id)
     )
-    top = ranked[:k]
-    info, chosen = top[rng.randrange(len(top))]
+    sh_rejected: list[str] = []
+    if cfg.sh_enabled:
+        # Симпсон–Хеттер (1985): выбранное задание предъявляется с вероятностью K_i, иначе берём следующее по
+        # информативности. Ветка живёт только при sh_enabled: по умолчанию генератор не расходуется (docs/TESTING_MECHANISM.md).
+        # Отклонённые ранее в этой сессии не возвращаются (классическая схема: один «бросок» на задание и кандидата);
+        # список хранится в selection_reason ответов, отдельного состояния не нужно.
+        refused = {f for r in state.responses for f in r.selection_reason.get("sh_rejected", ())}
+        sh_pool = [p for p in ranked if p[1].id not in refused] or ranked
+        while True:
+            top_ranked = sh_pool[:k]
+            info, chosen = top_ranked[rng.randrange(len(top_ranked))]
+            k_i = cfg.sh_k.get(chosen.id, 1.0)
+            if k_i >= 1.0 or len(sh_pool) <= 1 or rng.random() < k_i:
+                break
+            sh_rejected.append(chosen.id)
+            sh_pool = [p for p in sh_pool if p[1].id != chosen.id]
+    else:
+        top_ranked = ranked[:k]
+        info, chosen = top_ranked[rng.randrange(len(top_ranked))]
     grade_name = scale.grade_name(state.target_grade)
     mname = names.get(k_star, k_star)
     text = (
         f"Цель — порог «{grade_name}». Модуль «{mname}» сильнее всего отставал по квоте "
-        f"(дефицит {deficits[k_star]:.2f}). Из top-{len(top)} семейств по информативности у порога "
+        f"(дефицит {deficits[k_star]:.2f}). Из top-{len(top_ranked)} семейств по информативности у порога "
         f"выбрано случайно: {chosen.id}."
     )
     if relaxed:
@@ -622,7 +645,7 @@ def select_next(
         "deficits": {m: round(d, 4) for m, d in deficits.items()},
         "k": k,
         "top_k": [
-            {"family_id": f.id, "info": round(i, 4), "b": round(f.scale_param(spec, scale).b, 3)} for i, f in top
+            {"family_id": f.id, "info": round(i, 4), "b": round(f.scale_param(spec, scale).b, 3)} for i, f in top_ranked
         ],
         "chosen": chosen.id,
         "chosen_info": round(info, 4),
@@ -631,6 +654,8 @@ def select_next(
         "mcq_capped": mcq_capped,
         "text_ru": text,
     }
+    if cfg.sh_enabled:
+        reason["sh_rejected"] = sh_rejected
     return Selection(
         seq=seq,
         family_id=chosen.id,

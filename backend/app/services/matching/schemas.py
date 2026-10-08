@@ -60,12 +60,23 @@ class BriefParseIn(BriefEdits):
     salary_net: bool | None = Field(default=None, description="true — на руки, false — до НДФЛ")
 
 
+class TeamIn(_In):
+    """E-02: необязательные поля «о команде». Кандидат видит их в приглашении и вакансии; в Score не входят."""
+
+    size: int | None = Field(default=None, ge=1, le=500, description="Сколько человек в команде")
+    role: str | None = Field(default=None, max_length=120, description="Роль нанимаемого в команде, например «второй backend»")
+    stack_context: str | None = Field(default=None, max_length=300, description="Контекст стека: что уже есть в проекте")
+    about: str | None = Field(default=None, max_length=1000, description="О команде: чем занимается, как работает")
+
+
 class NeedCreateIn(BriefParseIn):
+    team: TeamIn | None = Field(default=None, description="О команде (необязательно)")
     title: str | None = Field(default=None, max_length=200, description="Название брифа (по умолчанию — категория)")
     is_internship: bool = Field(default=False, description="Стажировка: кандидаты 16–17 лет видны только таким брифам")
 
 
 class NeedPatchIn(BriefEdits):
+    team: TeamIn | None = Field(default=None, description="О команде: пустой объект очищает")
     text: str | None = Field(default=None, min_length=1, max_length=3000, description="Новый текст брифа")
     salary_from: int | None = Field(default=None, ge=0, le=5_000_000, description="Вилка от, ₽/мес")
     salary_to: int | None = Field(default=None, ge=0, le=5_000_000, description="Вилка до, ₽/мес")
@@ -244,6 +255,7 @@ class NeedOut(NeedSummaryOut):
     parse: ParseOut = Field(description="Разбор: чипы с источниками и цитатами, вероятности, уточняющий вопрос")
     warnings: list[WarningOut] = Field(default_factory=list, description="Мягкие предупреждения (широкая вилка)")
     categories: list[CategoryRecOut] = Field(default_factory=list, description="Категории брифа и их выбор")
+    team: dict[str, Any] = Field(default_factory=dict, description="О команде (E-02): size, role, stack_context, about")
 
 
 class NeedListOut(BaseModel):
@@ -478,6 +490,16 @@ class ScoreFactorsOut(BaseModel):
     cond_format: float = Field(description="Часть Cond по формату/городу")
 
 
+class InterestBadgeOut(BaseModel):
+    """Сигнал интереса кандидата (DECISIONS 24). Отдельный сигнал, не часть Score; виден только после открытия карточки."""
+
+    label: str = Field(description="«Взаимный интерес»")
+    text: str = Field(description="«Кандидат отметил интерес к вашей компании»")
+    hint: str
+    sent: str | None = Field(default=None, description="Когда отправлен (относительно)")
+    expires: str | None = Field(default=None, description="Когда истечёт (относительно)")
+
+
 class SelectionItemOut(BaseModel):
     ref: str = Field(description="Непрозрачная ссылка на кандидата в рамках компании")
     pseudonym: str = Field(description="Псевдоним «К-4821»")
@@ -512,6 +534,7 @@ class SelectionItemOut(BaseModel):
         default=None, description="Код статуса активного приглашения этой компании: sent, viewed, countered, accepted"
     )
     invitation_label: str | None = Field(default=None, description="Подпись статуса: «Отправлено», «Просмотрено», …")
+    interest: InterestBadgeOut | None = Field(default=None, description="Сигнал интереса кандидата к вашей компании (если карточка открыта)")
 
 
 class HiddenGroupOut(BaseModel):
@@ -628,6 +651,16 @@ class FspPublicOut(BaseModel):
     place_band: str | None = Field(default=None, description="Диапазон места: топ-3 / топ-10 / участник")
 
 
+class SkillsPassportOut(BaseModel):
+    """Подписанный «Цифровой паспорт навыков» кандидата прошёл проверку (демонстрационный издатель)."""
+
+    verified: bool
+    count: int
+    label: str
+    titles: list[str]
+    issuer: str
+
+
 class DisclosedOut(BaseModel):
     """Только при действующем согласии кандидата на эту компанию (ContactDisclosure)."""
 
@@ -642,6 +675,14 @@ class DisclosedOut(BaseModel):
     university: str | None = None
     city: str | None = None
     fsp_extract: str | None = Field(default=None, description="Выписка из протокола ФСП с номером ЕКП")
+    skills_passport: SkillsPassportOut | None = Field(default=None, description="«Паспорт проверен ✓» — действующий подписанный паспорт навыков")
+
+
+class WorkHistoryOut(BaseModel):
+    role: str = Field(description="Должность (без названия компании)")
+    duration: str = Field(description="Срок: «2 г. 3 мес.»")
+    months: int
+    current: bool = Field(description="Работает сейчас")
 
 
 class CandidateCardOut(BaseModel):
@@ -659,6 +700,9 @@ class CandidateCardOut(BaseModel):
     tasks: list[CardTaskOut] = Field(default_factory=list)
     freshness: FreshnessOut | None = None
     industries: list[str] = Field(default_factory=list)
+    work_history: list[WorkHistoryOut] = Field(
+        default_factory=list, description="Опыт без названий компаний: роль и срок. Заявлено кандидатом, в Score не входит"
+    )
     formats: list[str] = Field(default_factory=list)
     search_mode: str | None = None
     has_fsp: bool = False
@@ -670,6 +714,7 @@ class CandidateCardOut(BaseModel):
     salary: SalarySignalOut | None = Field(default=None, description="«в вилке ✓ / выше вилки» или число")
     region: str | None = Field(default=None, description="Код субъекта РФ")
     selection: SelectionItemOut | None = Field(default=None, description="Строка текущей версии подборки брифа")
+    interest: InterestBadgeOut | None = Field(default=None, description="Сигнал интереса кандидата (отдельно от Score; DECISIONS 24)")
     disclosed: DisclosedOut | None = Field(default=None, description="Раскрытые данные (только после «да»)")
 
 
@@ -721,6 +766,7 @@ class BankItemOut(BaseModel):
         default=None, description="Код статуса активного приглашения этой компании: sent, viewed, countered, accepted"
     )
     invitation_label: str | None = Field(default=None, description="Подпись статуса: «Отправлено», «Просмотрено», …")
+    interest: InterestBadgeOut | None = Field(default=None, description="Сигнал интереса кандидата к вашей компании (если карточка открыта)")
     hidden_by: list[str] = Field(default_factory=list, description="Фильтры, скрывшие кандидата (группа «Скрыто»)")
 
 

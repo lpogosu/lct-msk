@@ -3,7 +3,7 @@ import { formatDecimal } from '@/lib/format'
 import { Button, Illustration, NodeLegend, ScoreRing, Skeleton, TraceDiagram, type TraceDiagramRow, type TraceEnd } from '@/ui'
 import { useBankCard, useCandidateCard, type BankItem, type CandidateCard, type SelectionItem } from '../../api'
 import { BANK_PARTS, SCORE_PARTS } from '../../dict'
-import { BlockTitle, Label, LoadError, Tag } from '../common'
+import { BlockTitle, InterestTag, Label, LoadError, Tag } from '../common'
 
 type Chip = SelectionItem['chips'][number]
 
@@ -61,6 +61,15 @@ function DisclosedBlock({ d }: { d: NonNullable<CandidateCard['disclosed']> }) {
           <Label>Самоописание — заявлено кандидатом, на Score не влияет</Label>
           <p className="t-small text-ink-2 [overflow-wrap:anywhere]">{d.resume}</p>
         </div>
+      )}
+      {d.skills_passport?.verified && (
+        <p className="m-0 t-body text-ink" data-testid="skills-passport">
+          <span aria-hidden="true" className="text-brand">✓ </span>
+          {d.skills_passport.label}
+          <span className="block t-small text-ink-3">
+            {d.skills_passport.titles.join(' · ')} · {d.skills_passport.issuer}
+          </span>
+        </p>
       )}
       {d.fsp_extract && (
         <pre className="m-0 whitespace-pre-wrap rounded-panel bg-code-bg p-3 font-mono text-[12px] leading-5 text-white [overflow-wrap:anywhere]">
@@ -222,6 +231,7 @@ export function CandidatePanel({
   const tasks = card?.tasks ?? []
   const history = card?.grade_history ?? []
   const declared = card?.declared_skills ?? []
+  const workHistory = card?.work_history ?? []
   const salarySignal = item?.salary?.signal ?? card?.salary?.signal ?? (card as { salary_min?: { signal?: string } } | undefined)?.salary_min?.signal ?? null
 
   return (
@@ -274,6 +284,17 @@ export function CandidatePanel({
       ) : bankItem ? (
         <ScoreBars parts={bankItem.parts} weights={weights} defs={BANK_PARTS} />
       ) : null}
+
+      {card?.interest && (
+        <section aria-label="Сигнал интереса" className="flex flex-col gap-1.5">
+          <BlockTitle>Сигнал интереса</BlockTitle>
+          <p className="m-0 flex flex-wrap items-center gap-2 t-body text-ink">
+            <InterestTag interest={card.interest} />
+            <span>{card.interest.text}</span>
+          </p>
+          <p className="m-0 t-small text-ink-3">Это отдельный сигнал: в Score он не входит и вклады выше не меняет.</p>
+        </section>
+      )}
 
       {modules.length > 0 && (
         <section aria-label="Модули теста" className="flex flex-col gap-1.5">
@@ -334,6 +355,20 @@ export function CandidatePanel({
               </ul>
             </div>
           )}
+        </section>
+      )}
+
+      {workHistory.length > 0 && (
+        <section aria-label="Опыт работы" className="flex flex-col gap-1.5">
+          <BlockTitle>Опыт работы</BlockTitle>
+          <ul className="m-0 flex list-none flex-col gap-1 p-0">
+            {workHistory.map((w, i) => (
+              <li key={i} className="t-body text-ink">
+                {w.role} <span className="text-ink-3">· {w.duration}{w.current ? ', сейчас' : ''}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="m-0 t-small text-ink-3">Заявлено кандидатом, без названий компаний. На Score не влияет: названия откроются после взаимного «да».</p>
         </section>
       )}
 

@@ -1,3 +1,4 @@
+import type { Schemas } from '@/api/types'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
@@ -28,7 +29,7 @@ import { SkillChips } from '@/features/employer/components/SkillChips'
 import { gradeLabel } from '@/features/employer/dict'
 import { catKey, reachAt } from '@/features/employer/reach'
 import { formatInt, formatRub } from '@/lib/format'
-import { Alert, Button, Checkbox, Input, Panel, Segmented, useToast } from '@/ui'
+import { Alert, Button, Checkbox, Input, Panel, Segmented, TextArea, useToast } from '@/ui'
 
 const TEXT_MAX = 3000 // BriefParseIn.text: max_length
 
@@ -70,6 +71,11 @@ function BriefForm({ need }: { need: Need | null }) {
   const [title, setTitle] = useState(need?.title ?? '')
   const [internship, setInternship] = useState(need?.is_internship ?? false)
   const [edits, setEdits] = useState<Edits>({})
+  // E-02: «о команде» — необязательно, кандидат видит в приглашении и вакансии, в Score не входит
+  const [team, setTeam] = useState(() => {
+    const t = (need?.team ?? {}) as { size?: number; role?: string; stack_context?: string; about?: string }
+    return { size: t.size ? String(t.size) : '', role: t.role ?? '', stack_context: t.stack_context ?? '', about: t.about ?? '' }
+  })
   const [salary, setSalary] = useState<SalaryDraft>(() => ({
     from: need?.salary_from ?? null,
     to: need?.salary_to ?? null,
@@ -184,8 +190,15 @@ function BriefForm({ need }: { need: Need | null }) {
   // пока работодатель не ответил, ни один вариант не выбран: мы спрашиваем, а не угадываем
   const questionValue = question?.field === 'grade' ? (edits.grade ?? null) : question?.field === 'spec' ? (edits.spec ?? null) : null
 
-  function body(): BriefParseIn & { title?: string; is_internship: boolean } {
+  function body(): BriefParseIn & { title?: string; is_internship: boolean; team: Schemas['TeamIn'] } {
+    const sizeN = Number.parseInt(team.size, 10)
     return {
+      team: {
+        size: Number.isFinite(sizeN) && sizeN > 0 ? sizeN : null,
+        role: team.role.trim() || null,
+        stack_context: team.stack_context.trim() || null,
+        about: team.about.trim() || null,
+      },
       text: text.trim(),
       clear_city: false,
       salary_from: eff.from,
@@ -402,6 +415,47 @@ function BriefForm({ need }: { need: Need | null }) {
             onChange={(e) => setInternship(e.target.checked)}
             label="Стажировка"
             description="Кандидаты 16–17 лет видны только таким потребностям."
+          />
+        </section>
+
+        <section className="flex flex-col gap-4" aria-labelledby="team-title">
+          <BlockTitle>
+            <span id="team-title">О команде (необязательно)</span>
+          </BlockTitle>
+          <p className="m-0 t-small text-ink-3">Кандидат увидит это в приглашении и вакансии. На подбор и Score не влияет.</p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Input
+              label="Размер команды"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={500}
+              value={team.size}
+              onChange={(e) => setTeam({ ...team, size: e.target.value })}
+              placeholder="6"
+            />
+            <Input
+              label="Роль в команде"
+              value={team.role}
+              maxLength={120}
+              onChange={(e) => setTeam({ ...team, role: e.target.value })}
+              placeholder="Второй backend в платёжной команде"
+            />
+          </div>
+          <Input
+            label="Контекст стека"
+            value={team.stack_context}
+            maxLength={300}
+            onChange={(e) => setTeam({ ...team, stack_context: e.target.value })}
+            placeholder="Python, FastAPI, PostgreSQL; деплой в Kubernetes"
+          />
+          <TextArea
+            label="О команде"
+            rows={3}
+            value={team.about}
+            maxLength={1000}
+            onChange={(e) => setTeam({ ...team, about: e.target.value })}
+            placeholder="Чем занимается команда, как устроена работа"
           />
         </section>
 

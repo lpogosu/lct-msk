@@ -38,6 +38,7 @@ class ConsentPurpose(StrEnum):
     contact_disclosure = "contact_disclosure"  # передача контактов конкретной компании
     test_logging = "test_logging"  # журналирование событий теста (уход со вкладки, вставка)
     calibration = "calibration"  # обезличенные ответы для калибровки заданий (spec-testing §2.2)
+    interest_signal = "interest_signal"  # «сигнал интереса» компании (DECISIONS 24): видна только после открытия карточки
 
 
 class SearchMode(StrEnum):

@@ -22,6 +22,7 @@ from fastapi.responses import HTMLResponse
 from starlette.responses import Response
 from starlette.staticfiles import StaticFiles
 
+from app.api import credentials as credentials_api
 from app.api.router import API_PREFIX, OPENAPI_TAGS, api_router
 from app.core.clock import clock
 from app.core.errors import install_error_handlers, internal_error_response
@@ -148,6 +149,7 @@ def create_app(settings: Settings | None = None, mailer: Mailer | None = None) -
     )
     install_error_handlers(app)
     app.include_router(api_router)
+    app.include_router(credentials_api.wellknown_router)  # did:web: /.well-known/did.json
 
     # Ассеты Swagger UI и ReDoc отдаём сами: документация работает без интернета и не сообщает адрес
     # посетителя внешним CDN и сервисам шрифтов (152-ФЗ: данные посетителей не уходят третьим сторонам).

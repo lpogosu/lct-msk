@@ -96,13 +96,19 @@ def job_calibration(db: Session, settings: Settings, opts: dict[str, Any]) -> di
     drift = sum(
         1 for rep in out.report.values() for d in rep.get("drift", ()) if d.get("action") == "quarantine"
     )
-    return {
+    result: dict[str, Any] = {
         "run_id": str(out.run_id),
         "specializations": out.specializations,
         "n_responses": out.n_responses,
         "families_updated": out.families_updated,
         "quarantined": drift,
     }
+    if bool(load_config("testing")["quality"]["drift"]["nightly"]):
+        # Монитор дрейфа сложности (monitoring.estimate_drift): число семейств с флагом — в журнал аудита scheduler.calibration
+        from app.services.testing import quality
+
+        result["drift_flags"] = quality.drift_flag_count(db)
+    return result
 
 
 def job_retention(db: Session, settings: Settings, opts: dict[str, Any]) -> dict[str, Any]:
@@ -111,7 +117,15 @@ def job_retention(db: Session, settings: Settings, opts: dict[str, Any]) -> dict
     return retention_sweep(db)
 
 
+def job_task_offers(db: Session, settings: Settings, opts: dict[str, Any]) -> dict[str, Any]:
+    """#15: регулярные задания по каденции + напоминание о сроке (app/services/tasks/candidate.offer_sweep)."""
+    from app.services.tasks.candidate import offer_sweep
+
+    return offer_sweep(db, limit=int(opts["limit"]), remind_before_h=int(opts["remind_before_h"]))
+
+
 JOB_FUNCTIONS: dict[str, JobFn] = {
+    "task_offers": job_task_offers,
     "contact_sweep": job_contact_sweep,
     "calibration": job_calibration,
     "retention": job_retention,

@@ -1,3 +1,4 @@
+import { TeamBlock } from '@/features/candidate/components/TeamBlock'
 import { CompanyTrustBadge } from '@/features/trust/CompanyTrustBadge'
 import { VacancyReportSheet } from '@/features/trust/VacancyReportSheet'
 import { useState } from 'react'
@@ -43,6 +44,66 @@ export default function CandidateVacancyDetail() {
   )
 }
 
+/** «Отправить сигнал интереса (осталось 2 из 2)» — DECISIONS 24: компания узнает, только если сама откроет карточку. */
+function InterestSignal({ v }: { v: Detail }) {
+  const qc = useQueryClient()
+  const toast = useToast()
+  const [agree, setAgree] = useState(false)
+  const status = useQuery({ queryKey: ['candidate', 'interest'], queryFn: () => unwrap(api.GET('/api/interest/me')) })
+  const done = () => {
+    void qc.invalidateQueries({ queryKey: ['candidate', 'interest'] })
+    void qc.invalidateQueries({ queryKey: qk.vacancy(v.id) })
+    void qc.invalidateQueries({ queryKey: qk.consents })
+  }
+  const send = useMutation({
+    mutationFn: () => unwrap(api.POST('/api/interest', { body: { vacancy_id: v.id, consent: agree } })),
+    onSuccess: () => {
+      done()
+      toast.success('Сигнал отправлен. Компания увидит его, только если сама откроет вашу карточку.')
+    },
+  })
+  const revoke = useMutation({
+    mutationFn: (id: string) => unwrap(api.POST('/api/interest/{signal_id}/revoke', { params: { path: { signal_id: id } } })),
+    onSuccess: done,
+  })
+  const info = v.interest
+  if (!info || !status.data) return null
+  const st = status.data
+  const needConsent = !st.consent_given
+  return (
+    <section aria-label="Сигнал интереса" className="flex flex-col gap-3 rounded-panel bg-panel p-4">
+      <h3 className="t-name text-ink">Сигнал интереса</h3>
+      {info.sent ? (
+        <>
+          <p className="t-body text-ink-2">Вы отметили интерес к этой компании. Она увидит это, только если откроет вашу карточку.</p>
+          {info.signal_id && (
+            <Button variant="outline" loading={revoke.isPending} onClick={() => revoke.mutate(info.signal_id as string)}>
+              Отозвать сигнал
+            </Button>
+          )}
+        </>
+      ) : (
+        <>
+          <p className="t-body text-ink-2">{st.consent_text}</p>
+          {needConsent && (
+            <Checkbox
+              checked={agree}
+              onChange={(e) => setAgree(e.target.checked)}
+              label={<span className="t-body-strong">Согласен на сигнал интереса</span>}
+              description={`Отдельное согласие (версия текста ${st.consent_text_version}). Его можно отозвать в журнале согласий.`}
+            />
+          )}
+          {send.error ? <Alert tone="danger">{errorMessage(send.error)}</Alert> : null}
+          <Button disabled={info.remaining <= 0 || (needConsent && !agree)} loading={send.isPending} onClick={() => send.mutate()}>
+            Отправить сигнал интереса ({st.label})
+          </Button>
+          {info.remaining <= 0 && st.next_slot_in && <p className="t-small text-ink-3">Следующий сигнал — {st.next_slot_in}</p>}
+        </>
+      )}
+    </section>
+  )
+}
+
 function View({ v }: { v: Detail }) {
   const [open, setOpen] = useState(false)
   const [reportOpen, setReportOpen] = useState(false)
@@ -60,6 +121,8 @@ function View({ v }: { v: Detail }) {
           {v.company.trust && v.company.trust.level !== 'none' && <CompanyTrustBadge trust={v.company.trust} className="mt-2" />}
         </div>
       )}
+
+      <InterestSignal v={v} />
 
       <section aria-label="Вилка">
         <p className="font-mono text-[44px] font-medium leading-[52px] tracking-[-1.5px] text-brand max-[380px]:text-[36px]">{range}</p>
@@ -98,6 +161,8 @@ function View({ v }: { v: Detail }) {
           </Link>
         </Alert>
       )}
+
+      <TeamBlock team={v.team} />
 
       {check && (check.covered?.length || check.untestable?.length) ? (
         <section>

@@ -1,3 +1,4 @@
+import { TeamBlock } from '@/features/candidate/components/TeamBlock'
 import { CompanyTrustBadge } from '@/features/trust/CompanyTrustBadge'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
@@ -112,6 +113,8 @@ function InvitationView({ d, id }: { d: InvitationDetail; id: string }) {
             <p className="mt-2 whitespace-pre-line t-lead text-ink-2">{d.terms.description}</p>
             <TermsMeta d={d} />
           </section>
+
+          <TeamBlock team={d.team} />
 
           {d.why_you.length > 0 && (
             <section aria-labelledby="why-h">

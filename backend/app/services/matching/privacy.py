@@ -14,6 +14,7 @@ from __future__ import annotations
 import base64
 import hashlib
 import hmac
+import re
 import uuid
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
@@ -574,6 +575,8 @@ def candidate_profile_view(
         "salary_visibility": payload.get("salary_visibility"),
         "region": payload.get("region_code"),
     }
+    # X-01: опыт без названий компаний (роль и срок) — слепая карточка не «бедная»; заявлено кандидатом, в Score не входит
+    profile["work_history"] = work_history(prof.experience if prof is not None else None, now)
     if prof is not None:
         profile["city"] = prof.city
         for key_name, column in DISCLOSURE_FIELD_COLUMNS.items():
@@ -597,6 +600,7 @@ def candidate_profile_view(
     view["fsp_source"] = payload.get("fsp_source_label")
     if disclosure is not None:
         view["fsp_extract"] = _fsp_extract(db, candidate_id, now)
+        view["skills_passport"] = _skills_passport(db, candidate_id, now)
     if selection_item is not None:
         view["selection"] = employer_item(company_id, selection_item, alias, secret=sec)
     return view
@@ -614,6 +618,13 @@ def _offer_to_in_candidate_basis(
         return int(need.salary_to)
     ndfl = float(cfg.section("U")["ndfl_rate"])
     return int(round(need.salary_to * (1 - ndfl) if cand_net else need.salary_to / (1 - ndfl)))
+
+
+def _skills_passport(db: Session, candidate_id: uuid.UUID, now: datetime) -> dict[str, Any] | None:
+    """«Паспорт проверен ✓» (docs/CREDENTIALS.md): только факт действующего паспорта навыков, без его содержимого."""
+    from app.credentials import service
+
+    return service.passport_summary(db, candidate_id, now)
 
 
 def _fsp_extract(db: Session, candidate_id: uuid.UUID, now: datetime) -> str | None:
@@ -641,7 +652,7 @@ def card_dto(view: Mapping[str, Any]) -> dict[str, Any]:
     out = {
         k: v
         for k, v in view.items()
-        if k not in DISCLOSED_KEYS and k not in ("disclosure", "fsp_extract", "salary_min", "grade_history", "photo_url")
+        if k not in DISCLOSED_KEYS and k not in ("disclosure", "fsp_extract", "skills_passport", "salary_min", "grade_history", "photo_url")
     }
     out["salary"] = view.get("salary_min")
     out["grade_history"] = [
@@ -659,6 +670,7 @@ def card_dto(view: Mapping[str, Any]) -> dict[str, Any]:
             "fields": list(d.get("fields") or ()),
             **{k: view.get(k) for k in DISCLOSED_KEYS},
             "fsp_extract": view.get("fsp_extract"),
+            "skills_passport": view.get("skills_passport"),
         }
     return out
 
@@ -685,3 +697,54 @@ __all__ = [
     "record_view",
     "resolve_ref",
 ]
+
+
+# --------------------------------------------------------------------------- анонимный опыт (X-01)
+
+_ROLE_MAX_LEN = 80
+_MAX_PERIODS = 6
+
+
+def _months_between(start: str, end: str) -> int:
+    (ys, ms), (ye, me) = ((int(x) for x in v.split("-")) for v in (start, end))
+    return max(1, (ye - ys) * 12 + (me - ms) + 1)
+
+
+def _duration_label(months: int) -> str:
+    years, rest = divmod(months, 12)
+    parts = ([f"{years} г."] if years else []) + ([f"{rest} мес."] if rest or not years else [])
+    return " ".join(parts)
+
+
+def work_history(periods: Any, now: datetime) -> list[dict[str, Any]]:
+    """Опыт для слепой карточки: должность и срок, без названия компании. Название компании вычищается и из должности
+    («Python-разработчик, Альфа»). Источник — профиль кандидата («заявлено»); на категорию и Score не влияет (DECISIONS п. 1)."""
+    out: list[dict[str, Any]] = []
+    for p in periods or ():
+        if not isinstance(p, Mapping) or not p.get("start"):
+            continue
+        title = str(p.get("title") or "").strip()
+        company = str(p.get("company") or "").strip()
+        if company:
+            title = re.sub(re.escape(company), "", title, flags=re.IGNORECASE).strip(" ,.-—–@()«»\"")
+        if not title:
+            continue
+        end = p.get("end")
+        end_s = str(end) if end else f"{now.year:04d}-{now.month:02d}"
+        try:
+            months = _months_between(str(p["start"]), end_s)
+        except (ValueError, TypeError):
+            continue
+        out.append(
+            {
+                "role": title[:_ROLE_MAX_LEN],
+                "duration": _duration_label(months),
+                "months": months,
+                "current": not end,
+                "_sort": str(p["start"]),
+            }
+        )
+    out.sort(key=lambda x: x["_sort"], reverse=True)
+    for x in out:
+        del x["_sort"]
+    return out[:_MAX_PERIODS]

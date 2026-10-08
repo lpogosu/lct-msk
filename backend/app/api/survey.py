@@ -63,7 +63,7 @@ def current(user: Candidate, db: DbSession) -> SurveyStateOut:
 @router.put(
     "/steps/industries",
     response_model=SurveyStateOut,
-    summary="Шаг 1: отрасли",
+    summary="Шаг 1: сфера бизнеса",
     description=(
         "Отрасли интереса — только фасет для подбора, в оценку не входят. После завершённого опроса этот шаг "
         "начинает новую версию анкеты (прошлые ответы подставляются)."

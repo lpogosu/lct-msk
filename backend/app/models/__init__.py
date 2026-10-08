@@ -1,5 +1,6 @@
 """ORM-модели «Взаимно». Импорт пакета регистрирует все таблицы в Base.metadata (нужно Alembic)."""
 
+from app.credentials import models as _credentials  # noqa: F401 — паспорт навыков: в metadata, но вне __all__
 from app.models import integration as _integration  # noqa: F401 — чат и ATS: в metadata, но вне __all__
 from app.models import trust as _trust  # noqa: F401 — метка компании и жалобы: в metadata, но вне __all__
 from app.models.candidate import (
@@ -15,6 +16,7 @@ from app.models.contact import (
     ContactDisclosure,
     Cooldown,
     Feedback,
+    InterestSignal,
     Invitation,
     InvitationEvent,
     OfferTerms,
@@ -66,6 +68,7 @@ __all__ = [
     "GradeChange",
     "ImpressionLog",
     "Invitation",
+    "InterestSignal",
     "InvitationEvent",
     "ItemFamilyParams",
     "ItemInstance",

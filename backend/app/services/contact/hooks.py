@@ -28,6 +28,15 @@ from .store import Ctx, persist, revoking_in_progress, to_domain
 
 
 @on_consent_revoked
+def _on_interest_consent_revoked(db: Session, consent: Consent) -> None:
+    """Отозвали согласие на сигнал интереса → все действующие сигналы гаснут сразу (DECISIONS 24)."""
+    if consent.purpose == ConsentPurpose.interest_signal.value:
+        from .interest import revoke_all
+
+        revoke_all(db, consent.user_id)
+
+
+@on_consent_revoked
 def _on_contact_consent_revoked(db: Session, consent: Consent) -> None:
     if consent.purpose != ConsentPurpose.contact_disclosure.value or revoking_in_progress():
         return

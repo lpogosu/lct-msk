@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { api, unwrap } from '@/api/client'
@@ -20,6 +20,7 @@ import {
 import { InviteDrawer, type InviteCandidate } from '@/features/employer/components/InviteDrawer'
 import { BlockTitle, LoadError, PageHead, PageSkeleton } from '@/features/employer/components/common'
 import { ProfileGate } from '@/features/employer/components/ProfileGate'
+import { EvidenceSlot } from '@/features/employer/components/selection/EvidenceSlot'
 import { CandidatePanel } from '@/features/employer/components/selection/CandidatePanel'
 import { FilterBar } from '@/features/employer/components/selection/FilterBar'
 import { SelectionTable } from '@/features/employer/components/selection/SelectionTable'
@@ -102,19 +103,11 @@ function SelectionScreen({ need }: { need: Need }) {
   const [inviteRefs, setInviteRefs] = useState<string[] | null>(null)
   const [checkSetOpen, setCheckSetOpen] = useState(false)
   const [pinBusy, setPinBusy] = useState<string | null>(null)
-  const panelRef = useRef<HTMLDivElement>(null)
 
   const view: VersionView | undefined = sel.data
   const notBuilt = sel.error instanceof ApiException && sel.error.code === 'selection_not_built'
   const currentN = versions.data?.current ?? need.current_version
   const closed = need.status === 'closed'
-
-  // прокрутка к панели на узких экранах, где она под таблицей
-  useEffect(() => {
-    if (refId && window.matchMedia('(max-width: 1279px)').matches) {
-      panelRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })
-    }
-  }, [refId])
 
   // известные строки: страница, скрытые, шортлист
   const known = useMemo(() => {
@@ -426,9 +419,21 @@ function SelectionScreen({ need }: { need: Need }) {
               <NeedStatusControls need={need} />
             </div>
 
-            <div ref={panelRef} className="scroll-mt-6 xl:sticky xl:top-6">
-              <Panel variant="panel" radius="md" padding="lg" aria-label="Карточка кандидата">
-                {refId ? (
+            <div className="xl:sticky xl:top-6">
+              <EvidenceSlot
+                open={!!refId}
+                onClose={() => setParams({ ref: null })}
+                suspended={inviteRefs != null}
+                empty={
+                  <EmptyState
+                    size="compact"
+                    image="detector"
+                    title="Выберите кандидата"
+                    description="Нажмите на строку таблицы: откроется слепая карточка с разложением Score и доказательствами. Имя и контакты — только после «да»."
+                  />
+                }
+              >
+                {refId && (
                   <CandidatePanel
                     key={refId}
                     needId={need.id}
@@ -442,15 +447,8 @@ function SelectionScreen({ need }: { need: Need }) {
                     onInvite={() => setInviteRefs([refId])}
                     onClose={() => setParams({ ref: null })}
                   />
-                ) : (
-                  <EmptyState
-                    size="compact"
-                    image="detector"
-                    title="Выберите кандидата"
-                    description="Нажмите на строку таблицы: откроется слепая карточка с разложением Score и доказательствами. Имя и контакты — только после «да»."
-                  />
                 )}
-              </Panel>
+              </EvidenceSlot>
             </div>
           </div>
         </>

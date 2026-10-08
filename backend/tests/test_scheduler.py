@@ -23,7 +23,8 @@ def _settings(**kw) -> Settings:
 
 def test_config_defines_minute_sweep_and_nightly_jobs():
     jobs = {j.name: j for j in build_jobs()}
-    assert set(jobs) == {"contact_sweep", "calibration", "retention"}
+    assert set(jobs) == {"contact_sweep", "calibration", "retention", "task_offers"}
+    assert jobs["task_offers"].every_s == 3600
     assert jobs["contact_sweep"].every_s == 60 and jobs["contact_sweep"].at_utc is None
     assert jobs["calibration"].at_utc is not None and jobs["calibration"].every_s is None
     assert jobs["retention"].at_utc is not None and jobs["calibration"].at_utc != jobs["retention"].at_utc

@@ -65,6 +65,9 @@ export default function CandidateProfile() {
             <RowLink to="/candidate/profile/pdf" title="PDF-профиль" detail="Слепая и полная версия, QR для сверки" />
           </li>
           <li>
+            <RowLink to="/candidate/profile/passport" title="Паспорт навыков" detail="Подписанный файл с QR: категория и достижения ФСП" />
+          </li>
+          <li>
             <RowLink
               to="/candidate/fsp"
               title="ФСП ID и достижения"

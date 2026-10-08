@@ -15,10 +15,12 @@ from app.api import (
     chat,
     companies,
     consents,
+    credentials,
     demo,
     fsp,
     guardian,
     health,
+    interest,
     invitations,
     lab,
     needs,
@@ -45,6 +47,7 @@ OPENAPI_TAGS: list[dict[str, str]] = [
     {"name": "Потребности и подборка", "description": "Бриф работодателя с вилкой, категории и охват, версии подборки, шортлист, банк кандидатов."},
     {"name": "Приглашения", "description": "Приглашение с зарплатой, ответы «Да / Да, если… / Нет», раскрытие контактов по взаимному согласию."},
     {"name": "Отклики", "description": "Самостоятельный отклик кандидата на опубликованную вакансию."},
+    {"name": "Сигнал интереса", "description": "Сигнал кандидата «мне интересна эта компания»: 2 в месяц, виден работодателю только после открытия карточки, на Score не влияет."},
     {"name": "Вакансии", "description": "Опубликованные брифы и «как мы проверим» навыки вакансии."},
     {"name": "Регулярные задачи", "description": "Короткие задания от компаний и тренировочные задачи платформы."},
     {"name": "ФСП", "description": "Привязка ФСП ID (Keycloak) и достижения из реестра ФСП."},
@@ -59,13 +62,17 @@ OPENAPI_TAGS: list[dict[str, str]] = [
     {"name": "Кандидат", "description": "Профиль и резюме кандидата, стандартизированный PDF-профиль, настройки приватности и поиска."},
     {"name": "Уведомления", "description": "Уведомления внутри платформы."},
     {"name": "Проверка профиля", "description": "Публичная сверка стандартизированного PDF-профиля по QR-коду."},
+    {
+        "name": "Паспорт навыков",
+        "description": "Подписанные W3C Verifiable Credentials / Open Badges 3.0 (категория и достижения ФСП), список отзыва, публичная проверка. Издатель демонстрационный.",
+    },
     {"name": "Администрирование", "description": "Импорт данных жюри и демо-инструменты."},
 ]
 
 api_router = APIRouter(prefix=API_PREFIX)
 for module in (
     health, auth, consents, companies, candidates, survey, testing, needs, bank, invitations, applications,
-    vacancies, tasks, notifications, chat, ats, fsp, guardian, verify, lab, anticheat, demo, admin, trust,
+    vacancies, tasks, notifications, chat, ats, interest, fsp, guardian, verify, lab, anticheat, demo, admin, trust, credentials,
 ):
     api_router.include_router(module.router)
 api_router.include_router(bank.skills_router)  # GET /api/skills — справочник навыков для фильтров

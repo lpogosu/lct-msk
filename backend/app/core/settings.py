@@ -89,6 +89,12 @@ class Settings(BaseSettings):
     public_base_url: str = "http://localhost:5173"  # фронтенд; используется в ссылках из писем
     cors_origins: Annotated[list[str], NoDecode] = Field(default_factory=lambda: ["http://localhost:5173"])
 
+    # --- Цифровой паспорт навыков (docs/CREDENTIALS.md): ключ издателя Ed25519 и did:web ---
+    # Ключ не хранится в git: PEM (PKCS#8) в переменной либо путь к файлу. В dev при отсутствии генерируется в backend/var/.
+    credentials_key_pem: SecretStr | None = None
+    credentials_key_file: str | None = None
+    credentials_did_domain: str | None = None  # домен did:web; по умолчанию — хост из public_base_url
+
     # --- Секреты ---
     jwt_secret: SecretStr = SecretStr(_DEV_SECRETS["jwt_secret"])
     app_secret: SecretStr = SecretStr(_DEV_SECRETS["app_secret"])  # HMAC кодов подтверждения и т.п.

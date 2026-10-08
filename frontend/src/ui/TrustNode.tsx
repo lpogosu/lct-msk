@@ -24,7 +24,7 @@ export const NODE_DESCRIPTION: Record<NodeKind, string> = {
 }
 
 const BRAND = '#402FFF'
-const INK3 = '#7A7B82'
+const INK3 = '#686970'
 
 export interface TrustNodeProps {
   kind: NodeKind

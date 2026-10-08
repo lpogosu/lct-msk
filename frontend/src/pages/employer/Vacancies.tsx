@@ -68,14 +68,12 @@ export default function Vacancies() {
         title="Вакансии и отклики"
         lead="Опубликуйте бриф как вакансию — кандидаты по вашим категориям откликнутся сами. Отклики ранжируются тем же Score, что и подборка, контакты видны сразу."
         actions={
-          <Button onClick={() => setEditor({ vacancy: null })} disabled={freeNeeds.length === 0}>
-            Опубликовать бриф
-          </Button>
+          <Button onClick={() => setEditor({ vacancy: null })}>Создать вакансию</Button>
         }
       />
       <ProfileGate />
       {freeNeeds.length === 0 && !vacancies.isPending && (needs.data?.length ?? 0) === 0 && (
-        <p className="t-small text-ink-3">Сначала опишите потребность — её можно будет опубликовать как вакансию.</p>
+        <p className="t-small text-ink-3">Можно создать вакансию сразу, без брифа: подбор по ней заработает так же.</p>
       )}
 
       <section aria-labelledby="vac-title" className="flex flex-col gap-4">
@@ -92,11 +90,7 @@ export default function Vacancies() {
             title="Вакансий пока нет"
             description="Опубликуйте бриф как вакансию: тот же текст и вилка, отклики придут с контактами."
             action={
-              freeNeeds.length > 0 ? (
-                <Button onClick={() => setEditor({ vacancy: null })}>Опубликовать бриф</Button>
-              ) : (
-                <Button to="/employer/needs/new">Описать потребность</Button>
-              )
+              <Button onClick={() => setEditor({ vacancy: null })}>Создать вакансию</Button>
             }
           />
         ) : (

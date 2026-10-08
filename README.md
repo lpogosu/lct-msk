@@ -80,6 +80,10 @@ docker compose exec -T backend python scripts/seed_demo.py     # демо-мир
 
 Полный список с версиями и лицензиями — [THIRD_PARTY.md](docs/THIRD_PARTY.md).
 
+## Лицензия
+
+Код проекта распространяется по лицензии MIT — файл [LICENSE](LICENSE), © 2026 Команда «Два байта».
+
 ## Архитектура
 
 ```

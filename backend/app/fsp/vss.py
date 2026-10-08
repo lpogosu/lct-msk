@@ -209,17 +209,17 @@ def place_quality(
         q = (1.0 - pc.raw_score_weight) * q + pc.raw_score_weight * min(1.0, max(0.0, score / max_score))
     f_n = min(1.0, math.log(1 + n) / math.log(pc.field_size_ref))
     bonus = pc.podium_bonus.get(worst, 0.0)
-    return max(pc.q_min, min(1.0, q**pc.exponent * f_n + bonus))
+    return float(max(pc.q_min, min(1.0, q**pc.exponent * f_n + bonus)))
 
 
 def role_weight(role: ResultRole, cfg: FSPConfig | None = None) -> float:
-    return _cfg(cfg).vss.role_weights[role]
+    return float(_cfg(cfg).vss.role_weights[role])
 
 
 def freshness(end_date: date, now: date | datetime, cfg: FSPConfig | None = None) -> float:
     """T = 2^(−Δмес / полураспад)."""
     c = _cfg(cfg)
-    return 2.0 ** (-months_between(end_date, now, c) / c.vss.freshness_half_life_months)
+    return float(2.0 ** (-months_between(end_date, now, c) / c.vss.freshness_half_life_months))
 
 
 def source_weight(source: Source, cfg: FSPConfig | None = None) -> float:

@@ -230,3 +230,12 @@ def test_cusum_quarantines_family_that_suddenly_became_easy(api, bank, make_acco
     assert b["by_status"]["quarantine"] == 1
     fam = next(f for f in b["families"] if f["family_id"] == hard)
     assert fam["params"][0]["cusum"] > 6
+
+
+def test_quality_endpoint(api, bank, make_account, methodist):
+    """«Качество заданий»: только методист; дрейф и экспозиция по живым данным (пусто без ответов), DIF — синтетика."""
+    api.get("/api/lab/quality", make_account(), expect=403)
+    out = api.get("/api/lab/quality", methodist)
+    assert out["drift_threshold_b"] == 0.5 and out["drift_flagged"] == 0
+    assert out["drift"] == [] or all(r["flag"] in ("n/a", "ok", "watch", "drift") for r in out["drift"])
+    assert out["exposure"] == [] and "синтетической" in out["synthetic_note"]

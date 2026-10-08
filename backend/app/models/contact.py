@@ -196,6 +196,25 @@ class ContactDisclosure(UUIDPkMixin, Base):
     )
 
 
+class InterestSignal(UUIDPkMixin, CreatedAtMixin, Base):
+    """Сигнал интереса кандидата к компании (DECISIONS 24). Не отклик и не часть Score.
+
+    Работодатель видит его только после открытия карточки / шортлиста (DECISIONS 7); срок — expires_at,
+    отзыв — revoked_at (лимит кандидата при отзыве не возвращается: иначе слот можно «качать»).
+    """
+
+    __tablename__ = "interest_signals"
+
+    candidate_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    company_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("companies.id", ondelete="CASCADE"), index=True)
+    vacancy_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("vacancies.id", ondelete="SET NULL"))
+    consent_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("consents.id", ondelete="SET NULL"))
+    expires_at: Mapped[datetime]
+    revoked_at: Mapped[datetime | None]
+
+    __table_args__ = (Index("ix_interest_signals_company_candidate", "company_id", "candidate_id"),)
+
+
 class Application(UUIDPkMixin, TimestampMixin, Base):
     """Отклик кандидата на вакансию [доп.]: контакты видны сразу (согласие отдельное)."""
 

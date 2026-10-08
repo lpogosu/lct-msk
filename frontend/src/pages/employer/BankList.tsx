@@ -6,11 +6,12 @@ import { InviteDrawer, type InviteCandidate } from '@/features/employer/componen
 import { BankTable } from '@/features/employer/components/bank/BankTable'
 import { BlockTitle, LoadError, PageHead, PageSkeleton } from '@/features/employer/components/common'
 import { ProfileGate } from '@/features/employer/components/ProfileGate'
+import { EvidenceSlot } from '@/features/employer/components/selection/EvidenceSlot'
 import { CandidatePanel } from '@/features/employer/components/selection/CandidatePanel'
 import { GRADE_LABEL, GRADE_ORDER, INDUSTRY_LABEL, MAP_SPECS, SEARCH_MODE_LABEL, SPEC_LABEL } from '@/features/employer/dict'
 import { cn } from '@/lib/cn'
 import { formatInt } from '@/lib/format'
-import { Button, Checkbox, EmptyState, Panel, Segmented, useToast } from '@/ui'
+import { Button, Checkbox, EmptyState, Segmented, useToast } from '@/ui'
 import { Select } from '@/ui/Select'
 
 const num = (v: string | null) => {
@@ -18,7 +19,7 @@ const num = (v: string | null) => {
   return Number.isInteger(n) && n > 0 ? n : null
 }
 
-/** Р9 «Банк кандидатов»: поиск без брифа — специализация, грейд, стек, ФСП, отрасль, режим поиска; 📌 в шортлист брифа. */
+/** Р9 «Банк кандидатов»: поиск без брифа — направление, грейд, стек, ФСП, сфера бизнеса, режим поиска; 📌 в шортлист брифа. */
 export default function BankList() {
   const toast = useToast()
   const [sp, setSp] = useSearchParams()
@@ -52,6 +53,8 @@ export default function BankList() {
   const fsp = sp.get('fsp') === '1'
   const industry = sp.get('industry')
   const mode = sp.get('mode')
+  const interest = sp.get('interest') === '1'
+  const interestFirst = sp.get('ifirst') === '1'
   const page = num(sp.get('page')) ?? 1
   const hp = num(sp.get('hp')) ?? 1
   const needId = sp.get('need')
@@ -84,6 +87,8 @@ export default function BankList() {
     page,
     hiddenPage: hp,
     needId,
+    interest: interest ? true : null,
+    interestFirst,
   }
   const bank = useBank(params)
   const need = useNeed(needId ?? undefined)
@@ -95,7 +100,7 @@ export default function BankList() {
     [view, refId],
   )
 
-  const activeFilters = [spec, grade, skills.length > 0, all, fsp, industry, mode].filter(Boolean).length
+  const activeFilters = [spec, grade, skills.length > 0, all, fsp, industry, mode, interest, interestFirst].filter(Boolean).length
 
   async function togglePin(ref: string, pinned: boolean) {
     if (!needId) return
@@ -147,7 +152,7 @@ export default function BankList() {
               onChange={(v) => setParams({ grade: v || null })}
             />
           </div>
-          <Select label="Отрасль" value={industry ?? ''} onChange={(e) => setParams({ industry: e.target.value || null })} wrapperClassName="min-w-[200px]">
+          <Select label="Сфера бизнеса" value={industry ?? ''} onChange={(e) => setParams({ industry: e.target.value || null })} wrapperClassName="min-w-[200px]">
             <option value="">Любая</option>
             {Object.entries(INDUSTRY_LABEL).map(([k, v]) => (
               <option key={k} value={k}>
@@ -166,6 +171,18 @@ export default function BankList() {
         </div>
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
           <Checkbox checked={fsp} onChange={(e) => setParams({ fsp: e.target.checked ? '1' : null })} label="С ФСП" wrapperClassName="shrink-0" />
+          <Checkbox
+            checked={interest}
+            onChange={(e) => setParams({ interest: e.target.checked ? '1' : null })}
+            label="Отметили интерес"
+            wrapperClassName="shrink-0"
+          />
+          <Checkbox
+            checked={interestFirst}
+            onChange={(e) => setParams({ ifirst: e.target.checked ? '1' : null })}
+            label="Сначала отметившие интерес"
+            wrapperClassName="shrink-0"
+          />
           <Checkbox
             checked={all}
             onChange={(e) => setParams({ all: e.target.checked ? '1' : null })}
@@ -317,8 +334,20 @@ export default function BankList() {
           </div>
 
           <div className="xl:sticky xl:top-6">
-            <Panel variant="panel" radius="md" padding="lg" aria-label="Карточка кандидата">
-              {refId ? (
+            <EvidenceSlot
+              open={!!refId}
+              onClose={() => setParams({ ref: null, page: String(page) })}
+              suspended={invite != null}
+              empty={
+                <EmptyState
+                  size="compact"
+                  image="detector"
+                  title="Выберите кандидата"
+                  description="Нажмите на строку: откроется слепая карточка. Имя и контакты — только после «да»."
+                />
+              }
+            >
+              {refId && (
                 <CandidatePanel
                   key={refId}
                   needId={null}
@@ -339,15 +368,8 @@ export default function BankList() {
                   onInvite={() => setInvite(refId)}
                   onClose={() => setParams({ ref: null, page: String(page) })}
                 />
-              ) : (
-                <EmptyState
-                  size="compact"
-                  image="detector"
-                  title="Выберите кандидата"
-                  description="Нажмите на строку: откроется слепая карточка. Имя и контакты — только после «да»."
-                />
               )}
-            </Panel>
+            </EvidenceSlot>
           </div>
         </div>
       ) : null}

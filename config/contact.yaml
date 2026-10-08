@@ -193,6 +193,22 @@ quotas:
     - proton.me
     - protonmail.com
 
+# --- Сигнал интереса кандидата (DECISIONS 24; Coles–Kushnir–Niederle, NBER w16185) -----------------
+# Не отклик и не часть Score: работодатель видит бейдж, только если сам открыл карточку или закрепил
+# кандидата в шортлисте (DECISIONS 7) — слепая подборка и антиспам сохраняются. Числа обоснованы
+# симуляцией рынка (docs/MATCHING.md → «Симуляция рынка»; eval/market_sim.py).
+interest:
+  per_window: 2          # сигналов на кандидата за окно; отзыв сигнала лимит не возвращает
+  window_days: 30
+  lifetime_days: 60      # сколько сигнал виден работодателю
+  consent_text_version: interest-consent-v1
+  badge: Кандидат отметил интерес к вашей компании
+  badge_short: Взаимный интерес
+  badge_hint: Кандидат отметил интерес до вашего приглашения. На Score это не влияет.
+  consent_text: >-
+    Компания узнает, что вам интересна, только если сама откроет вашу слепую карточку или добавит вас в
+    шортлист. Имя и контакты не передаются. Сигнал виден 60 дней, его можно отозвать.
+
 # --- Лимит кандидата ----------------------------------------------------------------------------
 candidate_limits:
   weekly_options: [3, 5, 10, null]   # null = без ограничения
@@ -355,6 +371,7 @@ visibility:
     tasks:            { blind: show,          disclosed: show }
     freshness:        { blind: show,          disclosed: show }
     industries:       { blind: show,          disclosed: show }
+    work_history:     { blind: show,          disclosed: show }   # X-01: роль и срок без названия компании
     formats:          { blind: show,          disclosed: show }
     search_mode:      { blind: show,          disclosed: show }
     has_fsp:          { blind: show,          disclosed: show }

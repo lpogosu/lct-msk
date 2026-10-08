@@ -365,6 +365,9 @@ export interface BankParams {
   page?: number
   hiddenPage?: number
   needId?: string | null
+  /** Только отметившие интерес (видны лишь по открытым карточкам) */
+  interest?: boolean | null
+  interestFirst?: boolean
 }
 
 type Grade = 'intern' | 'junior' | 'middle' | 'senior'
@@ -382,6 +385,8 @@ export function bankQuery(p: BankParams) {
     page: p.page,
     hidden_page: p.hiddenPage,
     need_id: p.needId || undefined,
+    interest: p.interest ?? undefined,
+    interest_first: p.interestFirst || undefined,
   }
 }
 

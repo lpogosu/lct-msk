@@ -25,7 +25,7 @@ COMPOSE ?= docker compose
 USERS   ?= 50
 RUNTIME ?= 3m
 
-.PHONY: help up up-infra down ps logs demo creds reset-demo-stack migrate gen-pool seed reset-demo demo-accounts test lint validate jury-check dev loadtest-accounts loadtest docs-pdf
+.PHONY: help up up-infra down ps logs demo creds reset-demo-stack migrate gen-pool seed reset-demo demo-accounts test lint typecheck e2e validate jury-check dev loadtest-accounts loadtest docs-pdf
 
 help:
 	@echo "make up | demo | creds | ps | logs | down | up-infra | migrate | gen-pool | seed | reset-demo | test | lint | validate | dev | loadtest-accounts | loadtest"
@@ -92,6 +92,15 @@ test:
 
 lint:
 	$(UV) ruff check .
+
+# Статическая типизация бэкенда (mypy; строгий режим на ядрах app/testing и app/matching, см. [tool.mypy] в backend/pyproject.toml)
+typecheck:
+	$(UV) python scripts/typecheck_strict.py
+
+# Сквозные смоук-тесты Playwright (frontend/e2e): поднимают бэкенд (DEMO_MODE, :8128) и Vite (:5185) сами.
+# Нужна БД с демо-миром: make up-infra migrate gen-pool seed. Подробности — docs/ENGINEERING.md
+e2e:
+	cd frontend/e2e && npm ci --no-audit --no-fund && npx playwright install chromium && node run.mjs
 
 # Валидация решения (симуляция + подбор): docs/VALIDATION.md и backend/eval/out/validation.json
 validate:

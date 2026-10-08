@@ -206,3 +206,24 @@ def test_contract_for_invitations(db_session, pool, two_employers, client):
     snap = score_snapshot(db_session, uuid.UUID(nid), pool["boris"])
     assert snap and snap["rank"] >= 1 and snap["why_you"] and "candidate_id" not in snap
     assert score_snapshot(db_session, uuid.UUID(nid), pool["hidden_mode"]) is None
+
+
+def test_blind_card_has_anonymized_work_history_without_company_names():
+    """X-01: слепая карточка показывает роль и срок опыта, но не названия компаний; резюме не попадает в Score."""
+    from datetime import UTC, datetime
+
+    from app.contact.visibility import blind_view
+    from app.services.matching.privacy import work_history
+
+    now = datetime(2026, 10, 8, tzinfo=UTC)
+    exp = [
+        {"start": "2022-01", "end": "2024-03", "title": "Python-разработчик, ООО Альфа-Банк", "company": "ООО Альфа-Банк"},
+        {"start": "2024-04", "end": None, "title": "Backend (Альфа)", "company": "Альфа"},
+        {"start": "2020-01", "end": "2021-12", "title": "", "company": "Секретная Компания"},  # без роли — не показываем
+    ]
+    wh = work_history(exp, now)
+    assert [w["role"] for w in wh] == ["Backend", "Python-разработчик"]
+    assert wh[0]["current"] is True and wh[1]["duration"] == "2 г. 3 мес."
+    assert "Альфа" not in str(wh) and "Секретная" not in str(wh)
+    view = blind_view({"candidate_id": "x", "work_history": wh, "company": "Альфа"}, pseudonym="К-1")
+    assert view["work_history"] == wh and "company" not in view

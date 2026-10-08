@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ApiException, errorMessage } from '@/api/errors'
+import { PoolWarmup } from '@/features/candidate/components/PoolWarmup'
 import { enterJuryPersona, startJuryTest, useJuryPaths, type JuryMode } from '@/features/demo/api'
 import { Alert, Button, EmptyState, Panel, Segmented, Skeleton } from '@/ui'
 import { Select } from '@/ui/Select'
@@ -93,6 +94,8 @@ export default function JuryEntry() {
       </header>
 
       {error && <Alert tone="danger">{error}</Alert>}
+
+      <PoolWarmup />
 
       <section aria-labelledby="take" className="flex flex-col gap-4">
         <h2 id="take" className="t-title text-brand">

@@ -15,6 +15,7 @@ const publicRoutes: RouteObject = {
   children: [
     { index: true, element: <Landing />, handle: { title: 'Главная' } },
     // Публичная сверка стандартизированного PDF-профиля по QR (ссылки /v/{code} печатает бэкенд)
+    { path: 'v', lazy: async () => ({ Component: (await import('@/pages/Verify')).default }), handle: { title: 'Проверка документа' } },
     { path: 'v/:code', lazy: async () => ({ Component: (await import('@/pages/Verify')).default }), handle: { title: 'Сверка профиля' } },
     // Подтверждение согласия законного представителя по ссылке из письма (backend/app/mail/templates.py: guardian_confirm_link)
     {
@@ -39,6 +40,19 @@ const publicRoutes: RouteObject = {
 
 // Экраны входа. Адреса /verify-email и /reset-password зашиты в ссылки из писем бэкенда
 // (backend/app/mail/templates.py: ?email=…&code=…) — не переименовывать без правки бэкенда.
+// Возврат из ФСП ID (адрес зашит в backend/app/api/fsp.py: FRONTEND_CALLBACK_PATH). Без RedirectIfAuthed: страница
+// сама различает вход (нет сессии) и привязку (есть сессия) и сама ведёт дальше.
+const fspCallbackRoute: RouteObject = {
+  element: <AuthLayout />,
+  children: [
+    {
+      path: 'candidate/fsp/callback',
+      lazy: async () => ({ Component: (await import('@/pages/candidate/FspCallback')).default }),
+      handle: { title: 'Вход через ФСП ID' },
+    },
+  ],
+}
+
 const authRoutes: RouteObject = {
   element: (
     <RedirectIfAuthed>
@@ -90,10 +104,10 @@ const candidateRoutes: RouteObject = {
     { path: 'invitations/:id', lazy: candidatePage(() => import('@/pages/candidate/Invitation')), handle: { title: 'Приглашение', hideNav: true } },
     { path: 'profile', lazy: candidatePage(() => import('@/pages/candidate/Profile')), handle: { title: 'Профиль' } },
     { path: 'profile/edit', lazy: candidatePage(() => import('@/pages/candidate/ProfileEdit')), handle: { title: 'Профиль и резюме' } },
+    { path: 'profile/passport', lazy: candidatePage(() => import('@/pages/candidate/Passport')), handle: { title: 'Паспорт навыков' } },
     { path: 'profile/pdf', lazy: candidatePage(() => import('@/pages/candidate/ProfilePdf')), handle: { title: 'PDF-профиль' } },
     { path: 'qualification', lazy: candidatePage(() => import('@/pages/candidate/MyGrade')), handle: { title: 'Мой грейд' } },
     { path: 'fsp', lazy: candidatePage(() => import('@/pages/candidate/Fsp')), handle: { title: 'ФСП' } },
-    { path: 'fsp/callback', lazy: candidatePage(() => import('@/pages/candidate/FspCallback')), handle: { title: 'Привязка ФСП ID', hideNav: true } },
     { path: 'vacancies', lazy: candidatePage(() => import('@/pages/candidate/Vacancies')), handle: { title: 'Вакансии и отклики' } },
     { path: 'vacancies/:id', lazy: candidatePage(() => import('@/pages/candidate/VacancyDetail')), handle: { title: 'Вакансия' } },
     { path: 'tasks', lazy: candidatePage(() => import('@/pages/candidate/Tasks')), handle: { title: 'Задачи' } },
@@ -183,6 +197,7 @@ const labRoutes: RouteObject = {
     { path: 'sessions/:id', lazy: labPage(() => import('@/pages/lab/SessionTrace')), handle: { title: 'Трасса сессии' } },
     { path: 'bank', lazy: labPage(() => import('@/pages/lab/Bank')), handle: { title: 'Банк заданий' } },
     { path: 'bank/:familyId', lazy: labPage(() => import('@/pages/lab/Clones')), handle: { title: '3 клона рядом' } },
+    { path: 'quality', lazy: labPage(() => import('@/pages/lab/Quality')), handle: { title: 'Качество заданий' } },
     { path: 'reconciliations', lazy: labPage(() => import('@/pages/lab/Reconciliations')), handle: { title: 'Сверки' } },
     { path: 'reconciliations/:id', lazy: labPage(() => import('@/pages/lab/ReconciliationAct')), handle: { title: 'Акт сверки' } },
     { path: 'validation', lazy: labPage(() => import('@/pages/lab/Validation')), handle: { title: 'Валидация' } },
@@ -199,6 +214,7 @@ export const router = createBrowserRouter([
     children: [
       publicRoutes,
       authRoutes,
+      fspCallbackRoute,
       candidateRoutes,
       employerRoutes,
       labRoutes,

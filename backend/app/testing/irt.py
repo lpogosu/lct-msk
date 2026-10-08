@@ -178,18 +178,21 @@ class ItemParams:
 
 def _sigmoid(z: np.ndarray | float) -> np.ndarray | float:
     z = np.clip(z, -35.0, 35.0)
-    return 1.0 / (1.0 + np.exp(-z))
+    out: np.ndarray | float = 1.0 / (1.0 + np.exp(-z))
+    return out
 
 
 def prob(theta: np.ndarray | float, item: ItemParams) -> np.ndarray | float:
     """P = c + (1 − c)·σ(A_eff·(θ − b))."""
-    return item.c + (1.0 - item.c) * _sigmoid(item.a * (np.asarray(theta, dtype=float) - item.b))
+    out: np.ndarray | float = item.c + (1.0 - item.c) * _sigmoid(item.a * (np.asarray(theta, dtype=float) - item.b))
+    return out
 
 
 def information(theta: np.ndarray | float, item: ItemParams) -> np.ndarray | float:
     """I = A_eff² · ((P − c)/(1 − c))² · (1 − P)/P (§3.1)."""
     p = np.clip(prob(theta, item), _EPS, 1 - _EPS)
-    return item.a**2 * ((p - item.c) / (1.0 - item.c)) ** 2 * (1.0 - p) / p
+    out: np.ndarray | float = item.a**2 * ((p - item.c) / (1.0 - item.c)) ** 2 * (1.0 - p) / p
+    return out
 
 
 def info_at(t: float, item: ItemParams) -> float:
@@ -199,7 +202,8 @@ def info_at(t: float, item: ItemParams) -> float:
 
 def loglik(theta: np.ndarray, item: ItemParams, x: int | bool) -> np.ndarray:
     p = np.clip(prob(theta, item), _EPS, 1 - _EPS)
-    return np.log(p) if x else np.log1p(-p)
+    out: np.ndarray = np.log(p) if x else np.log1p(-p)
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -269,7 +273,8 @@ class Posterior:
     @property
     def weights(self) -> np.ndarray:
         w = np.exp(self.logw - self.logw.max())
-        return w / w.sum()
+        out: np.ndarray = w / w.sum()
+        return out
 
     @property
     def mean(self) -> float:

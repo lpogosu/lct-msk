@@ -476,6 +476,7 @@ class InvitationCandidateDetail(BaseModel):
     terms: TermsOut
     terms_history: list[TermsOut]
     why_you: list[str]
+    team: dict[str, Any] | None = Field(default=None, description="О команде из брифа (E-02); в Score не входит")
     salary_vs_min: str | None = None
     counter: CounterOut | None = None
     counter_limits: CounterLimitsOut | None = None
@@ -554,7 +555,16 @@ class GrantConsentIn(_In):
 
 
 class VacancyCreateIn(_In):
-    need_id: uuid.UUID = Field(description="Бриф, который публикуется как вакансия")
+    need_id: uuid.UUID | None = Field(
+        default=None,
+        description="Бриф, который публикуется как вакансия. Без него — прямая вакансия (X-04): нужны title, "
+        "specialization, grade и вилка; бриф создаётся автоматически",
+    )
+    specialization: str | None = Field(default=None, max_length=32, description="Направление (код), для вакансии без брифа")
+    grade: Literal["intern", "junior", "middle", "senior"] | None = Field(default=None, description="Грейд, для вакансии без брифа")
+    must: list[str] | None = Field(default=None, max_length=5, description="Обязательные навыки (id справочника)")
+    nice: list[str] | None = Field(default=None, max_length=30, description="Желательные навыки (id справочника)")
+    team: dict[str, Any] | None = Field(default=None, description="О команде: size, role, stack_context, about (E-02)")
     title: str | None = Field(default=None, max_length=200)
     description: str | None = Field(default=None, max_length=10000)
     salary_from: int | None = Field(default=None, ge=0)
@@ -611,18 +621,63 @@ class VacancyCandidateItem(VacancyOut):
     application_id: uuid.UUID | None = None
 
 
+class InterestActiveOut(BaseModel):
+    id: uuid.UUID
+    company_id: uuid.UUID
+    company_name: str | None = None
+    vacancy_id: uuid.UUID | None = None
+    sent: str | None = Field(default=None, description="Когда отправлен (относительно)")
+    expires: str | None = Field(default=None, description="Когда истечёт (относительно)")
+
+
+class InterestStatusOut(BaseModel):
+    limit: int = Field(description="Сигналов за окно (config/contact.yaml → interest.per_window)")
+    remaining: int
+    window_days: int
+    lifetime_days: int
+    label: str = Field(description="«осталось 2 из 2»")
+    next_slot_in: str | None = Field(default=None, description="Когда освободится слот (если сигналов нет)")
+    consent_text: str
+    consent_text_version: str
+    consent_given: bool
+    active: list[InterestActiveOut]
+
+
+class InterestIn(_In):
+    vacancy_id: uuid.UUID | None = None
+    company_id: uuid.UUID | None = None
+    consent: bool = Field(default=False, description="Отдельная галочка согласия (нужна, если ещё не давали)")
+
+
+class InterestSentOut(BaseModel):
+    signal: InterestActiveOut
+    status: InterestStatusOut
+
+
+class VacancyInterestOut(BaseModel):
+    """Блок «Отправить сигнал интереса» в карточке вакансии."""
+
+    sent: bool = Field(description="Сигнал этой компании уже действует")
+    signal_id: uuid.UUID | None = None
+    remaining: int
+    limit: int
+    label: str
+
+
 class VacancyCandidateDetail(VacancyOut):
     company: CompanyCardOut | None = None
     score: float | None = None
     parts: dict[str, float] | None = None
     category: str | None = None
     how_we_check: dict[str, Any] | None = None
+    team: dict[str, Any] | None = Field(default=None, description="О команде (E-02): size, role, stack_context, about")
     application_status: str | None = None
     application_id: uuid.UUID | None = None
     consent: dict[str, Any]
     response_days: int
     reported: bool = Field(default=False, description="Вы уже пожаловались на эту вакансию")
     complaint_reasons: dict[str, str] = Field(default_factory=dict, description="Причины жалобы: код → подпись")
+    interest: VacancyInterestOut | None = Field(default=None, description="Сигнал интереса к компании (DECISIONS 24)")
 
 
 # --- отклики --------------------------------------------------------------------------------

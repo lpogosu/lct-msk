@@ -16,12 +16,14 @@ export default defineConfig({
     strictPort: true, // CORS на бэкенде разрешает только http://localhost:5173
     proxy: {
       '/api': { target: API_TARGET, changeOrigin: false },
+      '/.well-known/did.json': { target: API_TARGET, changeOrigin: false }, // did:web издателя паспортов навыков
     },
   },
   preview: {
     port: 4173,
     proxy: {
       '/api': { target: API_TARGET, changeOrigin: false },
+      '/.well-known/did.json': { target: API_TARGET, changeOrigin: false }, // did:web издателя паспортов навыков
     },
   },
 })

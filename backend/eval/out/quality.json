@@ -1,0 +1,1126 @@
+{
+ "meta": {
+  "seed": 20261005,
+  "quick": false,
+  "synthetic": true,
+  "durations_s": {
+   "dif": 97.9,
+   "drift": 140.5,
+   "exposure": 109.9
+  }
+ },
+ "dif": {
+  "n_sessions": 4000,
+  "n_candidates": 4000,
+  "class_note": "A: |Δ| < 1 или незначимо; B: промежуточно; C: |Δ| ≥ 1,5 и значимо больше 1 (ETS)",
+  "planted": [
+   {
+    "group": "region",
+    "family_id": "py.format.spec",
+    "shift": 0.3,
+    "dif_class": "B",
+    "delta": -1.332,
+    "se_delta": 0.353,
+    "n_focal": 1034,
+    "p_ref": 0.645,
+    "p_focal": 0.539
+   },
+   {
+    "group": "region",
+    "family_id": "py.defaults.mutable",
+    "shift": 0.6,
+    "dif_class": "C",
+    "delta": -1.594,
+    "se_delta": 0.36,
+    "n_focal": 1085,
+    "p_ref": 0.468,
+    "p_focal": 0.35
+   },
+   {
+    "group": "region",
+    "family_id": "http.idempotency.retry_cart",
+    "shift": 1.0,
+    "dif_class": "C",
+    "delta": -3.563,
+    "se_delta": 0.375,
+    "n_focal": 985,
+    "p_ref": 0.511,
+    "p_focal": 0.278
+   },
+   {
+    "group": "fsp",
+    "family_id": "sql.group.having",
+    "shift": 0.6,
+    "dif_class": "C",
+    "delta": -2.343,
+    "se_delta": 0.368,
+    "n_focal": 849,
+    "p_ref": 0.626,
+    "p_focal": 0.465
+   }
+  ],
+  "real_by_group": {
+   "fsp": {
+    "A": 77,
+    "B": 4,
+    "C": 0,
+    "n/a": 2,
+    "tested": 81
+   },
+   "region": {
+    "A": 77,
+    "B": 2,
+    "C": 0,
+    "n/a": 2,
+    "tested": 79
+   },
+   "a11y": {
+    "A": 74,
+    "B": 0,
+    "C": 0,
+    "n/a": 10,
+    "tested": 74
+   },
+   "express": {
+    "A": 82,
+    "B": 0,
+    "C": 0,
+    "n/a": 2,
+    "tested": 82
+   }
+  },
+  "real_total": {
+   "A": 310,
+   "B": 6,
+   "C": 0,
+   "n/a": 16,
+   "tested": 316
+  },
+  "real_share_A": 0.981,
+  "real_flagged": [
+   {
+    "n_ref": 238,
+    "n_focal": 453,
+    "n_strata": 10,
+    "alpha": 1.778,
+    "delta": -1.352,
+    "se_delta": 0.487,
+    "chi2": 7.28,
+    "dif_class": "B",
+    "direction": "тяжелее для фокальной группы",
+    "spec": "frontend_js",
+    "group": "fsp",
+    "family_id": "http.cache.revalidation",
+    "p_ref": 0.605,
+    "p_focal": 0.488,
+    "planted_shift": null
+   },
+   {
+    "n_ref": 217,
+    "n_focal": 348,
+    "n_strata": 10,
+    "alpha": 0.566,
+    "delta": 1.339,
+    "se_delta": 0.626,
+    "chi2": 4.1,
+    "dif_class": "B",
+    "direction": "легче для фокальной группы",
+    "spec": "frontend_js",
+    "group": "fsp",
+    "family_id": "http.pagination.offset_math",
+    "p_ref": 0.779,
+    "p_focal": 0.825,
+    "planted_shift": null
+   },
+   {
+    "n_ref": 297,
+    "n_focal": 752,
+    "n_strata": 11,
+    "alpha": 0.578,
+    "delta": 1.288,
+    "se_delta": 0.478,
+    "chi2": 6.77,
+    "dif_class": "B",
+    "direction": "легче для фокальной группы",
+    "spec": "backend_python",
+    "group": "region",
+    "family_id": "sql.order.limit_offset",
+    "p_ref": 0.751,
+    "p_focal": 0.814,
+    "planted_shift": null
+   },
+   {
+    "n_ref": 232,
+    "n_focal": 596,
+    "n_strata": 11,
+    "alpha": 0.63,
+    "delta": 1.087,
+    "se_delta": 0.466,
+    "chi2": 5.04,
+    "dif_class": "B",
+    "direction": "легче для фокальной группы",
+    "spec": "frontend_js",
+    "group": "region",
+    "family_id": "js.prototype_chain",
+    "p_ref": 0.323,
+    "p_focal": 0.409,
+    "planted_shift": null
+   },
+   {
+    "n_ref": 350,
+    "n_focal": 621,
+    "n_strata": 10,
+    "alpha": 1.587,
+    "delta": -1.086,
+    "se_delta": 0.452,
+    "chi2": 5.25,
+    "dif_class": "B",
+    "direction": "тяжелее для фокальной группы",
+    "spec": "frontend_js",
+    "group": "fsp",
+    "family_id": "js.closure_loop",
+    "p_ref": 0.731,
+    "p_focal": 0.668,
+    "planted_shift": null
+   },
+   {
+    "n_ref": 271,
+    "n_focal": 506,
+    "n_strata": 10,
+    "alpha": 1.561,
+    "delta": -1.047,
+    "se_delta": 0.457,
+    "chi2": 4.79,
+    "dif_class": "B",
+    "direction": "тяжелее для фокальной группы",
+    "spec": "frontend_js",
+    "group": "fsp",
+    "family_id": "algo.sort.stability",
+    "p_ref": 0.539,
+    "p_focal": 0.52,
+    "planted_shift": null
+   }
+  ],
+  "impact": {
+   "fsp": {
+    "mean_theta_focal": -0.033,
+    "mean_theta_ref": -0.044,
+    "n_focal": 2578,
+    "n_ref": 1422
+   },
+   "region": {
+    "mean_theta_focal": -0.014,
+    "mean_theta_ref": -0.093,
+    "n_focal": 2827,
+    "n_ref": 1173
+   },
+   "a11y": {
+    "mean_theta_focal": -0.008,
+    "mean_theta_ref": -0.04,
+    "n_focal": 360,
+    "n_ref": 3640
+   },
+   "express": {
+    "mean_theta_focal": -0.116,
+    "mean_theta_ref": -0.011,
+    "n_focal": 990,
+    "n_ref": 3010
+   }
+  },
+  "rows": [
+   {
+    "n_ref": 463,
+    "n_focal": 849,
+    "n_strata": 11,
+    "alpha": 2.71,
+    "delta": -2.343,
+    "se_delta": 0.368,
+    "chi2": 40.39,
+    "dif_class": "C",
+    "direction": "тяжелее для фокальной группы",
+    "spec": "backend_python",
+    "group": "fsp",
+    "family_id": "sql.group.having",
+    "p_ref": 0.626,
+    "p_focal": 0.465,
+    "planted_shift": 0.6
+   },
+   {
+    "n_ref": 419,
+    "n_focal": 985,
+    "n_strata": 10,
+    "alpha": 4.555,
+    "delta": -3.563,
+    "se_delta": 0.375,
+    "chi2": 96.95,
+    "dif_class": "C",
+    "direction": "тяжелее для фокальной группы",
+    "spec": "backend_python",
+    "group": "region",
+    "family_id": "http.idempotency.retry_cart",
+    "p_ref": 0.511,
+    "p_focal": 0.278,
+    "planted_shift": 1.0
+   },
+   {
+    "n_ref": 421,
+    "n_focal": 1085,
+    "n_strata": 10,
+    "alpha": 1.97,
+    "delta": -1.594,
+    "se_delta": 0.36,
+    "chi2": 19.31,
+    "dif_class": "C",
+    "direction": "тяжелее для фокальной группы",
+    "spec": "backend_python",
+    "group": "region",
+    "family_id": "py.defaults.mutable",
+    "p_ref": 0.468,
+    "p_focal": 0.35,
+    "planted_shift": 0.6
+   },
+   {
+    "n_ref": 431,
+    "n_focal": 1034,
+    "n_strata": 10,
+    "alpha": 1.763,
+    "delta": -1.332,
+    "se_delta": 0.353,
+    "chi2": 13.75,
+    "dif_class": "B",
+    "direction": "тяжелее для фокальной группы",
+    "spec": "backend_python",
+    "group": "region",
+    "family_id": "py.format.spec",
+    "p_ref": 0.645,
+    "p_focal": 0.539,
+    "planted_shift": 0.3
+   },
+   {
+    "n_ref": 297,
+    "n_focal": 752,
+    "n_strata": 11,
+    "alpha": 0.578,
+    "delta": 1.288,
+    "se_delta": 0.478,
+    "chi2": 6.77,
+    "dif_class": "B",
+    "direction": "легче для фокальной группы",
+    "spec": "backend_python",
+    "group": "region",
+    "family_id": "sql.order.limit_offset",
+    "p_ref": 0.751,
+    "p_focal": 0.814,
+    "planted_shift": null
+   },
+   {
+    "n_ref": 271,
+    "n_focal": 506,
+    "n_strata": 10,
+    "alpha": 1.561,
+    "delta": -1.047,
+    "se_delta": 0.457,
+    "chi2": 4.79,
+    "dif_class": "B",
+    "direction": "тяжелее для фокальной группы",
+    "spec": "frontend_js",
+    "group": "fsp",
+    "family_id": "algo.sort.stability",
+    "p_ref": 0.539,
+    "p_focal": 0.52,
+    "planted_shift": null
+   },
+   {
+    "n_ref": 238,
+    "n_focal": 453,
+    "n_strata": 10,
+    "alpha": 1.778,
+    "delta": -1.352,
+    "se_delta": 0.487,
+    "chi2": 7.28,
+    "dif_class": "B",
+    "direction": "тяжелее для фокальной группы",
+    "spec": "frontend_js",
+    "group": "fsp",
+    "family_id": "http.cache.revalidation",
+    "p_ref": 0.605,
+    "p_focal": 0.488,
+    "planted_shift": null
+   },
+   {
+    "n_ref": 217,
+    "n_focal": 348,
+    "n_strata": 10,
+    "alpha": 0.566,
+    "delta": 1.339,
+    "se_delta": 0.626,
+    "chi2": 4.1,
+    "dif_class": "B",
+    "direction": "легче для фокальной группы",
+    "spec": "frontend_js",
+    "group": "fsp",
+    "family_id": "http.pagination.offset_math",
+    "p_ref": 0.779,
+    "p_focal": 0.825,
+    "planted_shift": null
+   },
+   {
+    "n_ref": 350,
+    "n_focal": 621,
+    "n_strata": 10,
+    "alpha": 1.587,
+    "delta": -1.086,
+    "se_delta": 0.452,
+    "chi2": 5.25,
+    "dif_class": "B",
+    "direction": "тяжелее для фокальной группы",
+    "spec": "frontend_js",
+    "group": "fsp",
+    "family_id": "js.closure_loop",
+    "p_ref": 0.731,
+    "p_focal": 0.668,
+    "planted_shift": null
+   },
+   {
+    "n_ref": 232,
+    "n_focal": 596,
+    "n_strata": 11,
+    "alpha": 0.63,
+    "delta": 1.087,
+    "se_delta": 0.466,
+    "chi2": 5.04,
+    "dif_class": "B",
+    "direction": "легче для фокальной группы",
+    "spec": "frontend_js",
+    "group": "region",
+    "family_id": "js.prototype_chain",
+    "p_ref": 0.323,
+    "p_focal": 0.409,
+    "planted_shift": null
+   }
+  ]
+ },
+ "drift": {
+  "spec": "backend_python",
+  "n_sessions": 1912,
+  "leak": {
+   "shift_b": -1.5,
+   "share_knowers": 0.8,
+   "leaked_families": [
+    "py.defaults.mutable",
+    "py.format.spec",
+    "http.idempotency.retry_cart",
+    "py.exceptions.finally",
+    "sql.group.having",
+    "sql.aggregate.null",
+    "http.ratelimit.token_bucket",
+    "sql.window.dense_rank",
+    "py.generators.lazy",
+    "py.sorting.key",
+    "git.workflow.order",
+    "algo.sort.stability"
+   ]
+  },
+  "threshold_b": 0.5,
+  "min_n": 40,
+  "recall": 1.0,
+  "detected": [
+   "algo.sort.stability",
+   "git.workflow.order",
+   "http.idempotency.retry_cart",
+   "http.ratelimit.token_bucket",
+   "py.defaults.mutable",
+   "py.exceptions.finally",
+   "py.format.spec",
+   "py.generators.lazy",
+   "py.sorting.key",
+   "sql.aggregate.null",
+   "sql.group.having",
+   "sql.window.dense_rank"
+  ],
+  "false_flags_in_leak_run": [],
+  "specificity_leak_run": 1.0,
+  "control_false_flags": [
+   "algo.two_pointers.bug"
+  ],
+  "control_tested": 44,
+  "mean_d_b_leaked": -0.706,
+  "expected_d_b_leaked": -1.2,
+  "rows_leak_run": [
+   {
+    "family_id": "algo.sort.stability",
+    "n": 864,
+    "observed_p": 0.779,
+    "expected_p": 0.589,
+    "d_b": -0.958,
+    "se": 0.072,
+    "ci_lo": -1.1,
+    "ci_hi": -0.816,
+    "flag": "drift"
+   },
+   {
+    "family_id": "git.workflow.order",
+    "n": 874,
+    "observed_p": 0.833,
+    "expected_p": 0.741,
+    "d_b": -0.585,
+    "se": 0.079,
+    "ci_lo": -0.74,
+    "ci_hi": -0.43,
+    "flag": "drift"
+   },
+   {
+    "family_id": "http.idempotency.retry_cart",
+    "n": 1134,
+    "observed_p": 0.75,
+    "expected_p": 0.589,
+    "d_b": -0.785,
+    "se": 0.061,
+    "ci_lo": -0.904,
+    "ci_hi": -0.666,
+    "flag": "drift"
+   },
+   {
+    "family_id": "http.ratelimit.token_bucket",
+    "n": 1046,
+    "observed_p": 0.556,
+    "expected_p": 0.345,
+    "d_b": -0.868,
+    "se": 0.054,
+    "ci_lo": -0.975,
+    "ci_hi": -0.761,
+    "flag": "drift"
+   },
+   {
+    "family_id": "py.defaults.mutable",
+    "n": 1181,
+    "observed_p": 0.73,
+    "expected_p": 0.588,
+    "d_b": -0.655,
+    "se": 0.057,
+    "ci_lo": -0.767,
+    "ci_hi": -0.543,
+    "flag": "drift"
+   },
+   {
+    "family_id": "py.exceptions.finally",
+    "n": 1079,
+    "observed_p": 0.76,
+    "expected_p": 0.606,
+    "d_b": -0.732,
+    "se": 0.062,
+    "ci_lo": -0.853,
+    "ci_hi": -0.61,
+    "flag": "drift"
+   },
+   {
+    "family_id": "py.format.spec",
+    "n": 1134,
+    "observed_p": 0.795,
+    "expected_p": 0.698,
+    "d_b": -0.526,
+    "se": 0.064,
+    "ci_lo": -0.651,
+    "ci_hi": -0.402,
+    "flag": "drift"
+   },
+   {
+    "family_id": "py.generators.lazy",
+    "n": 1048,
+    "observed_p": 0.698,
+    "expected_p": 0.481,
+    "d_b": -0.841,
+    "se": 0.055,
+    "ci_lo": -0.949,
+    "ci_hi": -0.732,
+    "flag": "drift"
+   },
+   {
+    "family_id": "py.sorting.key",
+    "n": 830,
+    "observed_p": 0.759,
+    "expected_p": 0.637,
+    "d_b": -0.597,
+    "se": 0.07,
+    "ci_lo": -0.733,
+    "ci_hi": -0.46,
+    "flag": "drift"
+   },
+   {
+    "family_id": "sql.aggregate.null",
+    "n": 1018,
+    "observed_p": 0.839,
+    "expected_p": 0.734,
+    "d_b": -0.653,
+    "se": 0.073,
+    "ci_lo": -0.797,
+    "ci_hi": -0.509,
+    "flag": "drift"
+   },
+   {
+    "family_id": "sql.group.having",
+    "n": 1064,
+    "observed_p": 0.802,
+    "expected_p": 0.71,
+    "d_b": -0.52,
+    "se": 0.067,
+    "ci_lo": -0.651,
+    "ci_hi": -0.389,
+    "flag": "drift"
+   },
+   {
+    "family_id": "sql.window.dense_rank",
+    "n": 1004,
+    "observed_p": 0.529,
+    "expected_p": 0.345,
+    "d_b": -0.754,
+    "se": 0.055,
+    "ci_lo": -0.862,
+    "ci_hi": -0.646,
+    "flag": "drift"
+   }
+  ],
+  "rows_control_top": [
+   {
+    "family_id": "algo.two_pointers.bug",
+    "n": 162,
+    "observed_p": 0.901,
+    "expected_p": 0.796,
+    "d_b": -0.758,
+    "se": 0.217,
+    "ci_lo": -1.184,
+    "ci_hi": -0.332,
+    "flag": "drift"
+   },
+   {
+    "family_id": "sh.chmod.octal",
+    "n": 262,
+    "observed_p": 0.794,
+    "expected_p": 0.743,
+    "d_b": -0.282,
+    "se": 0.138,
+    "ci_lo": -0.553,
+    "ci_hi": -0.011,
+    "flag": "ok"
+   },
+   {
+    "family_id": "http.cors.preflight",
+    "n": 386,
+    "observed_p": 0.637,
+    "expected_p": 0.582,
+    "d_b": -0.279,
+    "se": 0.111,
+    "ci_lo": -0.498,
+    "ci_hi": -0.061,
+    "flag": "ok"
+   },
+   {
+    "family_id": "py.slicing.string",
+    "n": 428,
+    "observed_p": 0.612,
+    "expected_p": 0.668,
+    "d_b": 0.217,
+    "se": 0.081,
+    "ci_lo": 0.059,
+    "ci_hi": 0.376,
+    "flag": "ok"
+   },
+   {
+    "family_id": "algo.complexity.traps",
+    "n": 253,
+    "observed_p": 0.688,
+    "expected_p": 0.644,
+    "d_b": -0.186,
+    "se": 0.119,
+    "ci_lo": -0.419,
+    "ci_hi": 0.048,
+    "flag": "ok"
+   }
+  ]
+ },
+ "exposure": {
+  "spec": "backend_python",
+  "r_max": 0.6,
+  "bank_families": 44,
+  "mean_exposure_floor": 0.366,
+  "baseline_train": {
+   "sessions": 455,
+   "max_exposure": 0.673,
+   "top5": [
+    {
+     "family_id": "py.defaults.mutable",
+     "exposure": 0.673
+    },
+    {
+     "family_id": "py.format.spec",
+     "exposure": 0.651
+    },
+    {
+     "family_id": "py.exceptions.finally",
+     "exposure": 0.651
+    },
+    {
+     "family_id": "http.idempotency.retry_cart",
+     "exposure": 0.626
+    },
+    {
+     "family_id": "http.ratelimit.token_bucket",
+     "exposure": 0.591
+    }
+   ],
+   "families_over_rmax": 4,
+   "unused_share": 0.0,
+   "mean_exposure": 0.366,
+   "mean_se": 0.4566,
+   "mean_items": 16.12,
+   "decision_accuracy": 0.8418
+  },
+  "baseline_verify": {
+   "sessions": 455,
+   "max_exposure": 0.684,
+   "top5": [
+    {
+     "family_id": "py.defaults.mutable",
+     "exposure": 0.684
+    },
+    {
+     "family_id": "py.format.spec",
+     "exposure": 0.679
+    },
+    {
+     "family_id": "http.idempotency.retry_cart",
+     "exposure": 0.664
+    },
+    {
+     "family_id": "py.exceptions.finally",
+     "exposure": 0.622
+    },
+    {
+     "family_id": "sql.group.having",
+     "exposure": 0.602
+    }
+   ],
+   "families_over_rmax": 5,
+   "unused_share": 0.0,
+   "mean_exposure": 0.37,
+   "mean_se": 0.4474,
+   "mean_items": 16.27,
+   "decision_accuracy": 0.8176
+  },
+  "sh_verify": {
+   "sessions": 455,
+   "max_exposure": 0.67,
+   "top5": [
+    {
+     "family_id": "py.format.spec",
+     "exposure": 0.67
+    },
+    {
+     "family_id": "sql.group.having",
+     "exposure": 0.644
+    },
+    {
+     "family_id": "py.sorting.key",
+     "exposure": 0.593
+    },
+    {
+     "family_id": "http.ratelimit.token_bucket",
+     "exposure": 0.585
+    },
+    {
+     "family_id": "sql.aggregate.null",
+     "exposure": 0.574
+    }
+   ],
+   "families_over_rmax": 2,
+   "unused_share": 0.0,
+   "mean_exposure": 0.367,
+   "mean_se": 0.4518,
+   "mean_items": 16.16,
+   "decision_accuracy": 0.8044
+  },
+  "iterations": [
+   {
+    "iteration": 1,
+    "max_selected": 0.679,
+    "max_exposure": 0.679,
+    "n_k_lt_1": 0
+   },
+   {
+    "iteration": 2,
+    "max_selected": 0.692,
+    "max_exposure": 0.642,
+    "n_k_lt_1": 4
+   },
+   {
+    "iteration": 3,
+    "max_selected": 0.673,
+    "max_exposure": 0.613,
+    "n_k_lt_1": 6
+   },
+   {
+    "iteration": 4,
+    "max_selected": 0.701,
+    "max_exposure": 0.662,
+    "n_k_lt_1": 6
+   },
+   {
+    "iteration": 5,
+    "max_selected": 0.688,
+    "max_exposure": 0.644,
+    "n_k_lt_1": 5
+   },
+   {
+    "iteration": 6,
+    "max_selected": 0.716,
+    "max_exposure": 0.622,
+    "n_k_lt_1": 4
+   },
+   {
+    "iteration": 7,
+    "max_selected": 0.67,
+    "max_exposure": 0.659,
+    "n_k_lt_1": 4
+   },
+   {
+    "iteration": 8,
+    "max_selected": 0.723,
+    "max_exposure": 0.655,
+    "n_k_lt_1": 5
+   }
+  ],
+  "k": {
+   "http.idempotency.retry_cart": 0.8835,
+   "py.defaults.mutable": 0.8298,
+   "py.exceptions.finally": 0.913,
+   "py.format.spec": 0.9161
+  },
+  "k_count": 4,
+  "histogram_baseline": [
+   {
+    "lo": 0.0,
+    "hi": 0.1,
+    "families": 2
+   },
+   {
+    "lo": 0.1,
+    "hi": 0.2,
+    "families": 6
+   },
+   {
+    "lo": 0.2,
+    "hi": 0.3,
+    "families": 12
+   },
+   {
+    "lo": 0.3,
+    "hi": 0.4,
+    "families": 1
+   },
+   {
+    "lo": 0.4,
+    "hi": 0.5,
+    "families": 11
+   },
+   {
+    "lo": 0.5,
+    "hi": 0.6,
+    "families": 7
+   },
+   {
+    "lo": 0.6,
+    "hi": 0.7,
+    "families": 5
+   },
+   {
+    "lo": 0.7,
+    "hi": 0.8,
+    "families": 0
+   },
+   {
+    "lo": 0.8,
+    "hi": 0.9,
+    "families": 0
+   },
+   {
+    "lo": 0.9,
+    "hi": 1.0,
+    "families": 0
+   }
+  ],
+  "histogram_sh": [
+   {
+    "lo": 0.0,
+    "hi": 0.1,
+    "families": 3
+   },
+   {
+    "lo": 0.1,
+    "hi": 0.2,
+    "families": 5
+   },
+   {
+    "lo": 0.2,
+    "hi": 0.3,
+    "families": 11
+   },
+   {
+    "lo": 0.3,
+    "hi": 0.4,
+    "families": 3
+   },
+   {
+    "lo": 0.4,
+    "hi": 0.5,
+    "families": 10
+   },
+   {
+    "lo": 0.5,
+    "hi": 0.6,
+    "families": 10
+   },
+   {
+    "lo": 0.6,
+    "hi": 0.7,
+    "families": 2
+   },
+   {
+    "lo": 0.7,
+    "hi": 0.8,
+    "families": 0
+   },
+   {
+    "lo": 0.8,
+    "hi": 0.9,
+    "families": 0
+   },
+   {
+    "lo": 0.9,
+    "hi": 1.0,
+    "families": 0
+   }
+  ],
+  "per_family": [
+   {
+    "family_id": "algo.binary_search.trace",
+    "baseline": 0.38,
+    "sh": 0.411
+   },
+   {
+    "family_id": "algo.complexity.traps",
+    "baseline": 0.16,
+    "sh": 0.084
+   },
+   {
+    "family_id": "algo.dp.knapsack_1d",
+    "baseline": 0.207,
+    "sh": 0.246
+   },
+   {
+    "family_id": "algo.graph.dfs_stack",
+    "baseline": 0.409,
+    "sh": 0.426
+   },
+   {
+    "family_id": "algo.hash.linear_probing",
+    "baseline": 0.424,
+    "sh": 0.391
+   },
+   {
+    "family_id": "algo.sort.stability",
+    "baseline": 0.508,
+    "sh": 0.47
+   },
+   {
+    "family_id": "algo.stack_queue.trace",
+    "baseline": 0.182,
+    "sh": 0.202
+   },
+   {
+    "family_id": "algo.two_pointers.bug",
+    "baseline": 0.059,
+    "sh": 0.081
+   },
+   {
+    "family_id": "git.range.dots",
+    "baseline": 0.165,
+    "sh": 0.178
+   },
+   {
+    "family_id": "git.workflow.order",
+    "baseline": 0.497,
+    "sh": 0.534
+   },
+   {
+    "family_id": "http.cache.revalidation",
+    "baseline": 0.42,
+    "sh": 0.387
+   },
+   {
+    "family_id": "http.cors.preflight",
+    "baseline": 0.222,
+    "sh": 0.242
+   },
+   {
+    "family_id": "http.idempotency.retry_cart",
+    "baseline": 0.664,
+    "sh": 0.56
+   },
+   {
+    "family_id": "http.jwt.lifecycle",
+    "baseline": 0.108,
+    "sh": 0.114
+   },
+   {
+    "family_id": "http.pagination.offset_math",
+    "baseline": 0.495,
+    "sh": 0.464
+   },
+   {
+    "family_id": "http.ratelimit.token_bucket",
+    "baseline": 0.556,
+    "sh": 0.585
+   },
+   {
+    "family_id": "http.rest.route_review",
+    "baseline": 0.244,
+    "sh": 0.281
+   },
+   {
+    "family_id": "http.status.scenario",
+    "baseline": 0.42,
+    "sh": 0.473
+   },
+   {
+    "family_id": "py.aliasing.copy",
+    "baseline": 0.426,
+    "sh": 0.442
+   },
+   {
+    "family_id": "py.asyncio.tasks",
+    "baseline": 0.248,
+    "sh": 0.266
+   },
+   {
+    "family_id": "py.closures.late_binding",
+    "baseline": 0.051,
+    "sh": 0.044
+   },
+   {
+    "family_id": "py.complexity.containers",
+    "baseline": 0.279,
+    "sh": 0.367
+   },
+   {
+    "family_id": "py.comprehension.filter",
+    "baseline": 0.512,
+    "sh": 0.503
+   },
+   {
+    "family_id": "py.dataclasses.order",
+    "baseline": 0.404,
+    "sh": 0.44
+   },
+   {
+    "family_id": "py.defaults.mutable",
+    "baseline": 0.684,
+    "sh": 0.567
+   },
+   {
+    "family_id": "py.dict.basics",
+    "baseline": 0.29,
+    "sh": 0.264
+   },
+   {
+    "family_id": "py.exceptions.finally",
+    "baseline": 0.622,
+    "sh": 0.549
+   },
+   {
+    "family_id": "py.format.spec",
+    "baseline": 0.679,
+    "sh": 0.67
+   },
+   {
+    "family_id": "py.generators.lazy",
+    "baseline": 0.582,
+    "sh": 0.536
+   },
+   {
+    "family_id": "py.mro.super",
+    "baseline": 0.27,
+    "sh": 0.268
+   },
+   {
+    "family_id": "py.slicing.string",
+    "baseline": 0.224,
+    "sh": 0.246
+   },
+   {
+    "family_id": "py.sorting.key",
+    "baseline": 0.525,
+    "sh": 0.593
+   },
+   {
+    "family_id": "sh.chmod.octal",
+    "baseline": 0.171,
+    "sh": 0.152
+   },
+   {
+    "family_id": "sh.pipeline.uniq",
+    "baseline": 0.481,
+    "sh": 0.444
+   },
+   {
+    "family_id": "sh.redirect.order",
+    "baseline": 0.437,
+    "sh": 0.444
+   },
+   {
+    "family_id": "sql.aggregate.null",
+    "baseline": 0.56,
+    "sh": 0.574
+   },
+   {
+    "family_id": "sql.distinct.null",
+    "baseline": 0.2,
+    "sh": 0.169
+   },
+   {
+    "family_id": "sql.group.having",
+    "baseline": 0.602,
+    "sh": 0.644
+   },
+   {
+    "family_id": "sql.index.composite",
+    "baseline": 0.273,
+    "sh": 0.279
+   },
+   {
+    "family_id": "sql.join.left_rows",
+    "baseline": 0.264,
+    "sh": 0.24
+   },
+   {
+    "family_id": "sql.join.on_vs_where",
+    "baseline": 0.213,
+    "sh": 0.2
+   },
+   {
+    "family_id": "sql.order.limit_offset",
+    "baseline": 0.479,
+    "sh": 0.444
+   },
+   {
+    "family_id": "sql.subquery.not_in_null",
+    "baseline": 0.143,
+    "sh": 0.156
+   },
+   {
+    "family_id": "sql.window.dense_rank",
+    "baseline": 0.527,
+    "sh": 0.527
+   }
+  ]
+ }
+}

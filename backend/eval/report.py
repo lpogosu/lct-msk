@@ -191,6 +191,16 @@ TILES: tuple[TileSpec, ...] = (
 )
 
 
+def _quality_section() -> list[str]:
+    """Раздел 8 «Качество заданий» (eval.fairness): подставляется, если есть eval/out/quality.json."""
+    from eval import fairness
+
+    res = fairness.load_result()
+    if res is None:
+        return []
+    return [fairness.MARK_BEGIN, *fairness.render_markdown(res).splitlines(), fairness.MARK_END, ""]
+
+
 def _passes(v: Any, op: str, target: Any) -> bool | None:
     if op == "show" or v is None:
         return None
@@ -359,6 +369,7 @@ def render_markdown(r: Mapping[str, Any], *, charts: Mapping[str, Path], doc_dir
     L += _pairs_section(r)
     L += _limits_section(r, failed)
     L += report_spec.jury_section()
+    L += _quality_section()
     L += [
         "## Как воспроизвести",
         "",

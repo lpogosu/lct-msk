@@ -260,7 +260,7 @@ def save_industries(db: Session, user: User, industries: list[str]) -> SurveyRes
     known = {i["code"] for i in L.taxonomy().get("industries", [])}
     unknown = sorted(set(industries) - known)
     if unknown:
-        raise bad_request("unknown_industry", "Неизвестная отрасль", {"codes": unknown})
+        raise bad_request("unknown_industry", "Неизвестная сфера бизнеса", {"codes": unknown})
     sv = _open_for_step(db, user, STEP_INDUSTRIES)
     uniq = list(dict.fromkeys(industries))
     answers = dict(sv.answers or {})

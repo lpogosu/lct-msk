@@ -7,6 +7,7 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 
 import app.models  # noqa: F401  — регистрирует все таблицы в Base.metadata
+import app.services.demo.models  # noqa: F401  — демо-таблицы живут вне app.models; без импорта `alembic check` считал бы их лишними
 from alembic import context
 from app.core.settings import get_settings
 from app.db.base import Base

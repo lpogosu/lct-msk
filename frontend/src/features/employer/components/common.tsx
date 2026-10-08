@@ -94,13 +94,16 @@ export function Tag({
   children,
   tone = 'default',
   className,
+  title,
 }: {
   children: ReactNode
   tone?: 'default' | 'brand' | 'danger' | 'warn'
   className?: string
+  title?: string
 }) {
   return (
     <span
+      title={title}
       className={cn(
         'inline-flex items-center whitespace-nowrap rounded-pill px-2.5 py-0.5 t-small',
         tone === 'default' && 'bg-panel text-ink-2',
@@ -112,5 +115,15 @@ export function Tag({
     >
       {children}
     </span>
+  )
+}
+
+/** Сигнал интереса кандидата (DECISIONS 24): отдельный бейдж, на Score не влияет; приходит только по открытым карточкам. */
+export function InterestTag({ interest }: { interest?: { label: string; text: string; hint: string } | null }) {
+  if (!interest) return null
+  return (
+    <Tag tone="brand" title={`${interest.text}. ${interest.hint}`}>
+      {interest.label}
+    </Tag>
   )
 }

@@ -13,6 +13,7 @@ export const EMPLOYER_NAV: NavItem[] = [
 export const LAB_NAV: NavItem[] = [
   { to: '/lab/sessions', label: 'Сессии' },
   { to: '/lab/bank', label: 'Банк заданий' },
+  { to: '/lab/quality', label: 'Качество' },
   { to: '/lab/reconciliations', label: 'Сверки' },
   { to: '/lab/validation', label: 'Валидация' },
   { to: '/lab/trust', label: 'Жалобы' },

@@ -1,16 +1,17 @@
 import { useState } from 'react'
 import { errorMessage } from '@/api/errors'
-import { Alert, Button, Input, TextArea, useToast } from '@/ui'
+import { Alert, Button, Input, Segmented, TextArea, useToast } from '@/ui'
 import { Drawer } from '@/ui/Drawer'
 import { Select } from '@/ui/Select'
-import { useVacancyMutations, type NeedSummary, type VacancyEmployer } from '../../api'
+import { useSkills, useVacancyMutations, type NeedSummary, type VacancyEmployer } from '../../api'
 import { salaryState } from '../../brief'
-import { cityLabel, FORMAT_LABEL } from '../../dict'
+import { cityLabel, FORMAT_LABEL, GRADE_LABEL, SPEC_LABEL } from '../../dict'
 import { SalaryFields } from '../SalaryRange'
 
 /**
  * «Опубликовать бриф как вакансию» и правка вакансии (Р10): тот же текст и вилка, что в брифе. Вилка проверяется
  * как в приглашении: шире 1,6× — предупреждение, шире 2× — отказ. Один бриф — одна опубликованная вакансия.
+ * X-04: вакансию можно создать и без готового брифа — тогда бриф создаётся автоматически из полей формы.
  */
 export function VacancyDrawer({
   vacancy,
@@ -25,6 +26,14 @@ export function VacancyDrawer({
 }) {
   const toast = useToast()
   const { publish, patch } = useVacancyMutations()
+  const [mode, setMode] = useState<'need' | 'direct'>(needs.length > 0 ? 'need' : 'direct')
+  const direct = !vacancy && mode === 'direct'
+  const skills = useSkills()
+  const [spec, setSpec] = useState('')
+  const [grade, setGrade] = useState('')
+  const [must, setMust] = useState<string[]>([])
+  const [nice, setNice] = useState<string[]>([])
+  const [team, setTeam] = useState({ size: '', role: '', stack_context: '', about: '' })
   const [needId, setNeedId] = useState(needs[0]?.id ?? '')
   const [title, setTitle] = useState(vacancy?.title ?? needs[0]?.title ?? '')
   const [description, setDescription] = useState(vacancy?.description ?? '')
@@ -51,7 +60,11 @@ export function VacancyDrawer({
   async function submit() {
     setTouched(true)
     setError(null)
-    if (salaryError || sal.state === 'empty' || (!vacancy && !needId)) return
+    if (salaryError || sal.state === 'empty' || (!vacancy && !direct && !needId)) return
+    if (direct && (!title.trim() || !spec || !grade)) {
+      setError('Для вакансии без брифа укажите название, направление и грейд.')
+      return
+    }
     const common = {
       title: title.trim() || null,
       description: description.trim() || null,
@@ -64,7 +77,22 @@ export function VacancyDrawer({
     try {
       const res = vacancy
         ? await patch.mutateAsync({ id: vacancy.id, body: common })
-        : await publish.mutateAsync({ need_id: needId, ...common })
+        : direct
+          ? await publish.mutateAsync({
+              ...common,
+              need_id: null,
+              specialization: spec,
+              grade: grade as 'intern' | 'junior' | 'middle' | 'senior',
+              must,
+              nice,
+              team: {
+                size: Number.parseInt(team.size, 10) || null,
+                role: team.role.trim() || null,
+                stack_context: team.stack_context.trim() || null,
+                about: team.about.trim() || null,
+              },
+            })
+          : await publish.mutateAsync({ need_id: needId, ...common })
       res.warnings.forEach((w) => toast.show({ title: 'Обратите внимание', message: w }))
       toast.success(vacancy ? 'Вакансия обновлена' : 'Вакансия опубликована: кандидаты по вашим категориям увидят её в списке')
       onClose()
@@ -79,7 +107,7 @@ export function VacancyDrawer({
       onClose={onClose}
       width={600}
       eyebrow={vacancy ? 'Вакансия' : 'Новая вакансия'}
-      title={vacancy ? 'Правка вакансии' : 'Опубликовать бриф'}
+      title={vacancy ? 'Правка вакансии' : direct ? 'Новая вакансия' : 'Опубликовать бриф'}
       footer={
         <div className="flex flex-wrap gap-4">
           <Button loading={busy} onClick={() => void submit()}>
@@ -93,6 +121,18 @@ export function VacancyDrawer({
     >
       <div className="flex flex-col gap-6">
         {!vacancy && (
+          <Segmented
+            aria-label="Откуда вакансия"
+            options={[
+              { value: 'need', label: 'Из брифа' },
+              { value: 'direct', label: 'Без брифа' },
+            ]}
+            value={mode}
+            onChange={setMode}
+            block
+          />
+        )}
+        {!vacancy && !direct && (
           <Select
             label="Бриф"
             value={needId}
@@ -136,9 +176,39 @@ export function VacancyDrawer({
           </Select>
           <Input label="Город" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Москва" />
         </div>
-        {!vacancy && needs.length === 0 && (
+        {direct && (
+          <>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Select label="Направление" value={spec} onChange={(e) => setSpec(e.target.value)}>
+                <option value="">Выберите</option>
+                {Object.entries(SPEC_LABEL).map(([k, v]) => (
+                  <option key={k} value={k}>
+                    {v}
+                  </option>
+                ))}
+              </Select>
+              <Select label="Грейд" value={grade} onChange={(e) => setGrade(e.target.value)}>
+                <option value="">Выберите</option>
+                {Object.entries(GRADE_LABEL).map(([k, v]) => (
+                  <option key={k} value={k}>
+                    {v}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            <SkillPick label="Обязательные навыки (до 5)" all={skills.data ?? []} value={must} onChange={setMust} max={5} exclude={nice} />
+            <SkillPick label="Желательные навыки" all={skills.data ?? []} value={nice} onChange={setNice} exclude={must} />
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Input label="Размер команды" type="number" min={1} max={500} value={team.size} onChange={(e) => setTeam({ ...team, size: e.target.value })} />
+              <Input label="Роль в команде" value={team.role} maxLength={120} onChange={(e) => setTeam({ ...team, role: e.target.value })} />
+            </div>
+            <Input label="Контекст стека" value={team.stack_context} maxLength={300} onChange={(e) => setTeam({ ...team, stack_context: e.target.value })} />
+            <TextArea label="О команде" rows={3} value={team.about} maxLength={1000} onChange={(e) => setTeam({ ...team, about: e.target.value })} hint="Кандидат увидит это в вакансии. На Score не влияет." />
+          </>
+        )}
+        {!vacancy && !direct && needs.length === 0 && (
           <Alert tone="info" title="Нет брифов без вакансии">
-            Все ваши брифы уже опубликованы. Опишите новую потребность — и её можно будет опубликовать.
+            Все ваши брифы уже опубликованы. Создайте вакансию «Без брифа» или опишите новую потребность.
           </Alert>
         )}
         {error && (
@@ -148,5 +218,48 @@ export function VacancyDrawer({
         )}
       </div>
     </Drawer>
+  )
+}
+
+/** Выбор навыков из справочника чипами (X-04: вакансия без брифа). */
+function SkillPick({
+  label,
+  all,
+  value,
+  onChange,
+  max,
+  exclude,
+}: {
+  label: string
+  all: { id: string; name: string }[]
+  value: string[]
+  onChange: (v: string[]) => void
+  max?: number
+  exclude: string[]
+}) {
+  const toggle = (id: string) =>
+    onChange(value.includes(id) ? value.filter((x) => x !== id) : max && value.length >= max ? value : [...value, id])
+  return (
+    <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+      <legend className="t-label text-ink">{label}</legend>
+      <div className="flex max-h-40 flex-wrap gap-2 overflow-y-auto">
+        {all
+          .filter((s) => !exclude.includes(s.id))
+          .map((s) => {
+            const on = value.includes(s.id)
+            return (
+              <button
+                key={s.id}
+                type="button"
+                aria-pressed={on}
+                onClick={() => toggle(s.id)}
+                className={`rounded-pill border px-3 py-1 t-small ${on ? 'border-brand bg-tint text-brand' : 'border-hairline text-ink-2 hover:border-brand'}`}
+              >
+                {s.name}
+              </button>
+            )
+          })}
+      </div>
+    </fieldset>
   )
 }

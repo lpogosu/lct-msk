@@ -69,6 +69,11 @@ def publish(body: VacancyCreateIn, user: EmployerUser, db: DbSession) -> dict[st
             salary_type=body.salary_type,
             format=body.format,
             city=body.city,
+            specialization=body.specialization,
+            grade=body.grade,
+            must=body.must,
+            nice=body.nice,
+            team=body.team,
         ),
     )
     db.commit()

@@ -684,6 +684,23 @@ def login_with_fsp(
     except IntegrityError:
         raise conflict("fsp_id_taken", "Этот ФСП ID уже привязан к другому аккаунту «Взаимно»") from None
     audit(db, "fsp.account_created", actor_id=user.id, actor_role=user.role, entity_type="user", entity_id=user.id, ip=meta.ip, demo=is_demo)
+    if is_demo and settings.demo_mode and settings.demo_auto_verify_email:
+        # Демо для жюри (как и регистрация по email в DEMO_MODE): мок-токен выпускает сама платформа, письмо с кодом
+        # не нужно — активируем аккаунт и входим сразу. Без DEMO_MODE действует обычное подтверждение (DECISIONS п. 12).
+        auth_service._activate_email(db, settings, user, now)
+        db.commit()
+        return login_with_fsp(
+            db,
+            settings,
+            mailer,
+            claims,
+            is_demo=is_demo,
+            consent_personal_data=consent_personal_data,
+            consent_fsp_enrichment=consent_fsp_enrichment,
+            provider=provider,
+            meta=meta,
+            now=now,
+        )
     db.commit()
     return LoginOutcome("verify_email", user, send=_send_code(db, settings, mailer, user, first=True))
 

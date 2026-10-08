@@ -139,7 +139,7 @@ export default function Kit() {
           <Swatch name="danger-text" hex="#C8102E" className="bg-danger-text" />
           <Swatch name="ink" hex="#1B1C21" className="bg-ink" />
           <Swatch name="ink-2" hex="#4A4B52" className="bg-ink-2" />
-          <Swatch name="ink-3" hex="#7A7B82" className="bg-ink-3" />
+          <Swatch name="ink-3" hex="#686970" className="bg-ink-3" />
           <Swatch name="hairline" hex="#E4E4E7" className="bg-hairline" />
           <Swatch name="panel" hex="#F6F6F8" className="bg-panel" />
           <Swatch name="tint" hex="#F3F1FF" className="bg-tint" />

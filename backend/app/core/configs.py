@@ -16,4 +16,5 @@ CONFIG_DIR = Path(os.environ.get("VZ_CONFIG_DIR", Path(__file__).resolve().paren
 def load_config(name: str) -> dict[str, Any]:
     """load_config("taxonomy") → содержимое config/taxonomy.yaml."""
     with open(CONFIG_DIR / f"{name}.yaml", encoding="utf-8") as f:
-        return yaml.safe_load(f)
+        data: dict[str, Any] = yaml.safe_load(f)
+        return data

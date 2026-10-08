@@ -172,7 +172,7 @@ sequenceDiagram
 |---|---|---|---|
 | `GET` | `/api/survey/form` | кандидат | Анкета опроса |
 | `GET` | `/api/survey/current` | кандидат | Текущая анкета |
-| `PUT` | `/api/survey/steps/industries` | кандидат | Шаг 1: отрасли |
+| `PUT` | `/api/survey/steps/industries` | кандидат | Шаг 1: сфера бизнеса |
 | `PUT` | `/api/survey/steps/actions` | кандидат | Шаг 2: что делали руками |
 | `PUT` | `/api/survey/steps/stack` | кандидат | Шаг 3: технологии и стаж |
 | `POST` | `/api/survey/hint` | кандидат | Подсказка по специализации |

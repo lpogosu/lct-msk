@@ -211,7 +211,7 @@ def score_sandbox(
         raw = by_no.get(str(it.no))
         text = "" if raw is None else str(raw)
         c = it.twin.changed_literal
-        base = {"no": it.no, "variant_code": it.variant_code, "answer": text, "key_shown": it.twin.key,
+        base: dict[str, Any] = {"no": it.no, "variant_code": it.variant_code, "answer": text, "key_shown": it.twin.key,
                 "key_clipboard": it.twin.twin_key}
         if not text.strip():
             diagnoses.append(

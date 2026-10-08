@@ -24,6 +24,7 @@ from app.models.testing import TestSession as SessionRow
 from app.models.users import User
 from app.services.testing import labels as L
 from app.services.testing.express import apply_express, express_session_fields
+from app.services.testing.pool import readiness as pool_readiness
 from app.services.testing.qualification import list_rows, load_domain
 from app.services.testing.schemas import (
     AttemptOut,
@@ -44,6 +45,7 @@ from app.services.testing.schemas import (
     ModuleTagOut,
     OfferOut,
     OptionOut,
+    PoolReadinessOut,
     ProgressOut,
     QualificationOut,
     ResultOut,
@@ -268,7 +270,7 @@ def result_out(db: Session, user: User, ld: Loaded) -> ResultOut:
     s = ld.sess
     scale = load_scale()
     blind = consent_state(db, user.id, ConsentPurpose.blind_card)
-    base = {"session": session_out(ld), "n_shown": len(s.cat.responses), "blind_card_consent": blind}
+    base: dict[str, Any] = {"session": session_out(ld), "n_shown": len(s.cat.responses), "blind_card_consent": blind}
     if s.status == SessionStatus.ABANDONED:
         return ResultOut(
             **base,
@@ -678,6 +680,10 @@ def briefing_out(db: Session, user: User, spec: str, q: Qualification | None) ->
         check = rule_out(q.can_start_upgrade(clock, scale, rules))
     else:
         check = rule_out(q.can_start_test(clock, rules))
+    pool_state = pool_readiness(db, spec) if testable else None
+    if pool_state is not None and not pool_state.ready and check.ok:
+        # #14: пул ещё греется — не ошибка, а понятное ожидание (экран опрашивает готовность)
+        check = RuleCheckOut(ok=False, code="pool_warming_up", message=pool_state.message)
     mode = "unavailable" if not check.ok else ("upgrade" if confirmed else "test")
     upgrade_target = scale.next_grade(q.grade) if confirmed and q and q.grade else None
     lower_open: list[str] = []
@@ -746,6 +752,7 @@ def briefing_out(db: Session, user: User, spec: str, q: Qualification | None) ->
         next_change_allowed_at=nca,
         next_change_in=L.rel(nca) if nca and nca > clock.now() else None,
         active_session_id=act.id if act is not None else None,
+        pool=PoolReadinessOut.model_validate(pool_state.to_dict()) if pool_state is not None else None,
     )
 
 

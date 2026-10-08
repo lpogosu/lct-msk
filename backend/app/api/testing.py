@@ -16,7 +16,7 @@ from sqlalchemy import select
 
 from app.api.deps import DbSession, LimiterDep, MetaDep, SettingsDep, require_roles
 from app.core.clock import clock
-from app.core.errors import bad_request, conflict, error_responses, not_found
+from app.core.errors import ApiError, bad_request, conflict, error_responses, not_found
 from app.models.enums import FlagStatus, UserRole
 from app.models.testing import Flag as FlagRow
 from app.models.testing import TestSession as SessionRow
@@ -113,6 +113,10 @@ def create_session(
         # Экспресс-версия существует только в DEMO_MODE: на боевом стенде её «нет» (как и остальных демо-инструментов)
         raise not_found("not_found", "Ресурс не найден")
     _known_spec(body.specialization)
+    warm = pool.readiness(db, body.specialization)
+    if not warm.ready:
+        # #14: не ошибка сервера, а ожидание — экран брифинга уже показывает прогресс
+        raise ApiError(503, "pool_warming_up", warm.message, {"progress": warm.progress, "eta_s": warm.eta_s})
     ld = svc.create_session(
         db,
         user,

@@ -3,7 +3,7 @@ import { formatDecimal } from '@/lib/format'
 import { Identicon, Ruler } from '@/ui'
 import type { BankItem } from '../../api'
 import { SEARCH_MODE_LABEL } from '../../dict'
-import { Tag } from '../common'
+import { InterestTag, Tag } from '../common'
 
 function PinIcon() {
   return (
@@ -89,6 +89,7 @@ export function BankTable({
                         </span>
                       )}
                       {it.invitation_label && <Tag tone="brand">{it.invitation_label}</Tag>}
+                      <InterestTag interest={it.interest} />
                     </div>
                     <p className="t-small text-ink-2">{it.category}</p>
                     {!it.confirmed && (

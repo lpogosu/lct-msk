@@ -98,6 +98,19 @@ class BriefInput:
     formats: list[str] | None = None
     city: str | None = None
     clear_city: bool = False
+    team: dict[str, Any] | None = None  # E-02: «о команде» (не участвует в разборе и Score); {} — очистить
+
+
+def clean_team(raw: Mapping[str, Any] | None) -> dict[str, Any]:
+    """E-02: оставляем только заполненные поля «о команде» (размер, роль, контекст стека, текст)."""
+    out: dict[str, Any] = {}
+    for k in ("size", "role", "stack_context", "about"):
+        v = (raw or {}).get(k)
+        if isinstance(v, str):
+            v = v.strip()
+        if v not in (None, ""):
+            out[k] = v
+    return out
 
 
 @dataclass
@@ -421,6 +434,7 @@ def create_need(db: Session, user: User, inp: BriefInput, *, title: str | None, 
     feat.ensure_fresh(db)  # N в рекомендованных категориях — по свежему кэшу признаков
     need = Need(id=uuid.uuid4(), company_id=company_id, author_id=user.id, raw_text=inp.text, salary_from=0, salary_to=0)
     need.categories = []
+    need.team = clean_team(inp.team)
     ov = merge_overrides(Overrides(), _parse(inp), inp)
     _store_brief(db, need, inp, ov)
     need.title = (title or "").strip() or _default_title(need)
@@ -494,6 +508,8 @@ def update_need(
     before = ((need.parsed or {}).get("brief"), bool(need.is_internship))
     ov = merge_overrides(Overrides.from_dict((need.parsed or {}).get("overrides")), _parse(inp), inp)
     _store_brief(db, need, inp, ov)
+    if inp.team is not None:
+        need.team = clean_team(inp.team)
     if title is not None and title.strip():
         need.title = title.strip()
     if is_internship is not None:
@@ -1226,6 +1242,9 @@ def version_view(
     neighbors = {nd["upper_rank"]: nd["text"] for nd in map(store.neighbor_dict, (nv.stats or {}).get("neighbors") or ())}
     pinned_ids = {str(c) for c, _, _ in pins}
     invited = _invitation_status(db, need.company_id, list(ids))
+    from app.services.contact.interest import visible_for_company  # локально: контакт импортирует подбор
+
+    interest = visible_for_company(db, need.company_id, ids)  # DECISIONS 24: только по открытым карточкам, вне Score
     gone_ranks = {i.rank for i in v.overall_top() if i.candidate_id in gone} if gone else set()
 
     def dto(i: Any) -> dict[str, Any]:
@@ -1243,6 +1262,7 @@ def version_view(
         )
         st = invited.get(cid)
         out["invitation_status"], out["invitation_label"] = st if st else (None, None)
+        out["interest"] = interest.get(cid)
         return out
 
     shortlist_out = []
@@ -1385,6 +1405,16 @@ def best_stored_item(nv: NeedVersion | None, candidate_id: uuid.UUID) -> dict[st
     return vis[0] if vis else rows[0]
 
 
+def _attach_interest(db: Session, view: dict[str, Any], company_id: uuid.UUID, cid: uuid.UUID) -> None:
+    """Сигнал интереса в карточке и в разложении Score — отдельной строкой, на Score не влияет (DECISIONS 24)."""
+    from app.services.contact.interest import visible_for_company
+
+    badge = visible_for_company(db, company_id, [cid]).get(cid)  # карточку только что записали открытой
+    view["interest"] = badge
+    if isinstance(view.get("selection"), dict):
+        view["selection"]["interest"] = badge
+
+
 def candidate_card(db: Session, user: User, need: Need, ref: str, *, secret: str) -> dict[str, Any]:
     """Панель Р6: слепая (или раскрытая) карточка + полное разложение Score. Открытие записывается (DECISIONS п. 7)."""
     cid = resolve_candidate(db, need, ref)
@@ -1406,6 +1436,7 @@ def candidate_card(db: Session, user: User, need: Need, ref: str, *, secret: str
         raise not_found("candidate_not_found", "Кандидат сейчас недоступен")
     privacy.record_view(db, need.company_id, cid, viewer_id=user.id, need_id=need.id)
     db.flush()
+    _attach_interest(db, view, need.company_id, cid)
     return view
 
 
@@ -1470,6 +1501,7 @@ def need_detail(db: Session, need: Need) -> dict[str, Any]:
     return {
         **need_summary(db, need),
         "text": need.raw_text,
+        "team": clean_team(need.team),
         "brief": {
             "spec": brief.get("spec"),
             "grade": brief.get("grade"),

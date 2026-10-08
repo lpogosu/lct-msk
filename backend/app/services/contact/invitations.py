@@ -60,6 +60,7 @@ from .company import company_of, require_complete, sender_state
 from .profiles import candidate_for_employer, company_card, contact_methods_list
 from .reliability import events_by_company
 from .store import Ctx, jsonable, persist, prefetched, refresh_rows, terms_to_row, to_domain
+from .vacancies import team_of
 
 # --- отправка ---------------------------------------------------------------------------------------
 
@@ -1006,6 +1007,7 @@ def candidate_detail(ctx: Ctx, row: Invitation) -> dict[str, Any]:
     card["terms"] = _terms_dict(t)
     card["terms_history"] = [_terms_dict(x) for x in inv.terms[:-1]]
     card["why_you"] = list(inv.why_you)
+    card["team"] = team_of(ctx.db, row.need_id)
     card["salary_vs_min"] = _salary_vs_min(ctx.db, row.candidate_id, t)
     card["caution_reasons"] = list(inv.caution)
     card["counter"] = _counter_view(inv, at)

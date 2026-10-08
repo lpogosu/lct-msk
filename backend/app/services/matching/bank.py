@@ -61,6 +61,8 @@ class BankQuery:
     page: int = 1
     hidden_page: int = 1  # страница группы «Скрыто фильтрами» (фильтр «есть ФСП»)
     need_id: uuid.UUID | None = None  # отметить, кто уже в шортлисте этого брифа
+    interest: bool | None = None  # True — только с сигналом интереса; видны лишь открытые карточки (DECISIONS 24)
+    interest_first: bool = False  # сначала с сигналом (порядок внутри групп сохраняется)
 
 
 def _validate(q: BankQuery) -> tuple[list[tuple[str, str]] | None, list[str] | None]:
@@ -84,7 +86,7 @@ def _validate(q: BankQuery) -> tuple[list[tuple[str, str]] | None, list[str] | N
     if bad:
         raise _bad("skill_invalid", "Нет в справочнике навыков: " + ", ".join(bad))
     if q.industry is not None and q.industry not in {i["code"] for i in cfg.taxonomy.get("industries", ())}:
-        raise _bad("industry_invalid", "Неизвестная отрасль")
+        raise _bad("industry_invalid", "Неизвестная сфера бизнеса")
     if q.search_mode is not None and q.search_mode not in (SearchMode.active.value, SearchMode.open.value):
         raise _bad("search_mode_invalid", "Режим поиска: active (активно ищу) или open (открыт к предложениям)")
     if q.page < 1 or q.hidden_page < 1:
@@ -162,6 +164,15 @@ def bank_search(db: Session, user: User, q: BankQuery, *, secret: str) -> dict[s
     ctx = ScoringContext.build(cfg=cfg, category_stats=stats)
     best = _best_rows(rank_bank([r.features for r in kept], ctx=ctx, query_id=f"bank|{company_id}"))
     best_hidden = _best_rows(rank_bank([r.features for r in hidden], ctx=ctx, query_id=f"bank|{company_id}"))
+    from app.services.contact.interest import visible_for_company  # локально: контакт импортирует подбор
+
+    # Сигнал интереса (DECISIONS 24) — отдельный от Score признак: влияет только на фильтр/порядок по просьбе
+    # работодателя, и только по открытым им карточкам.
+    interest = visible_for_company(db, company_id)
+    if q.interest is not None:
+        best = [b for b in best if (uuid.UUID(b.candidate_id) in interest) == q.interest]
+    if q.interest_first:
+        best = sorted(best, key=lambda b: uuid.UUID(b.candidate_id) not in interest)
     size = int(cfg.section("selection")["page_size"])
     total = len(best)
     page_rows = best[(q.page - 1) * size : q.page * size]
@@ -212,6 +223,7 @@ def bank_search(db: Session, user: User, q: BankQuery, *, secret: str) -> dict[s
                 "shortlisted": q.need_id in pinned.get(cid, []) if q.need_id else False,
                 "invitation_status": invited[cid][0] if cid in invited else None,
                 "invitation_label": invited[cid][1] if cid in invited else None,
+                "interest": interest.get(cid),
                 "hidden_by": list(hidden_by),
             }
         )
@@ -406,4 +418,5 @@ def bank_card(db: Session, user: User, ref: str, *, secret: str) -> dict[str, An
         raise not_found("candidate_not_found", "Кандидат сейчас недоступен")
     privacy.record_view(db, company_id, cid, viewer_id=user.id, need_id=None)
     db.flush()
+    needs_svc._attach_interest(db, view, company_id, cid)
     return view

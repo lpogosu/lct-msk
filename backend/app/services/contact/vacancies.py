@@ -40,7 +40,13 @@ log = logging.getLogger("vzaimno.contact.vacancies")
 
 @dataclass
 class VacancySpec:
-    need_id: uuid.UUID
+    need_id: uuid.UUID | None = None
+    # X-04: вакансия без готового брифа — бриф создаётся «под капотом» из этих полей, чтобы подбор работал
+    specialization: str | None = None
+    grade: str | None = None
+    must: list[str] | None = None
+    nice: list[str] | None = None
+    team: dict[str, Any] | None = None
     title: str | None = None
     description: str | None = None
     salary_from: int | None = None
@@ -82,10 +88,49 @@ def _how_we_check(need: Need) -> dict[str, Any]:
         return {}
 
 
+def _need_from_spec(db: Session, user: User, spec: VacancySpec) -> Need:
+    """X-04: прямая вакансия → служебный бриф (потребность) с теми же полями; дальше всё как «бриф → вакансия»."""
+    from app.services.matching import needs as needs_svc
+
+    missing = [
+        label
+        for label, val in (
+            ("название", (spec.title or "").strip()),
+            ("направление", spec.specialization),
+            ("грейд", spec.grade),
+            ("вилку «от–до»", spec.salary_from and spec.salary_to),
+        )
+        if not val
+    ]
+    if missing:
+        raise bad_request("vacancy_fields_required", "Заполните: " + ", ".join(missing))
+    assert spec.title is not None and spec.salary_from is not None and spec.salary_to is not None
+    salary_type = spec.salary_type or "net"
+    _salary_check(int(spec.salary_from), int(spec.salary_to), salary_type)
+    text = (spec.description or "").strip() or spec.title.strip()
+    inp = needs_svc.BriefInput(
+        text=text[:3000],
+        salary_from=int(spec.salary_from),
+        salary_to=int(spec.salary_to),
+        salary_net=salary_type == "net",
+        spec=spec.specialization,
+        grade=spec.grade,
+        must=spec.must if spec.must is not None else [],
+        nice=spec.nice if spec.nice is not None else [],
+        formats=[spec.format] if spec.format else None,
+        city=spec.city or None,
+        team=spec.team,
+    )
+    return needs_svc.create_need(db, user, inp, title=spec.title.strip(), is_internship=False)
+
+
 def publish(db: Session, user: User, spec: VacancySpec) -> tuple[Vacancy, list[str]]:
     company = company_of(db, user)
     require_complete(company)
-    need = _owned_need(db, company, spec.need_id)
+    if spec.need_id is None:
+        need = _need_from_spec(db, user, spec)
+    else:
+        need = _owned_need(db, company, spec.need_id)
     existing = db.scalar(
         select(Vacancy).where(Vacancy.need_id == need.id, Vacancy.status == VacancyStatus.published.value)
     )
@@ -421,6 +466,26 @@ def candidate_list(db: Session, user: User, *, only_matching: bool) -> list[dict
     return items
 
 
+def team_of(db: Session, need_id: uuid.UUID | None) -> dict[str, Any] | None:
+    """E-02: «о команде» из брифа — кандидату в вакансии и приглашении (в Score не входит)."""
+    need = db.get(Need, need_id) if need_id else None
+    return dict(need.team) if need is not None and need.team else None
+
+
+def interest_block(db: Session, user: User, company_id: uuid.UUID) -> dict[str, Any]:
+    from .interest import active_for, status
+
+    st = status(db, user)
+    sig = active_for(db, user, company_id)
+    return {
+        "sent": sig is not None,
+        "signal_id": sig.id if sig else None,
+        "remaining": st["remaining"],
+        "limit": st["limit"],
+        "label": st["label"],
+    }
+
+
 def candidate_detail(db: Session, user: User, vacancy_id: uuid.UUID) -> dict[str, Any]:
     vac = db.get(Vacancy, vacancy_id)
     if vac is None or vac.status != VacancyStatus.published.value:
@@ -447,6 +512,7 @@ def candidate_detail(db: Session, user: User, vacancy_id: uuid.UUID) -> dict[str
         "parts": s.parts if s else None,
         "category": s.category if s else None,
         "how_we_check": vac.test_profile or None,
+        "team": team_of(db, vac.need_id),
         "application_status": app.status if app else None,
         "application_id": app.id if app else None,
         "consent": {
@@ -459,4 +525,5 @@ def candidate_detail(db: Session, user: User, vacancy_id: uuid.UUID) -> dict[str
         "response_days": c.application.response_days,
         "reported": trust_complaints.find(db, user.id, "vacancy", vac.id) is not None,
         "complaint_reasons": trust_complaints.reasons(),
+        "interest": interest_block(db, user, vac.company_id),
     }

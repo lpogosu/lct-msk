@@ -13,6 +13,7 @@ from __future__ import annotations
 import statistics
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
+from typing import Any
 
 from app.matching.scoring import (
     COMPONENTS,
@@ -412,7 +413,7 @@ def explain(
     )
 
 
-def explain_all(results: Sequence[ScoreResult], **kw) -> dict[str, Explanation]:
+def explain_all(results: Sequence[ScoreResult], **kw: Any) -> dict[str, Explanation]:
     med = version_medians(results)
     out: dict[str, Explanation] = {}
     for r in results:

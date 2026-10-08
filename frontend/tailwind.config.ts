@@ -9,7 +9,7 @@ const config: Config = {
     extend: {
       colors: {
         brand: { DEFAULT: '#402FFF', hover: '#3526D9', press: '#2B1FB8' },
-        ink: { DEFAULT: '#1B1C21', 2: '#4A4B52', 3: '#7A7B82' },
+        ink: { DEFAULT: '#1B1C21', 2: '#4A4B52', 3: '#686970' },
         hairline: '#E4E4E7',
         panel: '#F6F6F8',
         tint: '#F3F1FF',
@@ -17,7 +17,7 @@ const config: Config = {
         // красный: плашки/точки сроков и «против» — #EC1D35, текст — #C8102E (контраст на белом ≥ 5:1)
         danger: { DEFAULT: '#EC1D35', text: '#C8102E' },
         // шкала теплокарты (Карта талантов)
-        heat: { 1: '#F1EFFF', 2: '#DEDAFF', 3: '#B9B1FF', 4: '#7A6CFF', 5: '#402FFF' },
+        heat: { 1: '#F1EFFF', 2: '#DEDAFF', 3: '#B9B1FF', 4: '#6A5CFF', 5: '#402FFF' },
         identicon: '#E6E2FF',
         bar: '#DCDCE2',
         code: { bg: '#1B1C21', dim: '#9A9BA3' },

@@ -136,6 +136,145 @@
         }
       }
     },
+    "/api/health/pool": {
+      "get": {
+        "tags": [
+          "Служебное"
+        ],
+        "summary": "Готовность пула заданий",
+        "description": "Без входа. После `docker compose up` пул одноразовых заданий греет сервис pool (≈ 2 минуты): пока `ready=false`, тест не стартует, а экран брифинга и /jury показывают «Готовим одноразовые задания…» с прогрессом. `?specialization=` — готовность по одной специализации.",
+        "operationId": "pool_readiness_api_health_pool_get",
+        "parameters": [
+          {
+            "name": "specialization",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 32
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Specialization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PoolReadinessOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/health/live": {
       "get": {
         "tags": [
@@ -6146,7 +6285,7 @@
         "tags": [
           "Опрос"
         ],
-        "summary": "Шаг 1: отрасли",
+        "summary": "Шаг 1: сфера бизнеса",
         "description": "Отрасли интереса — только фасет для подбора, в оценку не входят. После завершённого опроса этот шаг начинает новую версию анкеты (прошлые ответы подставляются).",
         "operationId": "step_industries_api_survey_steps_industries_put",
         "requestBody": {
@@ -8891,6 +9030,202 @@
         ]
       }
     },
+    "/api/needs/market-salary": {
+      "get": {
+        "tags": [
+          "Потребности и подборка"
+        ],
+        "summary": "Рыночная вилка для направления и грейда",
+        "description": "Подсказка в форме брифа: квантили зарплат (p10–p90) по открытым данным вакансий «Работа в России» для направления × грейда (если ячейка тонкая — по направлению целиком), в двух основаниях: `gross` — до НДФЛ (так указано в источнике) и `net` — на руки. Выборка региональная и занижена относительно Москвы — см. `note`. Если передать `salary_to` и `salary_net`, вернётся отношение верхней границы вилки к нижнему квартилю рынка. Только подсказка: в Score и подбор не входит, вилку не блокирует.",
+        "operationId": "market_salary_api_needs_market_salary_get",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "specialization",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 32,
+              "description": "Код специализации, например backend_python",
+              "title": "Specialization"
+            },
+            "description": "Код специализации, например backend_python"
+          },
+          {
+            "name": "grade",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "intern",
+                    "junior",
+                    "middle",
+                    "senior"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Грейд",
+              "title": "Grade"
+            },
+            "description": "Грейд"
+          },
+          {
+            "name": "salary_to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 10000000,
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Верхняя граница вилки, ₽/мес",
+              "title": "Salary To"
+            },
+            "description": "Верхняя граница вилки, ₽/мес"
+          },
+          {
+            "name": "salary_net",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Вилка указана на руки (true) или до НДФЛ (false)",
+              "default": true,
+              "title": "Salary Net"
+            },
+            "description": "Вилка указана на руки (true) или до НДФЛ (false)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarketSalaryOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/needs": {
       "post": {
         "tags": [
@@ -11619,6 +11954,36 @@
               "title": "Need Id"
             },
             "description": "Бриф для отметки «уже в шортлисте»"
+          },
+          {
+            "name": "interest",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "true — только кандидаты, отметившие интерес к вашей компании (видны лишь по открытым карточкам)",
+              "title": "Interest"
+            },
+            "description": "true — только кандидаты, отметившие интерес к вашей компании (видны лишь по открытым карточкам)"
+          },
+          {
+            "name": "interest_first",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Сначала кандидаты с сигналом интереса (Score не меняется)",
+              "default": false,
+              "title": "Interest First"
+            },
+            "description": "Сначала кандидаты с сигналом интереса (Score не меняется)"
           }
         ],
         "responses": {
@@ -23028,6 +23393,361 @@
         }
       }
     },
+    "/api/interest/me": {
+      "get": {
+        "tags": [
+          "Сигнал интереса"
+        ],
+        "summary": "Мои сигналы интереса",
+        "description": "Остаток («осталось 2 из 2»), когда освободится слот, действующие сигналы и текст отдельного согласия.",
+        "operationId": "my_status_api_interest_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InterestStatusOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/interest": {
+      "post": {
+        "tags": [
+          "Сигнал интереса"
+        ],
+        "summary": "Отправить сигнал интереса",
+        "description": "Укажите вакансию или компанию. Лимит — config/contact.yaml → interest (по умолчанию 2 за 30 дней, живёт 60 дней; отзыв лимит не возвращает). Нужно отдельное согласие (`consent: true` при первом сигнале). Работодатель увидит сигнал только после того, как сам откроет вашу карточку или закрепит вас в шортлисте; на Score он не влияет. 409 `interest_limit` — сигналы закончились, `interest_exists` — компании уже отправлен.",
+        "operationId": "send_api_interest_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InterestIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InterestSentOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/interest/{signal_id}/revoke": {
+      "post": {
+        "tags": [
+          "Сигнал интереса"
+        ],
+        "summary": "Отозвать сигнал",
+        "description": "Сигнал сразу пропадает у работодателя. Использованный слот не возвращается.",
+        "operationId": "revoke_api_interest__signal_id__revoke_post",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "signal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Signal Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InterestStatusOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/fsp/availability": {
       "get": {
         "tags": [
@@ -26858,6 +27578,131 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PrecomputeOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/lab/quality": {
+      "get": {
+        "tags": [
+          "Лаборатория"
+        ],
+        "summary": "Качество заданий: DIF, дрейф, экспозиция",
+        "description": "Монитор психометрического качества (docs/TESTING_MECHANISM.md): дрейф сложности семейств по ответам после калибровки (Δb с 95% ДИ, флаг при превышении порога из config/testing.yaml), экспозиция семейств по решённым сессиям и результат проверки DIF (Мантель–Хензель, классы ETS A/B/C) на синтетической популяции с внедрёнными смещёнными заданиями.",
+        "operationId": "quality_api_lab_quality_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QualityOut"
                 }
               }
             }
@@ -30875,6 +31720,925 @@
         }
       }
     },
+    "/api/credentials/me": {
+      "get": {
+        "tags": [
+          "Паспорт навыков"
+        ],
+        "summary": "Мои паспорта и что можно выпустить",
+        "operationId": "my_credentials_api_credentials_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredentialListOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Паспорт навыков"
+        ],
+        "summary": "Выпустить паспорт",
+        "operationId": "issue_credential_api_credentials_me_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredentialIssueIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredentialOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/api/credentials/me/{credential_id}/file": {
+      "get": {
+        "tags": [
+          "Паспорт навыков"
+        ],
+        "summary": "Скачать паспорт (JSON)",
+        "description": "Подписанный документ целиком (Open Badges 3.0, proof eddsa-jcs-2022). Его можно отправить кому угодно и проверить на странице /v.",
+        "operationId": "download_credential_api_credentials_me__credential_id__file_get",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "credential_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Credential Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/credentials/me/{credential_id}/revoke": {
+      "post": {
+        "tags": [
+          "Паспорт навыков"
+        ],
+        "summary": "Отозвать паспорт",
+        "operationId": "revoke_credential_api_credentials_me__credential_id__revoke_post",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "credential_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Credential Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredentialOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/credentials/status/{list_id}": {
+      "get": {
+        "tags": [
+          "Паспорт навыков"
+        ],
+        "summary": "Список отзыва (Bitstring Status List)",
+        "operationId": "status_list_api_credentials_status__list_id__get",
+        "parameters": [
+          {
+            "name": "list_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 16,
+              "title": "List Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/credentials/verify/{code}": {
+      "get": {
+        "tags": [
+          "Паспорт навыков"
+        ],
+        "summary": "Проверить паспорт по коду из QR",
+        "description": "Публично, без входа и без ПДн (имя владельца не показывается). Каждая проверка отдельно: формат, издатель, подпись, срок, реестр, отзыв.",
+        "operationId": "verify_by_code_api_credentials_verify__code__get",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "title": "Code"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyCredentialOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/credentials/verify": {
+      "post": {
+        "tags": [
+          "Паспорт навыков"
+        ],
+        "summary": "Проверить загруженный файл паспорта",
+        "description": "Тело запроса — содержимое JSON-файла как есть (Content-Type любой). Изменённый хотя бы на один байт файл не пройдёт проверку подписи.",
+        "operationId": "verify_file_api_credentials_verify_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyCredentialOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/skills": {
       "get": {
         "tags": [
@@ -34092,6 +35856,17 @@
             "title": "Invitation Label",
             "description": "Подпись статуса: «Отправлено», «Просмотрено», …"
           },
+          "interest": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InterestBadgeOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Сигнал интереса кандидата к вашей компании (если карточка открыта)"
+          },
           "hidden_by": {
             "items": {
               "type": "string"
@@ -34128,6 +35903,7 @@
           "shortlisted",
           "invitation_status",
           "invitation_label",
+          "interest",
           "hidden_by"
         ],
         "title": "BankItemOut"
@@ -34955,6 +36731,17 @@
             ],
             "title": "Active Session Id",
             "description": "Незавершённая сессия (продолжить)"
+          },
+          "pool": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PoolReadinessOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Готовность пула заданий; пока не готов — can_start.code = pool_warming_up"
           }
         },
         "type": "object",
@@ -34976,7 +36763,8 @@
           "upgrade_target",
           "next_change_allowed_at",
           "next_change_in",
-          "active_session_id"
+          "active_session_id",
+          "pool"
         ],
         "title": "BriefingOut"
       },
@@ -35194,6 +36982,14 @@
             "type": "array",
             "title": "Industries"
           },
+          "work_history": {
+            "items": {
+              "$ref": "#/components/schemas/WorkHistoryOut"
+            },
+            "type": "array",
+            "title": "Work History",
+            "description": "Опыт без названий компаний: роль и срок. Заявлено кандидатом, в Score не входит"
+          },
           "formats": {
             "items": {
               "type": "string"
@@ -35298,6 +37094,17 @@
             ],
             "description": "Строка текущей версии подборки брифа"
           },
+          "interest": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InterestBadgeOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Сигнал интереса кандидата (отдельно от Score; DECISIONS 24)"
+          },
           "disclosed": {
             "anyOf": [
               {
@@ -35326,6 +37133,7 @@
           "tasks",
           "freshness",
           "industries",
+          "work_history",
           "formats",
           "search_mode",
           "has_fsp",
@@ -35337,6 +37145,7 @@
           "salary",
           "region",
           "selection",
+          "interest",
           "disclosed"
         ],
         "title": "CandidateCardOut"
@@ -37812,7 +39621,8 @@
           "fsp_enrichment",
           "contact_disclosure",
           "test_logging",
-          "calibration"
+          "calibration",
+          "interest_signal"
         ],
         "title": "ConsentPurpose",
         "description": "Отдельные согласия (152-ФЗ): каждое — своя запись в журнале с версией текста."
@@ -38189,6 +39999,355 @@
           "via"
         ],
         "title": "CoveredSkillOut"
+      },
+      "CredentialCheckOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "ok",
+          "label",
+          "reason"
+        ],
+        "title": "CredentialCheckOut"
+      },
+      "CredentialIssueIn": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "category",
+              "fsp"
+            ],
+            "title": "Kind"
+          },
+          "ref": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Ref"
+          },
+          "include_name": {
+            "type": "boolean",
+            "title": "Include Name",
+            "description": "Указать ФИО в паспорте. По умолчанию — только псевдонимный идентификатор",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "ref"
+        ],
+        "title": "CredentialIssueIn"
+      },
+      "CredentialListOut": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CredentialOut"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "offers": {
+            "items": {
+              "$ref": "#/components/schemas/CredentialOfferOut"
+            },
+            "type": "array",
+            "title": "Offers"
+          },
+          "issuer_did": {
+            "type": "string",
+            "title": "Issuer Did"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "offers",
+          "issuer_did",
+          "disclaimer"
+        ],
+        "title": "CredentialListOut"
+      },
+      "CredentialOfferOut": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "category",
+              "fsp"
+            ],
+            "title": "Kind"
+          },
+          "ref": {
+            "type": "string",
+            "title": "Ref",
+            "description": "Что выпускать: код специализации или id достижения (виден только владельцу)"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "ref",
+          "title",
+          "detail"
+        ],
+        "title": "CredentialOfferOut"
+      },
+      "CredentialOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "category",
+              "fsp"
+            ],
+            "title": "Kind"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "verify_url": {
+            "type": "string",
+            "title": "Verify Url"
+          },
+          "qr": {
+            "type": "string",
+            "title": "Qr",
+            "description": "QR-код ссылки проверки (PNG, data URI)"
+          },
+          "issued_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Issued At"
+          },
+          "valid_until": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Valid Until"
+          },
+          "revoked_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revoked At"
+          },
+          "include_name": {
+            "type": "boolean",
+            "title": "Include Name"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "revoked",
+              "expired"
+            ],
+            "title": "Status"
+          },
+          "demo_issuer": {
+            "type": "boolean",
+            "title": "Demo Issuer",
+            "default": true
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "title",
+          "code",
+          "verify_url",
+          "qr",
+          "issued_at",
+          "valid_until",
+          "revoked_at",
+          "include_name",
+          "status",
+          "demo_issuer",
+          "disclaimer"
+        ],
+        "title": "CredentialOut"
+      },
+      "CredentialResultOut": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "score",
+              "sem"
+            ],
+            "title": "Kind"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "value"
+        ],
+        "title": "CredentialResultOut"
+      },
+      "CredentialSummaryOut": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "achievement": {
+            "type": "string",
+            "title": "Achievement"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "category",
+              "fsp"
+            ],
+            "title": "Kind"
+          },
+          "issuer_name": {
+            "type": "string",
+            "title": "Issuer Name"
+          },
+          "issuer_id": {
+            "type": "string",
+            "title": "Issuer Id"
+          },
+          "issued_on": {
+            "type": "string",
+            "title": "Issued On"
+          },
+          "valid_until": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid Until"
+          },
+          "tested_on": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tested On"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/CredentialResultOut"
+            },
+            "type": "array",
+            "title": "Results"
+          },
+          "narrative": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Narrative"
+          },
+          "holder_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Holder Name",
+            "description": "Только при проверке файла, где владелец сам указал имя"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "achievement",
+          "kind",
+          "issuer_name",
+          "issuer_id",
+          "issued_on",
+          "valid_until",
+          "tested_on",
+          "results",
+          "narrative",
+          "holder_name"
+        ],
+        "title": "CredentialSummaryOut"
       },
       "DecisionOut": {
         "properties": {
@@ -38756,6 +40915,17 @@
             ],
             "title": "Fsp Extract",
             "description": "Выписка из протокола ФСП с номером ЕКП"
+          },
+          "skills_passport": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SkillsPassportOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "«Паспорт проверен ✓» — действующий подписанный паспорт навыков"
           }
         },
         "type": "object",
@@ -38770,7 +40940,8 @@
           "current_employer",
           "university",
           "city",
-          "fsp_extract"
+          "fsp_extract",
+          "skills_passport"
         ],
         "title": "DisclosedOut",
         "description": "Только при действующем согласии кандидата на эту компанию (ContactDisclosure)."
@@ -38797,6 +40968,100 @@
           "fields"
         ],
         "title": "DisclosureInfoOut"
+      },
+      "DriftRowOut": {
+        "properties": {
+          "family_id": {
+            "type": "string",
+            "title": "Family Id",
+            "description": "Семейство заданий"
+          },
+          "specialization": {
+            "type": "string",
+            "title": "Specialization"
+          },
+          "n": {
+            "type": "integer",
+            "title": "N",
+            "description": "Ответов после последней калибровки семейства"
+          },
+          "observed_p": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed P",
+            "description": "Доля верных"
+          },
+          "expected_p": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected P",
+            "description": "Ожидаемая доля верных при калиброванной сложности"
+          },
+          "d_b": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "D B",
+            "description": "Сдвиг сложности, логиты; < 0 — стало легче"
+          },
+          "ci_lo": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ci Lo"
+          },
+          "ci_hi": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ci Hi"
+          },
+          "flag": {
+            "type": "string",
+            "title": "Flag",
+            "description": "drift | watch | ok | n/a"
+          }
+        },
+        "type": "object",
+        "required": [
+          "family_id",
+          "specialization",
+          "n",
+          "observed_p",
+          "expected_p",
+          "d_b",
+          "ci_lo",
+          "ci_hi",
+          "flag"
+        ],
+        "title": "DriftRowOut"
       },
       "EmployerCandidateBlind": {
         "properties": {
@@ -38910,6 +41175,14 @@
             "type": "array",
             "title": "Industries"
           },
+          "work_history": {
+            "items": {
+              "$ref": "#/components/schemas/WorkHistoryOut"
+            },
+            "type": "array",
+            "title": "Work History",
+            "description": "Опыт без названий компаний: роль и срок. Заявлено кандидатом, в Score не входит"
+          },
           "formats": {
             "items": {
               "type": "string"
@@ -39014,6 +41287,17 @@
             ],
             "description": "Строка текущей версии подборки брифа"
           },
+          "interest": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InterestBadgeOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Сигнал интереса кандидата (отдельно от Score; DECISIONS 24)"
+          },
           "disclosed": {
             "anyOf": [
               {
@@ -39042,6 +41326,7 @@
           "tasks",
           "freshness",
           "industries",
+          "work_history",
           "formats",
           "search_mode",
           "has_fsp",
@@ -39053,6 +41338,7 @@
           "salary",
           "region",
           "selection",
+          "interest",
           "disclosed"
         ],
         "title": "EmployerCandidateBlind",
@@ -39170,6 +41456,14 @@
             "type": "array",
             "title": "Industries"
           },
+          "work_history": {
+            "items": {
+              "$ref": "#/components/schemas/WorkHistoryOut"
+            },
+            "type": "array",
+            "title": "Work History",
+            "description": "Опыт без названий компаний: роль и срок. Заявлено кандидатом, в Score не входит"
+          },
           "formats": {
             "items": {
               "type": "string"
@@ -39273,6 +41567,17 @@
               }
             ],
             "description": "Строка текущей версии подборки брифа"
+          },
+          "interest": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InterestBadgeOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Сигнал интереса кандидата (отдельно от Score; DECISIONS 24)"
           },
           "disclosed": {
             "anyOf": [
@@ -39415,6 +41720,7 @@
           "tasks",
           "freshness",
           "industries",
+          "work_history",
           "formats",
           "search_mode",
           "has_fsp",
@@ -39426,6 +41732,7 @@
           "salary",
           "region",
           "selection",
+          "interest",
           "disclosed",
           "full_name",
           "photo_url",
@@ -39910,6 +42217,36 @@
           "company"
         ],
         "title": "ExperiencePeriodIO"
+      },
+      "ExposureRowOut": {
+        "properties": {
+          "family_id": {
+            "type": "string",
+            "title": "Family Id"
+          },
+          "specialization": {
+            "type": "string",
+            "title": "Specialization"
+          },
+          "sessions": {
+            "type": "integer",
+            "title": "Sessions",
+            "description": "Сессий, где семейство показано"
+          },
+          "exposure": {
+            "type": "number",
+            "title": "Exposure",
+            "description": "Доля решённых сессий шкалы, где показано семейство"
+          }
+        },
+        "type": "object",
+        "required": [
+          "family_id",
+          "specialization",
+          "sessions",
+          "exposure"
+        ],
+        "title": "ExposureRowOut"
       },
       "ExpressResultOut": {
         "properties": {
@@ -41338,6 +43675,30 @@
             "title": "Demo Mode",
             "description": "Включён ли DEMO_MODE"
           },
+          "pool_ready": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pool Ready",
+            "description": "Готов ли пул одноразовых заданий (#14); null — не определено"
+          },
+          "pool_progress": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pool Progress",
+            "description": "Доля готовых семейств заданий, 0…1"
+          },
           "time": {
             "type": "string",
             "format": "date-time",
@@ -41351,6 +43712,8 @@
           "db",
           "version",
           "demo_mode",
+          "pool_ready",
+          "pool_progress",
           "time"
         ],
         "title": "HealthOut"
@@ -41542,6 +43905,253 @@
           "note"
         ],
         "title": "ImportOut"
+      },
+      "InterestActiveOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "company_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Company Id"
+          },
+          "company_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Company Name"
+          },
+          "vacancy_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vacancy Id"
+          },
+          "sent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sent",
+            "description": "Когда отправлен (относительно)"
+          },
+          "expires": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires",
+            "description": "Когда истечёт (относительно)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "company_id",
+          "company_name",
+          "vacancy_id",
+          "sent",
+          "expires"
+        ],
+        "title": "InterestActiveOut"
+      },
+      "InterestBadgeOut": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label",
+            "description": "«Взаимный интерес»"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text",
+            "description": "«Кандидат отметил интерес к вашей компании»"
+          },
+          "hint": {
+            "type": "string",
+            "title": "Hint"
+          },
+          "sent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sent",
+            "description": "Когда отправлен (относительно)"
+          },
+          "expires": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires",
+            "description": "Когда истечёт (относительно)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "label",
+          "text",
+          "hint",
+          "sent",
+          "expires"
+        ],
+        "title": "InterestBadgeOut",
+        "description": "Сигнал интереса кандидата (DECISIONS 24). Отдельный сигнал, не часть Score; виден только после открытия карточки."
+      },
+      "InterestIn": {
+        "properties": {
+          "vacancy_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vacancy Id"
+          },
+          "company_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Company Id"
+          },
+          "consent": {
+            "type": "boolean",
+            "title": "Consent",
+            "description": "Отдельная галочка согласия (нужна, если ещё не давали)",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "InterestIn"
+      },
+      "InterestSentOut": {
+        "properties": {
+          "signal": {
+            "$ref": "#/components/schemas/InterestActiveOut"
+          },
+          "status": {
+            "$ref": "#/components/schemas/InterestStatusOut"
+          }
+        },
+        "type": "object",
+        "required": [
+          "signal",
+          "status"
+        ],
+        "title": "InterestSentOut"
+      },
+      "InterestStatusOut": {
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "title": "Limit",
+            "description": "Сигналов за окно (config/contact.yaml → interest.per_window)"
+          },
+          "remaining": {
+            "type": "integer",
+            "title": "Remaining"
+          },
+          "window_days": {
+            "type": "integer",
+            "title": "Window Days"
+          },
+          "lifetime_days": {
+            "type": "integer",
+            "title": "Lifetime Days"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label",
+            "description": "«осталось 2 из 2»"
+          },
+          "next_slot_in": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Slot In",
+            "description": "Когда освободится слот (если сигналов нет)"
+          },
+          "consent_text": {
+            "type": "string",
+            "title": "Consent Text"
+          },
+          "consent_text_version": {
+            "type": "string",
+            "title": "Consent Text Version"
+          },
+          "consent_given": {
+            "type": "boolean",
+            "title": "Consent Given"
+          },
+          "active": {
+            "items": {
+              "$ref": "#/components/schemas/InterestActiveOut"
+            },
+            "type": "array",
+            "title": "Active"
+          }
+        },
+        "type": "object",
+        "required": [
+          "limit",
+          "remaining",
+          "window_days",
+          "lifetime_days",
+          "label",
+          "next_slot_in",
+          "consent_text",
+          "consent_text_version",
+          "consent_given",
+          "active"
+        ],
+        "title": "InterestStatusOut"
       },
       "InvitationBatchIn": {
         "properties": {
@@ -41883,6 +44493,19 @@
             "type": "array",
             "title": "Why You"
           },
+          "team": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Team",
+            "description": "О команде из брифа (E-02); в Score не входит"
+          },
           "salary_vs_min": {
             "anyOf": [
               {
@@ -42033,6 +44656,7 @@
           "terms",
           "terms_history",
           "why_you",
+          "team",
           "salary_vs_min",
           "counter",
           "counter_limits",
@@ -44425,6 +47049,191 @@
         ],
         "title": "LoginRequest"
       },
+      "MarketQuantilesOut": {
+        "properties": {
+          "p10": {
+            "type": "integer",
+            "title": "P10"
+          },
+          "p25": {
+            "type": "integer",
+            "title": "P25"
+          },
+          "p50": {
+            "type": "integer",
+            "title": "P50"
+          },
+          "p75": {
+            "type": "integer",
+            "title": "P75"
+          },
+          "p90": {
+            "type": "integer",
+            "title": "P90"
+          }
+        },
+        "type": "object",
+        "required": [
+          "p10",
+          "p25",
+          "p50",
+          "p75",
+          "p90"
+        ],
+        "title": "MarketQuantilesOut"
+      },
+      "MarketSalaryOut": {
+        "properties": {
+          "available": {
+            "type": "boolean",
+            "title": "Available",
+            "description": "Есть ли достаточно данных (n ≥ порога) для направления"
+          },
+          "scope": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "direction_grade",
+                  "direction"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scope",
+            "description": "По чему посчитано: направление × грейд или направление целиком"
+          },
+          "grade": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "intern",
+                  "junior",
+                  "middle",
+                  "senior"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grade",
+            "description": "Грейд ячейки (None — по направлению целиком)"
+          },
+          "n": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N",
+            "description": "Число вакансий с зарплатой в ячейке"
+          },
+          "gross": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MarketQuantilesOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "₽/мес до НДФЛ (так указана зарплата в источнике)"
+          },
+          "net": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MarketQuantilesOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "₽/мес на руки = gross·(1 − НДФЛ)"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          },
+          "fetched": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fetched",
+            "description": "Дата выгрузки данных"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note",
+            "description": "Оговорка о смещении выборки"
+          },
+          "ratio_to_p25": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ratio To P25",
+            "description": "Верхняя граница переданной вилки / нижний квартиль рынка (в gross)"
+          },
+          "far_below": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Far Below",
+            "description": "Вилка сильно ниже рынка (сигнал, не блокировка)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "available",
+          "scope",
+          "grade",
+          "n",
+          "gross",
+          "net",
+          "source",
+          "fetched",
+          "note",
+          "ratio_to_p25",
+          "far_below"
+        ],
+        "title": "MarketSalaryOut",
+        "description": "Рыночная вилка по открытым данным: только подсказка, в Score и подбор не входит."
+      },
       "MeOut": {
         "properties": {
           "company": {
@@ -44838,6 +47647,17 @@
             "title": "Salary Net",
             "description": "true — на руки, false — до НДФЛ"
           },
+          "team": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TeamIn"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "О команде (необязательно)"
+          },
           "title": {
             "anyOf": [
               {
@@ -45047,6 +47867,12 @@
             "type": "array",
             "title": "Categories",
             "description": "Категории брифа и их выбор"
+          },
+          "team": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Team",
+            "description": "О команде (E-02): size, role, stack_context, about"
           }
         },
         "type": "object",
@@ -45070,7 +47896,8 @@
           "brief",
           "parse",
           "warnings",
-          "categories"
+          "categories",
+          "team"
         ],
         "title": "NeedOut"
       },
@@ -45177,6 +48004,17 @@
             "title": "Clear City",
             "description": "Убрать город из брифа",
             "default": false
+          },
+          "team": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TeamIn"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "О команде: пустой объект очищает"
           },
           "text": {
             "anyOf": [
@@ -46293,6 +49131,50 @@
           "key_collision_rate"
         ],
         "title": "PoolOut"
+      },
+      "PoolReadinessOut": {
+        "properties": {
+          "ready": {
+            "type": "boolean",
+            "title": "Ready",
+            "description": "Пул одноразовых заданий готов (после `docker compose up` его греет сервис pool)"
+          },
+          "families_total": {
+            "type": "integer",
+            "title": "Families Total",
+            "description": "Семейств заданий в проверке"
+          },
+          "families_ready": {
+            "type": "integer",
+            "title": "Families Ready",
+            "description": "Из них с достаточным запасом свободных экземпляров"
+          },
+          "progress": {
+            "type": "number",
+            "title": "Progress",
+            "description": "Доля готовых семейств, 0…1 — для полосы прогресса"
+          },
+          "eta_s": {
+            "type": "integer",
+            "title": "Eta S",
+            "description": "Ориентир ожидания, секунд (0 — готово)"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Текст для экрана: «Готовим одноразовые задания…»"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ready",
+          "families_total",
+          "families_ready",
+          "progress",
+          "eta_s",
+          "message"
+        ],
+        "title": "PoolReadinessOut"
       },
       "PrecomputeIn": {
         "properties": {
@@ -47753,6 +50635,75 @@
           "is_fullstack"
         ],
         "title": "QualificationOut"
+      },
+      "QualityOut": {
+        "properties": {
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At"
+          },
+          "drift_threshold_b": {
+            "type": "number",
+            "title": "Drift Threshold B"
+          },
+          "drift_min_n": {
+            "type": "integer",
+            "title": "Drift Min N"
+          },
+          "drift": {
+            "items": {
+              "$ref": "#/components/schemas/DriftRowOut"
+            },
+            "type": "array",
+            "title": "Drift"
+          },
+          "drift_flagged": {
+            "type": "integer",
+            "title": "Drift Flagged"
+          },
+          "exposure": {
+            "items": {
+              "$ref": "#/components/schemas/ExposureRowOut"
+            },
+            "type": "array",
+            "title": "Exposure"
+          },
+          "exposure_r_max": {
+            "type": "number",
+            "title": "Exposure R Max"
+          },
+          "synthetic": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Synthetic",
+            "description": "Прогон eval.fairness на синтетике (DIF по классам ETS, дрейф с внедрённой утечкой, Симпсон–Хеттер); null — прогона нет"
+          },
+          "synthetic_note": {
+            "type": "string",
+            "title": "Synthetic Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "generated_at",
+          "drift_threshold_b",
+          "drift_min_n",
+          "drift",
+          "drift_flagged",
+          "exposure",
+          "exposure_r_max",
+          "synthetic",
+          "synthetic_note"
+        ],
+        "title": "QualityOut"
       },
       "QuestionOptionOut": {
         "properties": {
@@ -51362,6 +54313,17 @@
             ],
             "title": "Invitation Label",
             "description": "Подпись статуса: «Отправлено», «Просмотрено», …"
+          },
+          "interest": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InterestBadgeOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Сигнал интереса кандидата к вашей компании (если карточка открыта)"
           }
         },
         "type": "object",
@@ -51396,7 +54358,8 @@
           "weak_match",
           "neighbor_below",
           "invitation_status",
-          "invitation_label"
+          "invitation_label",
+          "interest"
         ],
         "title": "SelectionItemOut"
       },
@@ -52114,6 +55077,43 @@
           "untestable_reason"
         ],
         "title": "SkillOut"
+      },
+      "SkillsPassportOut": {
+        "properties": {
+          "verified": {
+            "type": "boolean",
+            "title": "Verified"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "titles": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Titles"
+          },
+          "issuer": {
+            "type": "string",
+            "title": "Issuer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "verified",
+          "count",
+          "label",
+          "titles",
+          "issuer"
+        ],
+        "title": "SkillsPassportOut",
+        "description": "Подписанный «Цифровой паспорт навыков» кандидата прошёл проверку (демонстрационный издатель)."
       },
       "SourcedOut": {
         "properties": {
@@ -53465,6 +56465,67 @@
         ],
         "title": "TasksOverviewOut"
       },
+      "TeamIn": {
+        "properties": {
+          "size": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 500,
+                "minimum": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Size",
+            "description": "Сколько человек в команде"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role",
+            "description": "Роль нанимаемого в команде, например «второй backend»"
+          },
+          "stack_context": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 300
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stack Context",
+            "description": "Контекст стека: что уже есть в проекте"
+          },
+          "about": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "About",
+            "description": "О команде: чем занимается, как работает"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "TeamIn",
+        "description": "E-02: необязательные поля «о команде». Кандидат видит их в приглашении и вакансии; в Score не входят."
+      },
       "TermsBlock": {
         "properties": {
           "ver": {
@@ -54568,6 +57629,19 @@
             ],
             "title": "How We Check"
           },
+          "team": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Team",
+            "description": "О команде (E-02): size, role, stack_context, about"
+          },
           "application_status": {
             "anyOf": [
               {
@@ -54613,6 +57687,17 @@
             "type": "object",
             "title": "Complaint Reasons",
             "description": "Причины жалобы: код → подпись"
+          },
+          "interest": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VacancyInterestOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Сигнал интереса к компании (DECISIONS 24)"
           }
         },
         "type": "object",
@@ -54635,12 +57720,14 @@
           "parts",
           "category",
           "how_we_check",
+          "team",
           "application_status",
           "application_id",
           "consent",
           "response_days",
           "reported",
-          "complaint_reasons"
+          "complaint_reasons",
+          "interest"
         ],
         "title": "VacancyCandidateDetail"
       },
@@ -54860,10 +57947,93 @@
       "VacancyCreateIn": {
         "properties": {
           "need_id": {
-            "type": "string",
-            "format": "uuid",
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Need Id",
-            "description": "Бриф, который публикуется как вакансия"
+            "description": "Бриф, который публикуется как вакансия. Без него — прямая вакансия (X-04): нужны title, specialization, grade и вилка; бриф создаётся автоматически"
+          },
+          "specialization": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Specialization",
+            "description": "Направление (код), для вакансии без брифа"
+          },
+          "grade": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "intern",
+                  "junior",
+                  "middle",
+                  "senior"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grade",
+            "description": "Грейд, для вакансии без брифа"
+          },
+          "must": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "maxItems": 5
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Must",
+            "description": "Обязательные навыки (id справочника)"
+          },
+          "nice": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "maxItems": 30
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nice",
+            "description": "Желательные навыки (id справочника)"
+          },
+          "team": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Team",
+            "description": "О команде: size, role, stack_context, about (E-02)"
           },
           "title": {
             "anyOf": [
@@ -54955,9 +58125,6 @@
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "need_id"
-        ],
         "title": "VacancyCreateIn"
       },
       "VacancyEmployerOut": {
@@ -55114,6 +58281,49 @@
           "how_we_check"
         ],
         "title": "VacancyEmployerOut"
+      },
+      "VacancyInterestOut": {
+        "properties": {
+          "sent": {
+            "type": "boolean",
+            "title": "Sent",
+            "description": "Сигнал этой компании уже действует"
+          },
+          "signal_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signal Id"
+          },
+          "remaining": {
+            "type": "integer",
+            "title": "Remaining"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sent",
+          "signal_id",
+          "remaining",
+          "limit",
+          "label"
+        ],
+        "title": "VacancyInterestOut",
+        "description": "Блок «Отправить сигнал интереса» в карточке вакансии."
       },
       "VacancyItem": {
         "properties": {
@@ -56067,6 +59277,63 @@
         ],
         "title": "VerifyCategoryOut"
       },
+      "VerifyCredentialOut": {
+        "properties": {
+          "valid": {
+            "type": "boolean",
+            "title": "Valid"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/CredentialCheckOut"
+            },
+            "type": "array",
+            "title": "Checks"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reasons",
+            "description": "Что не так — по-русски (пусто, если всё в порядке)"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CredentialSummaryOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "demo_issuer": {
+            "type": "boolean",
+            "title": "Demo Issuer",
+            "default": true
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "valid",
+          "message",
+          "checks",
+          "reasons",
+          "summary",
+          "demo_issuer",
+          "disclaimer"
+        ],
+        "title": "VerifyCredentialOut"
+      },
       "VerifyEmailRequest": {
         "properties": {
           "email": {
@@ -56978,6 +60245,37 @@
         ],
         "title": "WebhookSettingsOut"
       },
+      "WorkHistoryOut": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "title": "Role",
+            "description": "Должность (без названия компании)"
+          },
+          "duration": {
+            "type": "string",
+            "title": "Duration",
+            "description": "Срок: «2 г. 3 мес.»"
+          },
+          "months": {
+            "type": "integer",
+            "title": "Months"
+          },
+          "current": {
+            "type": "boolean",
+            "title": "Current",
+            "description": "Работает сейчас"
+          }
+        },
+        "type": "object",
+        "required": [
+          "role",
+          "duration",
+          "months",
+          "current"
+        ],
+        "title": "WorkHistoryOut"
+      },
       "app__api__admin__ValidationOut": {
         "properties": {
           "source": {
@@ -57556,6 +60854,10 @@
       "description": "Самостоятельный отклик кандидата на опубликованную вакансию."
     },
     {
+      "name": "Сигнал интереса",
+      "description": "Сигнал кандидата «мне интересна эта компания»: 2 в месяц, виден работодателю только после открытия карточки, на Score не влияет."
+    },
+    {
       "name": "Вакансии",
       "description": "Опубликованные брифы и «как мы проверим» навыки вакансии."
     },
@@ -57598,6 +60900,10 @@
     {
       "name": "Проверка профиля",
       "description": "Публичная сверка стандартизированного PDF-профиля по QR-коду."
+    },
+    {
+      "name": "Паспорт навыков",
+      "description": "Подписанные W3C Verifiable Credentials / Open Badges 3.0 (категория и достижения ФСП), список отзыва, публичная проверка. Издатель демонстрационный."
     },
     {
       "name": "Администрирование",

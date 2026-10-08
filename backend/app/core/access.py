@@ -28,7 +28,7 @@ def is_owner(obj: Any, user: User, owner_attr: str = "user_id") -> bool:
     value = getattr(obj, owner_attr)
     if owner_attr == "company_id":
         return user.company_id is not None and value == user.company_id
-    return value == user.id
+    return bool(value == user.id)
 
 
 def ensure_owner(

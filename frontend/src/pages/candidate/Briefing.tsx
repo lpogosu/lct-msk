@@ -1,3 +1,4 @@
+import { PoolWarmup } from '@/features/candidate/components/PoolWarmup'
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -242,7 +243,13 @@ function BriefingView({ b }: { b: Briefing }) {
         <p className="t-small text-ink-3">Согласие на журналирование событий теста дано (версия {b.consent.version}). Отозвать можно в журнале согласий.</p>
       )}
 
-      {!b.can_start.ok && (
+      {b.can_start.code === 'pool_warming_up' && (
+        <PoolWarmup
+          spec={b.specialization.code}
+          onReady={() => void qc.invalidateQueries({ queryKey: qk.briefing(b.specialization.code) })}
+        />
+      )}
+      {!b.can_start.ok && b.can_start.code !== 'pool_warming_up' && (
         <Alert title="Начать сейчас нельзя">
           {b.can_start.message}
           {b.can_start.available_at ? `. Доступно с ${formatDate(b.can_start.available_at)}.` : ''}

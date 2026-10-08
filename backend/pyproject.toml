@@ -35,6 +35,7 @@ dev = [
     "scipy>=1.13",  # только tests/test_matching_scoring.py (контрольные значения нормального распределения)
     "pytest-asyncio>=0.24",
     "ruff>=0.6",
+    "mypy>=1.11",
 ]
 
 [tool.pytest.ini_options]
@@ -48,3 +49,42 @@ target-version = "py311"
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
 ignore = ["E501"]
+
+# Статическая типизация (docs/ENGINEERING.md). `uv run mypy` — весь app по умолчанию: числом ошибок отслеживаем долг,
+# `make typecheck` — блокирующий строгий прогон ядер (список файлов в [tool.vzaimno.typecheck_strict] и Makefile/CI).
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+files = ["app"]
+warn_unused_configs = true
+no_implicit_optional = true
+
+[tool.vzaimno.typecheck_strict]
+# Строгий режим (mypy --strict) обязателен на этих файлах: IRT/CAT-движок, скоринг и подборка, ядро безопасности и ФСП VSS
+files = [
+    "app/testing/irt.py",
+    "app/testing/cat.py",
+    "app/testing/calibration.py",
+    "app/testing/detectors.py",
+    "app/testing/session.py",
+    "app/testing/simulate.py",
+    "app/testing/survey.py",
+    "app/matching/scoring.py",
+    "app/matching/explain.py",
+    "app/matching/selection.py",
+    "app/matching/market.py",
+    "app/fsp/vss.py",
+    "app/fsp/models.py",
+    "app/fsp/schema.py",
+    "app/fsp/config.py",
+    "app/core/security.py",
+    "app/core/rate_limit.py",
+    "app/core/access.py",
+    "app/core/audit.py",
+    "app/core/clock.py",
+    "app/core/configs.py",
+    "app/core/consents.py",
+    "app/core/domains.py",
+    "app/core/errors.py",
+    "app/core/netutil.py",
+]
