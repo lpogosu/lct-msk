@@ -119,6 +119,7 @@ def _render(
 @register
 class UmaskModes(OpsFamily):
     id = "ops.perm.umask"
+    observes = ("linux",)
     title = "umask: права новых файлов и каталогов"
     specs = SPECS
     module = MODULE

@@ -394,6 +394,7 @@ def how_we_check(
     cat = catalog or get_catalog()
     standard = standard_test_modules(spec, cfg)
     in_set = check_set.covered_skills if check_set is not None else frozenset()
+    in_pairs = check_set.covered_pairs if check_set is not None else frozenset()
     items = []
     for kind, ids in (("must", must), ("nice", nice)):
         for sid in ids:
@@ -408,7 +409,13 @@ def how_we_check(
                 items.append(SkillCheck(sid, sk.name, kind, False, (), text, reason, "interview"))
                 continue
             by_std = tuple(m for m in mods if m[0] in standard)
-            if by_std:
+            # «Свой» модуль навыка (вне blueprint): если слот набора с этим модулем и навыком есть — навык проверяет набор,
+            # а не соседний общий модуль теста (PostgreSQL, FastAPI: стандартный тест видит SQL и HTTP вообще, не их особенности)
+            own = tuple(m for m in mods if m[0] in cat.check_only_modules and (m[0], sid) in in_pairs)
+            if kind == "must" and own:
+                text = f"{sk.name} ✓ проверяется проверочным набором по вакансии ({_modules_text(own)})"
+                items.append(SkillCheck(sid, sk.name, kind, True, mods, text, None, "check_set"))
+            elif by_std:
                 text = f"{sk.name} ✓ проверено стандартным тестом категории ({_modules_text(by_std)})"
                 items.append(SkillCheck(sid, sk.name, kind, True, mods, text, None, "standard"))
             elif kind == "must" and sid in in_set:
@@ -448,8 +455,22 @@ class CheckSetPlan:
         """Must-навыки, которые реально проверяет хотя бы один слот набора (в слот могут не попасть модули с малым весом)."""
         return frozenset(sid for s in self.slots for sid in s.skills)
 
+    @property
+    def covered_pairs(self) -> frozenset[tuple[str, str]]:
+        """(модуль, навык), которые проверяет слот: навык засчитывается именно по модулю слота."""
+        return frozenset((s.module, sid) for s in self.slots for sid in s.skills)
+
 
 FamilyCatalog = Mapping[str, Sequence[tuple[str, float]]]  # модуль → [(family_id, минуты)]
+
+
+def family_info_from_registry() -> dict[str, tuple[tuple[str, ...], str]]:
+    """id семейства → (навыки, которые оно наблюдает; целевой грейд). Для выбора семейства под навык и грейд брифа."""
+    try:
+        from app.testing.bank.registry import all_families
+    except Exception:  # noqa: BLE001
+        return {}
+    return {fid: (tuple(f.observes), str(f.target_grade)) for fid, f in all_families().items()}
 
 
 def family_catalog_from_registry() -> dict[str, list[tuple[str, float]]]:
@@ -471,11 +492,18 @@ def plan_check_set(
     seed: int = 0,
     catalog: SkillCatalog | None = None,
     cfg: ScoringConfig | None = None,
+    spec: str | None = None,
+    brief_grade: str | None = None,
+    family_info: Mapping[str, tuple[Sequence[str], str]] | None = None,
 ) -> CheckSetPlan:
     """must-навыки брифа → модули по графу → 3–5 слотов семейств типа A, ≤ 15 минут (DECISIONS п.3).
 
     Стандартный тест и грейд не меняются: результат идёт в K через test_k. Выбор семейства внутри модуля —
-    детерминированно по seed (каждому из шортлиста потом выдаются свои одноразовые экземпляры)."""
+    детерминированно по seed (каждому из шортлиста потом выдаются свои одноразовые экземпляры).
+
+    spec — специализация брифа: модули её стандартного теста уже измерены, поэтому слоты модулей «вне теста» (Redis,
+    очереди, FastAPI, PostgreSQL, DevOps у бэкендера) идут первыми. family_info (id → (наблюдаемые навыки, грейд)) —
+    семейство берётся под навык (observes) и ближе к грейду брифа; тег слота — только навыки, которые оно наблюдает."""
     cat = catalog or get_catalog()
     cs = (cfg or ScoringConfig.load()).section("check_set")
     weight: dict[str, float] = {}
@@ -498,7 +526,10 @@ def plan_check_set(
             0.0,
             "Обязательные навыки брифа тестом не проверяются — проверьте на интервью",
         )
-    order = sorted(weight, key=lambda m: (-weight[m], first[m]))
+    standard = standard_test_modules(spec, cfg) if spec else frozenset()
+    order = sorted(weight, key=lambda m: (m in standard, -weight[m], first[m]))
+    info = family_info or {}
+    gi = GRADES.index(brief_grade) if brief_grade in GRADES else None
     default_min = float(cs["default_family_minutes"])
     n_slots = max(int(cs["min_families"]), min(int(cs["max_families"]), len(order)))
     rng = random.Random(seed)
@@ -510,16 +541,26 @@ def plan_check_set(
         m = order[i % len(order)]
         i += 1
         fam_id, minutes = None, default_min
+        slot_skills = tuple(skills_of[m])
         if family_catalog is not None:
             options = sorted((f, t) for f, t in family_catalog.get(m, ()) if f not in used)
             if not options:
                 continue
+            slot_skills = tuple(skills_of[m])
+            observing = [o for o in options if info.get(o[0]) and set(info[o[0]][0]) & set(slot_skills)]
+            if observing:  # семейство под навык: тег только наблюдаемые им навыки
+                options = observing
+            if gi is not None and info:
+                near = [o for o in options if o[0] in info and abs(GRADES.index(info[o[0]][1]) - gi) <= 1]
+                options = near or options
             fam_id, minutes = options[rng.randrange(len(options))]
             used.add(fam_id)
+            if observing:
+                slot_skills = tuple(sk for sk in slot_skills if sk in set(info[fam_id][0])) or slot_skills
         if total + minutes > float(cs["max_minutes"]) + 1e-9:
             break
         total += minutes
-        slots.append(CheckSetSlot(m, cat.module_names.get(m, m), tuple(skills_of[m]), fam_id, minutes))
+        slots.append(CheckSetSlot(m, cat.module_names.get(m, m), slot_skills if family_catalog is not None else tuple(skills_of[m]), fam_id, minutes))
     note = None
     if len(slots) < int(cs["min_families"]):
         note = "В банке не хватает откалиброванных семейств для полного набора"

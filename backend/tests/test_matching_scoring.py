@@ -243,7 +243,7 @@ def test_k_sources_task_and_fsp():
     assert py.source == "fsp" and py.v == pytest.approx(
         0.8 * CFG.fsp["module_relevance"]["algo"]["python_core"]
     )
-    assert cat.modules_of("kafka") == ()
+    assert cat.modules_of("kafka") == ("mq_core",)  # модуль проверочного набора, в тесте категории его нет
 
 
 def test_a_freshness_half_life_window_and_tag_bonus():

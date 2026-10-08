@@ -197,6 +197,7 @@ class PopulationConfig:
     salary_round: int = 5000
     experience_sigma_log: float = 0.5
     max_test_age_days: int = 240
+    skill_sd: float = 0.6  # разброс уровня «наблюдаемых набором» навыков вокруг общего уровня θ
     run_tests: bool = True
 
 
@@ -370,6 +371,9 @@ class Truth:
     module_theta: Mapping[str, float]
     skills: frozenset[str]
     fsp_strength: float | None
+    # Скрытый уровень навыков, которые стандартный тест внутри модуля не наблюдает (Redis, очереди, FastAPI, PostgreSQL):
+    # θ + N(0; skill_sd²). Их видит только проверочный набор по вакансии; оракул (matching_eval.skill_covered) смотрит сюда.
+    skill_theta: Mapping[str, float] = field(default_factory=dict)
 
 
 @dataclass
@@ -797,7 +801,10 @@ def generate_candidate(i: int, cfg: PopulationConfig, *, bank: Sequence[FamilyMe
         vss = dict(feats.vss_by_discipline)
         fsp_line = feats.employer_line
         fsp_public = tuple(p.text for p in feats.fsp_public)
-    truth = Truth(spec, grade, theta, module_theta, skills, strength)
+    # Отдельный поток rng: числа остальной популяции не меняются
+    rng_sk = random.Random(f"{cfg.seed}:cand:{i}:skills")
+    skill_theta = {s: theta + rng_sk.gauss(0.0, cfg.skill_sd) for s in sorted(skills) if cat.specific_modules_of(s)}
+    truth = Truth(spec, grade, theta, module_theta, skills, strength, skill_theta)
     tasks = _tasks(rng, cid, claimed_spec, claimed_grade, truth, cfg)
     test_days_ago = float(rng.randint(0, cfg.max_test_age_days))
     cand = Candidate(

@@ -130,7 +130,8 @@ class ScoringConfig:
         return w
 
     def section(self, name: str) -> Mapping[str, Any]:
-        return self.raw[name]
+        section: Mapping[str, Any] = self.raw[name]
+        return section
 
 
 def validate_weights(w: Mapping[str, float], constraints: Mapping[str, float]) -> None:
@@ -444,36 +445,53 @@ def skill_value(
     """
     kc = cfg.section("K")
     modules = cat.modules_of(skill_id)
+    specific = set(cat.specific_modules_of(skill_id))
+    generic = [m for m in modules if m not in specific]
+    # Навык с «своим» модулем проверочного набора (PostgreSQL, FastAPI, Redis, очереди): соседний общий модуль теста —
+    # лишь косвенное свидетельство. Прямая задача по навыку может его ТОЛЬКО опровергнуть: решена (v ≥ порога) — берём
+    # максимум, как у любого свидетельства; не решена (v < порога) — прямое наблюдение вытесняет вывод по соседнему модулю
+    # (docs/MATCHING.md). Так провал проверки понижает навык, а успех не наказывает проверенного за 0,9 < 1,0.
+    proxy = 1.0
+    thr = float(cfg.section("Cov")["confirm_threshold"])
     cut = cfg.cuts[brief_grade]
     best: tuple[float, str | None, str | None, str] = (0.0, None, None, "")
+    direct: tuple[float, str | None, str | None, str] | None = None
     # Тест: только модули с отметкой ✓/✓✓ (spec-testing: «~» — мало данных) и только при подтверждённом тесте.
     if c.confirmed:
         tags = set(kc["confirmed_module_tags"])
-        for m in modules:
+        for m in generic:
             ms = c.modules.get(m)
             if ms is None or ms.tag not in tags:
                 continue
-            v = float(kc["test_factor"]) * _p_module(ms, cut)
+            v = float(kc["test_factor"]) * _p_module(ms, cut) * proxy
             if v > best[0] + 1e-12:
                 best = (v, "test", m, _module_label(cat, m, ms.tag))
     # Задачи типа A с тегом навыка или модулем навыка.
     for t in c.tasks:
         if t.kind != "A":
             continue
-        if skill_id not in t.skills and (t.module is None or t.module not in modules):
+        is_direct = bool(specific) and (skill_id in t.skills or (t.module is not None and t.module in specific))
+        if not is_direct and skill_id not in t.skills and (t.module is None or t.module not in modules):
             continue
         v = float(kc["task_factor"]) * t.q * 2.0 ** (-max(0.0, t.days_ago) / float(kc["task_half_life_days"]))
-        if v > best[0] + 1e-12:
-            best = (v, "task", t.task_id, f"Задача «{t.title or t.task_id}» {round(t.q * 5)}/5")
+        v *= proxy
+        item = (v, "task", t.task_id, f"Задача «{t.title or t.task_id}» {round(t.q * 5)}/5")
+        if is_direct:
+            if direct is None or v > direct[0] + 1e-12:
+                direct = item
+        elif v > best[0] + 1e-12:
+            best = item
+    if direct is not None and (direct[0] < thr or direct[0] > best[0] + 1e-12):
+        best = direct
     # ФСП как доказательство навыка: m(d,k) = max по модулям навыка (fsp.yaml: module_relevance).
     rel = cfg.fsp.get("module_relevance", {})
     factor = float(cfg.fsp.get("skill_evidence_factor", 0.8))
     for d in sorted(c.vss_by_discipline):
         row = rel.get(d, {})
-        m = max((float(row.get(mod, 0.0)) for mod in modules), default=0.0)
-        v = factor * m * float(c.vss_by_discipline[d]) / 100.0
-        if v > best[0] + 1e-12:
-            best = (v, "fsp", d, f"ФСП: {_discipline_label(cfg, d)}")
+        rel_m = max((float(row.get(mod, 0.0)) for mod in modules), default=0.0)
+        fsp_v = factor * rel_m * float(c.vss_by_discipline[d]) / 100.0
+        if fsp_v > best[0] + 1e-12:
+            best = (fsp_v, "fsp", d, f"ФСП: {_discipline_label(cfg, d)}")
     return best
 
 
@@ -508,8 +526,8 @@ def component_K(
                 state = "confirmed"
             elif declared:
                 state, label = "declared", "заявлено"
-            elif v > 0:
-                state = "weak"
+            elif v > 0 or src == "task":
+                state = "weak"  # задача по навыку решена слабо или не решена: проверено, но не подтверждено
             else:
                 state, label = "no_data", "нет данных"
             if kind == "must" and v >= thr:
@@ -752,7 +770,7 @@ def score_candidate(c: CandidateFeatures, brief: BriefSpec, ctx: ScoringContext)
     )
 
 
-def sort_key(r: ScoreResult, cfg: ScoringConfig | None = None) -> tuple:
+def sort_key(r: ScoreResult, cfg: ScoringConfig | None = None) -> tuple[Any, ...]:
     """Score ↓, T ↓, [заявленные навыки ↓], hash(need_id, candidate_id) — детерминированно (концепция §4.2).
 
     Кандидаты с категорией «по опросу» (без теста) — после подтверждённых (DECISIONS п.5)."""

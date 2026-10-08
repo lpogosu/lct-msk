@@ -282,6 +282,7 @@ def resolve_compose(
 @register
 class ComposeResolve(OpsFamily):
     id = "ops.compose.resolve"
+    observes = ("docker",)
     title = "docker compose: итоговые порт и переменные окружения"
     specs = SPECS
     module = MODULE

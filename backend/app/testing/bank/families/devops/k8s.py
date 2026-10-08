@@ -72,6 +72,7 @@ def rolling_numbers(
 @register
 class RollingUpdate(OpsFamily):
     id = "ops.k8s.rolling"
+    observes = ("kubernetes",)
     title = "Kubernetes: арифметика RollingUpdate"
     specs = SPECS
     module = MODULE
@@ -231,6 +232,7 @@ def placement(
 @register
 class ResourceLimits(OpsFamily):
     id = "ops.res.limits"
+    observes = ("kubernetes",)
     title = "Kubernetes: сколько подов поместится по requests"
     specs = SPECS
     module = MODULE

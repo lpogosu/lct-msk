@@ -206,6 +206,7 @@ def run_script(code: str, **flags: bool) -> list[str]:
 @register
 class ExitCodes(OpsFamily):
     id = "ops.sh.exitcodes"
+    observes = ("bash", "linux")
     title = "bash: коды возврата, && / ||, pipefail и set -e"
     specs = SPECS
     module = MODULE

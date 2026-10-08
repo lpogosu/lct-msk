@@ -73,7 +73,7 @@ def test_demo_brief_every_field_has_source_and_quote(demo):
 
 
 def test_demo_brief_untestable_flags(demo):
-    assert demo.chip("kafka").untestable
+    assert demo.chip("kafka").modules == ("mq_core",) and not demo.chip("kafka").untestable
     assert not demo.chip("docker").untestable  # Docker проверяет модуль devops_core (тест DevOps)
     assert not demo.chip("fastapi").untestable
 

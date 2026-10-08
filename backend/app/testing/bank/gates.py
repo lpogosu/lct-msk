@@ -21,6 +21,9 @@ MIN_DISTINCT_RENDERED = {"choice": 0.80, "line_choice": 0.80, "order": 0.80, "mc
 PY_IMPORT_WHITELIST = {
     "collections", "itertools", "functools", "math", "dataclasses", "typing", "re", "json",
     "heapq", "bisect", "copy", "operator", "string", "enum", "datetime", "statistics", "asyncio",
+    # Семейства навыка FastAPI (проверочный набор по вакансии): код только показывается и офлайн исполняется нами
+    # в генераторе (families/skills/fastapi_web.py); кандидату библиотеки не нужны — он читает код.
+    "fastapi", "pydantic",
 }
 _CYR = re.compile(r"[А-Яа-яЁё]")
 _PY_IMPORT = re.compile(r"^\s*(?:from\s+([\w.]+)\s+import|import\s+([\w.]+))", re.M)

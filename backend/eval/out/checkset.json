@@ -1,0 +1,409 @@
+{
+ "shortlist": 30,
+ "slope": 2.0,
+ "n_briefs": 40,
+ "old_oracle": {
+  "p10": {
+   "before": {
+    "mean": 0.6599999999999998,
+    "ci_low": 0.5725,
+    "ci_high": 0.7374999999999999,
+    "n": 40.0
+   },
+   "after": {
+    "mean": 0.7074999999999999,
+    "ci_low": 0.6300000000000001,
+    "ci_high": 0.78,
+    "n": 40.0
+   },
+   "b2": {
+    "mean": 0.5225,
+    "ci_low": 0.4149374999999999,
+    "ci_high": 0.6225,
+    "n": 40.0
+   }
+  },
+  "after_minus_before": {
+   "diff": 0.0475,
+   "ci_low": 0.017499999999999998,
+   "ci_high": 0.0825,
+   "significant": true
+  },
+  "before_minus_b2": {
+   "diff": 0.1375,
+   "ci_low": 0.035,
+   "ci_high": 0.23749999999999996,
+   "significant": true
+  },
+  "after_minus_b2": {
+   "diff": 0.185,
+   "ci_low": 0.09243749999999999,
+   "ci_high": 0.2799999999999999,
+   "significant": true
+  },
+  "per_brief": {
+   "b01": {
+    "before": 0.8,
+    "after": 0.9
+   },
+   "b02": {
+    "before": 0.9,
+    "after": 0.9
+   },
+   "b03": {
+    "before": 0.9,
+    "after": 0.9
+   },
+   "b04": {
+    "before": 0.5,
+    "after": 0.5
+   },
+   "b05": {
+    "before": 0.8,
+    "after": 0.8
+   },
+   "b06": {
+    "before": 0.3,
+    "after": 0.7
+   },
+   "b07": {
+    "before": 0.6,
+    "after": 0.6
+   },
+   "b08": {
+    "before": 0.8,
+    "after": 0.8
+   },
+   "b09": {
+    "before": 0.8,
+    "after": 0.8
+   },
+   "b10": {
+    "before": 1.0,
+    "after": 1.0
+   },
+   "b11": {
+    "before": 0.4,
+    "after": 0.4
+   },
+   "b12": {
+    "before": 0.3,
+    "after": 0.3
+   },
+   "b13": {
+    "before": 0.9,
+    "after": 0.9
+   },
+   "b14": {
+    "before": 1.0,
+    "after": 1.0
+   },
+   "b15": {
+    "before": 0.4,
+    "after": 0.7
+   },
+   "b16": {
+    "before": 1.0,
+    "after": 1.0
+   },
+   "b17": {
+    "before": 0.0,
+    "after": 0.0
+   },
+   "b18": {
+    "before": 0.8,
+    "after": 0.8
+   },
+   "b19": {
+    "before": 0.6,
+    "after": 0.6
+   },
+   "b20": {
+    "before": 0.6,
+    "after": 0.6
+   },
+   "b21": {
+    "before": 0.6,
+    "after": 0.6
+   },
+   "b22": {
+    "before": 0.6,
+    "after": 0.6
+   },
+   "b23": {
+    "before": 1.0,
+    "after": 1.0
+   },
+   "b24": {
+    "before": 0.6,
+    "after": 0.6
+   },
+   "b25": {
+    "before": 0.3,
+    "after": 0.6
+   },
+   "b26": {
+    "before": 0.9,
+    "after": 0.9
+   },
+   "b27": {
+    "before": 0.4,
+    "after": 0.7
+   },
+   "b28": {
+    "before": 0.7,
+    "after": 0.7
+   },
+   "b29": {
+    "before": 0.7,
+    "after": 0.7
+   },
+   "b30": {
+    "before": 0.5,
+    "after": 0.8
+   },
+   "b31": {
+    "before": 0.0,
+    "after": 0.0
+   },
+   "b32": {
+    "before": 1.0,
+    "after": 1.0
+   },
+   "b33": {
+    "before": 0.9,
+    "after": 0.9
+   },
+   "b34": {
+    "before": 0.8,
+    "after": 0.8
+   },
+   "b35": {
+    "before": 0.7,
+    "after": 0.7
+   },
+   "b36": {
+    "before": 0.7,
+    "after": 0.8
+   },
+   "b37": {
+    "before": 0.7,
+    "after": 0.7
+   },
+   "b38": {
+    "before": 0.2,
+    "after": 0.2
+   },
+   "b39": {
+    "before": 0.7,
+    "after": 0.8
+   },
+   "b40": {
+    "before": 1.0,
+    "after": 1.0
+   }
+  }
+ },
+ "latent_oracle": {
+  "p10": {
+   "before": {
+    "mean": 0.6574999999999999,
+    "ci_low": 0.5725,
+    "ci_high": 0.7324999999999999,
+    "n": 40.0
+   },
+   "after": {
+    "mean": 0.7049999999999998,
+    "ci_low": 0.6274375,
+    "ci_high": 0.7775000000000001,
+    "n": 40.0
+   },
+   "b2": {
+    "mean": 0.52,
+    "ci_low": 0.41500000000000004,
+    "ci_high": 0.6224999999999999,
+    "n": 40.0
+   }
+  },
+  "after_minus_before": {
+   "diff": 0.0475,
+   "ci_low": 0.017499999999999998,
+   "ci_high": 0.08249999999999999,
+   "significant": true
+  },
+  "before_minus_b2": {
+   "diff": 0.1375,
+   "ci_low": 0.04249999999999999,
+   "ci_high": 0.2425,
+   "significant": true
+  },
+  "after_minus_b2": {
+   "diff": 0.185,
+   "ci_low": 0.095,
+   "ci_high": 0.2824999999999999,
+   "significant": true
+  },
+  "per_brief": {
+   "b01": {
+    "before": 0.8,
+    "after": 0.9
+   },
+   "b02": {
+    "before": 0.9,
+    "after": 0.9
+   },
+   "b03": {
+    "before": 0.9,
+    "after": 0.9
+   },
+   "b04": {
+    "before": 0.5,
+    "after": 0.5
+   },
+   "b05": {
+    "before": 0.8,
+    "after": 0.8
+   },
+   "b06": {
+    "before": 0.3,
+    "after": 0.7
+   },
+   "b07": {
+    "before": 0.6,
+    "after": 0.6
+   },
+   "b08": {
+    "before": 0.8,
+    "after": 0.8
+   },
+   "b09": {
+    "before": 0.8,
+    "after": 0.8
+   },
+   "b10": {
+    "before": 1.0,
+    "after": 1.0
+   },
+   "b11": {
+    "before": 0.4,
+    "after": 0.4
+   },
+   "b12": {
+    "before": 0.3,
+    "after": 0.3
+   },
+   "b13": {
+    "before": 0.9,
+    "after": 0.9
+   },
+   "b14": {
+    "before": 1.0,
+    "after": 1.0
+   },
+   "b15": {
+    "before": 0.4,
+    "after": 0.7
+   },
+   "b16": {
+    "before": 1.0,
+    "after": 1.0
+   },
+   "b17": {
+    "before": 0.0,
+    "after": 0.0
+   },
+   "b18": {
+    "before": 0.8,
+    "after": 0.8
+   },
+   "b19": {
+    "before": 0.6,
+    "after": 0.6
+   },
+   "b20": {
+    "before": 0.6,
+    "after": 0.6
+   },
+   "b21": {
+    "before": 0.6,
+    "after": 0.6
+   },
+   "b22": {
+    "before": 0.6,
+    "after": 0.6
+   },
+   "b23": {
+    "before": 1.0,
+    "after": 1.0
+   },
+   "b24": {
+    "before": 0.6,
+    "after": 0.6
+   },
+   "b25": {
+    "before": 0.3,
+    "after": 0.6
+   },
+   "b26": {
+    "before": 0.9,
+    "after": 0.9
+   },
+   "b27": {
+    "before": 0.4,
+    "after": 0.7
+   },
+   "b28": {
+    "before": 0.7,
+    "after": 0.7
+   },
+   "b29": {
+    "before": 0.7,
+    "after": 0.7
+   },
+   "b30": {
+    "before": 0.5,
+    "after": 0.8
+   },
+   "b31": {
+    "before": 0.0,
+    "after": 0.0
+   },
+   "b32": {
+    "before": 1.0,
+    "after": 1.0
+   },
+   "b33": {
+    "before": 0.9,
+    "after": 0.9
+   },
+   "b34": {
+    "before": 0.8,
+    "after": 0.8
+   },
+   "b35": {
+    "before": 0.7,
+    "after": 0.7
+   },
+   "b36": {
+    "before": 0.6,
+    "after": 0.7
+   },
+   "b37": {
+    "before": 0.7,
+    "after": 0.7
+   },
+   "b38": {
+    "before": 0.2,
+    "after": 0.2
+   },
+   "b39": {
+    "before": 0.7,
+    "after": 0.8
+   },
+   "b40": {
+    "before": 1.0,
+    "after": 1.0
+   }
+  }
+ }
+}

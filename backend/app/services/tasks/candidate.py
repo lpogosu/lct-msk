@@ -23,7 +23,7 @@ from sqlalchemy.orm import Session
 from app.core.errors import bad_request, conflict, not_found
 from app.models.candidate import CandidateProfile
 from app.models.company import Company
-from app.models.contact import Vacancy
+from app.models.contact import Notification, Vacancy
 from app.models.enums import AssignmentStatus, EmployerTaskStatus, TaskKind
 from app.models.matching import Need
 from app.models.tasks import EmployerTask, TaskAssignment
@@ -495,3 +495,97 @@ def skip(db: Session, user: User, assignment_id: uuid.UUID) -> dict[str, Any]:
 
 
 GRADE_ORDER = GRADES
+
+
+# --- фоновая рассылка регулярных заданий (#15) ------------------------------------------------------
+
+
+def offer_sweep(db: Session, *, limit: int, remind_before_h: int) -> dict[str, int]:
+    """Планировщик: предлагает регулярные задания кандидатам по каденции `offer_interval_days` (не чаще), шлёт
+    уведомление «вам предложено задание» и один раз напоминает о близком сроке. Правила — те же, что у ленивого
+    ensure_offer при открытии /tasks (лимиты, пауза после пропусков, блок-лист компаний). Не штрафует (§5.4)."""
+    from app.models.enums import QualificationStatus, UserRole, UserStatus
+    from app.models.testing import Qualification
+    from app.services.notify import notify_user
+
+    at = now()
+    c = cfg()
+    recent = (
+        select(TaskAssignment.candidate_id)
+        .where(TaskAssignment.source == SOURCE_OFFER, TaskAssignment.offered_at >= at - timedelta(days=c.offer_interval_days))
+        .scalar_subquery()
+    )
+    ids = list(
+        db.scalars(
+            select(Qualification.candidate_id)
+            .join(User, User.id == Qualification.candidate_id)
+            .where(
+                Qualification.status.in_((QualificationStatus.confirmed.value, QualificationStatus.upgrade_testing.value)),
+                User.role == UserRole.candidate.value,
+                User.status == UserStatus.active.value,
+                Qualification.candidate_id.notin_(recent),
+            )
+            .distinct()
+            .order_by(Qualification.candidate_id)
+            .limit(limit)
+        )
+    )
+    offered = 0
+    for uid in ids:
+        user = db.get(User, uid)
+        if user is None:
+            continue
+        with db.begin_nested():
+            expire_due(db, uid, at)
+            a = ensure_offer(db, user, at)
+            if a is None:
+                continue
+            task = db.get(EmployerTask, a.employer_task_id)
+            notify_user(
+                db,
+                uid,
+                "task",
+                f"Вам предложено регулярное задание «{task.title if task else 'задание'}»: до {c.max_minutes} минут, "
+                f"срок на решение — {c.assignment_due_days} дн. Отказ или пропуск ничем не грозит.",
+                entity_type="task_assignment",
+                entity_id=a.id,
+                payload={"kind": "offer"},
+            )
+            offered += 1
+    reminded = 0
+    horizon = at + timedelta(hours=remind_before_h)
+    due_soon = db.scalars(
+        select(TaskAssignment)
+        .where(
+            TaskAssignment.status.in_(ACTIVE),
+            TaskAssignment.source == SOURCE_OFFER,
+            TaskAssignment.due_at.is_not(None),
+            TaskAssignment.due_at > at,
+            TaskAssignment.due_at <= horizon,
+        )
+        .limit(limit)
+    ).all()
+    for a in due_soon:
+        sent = db.scalar(
+            select(func.count())
+            .select_from(Notification)
+            .where(
+                Notification.entity_type == "task_assignment",
+                Notification.entity_id == str(a.id),
+                Notification.payload["kind"].astext == "reminder",
+            )
+        )
+        if sent:
+            continue
+        notify_user(
+            db,
+            a.candidate_id,
+            "task",
+            f"Напоминание: срок на регулярное задание скоро истечёт ({rel(a.due_at, at)}). Можно решить или пропустить.",
+            entity_type="task_assignment",
+            entity_id=a.id,
+            payload={"kind": "reminder"},
+        )
+        reminded += 1
+    db.flush()
+    return {"candidates_checked": len(ids), "offered": offered, "reminded": reminded}

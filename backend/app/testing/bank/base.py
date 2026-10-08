@@ -104,6 +104,10 @@ class Family(ABC):
     time_limit_s: ClassVar[int] = 90
     enemies: ClassVar[tuple[str, ...]] = ()  # взаимоисключающие семейства (подсказывают ответ друг другу)
     is_anchor: ClassVar[bool] = False  # якорь шкалы: b не перекалибровывается
+    # Навыки (id из config/skills.yaml), которые семейство наблюдает на уровне навыка, а не только модуля: проверочный набор
+    # по вакансии берёт такое семейство под навык и ставит на задачу именно эти теги (matching/coverage.plan_check_set).
+    # Пусто — семейство измеряет модуль целиком (как все семейства стандартного теста).
+    observes: ClassVar[tuple[str, ...]] = ()
 
     @abstractmethod
     def generate(self, seed: int) -> Instance:

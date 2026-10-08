@@ -202,7 +202,13 @@ def apply_to_theta(db: Session, candidate_id: uuid.UUID, fam: Any, correct: bool
 
         scale = load_scale()
         result: dict[str, Any] | None = None
+        from app.testing.cat import load_blueprint
+
         for spec in fam.specs:
+            # Модуль проверочного набора (Redis, очереди, FastAPI, PostgreSQL) вне blueprint: уровень θ он не меряет
+            # и не двигает, результат идёт только в подтверждение навыка (K)
+            if fam.module not in load_blueprint(spec):
+                continue
             row = qs.get_row(db, candidate_id, spec, lock=True)
             if row is None or row.status not in (
                 QualificationStatus.confirmed.value,

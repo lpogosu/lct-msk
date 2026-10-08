@@ -233,7 +233,7 @@ def test_check_set_for_shortlist(client, make_account, db_session, frozen_clock)
     assert r.status_code == 201, r.text
     cs = r.json()
     assert 1 <= len(cs["slots"]) <= 5 and cs["total_minutes"] <= 15
-    assert {s["module"] for s in cs["slots"]} <= {"python_core", "sql"}
+    assert {s["module"] for s in cs["slots"]} <= {"python_core", "sql", "pg_core"}
     assert cs["sent"][0]["assignments"] == len(cs["slots"]) and cs["sent"][0]["ref"] == ref1
     assert cs["rejected"][0]["ref"] == ref2 and "шортлиста" in cs["rejected"][0]["message"]
     again = client.post("/api/tasks/check-sets", json={"need_id": str(need.id), "candidates": [ref1]}, headers=emp.headers).json()
@@ -256,7 +256,42 @@ def test_check_set_for_shortlist(client, make_account, db_session, frozen_clock)
     stored = list(db_session.scalars(select(TaskAssignment).where(TaskAssignment.candidate_id == c1.user_id)))
     assert {a.source for a in stored} == {"check_set"} and {a.need_id for a in stored} == {need.id}
     done = [a for a in stored if a.status == "auto_scored"]
-    assert len(done) == 1 and done[0].module in {"python_core", "sql"} and done[0].finished_at is not None
+    assert len(done) == 1 and done[0].module in {"python_core", "sql", "pg_core"} and done[0].finished_at is not None
 
     other = make_employer(client, make_account, db_session, "drugaya-firma.ru")
     assert client.get(f"/api/tasks/check-sets/{need.id}", headers=other.headers).status_code == 404
+
+
+def test_scheduler_offers_regular_tasks_with_notification_and_one_reminder(client, make_account, db_session, frozen_clock):
+    """#15: планировщик сам предлагает регулярное задание по каденции, шлёт уведомление и один раз напоминает о сроке."""
+    from app.models.contact import Notification
+    from app.services.tasks.candidate import offer_sweep
+
+    emp = make_employer(client, make_account, db_session)
+    r = client.post(
+        "/api/tasks",
+        json={"kind": "catalog", "family_id": "py.dict.basics", "specialization": "backend_python", "grade": "junior", "not_real_work_ack": True},
+        headers=emp.headers,
+    )
+    assert r.status_code == 201, r.text
+    cand = make_candidate(make_account, db_session)
+    confirm(db_session, cand)
+
+    def notes():
+        db_session.flush()
+        return list(db_session.scalars(select(Notification).where(Notification.user_id == cand.user_id, Notification.kind == "task")))
+
+    out = offer_sweep(db_session, limit=100, remind_before_h=24)
+    assert out["offered"] == 1 and out["reminded"] == 0
+    first = notes()
+    assert len(first) == 1 and "регулярное задание" in first[0].message and first[0].payload["kind"] == "offer"
+    # каденция: второй прогон в ту же неделю ничего не предлагает
+    assert offer_sweep(db_session, limit=100, remind_before_h=24)["offered"] == 0
+    # за сутки до срока (7 дней на решение) — одно напоминание, повторный прогон его не дублирует
+    advance(days=6, hours=2)
+    out = offer_sweep(db_session, limit=100, remind_before_h=24)
+    assert out["reminded"] == 1
+    assert offer_sweep(db_session, limit=100, remind_before_h=24)["reminded"] == 0
+    assert sorted(n.payload["kind"] for n in notes()) == ["offer", "reminder"]
+    # задание видно в кабинете кандидата
+    assert len(client.get("/api/tasks/me", headers=cand.headers).json()["active"]) == 1

@@ -39,6 +39,12 @@ modules:
   html_css: { name: HTML и CSS }
   qa_testing: { name: Тестирование ПО }
   devops_core: { name: DevOps и инфраструктура }
+  # Модули проверочного набора по вакансии (навык внутри модуля). Ни в одном blueprint их нет: стандартный тест и грейд
+  # они не меняют, задачи выдаются только как проверочный набор (docs/MATCHING.md, families/skills).
+  redis_core: { name: Redis }
+  mq_core: { name: Очереди сообщений }
+  fastapi_core: { name: FastAPI }
+  pg_core: { name: PostgreSQL (особенности) }
 
 # status: active — тест работает; survey_only — опрос доступен, теста пока нет (лист ожидания).
 specializations:
@@ -92,7 +98,7 @@ specializations:
   - { code: backend_go, name: Backend (Go), direction: backend, status: survey_only }
   - { code: backend_java, name: Backend (Java/Kotlin), direction: backend, status: survey_only }
 
-# Отрасль — фасет интереса кандидата (фильтр), в Score не входит.
+# «Сфера бизнеса» (в UI; код `industries`) — фасет интереса кандидата (фильтр), в Score не входит.
 industries:
   - { code: fintech, name: Финтех }
   - { code: ecommerce, name: E-commerce и ритейл }

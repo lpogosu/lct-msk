@@ -59,9 +59,17 @@ def _must(need: Need) -> tuple[str, ...]:
 
 
 def plan_for(need: Need) -> Any:
-    from app.matching.coverage import family_catalog_from_registry, plan_check_set
+    from app.matching.coverage import family_catalog_from_registry, family_info_from_registry, plan_check_set
 
-    return plan_check_set(_must(need), family_catalog=family_catalog_from_registry(), seed=_seed(need.id))
+    brief = (need.parsed or {}).get("brief") or {}
+    return plan_check_set(
+        _must(need),
+        family_catalog=family_catalog_from_registry(),
+        family_info=family_info_from_registry(),
+        seed=_seed(need.id),
+        spec=brief.get("spec") or need.specialization,
+        brief_grade=brief.get("grade") or need.grade,
+    )
 
 
 def _owned_need(db: Session, user: User, need_id: uuid.UUID) -> Need:

@@ -97,6 +97,7 @@ _EXACT_POOL = ["/health", "/login", "/robots.txt", "/status"]
 @register
 class NginxLocation(OpsFamily):
     id = "ops.nginx.location"
+    observes = ("nginx",)
     title = "nginx: какой location обслужит запрос"
     specs = SPECS
     module = MODULE

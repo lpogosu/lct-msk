@@ -30,7 +30,7 @@ def test_modules_exist_and_untestable_flag_consistent():
 def test_skill_module_graph_examples():
     assert {"python_core", "sql"} <= set(CAT.modules_of("django"))
     assert set(CAT.modules_of("query_optimization")) == {"sql", "algo"}
-    assert CAT.modules_of("postgresql") == ("sql",)
+    assert CAT.modules_of("postgresql") == ("sql", "pg_core")  # pg_core — особенности PostgreSQL, проверочный набор
     assert CAT.modules_of("react") == ("react", "js_core")
     # DevOps и QA: тест проверяет Docker, Kubernetes, nginx, cron, CI, pytest, API-тесты (модули devops_core и qa_testing)
     for sid in ("docker", "kubernetes", "nginx", "ci_cd", "gitlab_ci", "github_actions"):
@@ -42,8 +42,8 @@ def test_skill_module_graph_examples():
     assert CAT.modules_of("api_testing") == ("http_api", "qa_testing")
     for sid in ("manual_testing", "test_automation", "unit_testing"):
         assert CAT.modules_of(sid) == ("qa_testing",), sid
-    # Не покрыто модулями теста: брокеры, Go, NoSQL и инфраструктура, для которой в банке нет семейств
-    for sid in ("kafka", "go", "redis", "terraform", "ansible", "helm", "prometheus", "selenium", "playwright"):
+    # Не покрыто модулями теста: Go и инфраструктура, для которой в банке нет семейств
+    for sid in ("go", "terraform", "ansible", "helm", "prometheus", "selenium", "playwright"):
         assert CAT.skill(sid).untestable, sid
 
 

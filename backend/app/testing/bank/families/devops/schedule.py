@@ -125,6 +125,7 @@ def _field_spans(code: str) -> list[tuple[int, int, str]]:
 @register
 class CronNextRuns(OpsFamily):
     id = "ops.cron.next_runs"
+    observes = ("cron", "linux")
     title = "cron: ближайшие запуски по выражению"
     specs = SPECS
     module = MODULE
@@ -305,6 +306,7 @@ def schedule_jobs(
 @register
 class CiStages(OpsFamily):
     id = "ops.ci.stages"
+    observes = ("ci_cd", "gitlab_ci", "github_actions")
     title = "CI: стадии, needs и время пайплайна"
     specs = SPECS
     module = MODULE

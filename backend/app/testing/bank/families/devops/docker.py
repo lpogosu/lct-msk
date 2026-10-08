@@ -164,6 +164,7 @@ def _cmd_part(cmd: tuple[str, Any] | None) -> list[str]:
 @register
 class EntrypointCmd(OpsFamily):
     id = "ops.docker.entrypoint"
+    observes = ("docker",)
     title = "CMD и ENTRYPOINT: какая команда запустится"
     specs = SPECS
     module = MODULE
@@ -409,6 +410,7 @@ def rebuilt_steps(case: dict[str, Any], mutant: str | None = None) -> tuple[list
 @register
 class DockerLayerCache(OpsFamily):
     id = "ops.docker.cache"
+    observes = ("docker",)
     title = "Кеш слоёв Docker: что пересоберётся"
     specs = SPECS
     module = MODULE

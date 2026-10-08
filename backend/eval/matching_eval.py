@@ -36,6 +36,7 @@ from app.matching.scoring import (
     CandidateFeatures,
     ScoringConfig,
     ScoringContext,
+    TaskResult,
     build_category_stats,
     rank_results,
     score_candidate,
@@ -131,10 +132,20 @@ def spec_adjacency(cfg: ScoringConfig, a: str, b: str) -> float:
     return 0.0
 
 
+# Скрытые уровни навыков, которые наблюдает только проверочный набор (Redis, очереди, FastAPI, PostgreSQL), учитываются
+# оракулом; False — прежний оракул v2 (навык покрыт, если он в истинном стеке): для сравнения «до».
+LATENT_SKILLS = True
+
+
 def skill_covered(c: Candidate, skill: str, threshold: float, cat: SkillCatalog) -> bool:
-    """Навык покрыт ⇔ он в истинном стеке И (не тестируется ИЛИ истинный уровень одного из модулей ≥ порога)."""
+    """Навык покрыт ⇔ он в истинном стеке И (не тестируется ИЛИ истинный уровень одного из модулей ≥ порога).
+
+    Для навыков со «своим» модулем проверочного набора уровень — скрытый уровень навыка (Truth.skill_theta): иметь
+    PostgreSQL в стеке и владеть его особенностями — не одно и то же, а стандартный тест это внутри модуля не различает."""
     if skill not in c.truth.skills:
         return False
+    if LATENT_SKILLS and skill in c.truth.skill_theta:
+        return c.truth.skill_theta[skill] >= threshold
     sk = cat.skills.get(skill)
     modules = cat.modules_of(skill) if sk is not None else ()
     if sk is None or sk.untestable or not modules:
@@ -770,9 +781,82 @@ def evaluate(pop: Population, *, seed: int, n_boot: int = 2000, briefs: Sequence
     result["top10_errors"] = _top10_errors(test, rankings, world)
     result["exposure"] = _exposure(test, runs, rels, world)
     result["fidelity"] = _fidelity(test, versions, runs, world)
+    result["checkset"] = checkset_arm(briefs, runs, world, {b.id: rankings[b.id]["ours"] for b in briefs}, seed, n_boot=n_boot)
+    log("подбор: проверочный набор по вакансии посчитан")
     result["_rankings"] = {b.id: {s: rankings[b.id][s][:50] for s in SYSTEMS} for b in test}
     result["_rels"] = {b.id: rels[b.id] for b in test}
     return result
+
+
+# --------------------------------------------------------------------------- проверочный набор по вакансии в оценке
+
+CHECKSET_SHORTLIST = 30  # работодатель отправляет набор кандидатам из верха выдачи
+CHECKSET_SLOPE = 2.0  # крутизна задачи набора: σ(slope·(уровень навыка − b)), текстовый ответ без угадывания (c = 0)
+
+
+def checkset_pool(spec: BriefSpec, ranking: Sequence[str], world: World, seed: int, brief_id: str,
+                  *, slope: float = CHECKSET_SLOPE, shortlist: int = CHECKSET_SHORTLIST) -> list[CandidateFeatures]:
+    """Пул признаков после проверочного набора: кандидаты из верха выдачи решили задачи по must-навыкам со своим модулем.
+
+    План — тот же, что строит продукт (coverage.plan_check_set): навык проверяется, только если попал в слот. Результат
+    задачи — по скрытому уровню навыка кандидата (нет навыка в стеке — ответить нельзя). Идёт в K как задача типа A."""
+    import math
+
+    from app.matching.coverage import family_catalog_from_registry, family_info_from_registry, plan_check_set
+
+    cat = world.cat
+    plan = plan_check_set(spec.must, family_catalog=family_catalog_from_registry(), family_info=family_info_from_registry(),
+                          seed=seed, spec=spec.spec, brief_grade=spec.grade, cfg=world.cfg)
+    skills = sorted({sid for m, sid in plan.covered_pairs if m in cat.check_only_modules})
+    if not skills:
+        return world.pool
+    b = float(world.cfg.cuts[spec.grade]) - 0.5  # тот же порог, что у оракула: «владеет» ⇔ уровень ≥ cut − 0,5
+    rng = stream(f"checkset:{brief_id}", seed)
+    extra: dict[str, tuple[TaskResult, ...]] = {}
+    for cid in ranking[:shortlist]:
+        cand = world.by_id[cid]
+        tasks = []
+        for sid in skills:
+            level = cand.truth.skill_theta.get(sid) if sid in cand.truth.skills else None
+            p = 0.0 if level is None else 1.0 / (1.0 + math.exp(-slope * (level - b)))
+            mod = cat.specific_modules_of(sid)[0]
+            tasks.append(TaskResult(f"cs-{cid}-{sid}", "A", 1.0 if rng.random() < p else 0.0, float(rng.randint(0, 5)),
+                                    f"Проверочный набор: {cat.name(sid)}", (sid,), mod))
+        extra[cid] = tuple(tasks)
+    return [replace(f, tasks=f.tasks + extra[f.candidate_id]) if f.candidate_id in extra else f for f in world.pool]
+
+
+def checkset_arm(briefs: Sequence[Brief], runs: Mapping[str, BriefRun], world: World, base_rankings: Mapping[str, Sequence[str]],
+                 seed: int, *, n_boot: int = 2000, slope: float = CHECKSET_SLOPE) -> dict[str, Any]:
+    """P@10 до и после проверочного набора + B2 (новый оракул со скрытыми уровнями навыков) и прежний оракул для сравнения."""
+    global LATENT_SKILLS
+    ctx = _ctx(world)
+    rank_after: dict[str, list[str]] = {}
+    for b in briefs:
+        r = runs[b.id]
+        pool = checkset_pool(r.spec, base_rankings[b.id], world, seed, b.id, slope=slope)
+        rank_after[b.id] = rank_fast(r.spec, r.categories, pool, ctx) if pool is not world.pool else list(base_rankings[b.id])
+    out: dict[str, Any] = {"shortlist": CHECKSET_SHORTLIST, "slope": slope, "n_briefs": len(briefs)}
+    saved = LATENT_SKILLS
+    try:
+        for label, latent in (("old_oracle", False), ("latent_oracle", True)):
+            LATENT_SKILLS = latent
+            rels = {b.id: world.rels(b.gold) for b in briefs}
+            arms = {
+                "before": [brief_metrics(base_rankings[b.id], rels[b.id])["p10"] or 0.0 for b in briefs],
+                "after": [brief_metrics(rank_after[b.id], rels[b.id])["p10"] or 0.0 for b in briefs],
+                "b2": [brief_metrics(rank_b2(runs[b.id].categories, world.pool, world), rels[b.id])["p10"] or 0.0 for b in briefs],
+            }
+            out[label] = {
+                "p10": {k: M.summarize(v, stream(f"checkset-boot:{label}:{k}", seed), n_boot=n_boot) for k, v in arms.items()},
+                "after_minus_before": M.paired_bootstrap_diff(arms["after"], arms["before"], stream(f"checkset-pair:{label}", seed), n_boot=n_boot),
+                "before_minus_b2": M.paired_bootstrap_diff(arms["before"], arms["b2"], stream(f"checkset-b2:{label}", seed), n_boot=n_boot),
+                "after_minus_b2": M.paired_bootstrap_diff(arms["after"], arms["b2"], stream(f"checkset-b2a:{label}", seed), n_boot=n_boot),
+                "per_brief": {b.id: {"before": arms["before"][i], "after": arms["after"][i]} for i, b in enumerate(briefs)},
+            }
+    finally:
+        LATENT_SKILLS = saved
+    return out
 
 
 def _top10_errors(briefs: Sequence[Brief], rankings: Mapping[str, Mapping[str, list[str]]], world: World) -> dict[str, Any]:

@@ -298,6 +298,9 @@ class SkillCatalog:
         self.module_names = {k: v["name"] for k, v in self.taxonomy["modules"].items()}
         self.spec_names = {s["code"]: s["name"] for s in self.taxonomy["specializations"]}
         self.spec_status = {s["code"]: s.get("status", "active") for s in self.taxonomy["specializations"]}
+        # Модули проверочного набора: нет ни в одном blueprint, стандартный тест их не наблюдает (docs/MATCHING.md)
+        in_blueprint = {m for s in self.taxonomy["specializations"] for m in (s.get("blueprint") or {})}
+        self.check_only_modules = frozenset(m for m in self.module_names if m not in in_blueprint)
         cats = d["categories"]
         reasons = d["untestable_reasons"]
         self.skills = {}
@@ -434,6 +437,10 @@ class SkillCatalog:
     def modules_of(self, skill_id: str) -> tuple[str, ...]:
         s = self.skills.get(skill_id)
         return s.modules if s else ()
+
+    def specific_modules_of(self, skill_id: str) -> tuple[str, ...]:
+        """Модули навыка, которые наблюдает только проверочный набор по вакансии (Redis, очереди, FastAPI, PostgreSQL)."""
+        return tuple(m for m in self.modules_of(skill_id) if m in self.check_only_modules)
 
     def cue_weights(self, cue_id: str) -> Mapping[str, float]:
         return self._cue_weights.get(cue_id, {})

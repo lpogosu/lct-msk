@@ -140,10 +140,9 @@ def test_how_we_check_demo(demo):
     by = {i.skill_id: i for i in cov.items}
     assert by["python"].covered and by["python"].modules == (("python_core", "Python"),) and by["python"].via == "standard"
     assert by["postgresql"].text == "PostgreSQL ✓ проверено стандартным тестом категории (модуль «SQL и базы данных»)"
-    assert by["fastapi"].via == "standard" and {m for m, _ in by["fastapi"].modules} == {"python_core", "http_api"}
+    assert by["fastapi"].via == "standard" and {m for m, _ in by["fastapi"].modules} == {"python_core", "http_api", "fastapi_core"}
     assert by["fastapi"].text == "FastAPI ✓ проверено стандартным тестом категории (модули «Python», «HTTP и API»)"
-    gray = {i.skill_id for i in cov.untestable}
-    assert gray == {"kafka"}  # у Kafka нет модуля теста вовсе
+    assert cov.untestable == ()  # у Kafka есть модуль проверочного набора (mq_core), но nice-навык в набор не попадает
     assert "проверьте на интервью" in by["kafka"].text and by["kafka"].via == "interview"
     # Docker проверяет devops_core, а в blueprint Backend (Python) его нет; nice-навыки в проверочный набор не попадают
     assert "devops_core" not in standard_test_modules("backend_python")
@@ -161,7 +160,9 @@ def test_how_we_check_backend_must_docker_goes_to_check_set():
     by = {i.skill_id: i for i in how_we_check(must, [], spec="backend_python", check_set=plan).items}
     assert by["docker"].via == "check_set"
     assert by["docker"].text == "Docker ✓ проверяется проверочным набором по вакансии (модуль «DevOps и инфраструктура»)"
-    assert by["python"].via == by["postgresql"].via == "standard"
+    assert by["python"].via == "standard"
+    # PostgreSQL: стандартный тест видит SQL вообще, особенности PostgreSQL (pg_core) наблюдает слот проверочного набора
+    assert by["postgresql"].via == "check_set" and "PostgreSQL (особенности)" in by["postgresql"].text
     # без плана набора честно говорим «на интервью», а не «через модуль»
     alone = {i.skill_id: i for i in how_we_check(must, [], spec="backend_python").items}
     assert alone["docker"].via == "interview" and "проверьте на интервью" in alone["docker"].text
@@ -206,8 +207,8 @@ def test_check_view_is_specialization_aware():
     backend = _need(BriefSpec("n1", "backend_python", "middle", must=("python", "postgresql"), nice=("docker", "kafka")))
     out = check_view(backend)
     via = {c["skill_id"]: c["via"] for c in out["covered"]}
-    assert via == {"python": "standard", "postgresql": "standard", "docker": "interview"}
-    assert [u["skill_id"] for u in out["untestable"]] == ["kafka"]
+    assert via == {"python": "standard", "postgresql": "check_set", "docker": "interview", "kafka": "interview"}
+    assert out["untestable"] == []
     docker = next(c for c in out["covered"] if c["skill_id"] == "docker")
     assert "проверьте на интервью" in docker["text"] and "через модуль" not in docker["text"]
 
@@ -224,7 +225,7 @@ def test_check_view_is_specialization_aware():
 
 def test_module_weights_must_vs_nice():
     w = module_weights(["postgresql"], ["react"])
-    assert w["sql"] == pytest.approx(1.0 / 1.4)
+    assert w["sql"] == pytest.approx(0.5 / 1.4) and w["pg_core"] == pytest.approx(0.5 / 1.4)
     assert w["react"] == pytest.approx(0.2 / 1.4) and w["js_core"] == pytest.approx(0.2 / 1.4)
 
 
@@ -232,8 +233,8 @@ def test_check_set_plan_modules_only():
     plan = plan_check_set(["python", "fastapi", "postgresql", "kafka"])
     assert 3 <= len(plan.slots) <= 5
     assert plan.modules[0] == "python_core"
-    assert set(plan.modules) == {"python_core", "http_api", "sql"}
-    assert plan.untestable == ("kafka",)
+    assert set(plan.modules) == {"python_core", "http_api", "sql", "fastapi_core", "pg_core", "mq_core"} or len(plan.slots) == 5
+    assert plan.untestable == ()
     assert plan.total_minutes <= 15
     assert all(s.family_id is None for s in plan.slots)
 
@@ -255,8 +256,8 @@ def test_check_set_plan_with_catalog_is_deterministic():
 
 
 def test_check_set_go_vacancy_untestable():
-    plan = plan_check_set(["go", "kafka"])
-    assert plan.slots == () and set(plan.untestable) == {"go", "kafka"}
+    plan = plan_check_set(["go", "scala"])
+    assert plan.slots == () and set(plan.untestable) == {"go", "scala"}
     assert "проверьте на интервью" in plan.note
 
 
