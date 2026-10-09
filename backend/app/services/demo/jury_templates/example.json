@@ -1,0 +1,219 @@
+{
+  "vacancies": [
+    {
+      "id": "v1",
+      "text": "Ищем Middle Python-разработчика в команду сервиса доставки «Полярная Сова». Обязательно: Python, Django, PostgreSQL. Будет плюсом: Celery, Redis, Docker. Гибрид, офис в Москве.",
+      "salary_from": 220000,
+      "salary_to": 280000,
+      "salary_net": true
+    },
+    {
+      "id": "v2",
+      "text": "Нужен Junior frontend-разработчик в студию «Тихий Маяк»: React и TypeScript, будет плюсом Jest. Работа удалённо.",
+      "salary_from": 120000,
+      "salary_to": 160000,
+      "salary_net": true
+    },
+    {
+      "id": "v3",
+      "text": "Ищем QA-инженера уровня Middle: автотесты на pytest, тестирование API, SQL. Гибрид, Санкт-Петербург. Зарплата 180–230 тыс. руб. до вычета НДФЛ."
+    }
+  ],
+  "candidates": [
+    {
+      "id": "c01",
+      "spec": "backend_python",
+      "grade": "middle",
+      "skills": [
+        "python",
+        "django",
+        "postgresql",
+        "celery",
+        "docker"
+      ],
+      "experience_months": 40,
+      "self_description": "Backend-разработчик: Django, PostgreSQL, очереди на Celery.",
+      "fsp": "product:62",
+      "salary_min": 230000,
+      "salary_net": true,
+      "formats": [
+        "hybrid",
+        "remote"
+      ],
+      "city": "Москва"
+    },
+    {
+      "id": "c02",
+      "spec": "backend_python",
+      "grade": "junior",
+      "skills": [
+        "python",
+        "fastapi",
+        "postgresql"
+      ],
+      "experience_months": 14,
+      "self_description": "Пишу сервисы на FastAPI, учебные проекты с PostgreSQL.",
+      "salary_min": 150000,
+      "salary_net": true,
+      "formats": [
+        "remote"
+      ]
+    },
+    {
+      "id": "c03",
+      "spec": "backend_python",
+      "grade": "senior",
+      "skills": [
+        "python",
+        "django",
+        "kafka",
+        "kubernetes"
+      ],
+      "experience_months": 80,
+      "self_description": "Проектирую высоконагруженные сервисы, веду команду.",
+      "fsp": "algo:45",
+      "salary_min": 420000,
+      "salary_net": true,
+      "formats": [
+        "hybrid"
+      ],
+      "city": "Москва"
+    },
+    {
+      "id": "c04",
+      "spec": "frontend_js",
+      "grade": "junior",
+      "skills": [
+        "javascript",
+        "typescript",
+        "react",
+        "jest"
+      ],
+      "experience_months": 12,
+      "self_description": "Вёрстка и SPA на React, покрываю компоненты тестами.",
+      "salary_min": 130000,
+      "salary_net": true,
+      "formats": [
+        "remote"
+      ]
+    },
+    {
+      "id": "c05",
+      "spec": "frontend_js",
+      "grade": "middle",
+      "skills": [
+        "typescript",
+        "react",
+        "vue"
+      ],
+      "experience_months": 36,
+      "self_description": "Frontend на React и Vue, дизайн-системы.",
+      "salary_min": 220000,
+      "salary_net": true,
+      "formats": [
+        "remote"
+      ]
+    },
+    {
+      "id": "c06",
+      "spec": "qa",
+      "grade": "middle",
+      "skills": [
+        "pytest",
+        "api_testing",
+        "sql",
+        "postman"
+      ],
+      "experience_months": 42,
+      "self_description": "Автотесты на pytest, тестирую REST API, пишу SQL-запросы.",
+      "salary_min": 190000,
+      "salary_net": false,
+      "formats": [
+        "hybrid"
+      ],
+      "city": "Санкт-Петербург"
+    },
+    {
+      "id": "c07",
+      "spec": "qa",
+      "grade": "junior",
+      "skills": [
+        "selenium",
+        "sql"
+      ],
+      "experience_months": 10,
+      "self_description": "Ручное тестирование и первые автотесты на Selenium.",
+      "salary_min": 110000,
+      "salary_net": true,
+      "formats": [
+        "office"
+      ],
+      "city": "Санкт-Петербург"
+    },
+    {
+      "id": "c08",
+      "spec": "devops",
+      "grade": "middle",
+      "skills": [
+        "docker",
+        "kubernetes",
+        "terraform",
+        "ci_cd"
+      ],
+      "experience_months": 48,
+      "self_description": "Инфраструктура как код, CI/CD, Kubernetes.",
+      "salary_min": 260000,
+      "salary_net": true,
+      "formats": [
+        "remote"
+      ]
+    }
+  ],
+  "labels": [
+    {
+      "vacancy_id": "v1",
+      "candidate_id": "c01",
+      "rel": 3
+    },
+    {
+      "vacancy_id": "v1",
+      "candidate_id": "c02",
+      "rel": 1
+    },
+    {
+      "vacancy_id": "v1",
+      "candidate_id": "c03",
+      "rel": 2
+    },
+    {
+      "vacancy_id": "v1",
+      "candidate_id": "c08",
+      "rel": 0
+    },
+    {
+      "vacancy_id": "v2",
+      "candidate_id": "c04",
+      "rel": 3
+    },
+    {
+      "vacancy_id": "v2",
+      "candidate_id": "c05",
+      "rel": 2
+    },
+    {
+      "vacancy_id": "v2",
+      "candidate_id": "c02",
+      "rel": 0
+    },
+    {
+      "vacancy_id": "v3",
+      "candidate_id": "c06",
+      "rel": 3
+    },
+    {
+      "vacancy_id": "v3",
+      "candidate_id": "c07",
+      "rel": 2
+    }
+  ]
+}

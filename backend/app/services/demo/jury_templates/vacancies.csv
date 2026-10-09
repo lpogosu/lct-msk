@@ -1,0 +1,4 @@
+id,text,salary_from,salary_to,salary_net
+v1,"Ищем Middle Python-разработчика в команду сервиса доставки «Полярная Сова». Обязательно: Python, Django, PostgreSQL. Будет плюсом: Celery, Redis, Docker. Гибрид, офис в Москве.",220000,280000,true
+v2,"Нужен Junior frontend-разработчик в студию «Тихий Маяк»: React и TypeScript, будет плюсом Jest. Работа удалённо.",120000,160000,true
+v3,"Ищем QA-инженера уровня Middle: автотесты на pytest, тестирование API, SQL. Гибрид, Санкт-Петербург. Зарплата 180–230 тыс. руб. до вычета НДФЛ.",,,

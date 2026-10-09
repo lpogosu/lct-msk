@@ -30515,7 +30515,7 @@
           "Администрирование"
         ],
         "summary": "Список импортов жюри",
-        "description": "Загрузки жюри (новые сверху) с числом брифов, кандидатов, кандидатов без теста и размеченных пар.",
+        "description": "Загрузки жюри (новые сверху) с числом брифов, кандидатов, кандидатов без теста и размеченных пар. Администратор видит все загрузки, методист — только свои.",
         "operationId": "list_imports_api_admin_import_get",
         "responses": {
           "200": {
@@ -30642,7 +30642,7 @@
           "Администрирование"
         ],
         "summary": "Импорт кандидатов и брифов жюри",
-        "description": "Принимает строки набора пар (формат `eval/pairs_test.jsonl`, схема `eval/pairs_test.schema.json`): бриф, кандидат с признаками подбора и разметка rel 0–3; можно отдельно `briefs` и `candidates`. Кандидат с `features: null` — без теста: он попадает в группу «категория по опросу, не подтверждена» (заявленные `claimed_spec`/`claimed_grade`, навыки из `survey`/`declared_skills` или самоописания) и ранжируется ниже подтверждённых. Данные не попадают в банк платформы. 400 — формат строки неверен (в сообщении путь до поля).",
+        "description": "Принимает строки набора пар (формат `eval/pairs_test.jsonl`, схема `eval/pairs_test.schema.json`): бриф, кандидат с признаками подбора и разметка rel 0–3; можно отдельно `briefs` и `candidates`. Кандидат с `features: null` — без теста: он попадает в группу «категория по опросу, не подтверждена» (заявленные `claimed_spec`/`claimed_grade`, навыки из `survey`/`declared_skills` или самоописания) и ранжируется ниже подтверждённых. Данные не попадают в банк платформы. Роли: администратор, методист (вход жюри). 400 — формат строки неверен (в сообщении путь до поля), 413 — файл больше лимита.",
         "operationId": "import_pairs_api_admin_import_post",
         "requestBody": {
           "content": {
@@ -30771,13 +30771,148 @@
         ]
       }
     },
+    "/api/admin/import/simple": {
+      "post": {
+        "tags": [
+          "Администрирование"
+        ],
+        "summary": "Импорт жюри в простом формате (вакансии, кандидаты, разметка — CSV или JSON)",
+        "description": "Три таблицы: вакансии (`id, text, salary_from, salary_to, salary_net`), кандидаты (`id, spec, grade, skills` через «;», `experience_months, self_description`, необязательно `fsp`, `salary_min`, `salary_net`, `formats`, `city`), разметка (`vacancy_id, candidate_id, rel` 0–3). Каждая — CSV-текст с заголовком (разделитель «,» или «;») или JSON-массив. Кандидаты без теста → группа «категория по опросу, не подтверждена». У размеченной вакансии неразмеченные кандидаты набора по умолчанию считаются нерелевантными (rel 0). 400 — ошибка в таблице: в сообщении таблица, номер строки и поле; шаблоны — GET /api/admin/check/templates/{name}.",
+        "operationId": "import_simple_api_admin_import_simple_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimpleImportIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimpleImportOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
     "/api/admin/import/{batch_id}": {
       "delete": {
         "tags": [
           "Администрирование"
         ],
         "summary": "Удалить импорт жюри",
-        "description": "Удаляет загрузку вместе с её брифами, кандидатами и разметкой. Данные платформы не затрагиваются.",
+        "description": "Удаляет загрузку вместе с её брифами, кандидатами и разметкой. Данные платформы не затрагиваются. Методист удаляет только свои загрузки (чужая — 404).",
         "operationId": "delete_import_api_admin_import__batch_id__delete",
         "security": [
           {
@@ -30914,7 +31049,7 @@
           "Администрирование"
         ],
         "summary": "Ранжирование по брифу (топ-N с компонентами Score)",
-        "description": "Бриф (из импорта по `brief_id` или текстом с вилкой) → топ-N кандидатов тем же движком, что подборка работодателя: Score, нормированные компоненты T, K, F, A, U, вклады и «за»/«против». Кандидаты без теста — группа «категория по опросу, не подтверждена» ниже подтверждённых. `format=csv` отдаёт тот же топ в CSV. `source`: импорт жюри, слепой банк платформы или оба. 404 — нет импорта или брифа, 422 — у брифа нет вилки.",
+        "description": "Бриф (из импорта по `brief_id` или текстом с вилкой) → топ-N кандидатов тем же движком, что подборка работодателя: Score, нормированные компоненты T, K, F, A, U, вклады и «за»/«против». Кандидаты без теста — группа «категория по опросу, не подтверждена» ниже подтверждённых. `format=csv` отдаёт тот же топ в CSV. `source`: импорт жюри, слепой банк платформы или оба; кандидаты банка платформы — под псевдонимами, без ПДн. 404 — нет импорта или брифа, 422 — у брифа нет вилки.",
         "operationId": "eval_rank_api_admin_eval_rank_post",
         "security": [
           {
@@ -31067,7 +31202,7 @@
           "Администрирование"
         ],
         "summary": "Метрики по размеченным парам (P@5, P@10, nDCG@10)",
-        "description": "Загрузите размеченные пары «бриф × кандидат» (формат eval/pairs_test.jsonl, rel 0–3; релевантен rel ≥ 2) — или не передавайте `pairs`, и возьмутся пары последнего импорта. Для каждого брифа ранжируются размеченные кандидаты нашим движком; считаются P@5, P@10, nDCG@10: среднее по брифам и 95% бутстреп-ДИ (тот же код, что в `make validate`). Если в строках есть `ranks_top20` (ours, b0–b3), по ним считаются те же метрики для сравнения.",
+        "description": "Загрузите размеченные пары «бриф × кандидат» (формат eval/pairs_test.jsonl, rel 0–3; релевантен rel ≥ 2) — или не передавайте `pairs`, и возьмутся пары последнего импорта (методист — своего). Для каждого брифа ранжируются размеченные кандидаты нашим движком; считаются P@5, P@10, nDCG@10: среднее по брифам и 95% бутстреп-ДИ (тот же код, что в `make validate`). Если в строках есть `ranks_top20` (ours, b0–b3), по ним считаются те же метрики для сравнения.",
         "operationId": "eval_pairs_api_admin_eval_pairs_post",
         "requestBody": {
           "content": {
@@ -31319,6 +31454,1103 @@
             "Bearer": []
           }
         ]
+      }
+    },
+    "/api/admin/check/templates/{name}": {
+      "get": {
+        "tags": [
+          "Администрирование"
+        ],
+        "summary": "Шаблон простого формата для жюри",
+        "description": "Шаблоны таблиц простого формата с примером: `vacancies.csv`, `candidates.csv`, `labels.csv` или всё одним `example.json` (ключи vacancies, candidates, labels). Компании и кандидаты в примере вымышленные.",
+        "operationId": "check_template_api_admin_check_templates__name__get",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "vacancies.csv",
+                "candidates.csv",
+                "labels.csv",
+                "example.json"
+              ],
+              "type": "string",
+              "description": "Имя файла шаблона",
+              "title": "Name"
+            },
+            "description": "Имя файла шаблона"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Файл шаблона с примером на 3 вакансии",
+            "content": {
+              "text/csv": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimpleSetOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/check/repo": {
+      "get": {
+        "tags": [
+          "Администрирование"
+        ],
+        "summary": "Наш набор пар: метрики и список брифов",
+        "description": "Набор пар из репозитория (`eval/pairs_test.jsonl`, 20 test-брифов) → P@5, P@10, nDCG@10 со средним по брифам и 95% бутстреп-ДИ, сравнение с местами систем из `ranks_top20` (наш сквозной, B0–B3) и P@k по каждому брифу.",
+        "operationId": "check_repo_api_admin_check_repo_get",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "use_gold",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Эталонный разбор брифа из набора вместо разбора текста (по умолчанию — разбор, как в продукте)",
+              "default": false,
+              "title": "Use Gold"
+            },
+            "description": "Эталонный разбор брифа из набора вместо разбора текста (по умолчанию — разбор, как в продукте)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckSummaryOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/check/repo/briefs/{brief_id}": {
+      "get": {
+        "tags": [
+          "Администрирование"
+        ],
+        "summary": "Наш набор пар: бриф и топ для ручной проверки",
+        "description": "Текст брифа, как он разобран (специализация, грейд, must/nice, вилка) и эталон набора; топ-N размеченных кандидатов в том же порядке, по которому посчитаны P@k: место, Score, категория, «за»/«против», релевантность по оракулу 0–3.",
+        "operationId": "check_repo_brief_api_admin_check_repo_briefs__brief_id__get",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "brief_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 64,
+              "title": "Brief Id"
+            }
+          },
+          {
+            "name": "top",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Сколько мест показать (по умолчанию из config/demo.yaml)",
+              "title": "Top"
+            },
+            "description": "Сколько мест показать (по умолчанию из config/demo.yaml)"
+          },
+          {
+            "name": "use_gold",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Эталонный разбор брифа из набора вместо разбора текста (по умолчанию — разбор, как в продукте)",
+              "default": false,
+              "title": "Use Gold"
+            },
+            "description": "Эталонный разбор брифа из набора вместо разбора текста (по умолчанию — разбор, как в продукте)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckBriefOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/check/repo/tops.csv": {
+      "get": {
+        "tags": [
+          "Администрирование"
+        ],
+        "summary": "Наш набор пар: топы по всем брифам в CSV",
+        "description": "Топ-N по каждому брифу набора из репозитория одной таблицей: бриф, место, кандидат, группа, категория, Score, компоненты T, K, F, A, U, релевантность по оракулу (rel, relevant), «за», «против», флаги.",
+        "operationId": "check_repo_csv_api_admin_check_repo_tops_csv_get",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "top",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Сколько мест показать (по умолчанию из config/demo.yaml)",
+              "title": "Top"
+            },
+            "description": "Сколько мест показать (по умолчанию из config/demo.yaml)"
+          },
+          {
+            "name": "use_gold",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Эталонный разбор брифа из набора вместо разбора текста (по умолчанию — разбор, как в продукте)",
+              "default": false,
+              "title": "Use Gold"
+            },
+            "description": "Эталонный разбор брифа из набора вместо разбора текста (по умолчанию — разбор, как в продукте)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CSV (UTF-8 с BOM)",
+            "content": {
+              "text/csv": {}
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/check/batches/{batch_id}": {
+      "get": {
+        "tags": [
+          "Администрирование"
+        ],
+        "summary": "Своя загрузка: метрики и список брифов",
+        "description": "То же, что для набора из репозитория, по своей загрузке (методист — только свои). Без разметки метрик нет.",
+        "operationId": "check_batch_api_admin_check_batches__batch_id__get",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "batch_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Batch Id"
+            }
+          },
+          {
+            "name": "use_gold",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Эталонный разбор брифа из набора вместо разбора текста (по умолчанию — разбор, как в продукте)",
+              "default": false,
+              "title": "Use Gold"
+            },
+            "description": "Эталонный разбор брифа из набора вместо разбора текста (по умолчанию — разбор, как в продукте)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckSummaryOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/check/batches/{batch_id}/briefs/{brief_id}": {
+      "get": {
+        "tags": [
+          "Администрирование"
+        ],
+        "summary": "Своя загрузка: бриф и топ",
+        "description": "Бриф с разметкой — топ размеченных кандидатов (как в метриках) с rel и ✓/✗; без разметки — топ по всем кандидатам загрузки в рекомендованных категориях, как в подборке работодателя.",
+        "operationId": "check_batch_brief_api_admin_check_batches__batch_id__briefs__brief_id__get",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "batch_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Batch Id"
+            }
+          },
+          {
+            "name": "brief_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 64,
+              "title": "Brief Id"
+            }
+          },
+          {
+            "name": "top",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Сколько мест показать (по умолчанию из config/demo.yaml)",
+              "title": "Top"
+            },
+            "description": "Сколько мест показать (по умолчанию из config/demo.yaml)"
+          },
+          {
+            "name": "use_gold",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Эталонный разбор брифа из набора вместо разбора текста (по умолчанию — разбор, как в продукте)",
+              "default": false,
+              "title": "Use Gold"
+            },
+            "description": "Эталонный разбор брифа из набора вместо разбора текста (по умолчанию — разбор, как в продукте)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckBriefOut"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/check/batches/{batch_id}/tops.csv": {
+      "get": {
+        "tags": [
+          "Администрирование"
+        ],
+        "summary": "Своя загрузка: топы по всем брифам в CSV",
+        "description": "Топ-N по каждому брифу своей загрузки одной таблицей (методист — только свои): место, кандидат, Score, компоненты, rel и relevant (если пара размечена), «за», «против», флаги.",
+        "operationId": "check_batch_csv_api_admin_check_batches__batch_id__tops_csv_get",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "batch_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Batch Id"
+            }
+          },
+          {
+            "name": "top",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Сколько мест показать (по умолчанию из config/demo.yaml)",
+              "title": "Top"
+            },
+            "description": "Сколько мест показать (по умолчанию из config/demo.yaml)"
+          },
+          {
+            "name": "use_gold",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Эталонный разбор брифа из набора вместо разбора текста (по умолчанию — разбор, как в продукте)",
+              "default": false,
+              "title": "Use Gold"
+            },
+            "description": "Эталонный разбор брифа из набора вместо разбора текста (по умолчанию — разбор, как в продукте)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CSV (UTF-8 с BOM)",
+            "content": {
+              "text/csv": {}
+            }
+          },
+          "400": {
+            "description": "Некорректный запрос",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "bad_request",
+                  "message": "Запрос не может быть выполнен"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Требуется вход или токен недействителен",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "unauthorized",
+                  "message": "Требуется вход в систему"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "forbidden",
+                  "message": "Недостаточно прав для этого действия"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "not_found",
+                  "message": "Запись не найдена"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Конфликт состояния",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "conflict",
+                  "message": "Действие противоречит текущему состоянию"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации полей",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "validation_error",
+                  "message": "Проверьте заполнение полей"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Слишком много запросов",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "rate_limited",
+                  "message": "Слишком много запросов. Повторите через 30 с"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/admin/trust/complaints": {
@@ -36468,6 +37700,18 @@
           "pairs": {
             "type": "integer",
             "title": "Pairs"
+          },
+          "format": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Format",
+            "description": "pairs — строки набора пар, simple — три таблицы CSV/JSON"
           }
         },
         "type": "object",
@@ -36478,7 +37722,8 @@
           "briefs",
           "candidates",
           "unconfirmed",
-          "pairs"
+          "pairs",
+          "format"
         ],
         "title": "BatchOut"
       },
@@ -36909,6 +38154,196 @@
           "text"
         ],
         "title": "BriefParseIn"
+      },
+      "BriefParseOut": {
+        "properties": {
+          "spec": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spec"
+          },
+          "grade": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grade"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "must": {
+            "items": {
+              "$ref": "#/components/schemas/SkillRefOut"
+            },
+            "type": "array",
+            "title": "Must"
+          },
+          "nice": {
+            "items": {
+              "$ref": "#/components/schemas/SkillRefOut"
+            },
+            "type": "array",
+            "title": "Nice"
+          },
+          "salary_from": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salary From"
+          },
+          "salary_to": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salary To"
+          },
+          "salary_net": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salary Net"
+          },
+          "formats": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Formats"
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source",
+            "description": "parser — разбор текста правилами, gold — эталон набора"
+          }
+        },
+        "type": "object",
+        "required": [
+          "spec",
+          "grade",
+          "category",
+          "must",
+          "nice",
+          "salary_from",
+          "salary_to",
+          "salary_net",
+          "formats",
+          "city",
+          "source"
+        ],
+        "title": "BriefParseOut"
+      },
+      "BriefViewOut": {
+        "properties": {
+          "brief_id": {
+            "type": "string",
+            "title": "Brief Id"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "form": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Form",
+            "description": "Вилка из формы (если её нет в тексте)"
+          },
+          "gold": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BriefParseOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Эталон разбора, написанный авторами набора"
+          },
+          "parsed": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BriefParseOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Как бриф разобрал продукт"
+          },
+          "parse_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parse Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "brief_id",
+          "text",
+          "form",
+          "gold",
+          "parsed",
+          "parse_error"
+        ],
+        "title": "BriefViewOut"
       },
       "BriefingOut": {
         "properties": {
@@ -37984,6 +39419,29 @@
         ],
         "title": "CategoryRefIn"
       },
+      "CategoryRefOut": {
+        "properties": {
+          "spec": {
+            "type": "string",
+            "title": "Spec"
+          },
+          "grade": {
+            "type": "string",
+            "title": "Grade"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "spec",
+          "grade",
+          "name"
+        ],
+        "title": "CategoryRefOut"
+      },
       "Cell": {
         "properties": {
           "n": {
@@ -38294,6 +39752,257 @@
         ],
         "title": "ChatUnreadOut"
       },
+      "CheckBriefOut": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "repo",
+              "batch"
+            ],
+            "title": "Source"
+          },
+          "batch_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Batch Id"
+          },
+          "brief": {
+            "$ref": "#/components/schemas/BriefViewOut"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "labeled",
+              "pool"
+            ],
+            "title": "Mode",
+            "description": "labeled — ранжируются размеченные для брифа кандидаты (как в метриках), pool — все кандидаты загрузки в рекомендованных категориях (разметки нет)"
+          },
+          "categories": {
+            "items": {
+              "$ref": "#/components/schemas/CategoryRefOut"
+            },
+            "type": "array",
+            "title": "Categories"
+          },
+          "pool_size": {
+            "type": "integer",
+            "title": "Pool Size"
+          },
+          "ranked": {
+            "type": "integer",
+            "title": "Ranked"
+          },
+          "n_labeled": {
+            "type": "integer",
+            "title": "N Labeled"
+          },
+          "n_relevant": {
+            "type": "integer",
+            "title": "N Relevant"
+          },
+          "relevant_from": {
+            "type": "integer",
+            "title": "Relevant From"
+          },
+          "metrics": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "number"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metrics"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CheckRowOut"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "relevant_below": {
+            "items": {
+              "$ref": "#/components/schemas/RelevantBelowOut"
+            },
+            "type": "array",
+            "title": "Relevant Below",
+            "description": "Релевантные кандидаты ниже топа — с местом, для ручной проверки"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Notes"
+          },
+          "scoring_config_version": {
+            "type": "string",
+            "title": "Scoring Config Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source",
+          "batch_id",
+          "brief",
+          "mode",
+          "categories",
+          "pool_size",
+          "ranked",
+          "n_labeled",
+          "n_relevant",
+          "relevant_from",
+          "metrics",
+          "items",
+          "relevant_below",
+          "notes",
+          "scoring_config_version"
+        ],
+        "title": "CheckBriefOut"
+      },
+      "CheckBriefRowOut": {
+        "properties": {
+          "brief_id": {
+            "type": "string",
+            "title": "Brief Id"
+          },
+          "preview": {
+            "type": "string",
+            "title": "Preview",
+            "description": "Начало текста брифа"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category",
+            "description": "Как разобран: «Backend (Python) · Middle»"
+          },
+          "gold_category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gold Category",
+            "description": "Эталон разбора из набора (если есть)"
+          },
+          "salary_from": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salary From"
+          },
+          "salary_to": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salary To"
+          },
+          "salary_net": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salary Net"
+          },
+          "parse_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parse Error",
+            "description": "Бриф не разобран (нет вилки и т. п.) — в метрики не вошёл"
+          },
+          "n_pairs": {
+            "type": "integer",
+            "title": "N Pairs",
+            "description": "Размечено кандидатов"
+          },
+          "n_relevant": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N Relevant",
+            "description": "Из них релевантных (rel ≥ 2)"
+          },
+          "metrics": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "number"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metrics",
+            "description": "p@5, p@10, ndcg@10 по брифу"
+          }
+        },
+        "type": "object",
+        "required": [
+          "brief_id",
+          "preview",
+          "category",
+          "gold_category",
+          "salary_from",
+          "salary_to",
+          "salary_net",
+          "parse_error",
+          "n_pairs",
+          "n_relevant",
+          "metrics"
+        ],
+        "title": "CheckBriefRowOut"
+      },
       "CheckIn": {
         "properties": {
           "answer": {
@@ -38308,6 +40017,40 @@
           "answer"
         ],
         "title": "CheckIn"
+      },
+      "CheckMetricsOut": {
+        "properties": {
+          "ours": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/MetricOut"
+            },
+            "type": "object",
+            "title": "Ours",
+            "description": "Пересчёт сейчас: P@5, P@10, nDCG@10 со средним и 95% бутстреп-ДИ"
+          },
+          "reported_systems": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/MetricOut"
+              },
+              "type": "object"
+            },
+            "type": "object",
+            "title": "Reported Systems",
+            "description": "Те же метрики по местам из ranks_top20 (если есть)"
+          },
+          "n_briefs": {
+            "type": "integer",
+            "title": "N Briefs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ours",
+          "reported_systems",
+          "n_briefs"
+        ],
+        "title": "CheckMetricsOut"
       },
       "CheckOut": {
         "properties": {
@@ -38357,6 +40100,269 @@
           "check_set"
         ],
         "title": "CheckOut"
+      },
+      "CheckProfileOut": {
+        "properties": {
+          "confirmed": {
+            "type": "boolean",
+            "title": "Confirmed",
+            "description": "Категория подтверждена тестом"
+          },
+          "claimed_spec": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claimed Spec"
+          },
+          "claimed_grade": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claimed Grade"
+          },
+          "experience_months": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Experience Months"
+          },
+          "self_description": {
+            "type": "string",
+            "title": "Self Description",
+            "description": "Самоописание — в Score не входит"
+          },
+          "declared_skills": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Declared Skills",
+            "description": "Заявленные навыки — серые чипы, в Score не входят"
+          },
+          "salary_min": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salary Min"
+          },
+          "salary_net": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salary Net"
+          },
+          "formats": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Formats"
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City"
+          },
+          "fsp_line": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fsp Line"
+          }
+        },
+        "type": "object",
+        "required": [
+          "confirmed",
+          "claimed_spec",
+          "claimed_grade",
+          "experience_months",
+          "self_description",
+          "declared_skills",
+          "salary_min",
+          "salary_net",
+          "formats",
+          "city",
+          "fsp_line"
+        ],
+        "title": "CheckProfileOut"
+      },
+      "CheckRowOut": {
+        "properties": {
+          "rank": {
+            "type": "integer",
+            "title": "Rank"
+          },
+          "candidate_id": {
+            "type": "string",
+            "title": "Candidate Id",
+            "description": "id из загрузки; у кандидата банка платформы — псевдоним «К-1234» (слепая выдача)"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "description": "import — из загрузки жюри, platform — из банка платформы"
+          },
+          "group": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "unconfirmed"
+            ],
+            "title": "Group"
+          },
+          "group_label": {
+            "type": "string",
+            "title": "Group Label"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          },
+          "components": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Components",
+            "description": "Нормированные компоненты Score: T, K, F, A, U"
+          },
+          "contributions": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Contributions",
+            "description": "Вклад компонентов в баллах (Σ = Score)"
+          },
+          "parts": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Parts"
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/RankReasonOut"
+            },
+            "type": "array",
+            "title": "Reasons"
+          },
+          "flags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Flags"
+          },
+          "has_fsp": {
+            "type": "boolean",
+            "title": "Has Fsp"
+          },
+          "chips": {
+            "items": {
+              "$ref": "#/components/schemas/ChipOut"
+            },
+            "type": "array",
+            "title": "Chips",
+            "description": "Навыки брифа у кандидата: подтверждён / заявлено / нет данных"
+          },
+          "rel": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rel",
+            "description": "Релевантность по разметке набора 0–3 (null — пара не размечена)"
+          },
+          "relevant": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Relevant",
+            "description": "rel ≥ 2"
+          },
+          "profile": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CheckProfileOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "rank",
+          "candidate_id",
+          "source",
+          "group",
+          "group_label",
+          "category",
+          "score",
+          "components",
+          "contributions",
+          "parts",
+          "reasons",
+          "flags",
+          "has_fsp",
+          "chips",
+          "rel",
+          "relevant",
+          "profile"
+        ],
+        "title": "CheckRowOut"
       },
       "CheckSetCandidateOut": {
         "properties": {
@@ -38671,6 +40677,150 @@
         ],
         "title": "CheckSlotOut"
       },
+      "CheckSummaryOut": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "repo",
+              "batch"
+            ],
+            "title": "Source"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "batch_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Batch Id"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "n_briefs": {
+            "type": "integer",
+            "title": "N Briefs"
+          },
+          "n_labeled_briefs": {
+            "type": "integer",
+            "title": "N Labeled Briefs"
+          },
+          "n_pairs": {
+            "type": "integer",
+            "title": "N Pairs"
+          },
+          "n_candidates": {
+            "type": "integer",
+            "title": "N Candidates"
+          },
+          "n_unconfirmed": {
+            "type": "integer",
+            "title": "N Unconfirmed",
+            "description": "Кандидатов без теста: группа «категория по опросу, не подтверждена»"
+          },
+          "relevant_from": {
+            "type": "integer",
+            "title": "Relevant From",
+            "description": "Релевантен ⇔ rel ≥ этого значения"
+          },
+          "ks": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Ks"
+          },
+          "ndcg_k": {
+            "type": "integer",
+            "title": "Ndcg K"
+          },
+          "metrics": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CheckMetricsOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "null — в наборе нет разметки"
+          },
+          "system_labels": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "System Labels",
+            "description": "Подписи систем из ranks_top20: ours, b0–b3"
+          },
+          "briefs": {
+            "items": {
+              "$ref": "#/components/schemas/CheckBriefRowOut"
+            },
+            "type": "array",
+            "title": "Briefs"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings",
+            "description": "Предупреждения импорта"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Notes"
+          },
+          "scoring_config_version": {
+            "type": "string",
+            "title": "Scoring Config Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source",
+          "title",
+          "batch_id",
+          "created_at",
+          "n_briefs",
+          "n_labeled_briefs",
+          "n_pairs",
+          "n_candidates",
+          "n_unconfirmed",
+          "relevant_from",
+          "ks",
+          "ndcg_k",
+          "metrics",
+          "system_labels",
+          "briefs",
+          "warnings",
+          "notes",
+          "scoring_config_version"
+        ],
+        "title": "CheckSummaryOut"
+      },
       "ChecklistItemOut": {
         "properties": {
           "id": {
@@ -38708,6 +40858,36 @@
           "note_ru"
         ],
         "title": "ChecklistItemOut"
+      },
+      "ChipOut": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind",
+            "description": "must — обязательный навык брифа, nice — желательный"
+          },
+          "state": {
+            "type": "string",
+            "title": "State",
+            "description": "confirmed — подтверждён, weak — проверен слабо, declared — только заявлен, no_data"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "kind",
+          "state",
+          "label"
+        ],
+        "title": "ChipOut"
       },
       "ClockOut": {
         "properties": {
@@ -51425,6 +53605,131 @@
         ],
         "title": "QuoteOut"
       },
+      "RankBriefOut": {
+        "properties": {
+          "spec": {
+            "type": "string",
+            "title": "Spec"
+          },
+          "grade": {
+            "type": "string",
+            "title": "Grade"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category",
+            "description": "Категория брифа по-русски: «Backend (Python) · Middle»"
+          },
+          "must": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Must"
+          },
+          "nice": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Nice"
+          },
+          "must_names": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Must Names"
+          },
+          "nice_names": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Nice Names"
+          },
+          "salary_from": {
+            "type": "integer",
+            "title": "Salary From"
+          },
+          "salary_to": {
+            "type": "integer",
+            "title": "Salary To"
+          },
+          "salary_net": {
+            "type": "boolean",
+            "title": "Salary Net"
+          },
+          "formats": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Formats"
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City"
+          },
+          "parsed": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Parsed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "spec",
+          "grade",
+          "category",
+          "must",
+          "nice",
+          "must_names",
+          "nice_names",
+          "salary_from",
+          "salary_to",
+          "salary_net",
+          "formats",
+          "city",
+          "parsed"
+        ],
+        "title": "RankBriefOut"
+      },
+      "RankCategoryOut": {
+        "properties": {
+          "spec": {
+            "type": "string",
+            "title": "Spec"
+          },
+          "grade": {
+            "type": "string",
+            "title": "Grade"
+          },
+          "n": {
+            "type": "integer",
+            "title": "N"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "spec",
+          "grade",
+          "n",
+          "name"
+        ],
+        "title": "RankCategoryOut"
+      },
       "RankIn": {
         "properties": {
           "brief_id": {
@@ -51551,15 +53856,12 @@
             "title": "Brief Id"
           },
           "brief": {
-            "additionalProperties": true,
-            "type": "object",
-            "title": "Brief",
+            "$ref": "#/components/schemas/RankBriefOut",
             "description": "Как разобран бриф: специализация, грейд, навыки, вилка, формат"
           },
           "categories": {
             "items": {
-              "additionalProperties": true,
-              "type": "object"
+              "$ref": "#/components/schemas/RankCategoryOut"
             },
             "type": "array",
             "title": "Categories"
@@ -51650,7 +53952,8 @@
           },
           "candidate_id": {
             "type": "string",
-            "title": "Candidate Id"
+            "title": "Candidate Id",
+            "description": "id из загрузки; у кандидата банка платформы — псевдоним «К-1234» (слепая выдача)"
           },
           "source": {
             "type": "string",
@@ -51717,6 +54020,14 @@
           "has_fsp": {
             "type": "boolean",
             "title": "Has Fsp"
+          },
+          "chips": {
+            "items": {
+              "$ref": "#/components/schemas/ChipOut"
+            },
+            "type": "array",
+            "title": "Chips",
+            "description": "Навыки брифа у кандидата: подтверждён / заявлено / нет данных"
           }
         },
         "type": "object",
@@ -51733,7 +54044,8 @@
           "parts",
           "reasons",
           "flags",
-          "has_fsp"
+          "has_fsp",
+          "chips"
         ],
         "title": "RankRowOut"
       },
@@ -52509,6 +54821,48 @@
           "notes"
         ],
         "title": "RejectedOut"
+      },
+      "RelevantBelowOut": {
+        "properties": {
+          "rank": {
+            "type": "integer",
+            "title": "Rank"
+          },
+          "candidate_id": {
+            "type": "string",
+            "title": "Candidate Id"
+          },
+          "rel": {
+            "type": "integer",
+            "title": "Rel"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "group": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "unconfirmed"
+            ],
+            "title": "Group"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rank",
+          "candidate_id",
+          "rel",
+          "score",
+          "category",
+          "group"
+        ],
+        "title": "RelevantBelowOut"
       },
       "ReliabilityOut": {
         "properties": {
@@ -55440,6 +57794,198 @@
         ],
         "title": "ShortlistOut"
       },
+      "SimpleImportIn": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "Название загрузки (для списка импортов)"
+          },
+          "vacancies": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vacancies",
+            "description": "Вакансии: CSV-текст с заголовком или JSON-массив. Поля: id, text, salary_from, salary_to (₽/мес), salary_net (true — на руки). Вилка обязательна: в столбцах или в тексте"
+          },
+          "candidates": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidates",
+            "description": "Кандидаты: id, spec, grade, skills (через «;»), experience_months, self_description; необязательно fsp («algo:70; product:40» или число — VSS продуктового), salary_min, salary_net, formats (office;hybrid;remote), city"
+          },
+          "labels": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Labels",
+            "description": "Разметка: vacancy_id, candidate_id, rel (0–3; релевантен ⇔ rel ≥ 2)"
+          },
+          "unlabeled_as_irrelevant": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unlabeled As Irrelevant",
+            "description": "У размеченной вакансии неразмеченные кандидаты набора — rel 0 (по умолчанию из config/demo.yaml: да)"
+          }
+        },
+        "type": "object",
+        "title": "SimpleImportIn"
+      },
+      "SimpleImportOut": {
+        "properties": {
+          "batch_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Batch Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "briefs": {
+            "type": "integer",
+            "title": "Briefs"
+          },
+          "candidates": {
+            "type": "integer",
+            "title": "Candidates"
+          },
+          "confirmed": {
+            "type": "integer",
+            "title": "Confirmed",
+            "description": "Кандидатов с тестом (полный Score)"
+          },
+          "unconfirmed": {
+            "type": "integer",
+            "title": "Unconfirmed",
+            "description": "Кандидатов без теста: группа «категория по опросу, не подтверждена»"
+          },
+          "pairs": {
+            "type": "integer",
+            "title": "Pairs"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note"
+          },
+          "stats": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Stats",
+            "description": "vacancies, candidates, labels — строк в таблицах; labeled_vacancies; pairs_added — пар с rel 0 из неразмеченных"
+          }
+        },
+        "type": "object",
+        "required": [
+          "batch_id",
+          "name",
+          "briefs",
+          "candidates",
+          "confirmed",
+          "unconfirmed",
+          "pairs",
+          "warnings",
+          "note",
+          "stats"
+        ],
+        "title": "SimpleImportOut"
+      },
+      "SimpleSetOut": {
+        "properties": {
+          "vacancies": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Vacancies"
+          },
+          "candidates": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Candidates"
+          },
+          "labels": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Labels"
+          }
+        },
+        "type": "object",
+        "required": [
+          "vacancies",
+          "candidates",
+          "labels"
+        ],
+        "title": "SimpleSetOut",
+        "description": "Весь набор простого формата одним JSON-файлом (example.json)."
+      },
       "SinkAckOut": {
         "properties": {
           "ok": {
@@ -55751,6 +58297,24 @@
           "untestable_reason"
         ],
         "title": "SkillOut"
+      },
+      "SkillRefOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "SkillRefOut"
       },
       "SkillsPassportOut": {
         "properties": {
