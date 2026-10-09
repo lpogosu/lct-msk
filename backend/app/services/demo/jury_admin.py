@@ -203,12 +203,17 @@ def cold_start_features(cid: str, cand: Mapping[str, Any]) -> CandidateFeatures 
     declared = list(cand.get("declared_skills") or survey.get("declared_skills") or ())
     if not declared and cand.get("self_description"):
         declared = [m.id for m in get_catalog().find_skills(str(cand["self_description"]))]
+    # История ФСП (если жюри её задало): из реестра, а не из самоописания, поэтому F считается как у всех;
+    # нет истории — F = 0, это не штраф (концепция §4.2).
+    vss = {str(k): float(v) for k, v in (cand.get("vss_by_discipline") or {}).items()}
     return CandidateFeatures(
         candidate_id=cid,
         spec=str(spec),
         grade=str(grade),
         theta=None,
         se=0.5,
+        vss_by_discipline=vss,
+        fsp_ref=f"fsp-{cid}" if any(v > 0 for v in vss.values()) else None,
         declared_skills=frozenset(declared),
         salary_min=survey.get("salary_min", cand.get("salary_min")),
         salary_net=bool(survey.get("salary_net", cand.get("salary_net", True))),
@@ -239,8 +244,12 @@ def store_import(
     pairs: Sequence[Mapping[str, Any]],
     briefs: Sequence[Mapping[str, Any]],
     candidates: Sequence[Mapping[str, Any]],
+    extra_warnings: Sequence[str] = (),
+    meta: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Проверить и сохранить загрузку жюри одним пакетом (batch). Любая ошибка формата — 400 без частичной записи."""
+    """Проверить и сохранить загрузку жюри одним пакетом (batch). Любая ошибка формата — 400 без частичной записи.
+
+    extra_warnings — предупреждения адаптера простого формата (идут первыми), meta — что сохранить о загрузке."""
     cfg = section("admin")["import"]
     if len(pairs) > int(cfg["max_pairs"]):
         raise bad_request("import_too_large", f"Не больше {cfg['max_pairs']} строк за один импорт")
@@ -268,7 +277,13 @@ def store_import(
         cand_rows[str(c["candidate_id"])] = body
     if not (brief_rows or cand_rows):
         raise bad_request("import_empty", "В импорте нет ни брифов, ни кандидатов")
-    warnings: list[str] = []
+    if len(brief_rows) > int(cfg["max_briefs"]):
+        raise bad_request("import_too_large", f"Не больше {cfg['max_briefs']} брифов за один импорт (в файле {len(brief_rows)})")
+    if len(cand_rows) > int(cfg["max_candidates"]):
+        raise bad_request(
+            "import_too_large", f"Не больше {cfg['max_candidates']} кандидатов за один импорт (в файле {len(cand_rows)})"
+        )
+    warnings: list[str] = list(extra_warnings)
     stored: dict[str, bool] = {}
     for cid, cand in cand_rows.items():
         feats = candidate_features(cid, cand)
@@ -279,7 +294,7 @@ def store_import(
     batch = JuryBatch(
         name=(name or "Импорт жюри")[:200], created_by=created_by, created_at=clock.now(),
         n_briefs=len(brief_rows), n_candidates=len(stored), n_unconfirmed=sum(1 for v in stored.values() if not v),
-        n_pairs=len(pair_rows), meta={"warnings": warnings[:50]},
+        n_pairs=len(pair_rows), meta={**(meta or {}), "warnings": warnings[:50]},
     )
     db.add(batch)
     db.flush()
@@ -309,23 +324,33 @@ def store_import(
     }
 
 
-def batch_or_404(db: Session, batch_id: uuid.UUID | None) -> JuryBatch:
+def batch_or_404(db: Session, batch_id: uuid.UUID | None, owner: uuid.UUID | None = None) -> JuryBatch:
+    """Импорт по id (или последний). owner — только загрузки этого пользователя (методист, вход жюри); чужая
+    загрузка неотличима от несуществующей — 404, как в app.core.access (защита от перебора id)."""
     if batch_id is not None:
         b = db.get(JuryBatch, batch_id)
+        if b is not None and owner is not None and b.created_by != owner:
+            b = None
     else:
-        b = db.scalar(select(JuryBatch).order_by(JuryBatch.created_at.desc()).limit(1))
+        q = select(JuryBatch)
+        if owner is not None:
+            q = q.where(JuryBatch.created_by == owner)
+        b = db.scalar(q.order_by(JuryBatch.created_at.desc()).limit(1))
     if b is None:
         raise not_found("batch_not_found", "Импорт не найден — сначала загрузите данные: POST /api/admin/import")
     return b
 
 
-def list_batches(db: Session) -> list[JuryBatch]:
-    return list(db.scalars(select(JuryBatch).order_by(JuryBatch.created_at.desc())))
+def list_batches(db: Session, owner: uuid.UUID | None = None) -> list[JuryBatch]:
+    q = select(JuryBatch)
+    if owner is not None:
+        q = q.where(JuryBatch.created_by == owner)
+    return list(db.scalars(q.order_by(JuryBatch.created_at.desc())))
 
 
-def delete_batch(db: Session, batch_id: uuid.UUID) -> None:
+def delete_batch(db: Session, batch_id: uuid.UUID, owner: uuid.UUID | None = None) -> None:
     b = db.get(JuryBatch, batch_id)
-    if b is None:
+    if b is None or (owner is not None and b.created_by != owner):
         raise not_found("batch_not_found", "Импорт не найден")
     db.execute(delete(JuryBatch).where(JuryBatch.id == batch_id))
 
@@ -415,15 +440,17 @@ def rank_pool(
     version = build_version(brief=spec, pool=pool, categories=cats, category_stats=stats, cfg=cfg, catalog=cat)
     items = sorted((i for i in version.items if i.rank is not None), key=lambda i: i.rank or 0)
     label = str(section("admin")["unconfirmed_group_label"])
-    rows = [_row(i, label, labels) for i in items[:top]]
+    rows = [rank_row(i, label, labels) for i in items[:top]]
     return {
         "brief_id": brief_id,
         "brief": {
             "spec": spec.spec, "grade": spec.grade, "must": list(spec.must), "nice": list(spec.nice),
             "salary_from": spec.salary_from, "salary_to": spec.salary_to, "salary_net": spec.salary_net,
             "formats": sorted(spec.formats), "city": spec.city, "parsed": how,
+            "category": cfg.category_name(spec.spec, spec.grade),
+            "must_names": [cat.name(s) for s in spec.must], "nice_names": [cat.name(s) for s in spec.nice],
         },
-        "categories": [{"spec": s, "grade": g, "n": counts.get((s, g), 0)} for s, g in cats],
+        "categories": [{"spec": s, "grade": g, "n": counts.get((s, g), 0), "name": cfg.category_name(s, g)} for s, g in cats],
         "pool_size": len(pool),
         "total": len(items),
         "confirmed": sum(1 for i in items if i.confirmed),
@@ -433,7 +460,7 @@ def rank_pool(
     }
 
 
-def _row(i: SelectionItem, unconfirmed_label: str, labels: Mapping[str, str] | None) -> dict[str, Any]:
+def rank_row(i: SelectionItem, unconfirmed_label: str, labels: Mapping[str, str] | None) -> dict[str, Any]:
     return {
         "rank": i.rank,
         "candidate_id": i.candidate_id,
@@ -448,6 +475,7 @@ def _row(i: SelectionItem, unconfirmed_label: str, labels: Mapping[str, str] | N
         "reasons": [{"kind": r.kind, "code": r.code, "component": r.component, "text": r.text} for r in i.reasons],
         "flags": sorted(i.flags),
         "has_fsp": bool(i.has_fsp),
+        "chips": [{"name": c.name, "kind": c.kind, "state": c.state, "label": c.label} for c in i.chips],
     }
 
 
@@ -597,6 +625,25 @@ def platform_pool(db: Session) -> list[CandidateFeatures]:
 
     mf.ensure_fresh(db)
     return [r.features for r in mf.load_pool(db)]
+
+
+def blind_platform_ids(result: dict[str, Any]) -> dict[str, Any]:
+    """Слепая выдача: id кандидата банка платформы (это id пользователя) заменяется псевдонимом «К-1234» — как у
+    работодателя до раскрытия (концепция §4.5): по ответу нельзя сопоставить кандидата с аккаунтом. Псевдоним
+    стабилен для кандидата (HMAC с секретом окружения), совпадения внутри одного ответа разрешаются по порядку мест."""
+    from app.contact.pseudonym import unique_pseudonym
+    from app.core.settings import get_settings
+
+    secret = get_settings().pseudonym_secret.get_secret_value()
+    scope = str(section("admin")["check"]["pseudonym_scope"])
+    taken: set[str] = set()
+    for row in result["items"]:
+        if row.get("source") != "platform":
+            continue
+        alias = unique_pseudonym(secret, scope, str(row["candidate_id"]), taken)
+        taken.add(alias)
+        row["candidate_id"] = alias
+    return result
 
 
 def validation_result() -> tuple[dict[str, Any], str, str] | None:

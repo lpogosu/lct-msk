@@ -1,0 +1,10 @@
+vacancy_id,candidate_id,rel
+v1,c01,3
+v1,c02,1
+v1,c03,2
+v1,c08,0
+v2,c04,3
+v2,c05,2
+v2,c02,0
+v3,c06,3
+v3,c07,2

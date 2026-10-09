@@ -16,6 +16,7 @@ export const LAB_NAV: NavItem[] = [
   { to: '/lab/quality', label: 'Качество' },
   { to: '/lab/reconciliations', label: 'Сверки' },
   { to: '/lab/validation', label: 'Валидация' },
+  { to: '/lab/check', label: 'Проверка подбора' },
   { to: '/lab/trust', label: 'Жалобы' },
 ]
 

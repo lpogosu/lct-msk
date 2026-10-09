@@ -1,0 +1,9 @@
+id,spec,grade,skills,experience_months,self_description,fsp,salary_min,salary_net,formats,city
+c01,backend_python,middle,python;django;postgresql;celery;docker,40,"Backend-разработчик: Django, PostgreSQL, очереди на Celery.",product:62,230000,true,hybrid;remote,Москва
+c02,backend_python,junior,python;fastapi;postgresql,14,"Пишу сервисы на FastAPI, учебные проекты с PostgreSQL.",,150000,true,remote,
+c03,backend_python,senior,python;django;kafka;kubernetes,80,"Проектирую высоконагруженные сервисы, веду команду.",algo:45,420000,true,hybrid,Москва
+c04,frontend_js,junior,javascript;typescript;react;jest,12,"Вёрстка и SPA на React, покрываю компоненты тестами.",,130000,true,remote,
+c05,frontend_js,middle,typescript;react;vue,36,"Frontend на React и Vue, дизайн-системы.",,220000,true,remote,
+c06,qa,middle,pytest;api_testing;sql;postman,42,"Автотесты на pytest, тестирую REST API, пишу SQL-запросы.",,190000,false,hybrid,Санкт-Петербург
+c07,qa,junior,selenium;sql,10,"Ручное тестирование и первые автотесты на Selenium.",,110000,true,office,Санкт-Петербург
+c08,devops,middle,docker;kubernetes;terraform;ci_cd,48,"Инфраструктура как код, CI/CD, Kubernetes.",,260000,true,remote,

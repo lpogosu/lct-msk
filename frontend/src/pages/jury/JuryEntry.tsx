@@ -1,12 +1,12 @@
 import { useState, type ReactNode } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { ApiException, errorMessage } from '@/api/errors'
 import { PoolWarmup } from '@/features/candidate/components/PoolWarmup'
 import { enterJuryPersona, startJuryTest, useJuryPaths, type JuryMode } from '@/features/demo/api'
 import { Alert, Button, EmptyState, Panel, Segmented, Skeleton } from '@/ui'
 import { Select } from '@/ui/Select'
 
-type Busy = JuryMode | 'employer' | 'lab' | 'fsp' | null
+type Busy = JuryMode | 'employer' | 'lab' | 'fsp' | 'check' | null
 
 /**
  * Вход для жюри (публичный, только DEMO_MODE): без регистрации и писем. Одна кнопка — одноразовый кандидат с готовым
@@ -71,6 +71,19 @@ export default function JuryEntry() {
     try {
       const t = await enterJuryPersona(persona)
       navigate(t.path)
+    } catch (e) {
+      setError(errorMessage(e))
+      setBusy(null)
+    }
+  }
+
+  /** «Проверка подбора на ваших данных»: тот же вход «Лаборатория», сразу на страницу проверки. */
+  async function openCheck() {
+    setError(null)
+    setBusy('check')
+    try {
+      await enterJuryPersona('lab')
+      navigate('/lab/check')
     } catch (e) {
       setError(errorMessage(e))
       setBusy(null)
@@ -214,34 +227,30 @@ export default function JuryEntry() {
 
       <section aria-labelledby="own" className="flex flex-col gap-3 pb-4">
         <h2 id="own" className="t-title text-brand">
-          Проверить на своих профилях
+          Проверить подбор на своих данных
         </h2>
-        <Panel variant="panel" radius="xl" padding="lg" className="flex max-w-[760px] flex-col gap-3">
+        <Panel variant="panel" radius="xl" padding="lg" className="flex max-w-[760px] flex-col gap-4">
           <p className="t-body text-ink-2">
-            Загрузите свой набор «бриф × кандидат» (формат строк — как в тестовом наборе пар из репозитория) и
-            получите те же метрики, что у нас. Нужен вход администратора; учётные записи стенда выдаёт команда проекта при
-            показе. Пошаговая инструкция в репозитории: <code className="font-mono">docs/VALIDATION.md</code>, раздел 7.
+            Одна кнопка — и вы в лаборатории на странице проверки. Там три сценария: метрики P@5, P@10 и nDCG@10 на нашем
+            наборе пар с ручной проверкой топа по каждому брифу; своя вакансия против банка платформы; свой набор вакансий,
+            кандидатов и разметки в CSV или JSON по шаблону (или JSONL, как в репозитории). Swagger и вход администратора не
+            нужны.
           </p>
-          <ol className="list-decimal pl-5 t-body text-ink-2">
-            <li>
-              Откройте{' '}
-              <a className="text-brand underline underline-offset-4" href="/api/docs" target="_blank" rel="noreferrer">
-                документацию API
-              </a>
-              , войдите через <code className="font-mono">/api/auth/login</code> и нажмите Authorize.
-            </li>
-            <li>
-              Отправьте набор в <code className="font-mono">POST /api/admin/eval/pairs</code>, затем запустите оценку тем же маршрутом с пустым
-              телом.
-            </li>
-            <li>
-              Итог смотрите в лаборатории:{' '}
-              <Link className="text-brand underline underline-offset-4" to="/lab/validation">
-                Валидация
-              </Link>
-              .
-            </li>
-          </ol>
+          <div>
+            <Button
+              size="lg"
+              loading={busy === 'check'}
+              disabled={busy !== null || !p.lab_available}
+              onClick={() => void openCheck()}
+            >
+              Открыть проверку подбора
+            </Button>
+          </div>
+          {!p.lab_available && <p className="t-small text-ink-3">Демо-мир не собран: выполните make seed.</p>}
+          <p className="t-small text-ink-3">
+            Воспроизводимость теста на своих профилях — консольная команда из репозитория:{' '}
+            <code className="font-mono">python -m eval.jury_check</code> (docs/VALIDATION.md, раздел 7).
+          </p>
         </Panel>
       </section>
     </div>

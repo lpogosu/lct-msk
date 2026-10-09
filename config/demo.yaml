@@ -270,7 +270,7 @@ clock:
 
 # --- Служебные аккаунты ------------------------------------------------------------------------------------------
 staff:
-  jury:       { key: jury,       role: methodist, email: jury@demo.example.com,      title: "Жюри (лаборатория, только просмотр)" }
+  jury:       { key: jury,       role: methodist, email: jury@demo.example.com,      title: "Жюри (лаборатория: просмотр и проверка подбора на своих данных)" }
   methodist:  { key: methodist,  role: methodist, email: metodist@demo.example.com,  title: "Методист" }
   admin:      { key: admin,      role: admin,     email: admin@demo.example.com,     title: "Администратор (импорт жюри, /api/admin)" }
 
@@ -345,9 +345,25 @@ names:
 
 # --- Админ-инструменты жюри (G3, DECISIONS 5) -----------------------------------------------------------------------
 admin:
+  # Импорт, ранжирование и метрики доступны администратору (все загрузки) и методисту — в том числе входу жюри
+  # «Лаборатория» (staff.jury): методист видит, ранжирует и удаляет только свои загрузки.
   import:
     max_pairs: 20000         # строк в одном файле импорта
-    max_bytes: 20000000      # размер тела запроса
+    max_briefs: 500          # разных брифов (вакансий) в одном импорте
+    max_candidates: 5000     # разных кандидатов в одном импорте
+    max_bytes: 20000000      # размер тела запроса (по заголовку Content-Length)
+  # Простой формат жюри: три таблицы CSV или JSON — вакансии, кандидаты, разметка (app/services/demo/jury_simple.py)
+  simple:
+    max_vacancies: 200
+    max_candidates: 2000
+    max_labels: 20000
+    max_text_chars: 5000            # текст вакансии (как у брифа в /eval/rank)
+    max_self_description_chars: 3000
+    max_warnings: 50                # сколько предупреждений вернуть (нераспознанные навыки и т. п.)
+    unlabeled_as_irrelevant: true   # у размеченной вакансии неразмеченные кандидаты набора — rel 0 (ранжируются все)
+    fsp_default_discipline: product # «fsp» числом без дисциплины = VSS в продуктовом программировании
+    max_experience_months: 600
+    skill_match_min_coverage: 0.6   # навык из ячейки «skills»: совпадение со справочником покрывает ≥ 60% текста
   rank:
     default_top: 20
     max_top: 200
@@ -359,6 +375,21 @@ admin:
     min_briefs_for_ci: 2
   unconfirmed_group_label: Категория по опросу, не подтверждена
   validation_json: eval/out/validation.json   # относительно каталога backend/
+  # Страница /lab/check «Проверка подбора на ваших данных»
+  check:
+    repo_pairs: eval/pairs_test.jsonl         # «Наш набор пар» (относительно backend/)
+    default_top: 10                            # топ по брифу на странице
+    max_top: 50
+    csv_top: 20                                # строк на бриф в CSV топов
+    relevant_below_max: 10                     # сколько релевантных «ниже топа» показать для ручной проверки
+    text_preview_chars: 180                    # начало текста брифа в списке
+    pseudonym_scope: jury-check                # «компания» для псевдонимов кандидатов банка платформы (слепая выдача)
+    systems:                                   # подписи систем из ranks_top20 (VALIDATION.md, раздел 4)
+      ours: Наш подбор (сквозной, места из файла)
+      b0: B0 — случайный порядок в тех же категориях
+      b1: B1 — BM25 по самоописанию (как поиск по резюме)
+      b2: B2 — категория + точечная оценка уровня
+      b3: B3 — TF-IDF «бриф ↔ самоописание»
 
 # --- Как синтетический кандидат «проходит опрос» (ответы согласованы с его истинной специализацией) --------------------
 survey:
