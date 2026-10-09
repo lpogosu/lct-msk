@@ -18,6 +18,9 @@ from typing import Any
 from app.testing.bank.base import Family, Instance, Option, canonical
 
 SPECS: tuple[str, ...] = ("backend_python", "frontend_js")
+# Семейства с кодом на Python фронтендеру не выдаются: у каждого есть JS-версия `<id>.js` для шкалы frontend_js
+# (shared/_js.py, CATALOG.md). Общими для обеих шкал остаются задания без кода на Python (текст сценария, fetch на JS).
+PY_SPECS: tuple[str, ...] = ("backend_python",)
 OPTION_IDS = "abcdefgh"
 
 

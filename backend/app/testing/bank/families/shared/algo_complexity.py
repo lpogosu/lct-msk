@@ -12,7 +12,7 @@ import random
 from dataclasses import dataclass
 
 from app.testing.bank.base import Instance, Rendered, register
-from app.testing.bank.families.shared._common import SPECS, ChoiceFamily, build_choice, explain
+from app.testing.bank.families.shared._common import PY_SPECS, ChoiceFamily, build_choice, explain
 
 # Классы сложности в порядке роста; (степень n, степень log n), 2ⁿ — особый.
 LABELS = ("O(log n)", "O(√n)", "O(n)", "O(n log n)", "O(n√n)", "O(n²)", "O(n² log n)", "O(n³)", "O(2ⁿ)")
@@ -201,7 +201,7 @@ def build(sk: Skeleton, pre_name: str, fn: str, i: str, j: str) -> tuple[str, st
 class ComplexityTraps(ChoiceFamily):
     id = "algo.complexity.traps"
     title = "Асимптотика: амортизация, ряды, рекурсия"
-    specs = SPECS
+    specs = PY_SPECS  # фронтендеру — JS-версия «<id>.js» (shared/_js.py)
     module = "algo"
     format = "complexity"
     target_grade = "senior"

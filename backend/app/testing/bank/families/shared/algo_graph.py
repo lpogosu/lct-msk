@@ -8,7 +8,7 @@ from typing import Any
 
 from app.testing.bank.base import Family, Instance, Rendered, register
 from app.testing.bank.families.shared._common import (
-    SPECS,
+    PY_SPECS,
     exec_capture,
     explain,
     text_distractors,
@@ -94,7 +94,7 @@ _CYR_ONLY = re.compile(r"[А-Яа-яЁё]")
 class DfsStackOrder(Family):
     id = "algo.graph.dfs_stack"
     title = "Обход графа в глубину с явным стеком: порядок вершин"
-    specs = SPECS
+    specs = PY_SPECS  # фронтендеру — JS-версия «<id>.js» (shared/_js.py)
     module = "algo"
     format = "predict_output"
     target_grade = "middle"
