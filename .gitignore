@@ -33,6 +33,7 @@ Thumbs.db
 
 # Локальные настройки Claude Code
 .claude/settings.local.json
+.claude/worktrees/
 
 # Артефакты Playwright MCP
 .playwright-mcp/
