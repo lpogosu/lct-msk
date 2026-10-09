@@ -5,7 +5,7 @@ from __future__ import annotations
 import random
 
 from app.testing.bank.base import Instance, Rendered, canonical, register
-from app.testing.bank.families.shared._common import SPECS, OrderFamily, exec_capture, explain, norm_line_text
+from app.testing.bank.families.shared._common import PY_SPECS, OrderFamily, exec_capture, explain, norm_line_text
 
 _NAMES = (
     "Ann", "Bob", "Kim", "Leo", "Max", "Mia", "Ola", "Pat", "Rex", "Sam", "Tom", "Uma", "Vic", "Zoe",
@@ -28,7 +28,7 @@ HINTS = {
 class SortStability(OrderFamily):
     id = "algo.sort.stability"
     title = "Устойчивая сортировка: два прохода и reverse=True"
-    specs = SPECS
+    specs = PY_SPECS  # фронтендеру — JS-версия «<id>.js» (shared/_js.py)
     module = "algo"
     format = "parsons"
     target_grade = "middle"

@@ -15,7 +15,7 @@ from typing import Any
 
 from app.testing.bank.base import Instance, Rendered, canonical, register
 from app.testing.bank.families.shared._common import (
-    SPECS,
+    PY_SPECS,
     LineChoiceFamily,
     build_choice,
     exec_namespace,
@@ -312,7 +312,7 @@ def _failing(prob: _Problem, lines: list[str], tests: list[tuple], expected: lis
 class TwoPointersBug(LineChoiceFamily):
     id = "algo.two_pointers.bug"
     title = "Два указателя: найти ошибочную строку и исправить"
-    specs = SPECS
+    specs = PY_SPECS  # фронтендеру — JS-версия «<id>.js» (shared/_js.py)
     module = "algo"
     format = "bug_line"
     target_grade = "middle"

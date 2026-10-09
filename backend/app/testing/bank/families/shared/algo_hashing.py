@@ -6,7 +6,7 @@ import random
 
 from app.testing.bank.base import Instance, Rendered, register
 from app.testing.bank.families.shared._common import (
-    SPECS,
+    PY_SPECS,
     TextIntsFamily,
     exec_capture,
     explain,
@@ -42,7 +42,7 @@ HINTS = {
 class LinearProbing(TextIntsFamily):
     id = "algo.hash.linear_probing"
     title = "Хеш-таблица: линейное пробирование и повторный ключ"
-    specs = SPECS
+    specs = PY_SPECS  # фронтендеру — JS-версия «<id>.js» (shared/_js.py)
     module = "algo"
     format = "predict_output"
     target_grade = "junior"

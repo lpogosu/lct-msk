@@ -6,7 +6,7 @@ import random
 
 from app.testing.bank.base import Instance, Rendered, register
 from app.testing.bank.families.shared._common import (
-    SPECS,
+    PY_SPECS,
     TextIntsFamily,
     exec_capture,
     explain,
@@ -82,7 +82,7 @@ def _trace(capacity: int, rate: float, times: list[int]) -> list[str]:
 class TokenBucketRateLimit(TextIntsFamily):
     id = "http.ratelimit.token_bucket"
     title = "Rate limiting: какие запросы отклонит token bucket"
-    specs = (*SPECS, "qa", "devops")
+    specs = (*PY_SPECS, "qa", "devops")  # фронтендеру — JS-версия «<id>.js» (shared/_js.py)
     module = "http_api"
     format = "predict_output"
     target_grade = "senior"

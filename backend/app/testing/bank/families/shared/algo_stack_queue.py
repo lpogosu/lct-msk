@@ -6,7 +6,7 @@ import random
 
 from app.testing.bank.base import Instance, Rendered, register
 from app.testing.bank.families.shared._common import (
-    SPECS,
+    PY_SPECS,
     TextIntsFamily,
     exec_capture,
     explain,
@@ -28,7 +28,7 @@ HINTS = {
 class StackQueueTrace(TextIntsFamily):
     id = "algo.stack_queue.trace"
     title = "Стек и очередь: что окажется в выводе"
-    specs = SPECS
+    specs = PY_SPECS  # фронтендеру — JS-версия «<id>.js» (shared/_js.py)
     module = "algo"
     format = "predict_output"
     target_grade = "intern"
