@@ -8,6 +8,8 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 
+import pytest
+
 from app.llm.gateway import LLMError, LLMGateway, verify_quote
 from app.llm.masking import MASK_CHAR, mask_pii
 from app.llm.settings import LLMSettings
@@ -15,6 +17,15 @@ from app.services.resume import parse_resume
 
 FIX = Path(__file__).parent / "fixtures" / "resumes"
 NOW = datetime(2026, 10, 5, 9, 0, tzinfo=UTC)
+
+
+@pytest.fixture(autouse=True)
+def _clean_llm_env(monkeypatch):
+    """Тесты «по умолчанию» не зависят от VZ_LLM_* оператора (например, включённого GigaChat в .env)."""
+    import os
+
+    for k in [k for k in os.environ if k.startswith("VZ_LLM_")]:
+        monkeypatch.delenv(k)
 
 
 class FakeProvider:

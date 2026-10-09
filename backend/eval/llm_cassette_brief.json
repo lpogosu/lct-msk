@@ -1,0 +1,315 @@
+{
+ "version": 1,
+ "entries": {
+  "000cd7f425691d956da3e1325e95ed9053760c09230465ae7444d3f4007a1fd8": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"sql\", \"quote\": \"sql\"}, {\"field\": \"skill\", \"value\": \"python\", \"quote\": \"python\"}, {\"field\": \"skill\", \"value\": \"excel\", \"quote\": \"excel\"}, {\"field\": \"skill\", \"value\": \"tableau\", \"quote\": \"tableau\"}, {\"field\": \"skill\", \"value\": \"power bi\", \"quote\": \"power bi\"}]}"
+  },
+  "0709595dabcc9a31694bc335c38b37bdf85d13fbc35a40f0ca5d3665bd9b952b": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"реакт\", \"quote\": \"реакт\"}, {\"field\": \"skill\", \"value\": \"типскрипт\", \"quote\": \"типскрипт\"}, {\"field\": \"skill\", \"value\": \"редакс\", \"quote\": \"редакс\"}, {\"field\": \"skill\", \"value\": \"вёрстка на scss\", \"quote\": \"вёрстка на scss\"}, {\"field\": \"skill\", \"value\": \"next\", \"quote\": \"плюс — next\"}, {\"field\": \"skill\", \"value\": \"jest\", \"quote\": \"плюс — jest\"}]}"
+  },
+  "086ffaa72690a883f88d1cc750f794cebf60f04c801506dbd8ba7ce998af5389": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"Bash\", \"quote\": \"Bash\"}, {\"field\": \"skill\", \"value\": \"nginx\", \"quote\": \"nginx\"}, {\"field\": \"skill\", \"value\": \"ssh\", \"quote\": \"ssh\"}, {\"field\": \"skill\", \"value\": \"zabbix\", \"quote\": \"zabbix\"}, {\"field\": \"skill\", \"value\": \"docker\", \"quote\": \"docker\"}]}"
+  },
+  "08e73c31689a7133fd4aa13fc19c5639434ba287a46e18a9f06c23967e2a5128": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"js\", \"quote\": \"js + node.js (express)\", \"value\": \"node.js\", \"quote\": \"js + node.js (express)\", \"value\": \"mongodb\", \"quote\": \"mongodb\", \"value\": \"react\", \"quote\": \"react\"}]}"
+  },
+  "0ce471a35366fb8783c41410784c03f6084ce12f036c97e03e07ed02f415addb": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"Python\", \"quote\": \"Ищем сеньора на бэкенд (python)\"}, {\"field\": \"skill\", \"value\": \"Highload\", \"quote\": \"Highload\"}, {\"field\": \"skill\", \"value\": \"микросервисы\", \"quote\": \"Highload, микросервисы\"}, {\"field\": \"skill\", \"value\": \"асинхронное программирование\", \"quote\": \"асинхронное программирование\"}, {\"field\": \"skill\", \"value\": \"aiohttp\", \"quote\": \"aiohttp\"}, {\"field\": \"skill\", \"value\": \"kafka\", \"quote\": \"kafka\"}, {\"field\": \"skill\", \"value\": \"clickhouse\", \"quote\": \"clickhouse\"}, {\"field\": \"skill\", \"value\": \"SQL\", \"quote\": \"Обязательно знание SQL и оптимизации запросов\"}]}"
+  },
+  "0e6f0f05c2bee2b43c9f86f2460aa2d4c3b325198e5eb850ccd7065892209ae0": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"kubernetes\", \"quote\": \"kubernetes\"}, {\"field\": \"skill\", \"value\": \"helm\", \"quote\": \"helm\"}, {\"field\": \"skill\", \"value\": \"prometheus\", \"quote\": \"prometheus\"}, {\"field\": \"skill\", \"value\": \"grafana\", \"quote\": \"grafana\"}, {\"field\": \"skill\", \"value\": \"python\", \"quote\": \"python для автоматизации\"}, {\"field\": \"skill\", \"value\": \"terraform\", \"quote\": \"плюс: terraform\"}, {\"field\": \"skill\", \"value\": \"aws\", \"quote\": \"плюс: terraform, aws\"}]}"
+  },
+  "1bda80617ac0fe0cb5a1c5ca13e234758e677c1dfa721713f8b68da64f14913b": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"swift\", \"quote\": \"swift\"}, {\"field\": \"skill\", \"value\": \"swiftui\", \"quote\": \"swiftui\"}]}"
+  },
+  "1d6f050a24407b076876c592acfeb93b15dfaecba5ab5a145a21218cb8c97588": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"докер\", \"quote\": \"докер\"}, {\"field\": \"skill\", \"value\": \"гит\", \"quote\": \"гит\"}, {\"field\": \"skill\", \"value\": \"линукс\", \"quote\": \"линукс\"}, {\"field\": \"skill\", \"value\": \"bash\", \"quote\": \"bash\"}, {\"field\": \"skill\", \"value\": \"ci/cd\", \"quote\": \"немного ci/cd на гитлабе\"}]}"
+  },
+  "1edddb752fc12adc19447eaefc004b83b49907d86fa02c4c81866c9e4e0a058d": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"нода\", \"quote\": \"нода + реакт\"}, {\"field\": \"skill\", \"value\": \"реакт\", \"quote\": \"нода + реакт\"}, {\"field\": \"skill\", \"value\": \"постгрес\", \"quote\": \"постгрес\"}, {\"field\": \"skill\", \"value\": \"докер\", \"quote\": \"докер\"}, {\"field\": \"skill\", \"value\": \"тайпскрипт\", \"quote\": \"тайпскрипт везде\"}]}"
+  },
+  "28f527d797f1b3d8c7b2db3a7a74c6df565a583d0c033835d7fc9959a04d7b62": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"kubernetes\", \"quote\": \"kubernetes\"}, {\"field\": \"skill\", \"value\": \"terraform\", \"quote\": \"terraform\"}, {\"field\": \"skill\", \"value\": \"helm\", \"quote\": \"helm\"}, {\"field\": \"skill\", \"value\": \"vault\", \"quote\": \"vault\"}, {\"field\": \"skill\", \"value\": \"prometheus\", \"quote\": \"prometheus\"}, {\"field\": \"skill\", \"value\": \"victoria metrics\", \"quote\": \"victoria metrics\"}, {\"field\": \"skill\", \"value\": \"python\", \"quote\": \"Python/Go для тулинга\"}, {\"field\": \"skill\", \"value\": \"go\", \"quote\": \"Python/Go для тулинга\"}]}"
+  },
+  "2a5bc6cc649c7365ab3e6ab28f8c8b053c202aa3ab14deac720e87f787988173": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"fastapi\", \"quote\": \"фастапи\"}, {\"field\": \"skill\", \"value\": \"pydantic\", \"quote\": \"pydantic\"}, {\"field\": \"skill\", \"value\": \"pytest\", \"quote\": \"пайтест\"}, {\"field\": \"skill\", \"value\": \"ci/cd\", \"quote\": \"ci/cd в гитлабе\"}, {\"field\": \"skill\", \"value\": \"rabbit\", \"quote\": \"желательно редис, раббит\"}]}"
+  },
+  "2eb12b9ead51c71e4a6fd7ad462209b793c06609b5857a4cd2068356816dbc78": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"тестовая документация\", \"quote\": \"Тестовая документация\"}, {\"field\": \"skill\", \"value\": \"чек-листы\", \"quote\": \"чек-листы\"}, {\"field\": \"skill\", \"value\": \"sql\", \"quote\": \"основы sql\"}]}"
+  },
+  "31d95fb69918c774b592f352199a91dae9edec8f73512fcaa5d8be1f66d9ecae": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"нейросети\", \"quote\": \"Нейросети\"}, {\"field\": \"skill\", \"value\": \"pytorch\", \"quote\": \"pytorch\"}, {\"field\": \"skill\", \"value\": \"mlops\", \"quote\": \"mlops\"}, {\"field\": \"skill\", \"value\": \"docker\", \"quote\": \"docker\"}, {\"field\": \"skill\", \"value\": \"kubernetes\", \"quote\": \"kubernetes\"}, {\"field\": \"skill\", \"value\": \"nlp\", \"quote\": \"NLP или компьютерное зрение\"}, {\"field\": \"skill\", \"value\": \"компьютерное зрение\", \"quote\": \"NLP или компьютерное зрение\"}]}"
+  },
+  "3404cb22a7bd58367f8030ac277b52510ba8547d64890b7b7a36b7c1d594e7a3": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"k8s\", \"quote\": \"k8s\"}, {\"field\": \"skill\", \"value\": \"istio\", \"quote\": \"istio\"}, {\"field\": \"skill\", \"value\": \"argocd\", \"quote\": \"argocd\"}, {\"field\": \"skill\", \"value\": \"terraform\", \"quote\": \"terraform\"}, {\"field\": \"skill\", \"value\": \"aws\", \"quote\": \"aws\"}, {\"field\": \"skill\", \"value\": \"ELK\", \"quote\": \"ELK\"}, {\"field\": \"skill\", \"value\": \"observability\", \"quote\": \"observability\"}]}"
+  },
+  "3821171a2dd1b9863f34867390b3c2021eec2d5639311f381398c99cd09f19eb": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"python\", \"quote\": \"python\"}, {\"field\": \"skill\", \"value\": \"pandas\", \"quote\": \"pandas\"}, {\"field\": \"skill\", \"value\": \"sklearn\", \"quote\": \"sklearn\"}, {\"field\": \"skill\", \"value\": \"xgboost\", \"quote\": \"xgboost\"}, {\"field\": \"skill\", \"value\": \"sql\", \"quote\": \"sql\"}, {\"field\": \"skill\", \"value\": \"pytorch\", \"quote\": \"желательно pytorch\"}, {\"field\": \"skill\", \"value\": \"airflow\", \"quote\": \"желательно airflow\"}]}"
+  },
+  "3aea68c028b4776567ae8490f99070ceb9d1a3516fc67993e18377264edc5674": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"виртуализация\", \"quote\": \"Инженер по инфраструктуре: виртуализация,\"}, {\"field\": \"skill\", \"value\": \"openstack\", \"quote\": \"Инженер по инфраструктуре: виртуализация, openstack,\"}, {\"field\": \"skill\", \"value\": \"ceph\", \"quote\": \"Инженер по инфраструктуре: виртуализация, openstack, ceph,\"}, {\"field\": \"skill\", \"value\": \"ansible\", \"quote\": \"Инженер по инфраструктуре: виртуализация, openstack, ceph, ansible,\"}, {\"field\": \"skill\", \"value\": \"linux\", \"quote\": \"Инженер по инфраструктуре: виртуализация, openstack, ceph, ansible, linux,\"}, {\"field\": \"skill\", \"value\": \"сети\", \"quote\": \"Инженер по инфраструктуре: виртуализация, openstack, ceph, ansible, linux, сети.\"}]}"
+  },
+  "4054f9da52adb80b3181a923ed9b049252f594708e4ef50ca6a3005de8e4ee50": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"Go\", \"quote\": \"Go\"}, {\"field\": \"skill\", \"value\": \"grpc\", \"quote\": \"grpc\"}, {\"field\": \"skill\", \"value\": \"postgres\", \"quote\": \"postgres\"}, {\"field\": \"skill\", \"value\": \"redis\", \"quote\": \"redis\"}, {\"field\": \"skill\", \"value\": \"kafka\", \"quote\": \"kafka\"}, {\"field\": \"skill\", \"value\": \"clickhouse\", \"quote\": \"приветствуется опыт с clickhouse\"}]}"
+  },
+  "46e2a4afa51d11a6564e749e3537589278c804575b45c0797ecb2dacbe19a678": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"Python\", \"quote\": \"Python\"}, {\"field\": \"skill\", \"value\": \"pytest\", \"quote\": \"pytest\"}, {\"field\": \"skill\", \"value\": \"docker\", \"quote\": \"docker\"}, {\"field\": \"skill\", \"value\": \"jenkins\", \"quote\": \"jenkins\"}, {\"field\": \"skill\", \"value\": \"sql\", \"quote\": \"sql\"}]}"
+  },
+  "4e6a607b8e2d8050e8984957b352c1cc23def259069ca2009a94b65256e99701": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"python\", \"quote\": \"python dev\"}, {\"field\": \"skill\", \"value\": \"django+drf\", \"quote\": \"django+drf\"}, {\"field\": \"skill\", \"value\": \"postgres\", \"quote\": \"postgres\"}, {\"field\": \"skill\", \"value\": \"redis\", \"quote\": \"redis\"}, {\"field\": \"skill\", \"value\": \"docker\", \"quote\": \"docker\"}, {\"field\": \"skill\", \"value\": \"k8s\", \"quote\": \"k8s\"}]}"
+  },
+  "58979240a04ff7e24b4af0817bd36d37d560dd83431e9feb8adc68a183661837": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"Python\", \"quote\": \"Junior Python developer\"}, {\"field\": \"skill\", \"value\": \"Flask\", \"quote\": \"Flask или FastAPI\"}, {\"field\": \"skill\", \"value\": \"FastAPI\", \"quote\": \"Flask или FastAPI\"}, {\"field\": \"skill\", \"value\": \"SQLAlchemy\", \"quote\": \"SQLAlchemy\"}, {\"field\": \"skill\", \"value\": \"умение читать чужой код\", \"quote\": \"умение читать чужой код\"}, {\"field\": \"skill\", \"value\": \"git\", \"quote\": \"git\"}, {\"field\": \"skill\", \"value\": \"pytest\", \"quote\": \"Плюсом будет pytest\"}]}"
+  },
+  "5bf762df020bec031692a2ed25729f757404ec38ef05af30dd80906425e6bd17": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"Python\", \"quote\": \"Python-разработчик (middle+).\"}, {\"field\": \"skill\", \"value\": \"Django REST Framework\", \"quote\": \"Django REST Framework, Celery, PostgreSQL, Redis, Docker.\"}, {\"field\": \"skill\", \"value\": \"Celery\", \"quote\": \"Django REST Framework, Celery, PostgreSQL, Redis, Docker.\"}, {\"field\": \"skill\", \"value\": \"PostgreSQL\", \"quote\": \"Django REST Framework, Celery, PostgreSQL, Redis, Docker.\"}, {\"field\": \"skill\", \"value\": \"Redis\", \"quote\": \"Django REST Framework, Celery, PostgreSQL, Redis, Docker.\"}, {\"field\": \"skill\", \"value\": \"Docker\", \"quote\": \"Django REST Framework, Celery, PostgreSQL, Redis, Docker.\"}, {\"field\": \"skill\", \"value\": \"Nginx\", \"quote\": \"Nginx и Grafana желательно.\"}, {\"field\": \"skill\", \"value\": \"Grafana\", \"quote\": \"Nginx и Grafana желательно.\"}]}"
+  },
+  "5d621b36d8f1413c33d7b899f4812c3b0ae34c3dba75f1561d6368cf8df1086b": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"Python\", \"quote\": \"Python\"}, {\"field\": \"skill\", \"value\": \"FastAPI\", \"quote\": \"FastAPI\"}, {\"field\": \"skill\", \"value\": \"gRPC\", \"quote\": \"gRPC\"}, {\"field\": \"skill\", \"value\": \"RabbitMQ\", \"quote\": \"RabbitMQ\"}, {\"field\": \"skill\", \"value\": \"PostgreSQL\", \"quote\": \"PostgreSQL\"}, {\"field\": \"skill\", \"value\": \"k8s\", \"quote\": \"k8s\"}, {\"field\": \"skill\", \"value\": \"Go\", \"quote\": \"Приветствуется знание Go\"}]}"
+  },
+  "5eb56a0ac05e1dfb0b7a7de7f04da036c1007eb748c40504e9f78a7caa3b4b1c": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"angular\", \"quote\": \"angular\"}, {\"field\": \"skill\", \"value\": \"rxjs\", \"quote\": \"rxjs\"}, {\"field\": \"skill\", \"value\": \"ts\", \"quote\": \"ts\"}, {\"field\": \"skill\", \"value\": \"scss\", \"quote\": \"scss\"}, {\"field\": \"skill\", \"value\": \"git\", \"quote\": \"Плюс: git\"}]}"
+  },
+  "60b0f0bd2642180ed109037d4be4d9d2e1ebab073fec72a79f45b6134d81fb16": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"мобильные приложения\", \"quote\": \"мобильные приложения\"}, {\"field\": \"skill\", \"value\": \"jira\", \"quote\": \"jira\"}, {\"field\": \"skill\", \"value\": \"sql\", \"quote\": \"sql\"}]}"
+  },
+  "7025c7cf6cf7673f64999fadd7c9ed4cb209aeff3aec392a74d114e5da15ec8a": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"spring boot\", \"quote\": \"spring boot\"}, {\"field\": \"skill\", \"value\": \"kafka\", \"quote\": \"kafka\"}, {\"field\": \"skill\", \"value\": \"postgres\", \"quote\": \"postgres\"}, {\"field\": \"skill\", \"value\": \"оракл\", \"quote\": \"оракл\"}, {\"field\": \"skill\", \"value\": \"sql\", \"quote\": \"знание sql на высоком уровне\"}]}"
+  },
+  "7249b1a82e4314603c2de4e0ca81f63645ec252082a3bfd8a800b993e6add5c8": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"kotlin\", \"quote\": \"kotlin\"}, {\"field\": \"skill\", \"value\": \"jetpack compose\", \"quote\": \"jetpack compose\"}, {\"field\": \"skill\", \"value\": \"rest\", \"quote\": \"rest\"}]}"
+  },
+  "73470b8f02cc80ccb9fe372e0d9dd8b200d2a4cc6b0fad83e3c3d6de56f36024": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"bem\", \"quote\": \"bem\"}, {\"field\": \"skill\", \"value\": \"flexbox\", \"quote\": \"flexbox\"}, {\"field\": \"skill\", \"value\": \"адаптивная вёрстка\", \"quote\": \"адаптивная вёрстка\"}, {\"field\": \"skill\", \"value\": \"tailwind\", \"quote\": \"tailwind будет плюсом\"}]}"
+  },
+  "734821d2680bffae127a37abdf3383848db595e248e1c65bb46845fa6b97d5e7": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"питон\", \"quote\": \"Нужен дев на питоне\"}, {\"field\": \"skill\", \"value\": \"джанго\", \"quote\": \"мидл, джанго, постгрес, ci/cd\"}, {\"field\": \"skill\", \"value\": \"постгрес\", \"quote\": \"мидл, джанго, постгрес, ci/cd\"}, {\"field\": \"skill\", \"value\": \"ci/cd\", \"quote\": \"мидл, джанго, постгрес, ci/cd\"}]}"
+  },
+  "751ec8868272dbded80798c84a15e213b3f5836d22412f73d7343f6395595072": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"cypress\", \"quote\": \"cypress\"}, {\"field\": \"skill\", \"value\": \"js/ts\", \"quote\": \"js/ts\"}, {\"field\": \"skill\", \"value\": \"rest api тесты\", \"quote\": \"rest api тесты\"}, {\"field\": \"skill\", \"value\": \"git\", \"quote\": \"git\"}, {\"field\": \"skill\", \"value\": \"gitlab ci\", \"quote\": \"gitlab ci\"}, {\"field\": \"skill\", \"value\": \"allure\", \"quote\": \"Плюс: allure\"}]}"
+  },
+  "788cb8d5bce3098bf7a364b0436c3f9135dc117cdee0ce487ffa5111068e3d0c": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"питон\", \"quote\": \"питон + фласк\"}, {\"field\": \"skill\", \"value\": \"фласк\", \"quote\": \"питон + фласк\"}, {\"field\": \"skill\", \"value\": \"sql\", \"quote\": \"базовый sql\"}, {\"field\": \"skill\", \"value\": \"гит\", \"quote\": \"гит\"}]}"
+  },
+  "8c417e2dbb9108ca8a10950f8f7664d49244b9573c90e0eeca695023e675c42c": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"ручное тестирование\", \"quote\": \"QA junior: ручное тестирование\"}, {\"field\": \"skill\", \"value\": \"тест-кейсы\", \"quote\": \"QA junior: ручное тестирование, тест-кейсы\"}, {\"field\": \"skill\", \"value\": \"баг-репорты\", \"quote\": \"QA junior: ручное тестирование, тест-кейсы, баг-репорты\"}, {\"field\": \"skill\", \"value\": \"jira\", \"quote\": \"QA junior: ручное тестирование, тест-кейсы, баг-репорты, jira\"}, {\"field\": \"skill\", \"value\": \"api\", \"quote\": \"QA junior: ручное тестирование, test кейсы, баг репорты, api (postman)\"}, {\"field\": \"skill\", \"value\": \"postman\", \"quote\": \"QA junior: ручное тестирование, test кейсы, баг репорты, api (postman)\"}]}"
+  },
+  "935ca9c435ad7238e127bfb958684552b9a2a12591c0275507ba39338e481339": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"Python\", \"quote\": \"Backend (Python)\"}, {\"field\": \"skill\", \"value\": \"FastAPI\", \"quote\": \"FastAPI/Postgres/Kafka\"}, {\"field\": \"skill\", \"value\": \"Postgres\", \"quote\": \"FastAPI/Postgres/Kafka\"}, {\"field\": \"skill\", \"value\": \"Kafka\", \"quote\": \"FastAPI/Postgres/Kafka\"}]}"
+  },
+  "973cf890acab884d101486ccf798015e81050c8b612e84f9494e83f30c9fb7ba": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"python 3\", \"quote\": \"питонист на легаси: python 3\"}, {\"field\": \"skill\", \"value\": \"django\", \"quote\": \"питонист на легаси: python 3, django\"}, {\"field\": \"skill\", \"value\": \"mysql\", \"quote\": \"питонист на легаси: python 3, django, mysql\"}, {\"field\": \"skill\", \"value\": \"celery\", \"quote\": \"питонист на легаси: python 3, django, mysql, celery\"}, {\"field\": \"skill\", \"value\": \"rabbitmq\", \"quote\": \"питонист на легаси: python 3, django, mysql, celery, rabbitmq\"}]}"
+  },
+  "98626cdb641d38d39e01372b40d7e8434a662038537498e971fa4b9735be7e71": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"vue 2/3\", \"quote\": \"vue 2/3\"}, {\"field\": \"skill\", \"value\": \"typescript\", \"quote\": \"typescript\"}, {\"field\": \"skill\", \"value\": \"scss\", \"quote\": \"scss\"}, {\"field\": \"skill\", \"value\": \"git\", \"quote\": \"git\"}, {\"field\": \"skill\", \"value\": \"nuxt\", \"quote\": \"будет плюсом опыт с nuxt\"}, {\"field\": \"skill\", \"value\": \"jest\", \"quote\": \"будет плюсом опыт с jest\"}]}"
+  },
+  "9a443bb649ba5f8ae390867954cce47fc0d0bc06043e170f61c9f68e20892f08": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"node.js\", \"quote\": \"node.js\"}, {\"field\": \"skill\", \"value\": \"express\", \"quote\": \"express\"}, {\"field\": \"skill\", \"value\": \"typescript\", \"quote\": \"typescript\"}, {\"field\": \"skill\", \"value\": \"postgresql\", \"quote\": \"postgresql\"}, {\"field\": \"skill\", \"value\": \"redis\", \"quote\": \"redis\"}, {\"field\": \"skill\", \"value\": \"docker\", \"quote\": \"docker\"}]}"
+  },
+  "9f86d97b2b1d6eb65db0fad3494139d10991e134a62d583ca1490f9180b343e7": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"кубер\", \"quote\": \"Кубер\"}, {\"field\": \"skill\", \"value\": \"докер\", \"quote\": \"докер\"}, {\"field\": \"skill\", \"value\": \"хельм\", \"quote\": \"хельм\"}, {\"field\": \"skill\", \"value\": \"терраформ\", \"quote\": \"терраформ\"}, {\"field\": \"skill\", \"value\": \"ансибл\", \"quote\": \"ансбил\"}, {\"field\": \"skill\", \"value\": \"гитлаб ci\", \"quote\": \"гитлаб ci\"}, {\"field\": \"skill\", \"value\": \"прометеус\", \"quote\": \"Мониторинг: прометеус + графана\"}, {\"field\": \"skill\", \"value\": \"графана\", \"quote\": \"Мониторинг: прометеус + графана\"}, {\"field\": \"skill\", \"value\": \"линукс\", \"quote\": \"Линукс обязательно\"}]}"
+  },
+  "a3a3d40320ce58a5e1fa3b5f7f5b6db1c1b4360ab1cdb965a21cf4e00c681d80": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"Playwright\", \"quote\": \"Playwright, ci/cd, docker, нагрузочное тестирование jmeter\"}, {\"field\": \"skill\", \"value\": \"ci/cd\", \"quote\": \"Playwright, ci/cd, docker, нагрузочное тестирование jmeter\"}, {\"field\": \"skill\", \"value\": \"docker\", \"quote\": \"Playwright, ci/cd, docker, нагрузочное тестирование jmeter\"}, {\"field\": \"skill\", \"value\": \"нагрузочное тестирование\", \"value\": \"jmeter\", \"quote\": \"Playwright, ci/cd, docker, нагрузочное тестирование jmeter\"}]}"
+  },
+  "a42baebfbe099bfe89a37575e6d29fe86a31e83638051531053594192b558cfe": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"html\", \"quote\": \"html\"}, {\"field\": \"skill\", \"value\": \"css\", \"quote\": \"css\"}, {\"field\": \"skill\", \"value\": \"js\", \"quote\": \"js\"}, {\"field\": \"skill\", \"value\": \"react\", \"quote\": \"react\"}]}"
+  },
+  "a492adf1aee910fd80c006ff0665c0c8e1824c0cfb7755daae93afaeedc524d2": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"JS/TS\", \"quote\": \"Senior JS/TS инженер\"}, {\"field\": \"skill\", \"value\": \"микрофронтенды\", \"quote\": \"микрофронтенды\"}, {\"field\": \"skill\", \"value\": \"перфоманс\", \"quote\": \"перфоманс\"}, {\"field\": \"skill\", \"value\": \"accessibility\", \"quote\": \"accessibility\"}, {\"field\": \"skill\", \"value\": \"jest\", \"quote\": \"jest\"}, {\"field\": \"skill\", \"value\": \"cypress\", \"quote\": \"cypress\"}]}"
+  },
+  "a6debb58f773197d1abdbcbd4cfc168d8e9ebd8087fa1878086a0f25c10127e0": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"Python\", \"quote\": \"Senior Python backend\"}, {\"field\": \"skill\", \"value\": \"FastAPI\", \"quote\": \"FastAPI\"}, {\"field\": \"skill\", \"value\": \"SQLAlchemy\", \"quote\": \"SQLAlchemy\"}, {\"field\": \"skill\", \"value\": \"alembic\", \"quote\": \"alembic\"}, {\"field\": \"skill\", \"value\": \"postgres\", \"quote\": \"postgres\"}, {\"field\": \"skill\", \"value\": \"kafka\", \"quote\": \"кафка\"}, {\"field\": \"skill\", \"value\": \"kubernetes\", \"quote\": \"будет плюсом кубер и k8s-опыт\"}]}"
+  },
+  "a716c2514fd1d214a8ebfae5a4d2ec0f0299011afe18d56c915e8522e9c80833": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"Pytest\", \"quote\": \"pytest\"}, {\"field\": \"skill\", \"value\": \"Selenium\", \"quote\": \"selenium\"}, {\"field\": \"skill\", \"value\": \"Postman\", \"quote\": \"postman\"}, {\"field\": \"skill\", \"value\": \"SQL\", \"quote\": \"sql\"}, {\"field\": \"skill\", \"value\": \"Jira\", \"quote\": \"jira\"}, {\"field\": \"skill\", \"value\": \"Allure\", \"quote\": \"allure\"}]}"
+  },
+  "a79428a63a1f540b3d713703c957cf852ab6d6c8dca041712a356dcd5a0c51ff": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"Vue 3\", \"quote\": \"Vue 3\"}, {\"field\": \"skill\", \"value\": \"pinia\", \"quote\": \"pinia\"}, {\"field\": \"skill\", \"value\": \"nuxt\", \"quote\": \"nuxt\"}, {\"field\": \"skill\", \"value\": \"typescript\", \"quote\": \"typescript\"}, {\"field\": \"skill\", \"value\": \"vite\", \"quote\": \"vite\"}, {\"field\": \"skill\", \"value\": \"SSR\", \"quote\": \"Опыт SSR\"}, {\"field\": \"skill\", \"value\": \"webpack\", \"quote\": \"желательно знание webpack\"}, {\"field\": \"skill\", \"value\": \"tests\", \"quote\": \"желательно знание tests (vitest/jest)\"}]}"
+  },
+  "aca5d9f1870c2fef1fe48941150925aadaf1051b7fe9b61299a3ce49190f126e": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"асинхронщина\", \"quote\": \"Асинхронщина\"}, {\"field\": \"skill\", \"value\": \"aiohttp\", \"quote\": \"aiohttp\"}, {\"field\": \"skill\", \"value\": \"asyncpg\", \"quote\": \"asyncpg\"}, {\"field\": \"skill\", \"value\": \"redis\", \"quote\": \"redis\"}, {\"field\": \"skill\", \"value\": \"rabbit\", \"quote\": \"rabbit\"}, {\"field\": \"skill\", \"value\": \"docker\", \"quote\": \"docker\"}, {\"field\": \"skill\", \"value\": \"кубер\", \"quote\": \"кубер\"}, {\"field\": \"skill\", \"value\": \"ddd\", \"quote\": \"желательно ddd\"}, {\"field\": \"skill\", \"value\": \"cqrs\", \"quote\": \"желательно cqrs\"}]}"
+  },
+  "b660ba01c0dd488ce7182d1d66080cc39ba9da5dce6c68bb0939fead85bd8d3c": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"python\", \"quote\": \"питон-разработчик\"}, {\"field\": \"skill\", \"value\": \"scrapy\", \"quote\": \"scrapy\"}, {\"field\": \"skill\", \"value\": \"beautifulsoup\", \"quote\": \"beautifulsoup\"}, {\"field\": \"skill\", \"value\": \"postgres\", \"quote\": \"postgres\"}, {\"field\": \"skill\", \"value\": \"docker\", \"quote\": \"docker\"}]}"
+  },
+  "b9196939047fde002db50b38f88af5894a94a51b42a9fc8a83327b09f8f919d3": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"SQL\", \"quote\": \"SQL\"}, {\"field\": \"skill\", \"value\": \"Excel\", \"quote\": \"Excel\"}, {\"field\": \"skill\", \"value\": \"Power BI\", \"quote\": \"Power BI\"}, {\"field\": \"skill\", \"value\": \"Python\", \"quote\": \"немного питона (pandas)\"}]}"
+  },
+  "baf26afa190694d4f33353ae95ddce6cbdbdd6e9fcae145a9d75b01753f80028": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"java 17\", \"quote\": \"java 17\"}, {\"field\": \"skill\", \"value\": \"spring boot\", \"quote\": \"spring boot\"}, {\"field\": \"skill\", \"value\": \"hibernate\", \"quote\": \"hibernate\"}, {\"field\": \"skill\", \"value\": \"kafka\", \"quote\": \"kafka\"}, {\"field\": \"skill\", \"value\": \"postgresql\", \"quote\": \"postgresql\"}, {\"field\": \"skill\", \"value\": \"микросервисы\", \"quote\": \"микросервисы\"}, {\"field\": \"skill\", \"value\": \"kotlin\", \"quote\": \"плюс: kotlin\"}, {\"field\": \"skill\", \"value\": \"kubernetes\", \"quote\": \"плюс: kubernetes\"}]}"
+  },
+  "c074b264471d82a9e221a6551cdc75488590f76cf5c0e1ac81360316a27bbf68": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"react\", \"quote\": \"Фронт на реакте (react + typescript + react query)\"}, {\"field\": \"skill\", \"value\": \"typescript\", \"quote\": \"Фронт на реакте (react + typescript + react query)\"}, {\"field\": \"skill\", \"value\": \"react query\", \"quote\": \"Фронт на реакте (react + typescript + react query)\"}, {\"field\": \"skill\", \"value\": \"webpack\", \"quote\": \"знание webpack/vite\"}, {\"field\": \"skill\", \"value\": \"vite\", \"quote\": \"знание webpack/vite\"}, {\"field\": \"skill\", \"value\": \"storybook\", \"quote\": \"знание webpack/vite, storybook\"}]}"
+  },
+  "c29c87d399acff8e566431cf3de5fd7cf3d8855d418bb7b7889cd2e66aaaef29": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"ручные тесты\", \"quote\": \"Ручные и автотесты\"}, {\"field\": \"skill\", \"value\": \"автотесты\", \"quote\": \"Ручные и автотесты (python, pytest)\"}, {\"field\": \"skill\", \"value\": \"python\", \"quote\": \"Ручные и автотесты (python, pytest)\"}, {\"field\": \"skill\", \"value\": \"pytest\", \"quote\": \"Ручные и автотесты (python, pytest)\"}, {\"field\": \"skill\", \"value\": \"postman\", \"quote\": \"postman\"}, {\"field\": \"skill\", \"value\": \"sql\", \"quote\": \"sql\"}, {\"field\": \"skill\", \"value\": \"docker\", \"quote\": \"docker\"}]}"
+  },
+  "c4900cc23971b8338fde30f052282f26fc84e16957720ed83a87b714c03e96f3": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"Python\", \"quote\": \"Python, джанго, вью\"}, {\"field\": \"skill\", \"value\": \"Django\", \"quote\": \"Python, джанго, вью\"}, {\"field\": \"skill\", \"value\": \"Vue\", \"quote\": \"Fullstack на Django и Vue\"}, {\"field\": \"skill\", \"value\": \"Postgres\", \"quote\": \"Python, джанго, вью, postgres, rest\"}, {\"field\": \"skill\", \"value\": \"REST\", \"quote\": \"Python, джанго, вью, postgres, rest\"}, {\"field\": \"skill\", \"value\": \"Docker\", \"quote\": \"Plus docker, redis\"}, {\"field\": \"skill\", \"value\": \"Redis\", \"quote\": \"Plus docker, redis\"}]}"
+  },
+  "c725737944887f66d54b039eaa85a32e800799cd383627450b7bc17be2d80843": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"ci/cd\", \"quote\": \"ci/cd на jenkins и github actions\"}, {\"field\": \"skill\", \"value\": \"jenkins\", \"quote\": \"ci/cd на jenkins и github actions\"}, {\"field\": \"skill\", \"value\": \"github actions\", \"quote\": \"ci/cd на jenkins и github actions\"}, {\"field\": \"skill\", \"value\": \"docker\", \"quote\": \"docker\"}, {\"field\": \"skill\", \"value\": \"ansible\", \"quote\": \"ansible\"}, {\"field\": \"skill\", \"value\": \"yandex cloud\", \"quote\": \"plus yandex cloud, vault\"}]}"
+  },
+  "d1b3ac33682d88a9e6746ea125e6864eae5737a1da6d8d01ee43ada5ccdfc09d": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"Python\", \"quote\": \"Python\"}, {\"field\": \"skill\", \"value\": \"sql\", \"quote\": \"sql\"}, {\"field\": \"skill\", \"value\": \"airflow\", \"quote\": \"airflow\"}, {\"field\": \"skill\", \"value\": \"spark\", \"quote\": \"spark\"}, {\"field\": \"skill\", \"value\": \"clickhouse\", \"quote\": \"clickhouse\"}, {\"field\": \"skill\", \"value\": \"kafka\", \"quote\": \"kafka\"}, {\"field\": \"skill\", \"value\": \"dbt\", \"quote\": \"желательно dbt\"}]}"
+  },
+  "d65ab2ab01af6ef72b7e6028a683f2a5be0518e5768bd7715064adca9ab5c94e": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"react\", \"quote\": \"react/ts/redux toolkit\"}, {\"field\": \"skill\", \"value\": \"typescript\", \"quote\": \"react/ts/redux toolkit\"}, {\"field\": \"skill\", \"value\": \"redux toolkit\", \"quote\": \"react/ts/redux toolkit\"}, {\"field\": \"skill\", \"value\": \"jest\", \"quote\": \"jest\"}, {\"field\": \"skill\", \"value\": \"cypress\", \"quote\": \"cypress\"}]}"
+  },
+  "d770d4dbb879607bc57c93360ba39e2c66022250f3e98199585431784b589223": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"java core\", \"quote\": \"java core\"}, {\"field\": \"skill\", \"value\": \"spring\", \"quote\": \"spring\"}, {\"field\": \"skill\", \"value\": \"sql\", \"quote\": \"sql\"}, {\"field\": \"skill\", \"value\": \"maven\", \"quote\": \"maven\"}, {\"field\": \"skill\", \"value\": \"git\", \"quote\": \"git\"}]}"
+  },
+  "d78df44b5a701bb2aee82a2bba82f29f689ace3743e01c475a4162c226d39bcd": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"figma\", \"quote\": \"figma\"}, {\"field\": \"skill\", \"value\": \"прототипы\", \"quote\": \"прототипы\"}, {\"field\": \"skill\", \"value\": \"исследования\", \"quote\": \"исследования\"}]}"
+  },
+  "e4191eccadc6b1270845ee1ed5f409347397c2763b78b2e632229c443f1ec460": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"питон\", \"quote\": \"питон\"}, {\"field\": \"skill\", \"value\": \"монго\", \"quote\": \"монго\"}, {\"field\": \"skill\", \"value\": \"эластик\", \"quote\": \"эластик\"}, {\"field\": \"skill\", \"value\": \"телеграм-боты\", \"quote\": \"телеграм-боты на aiogram\"}, {\"field\": \"skill\", \"value\": \"aiogram\", \"quote\": \"телеграм-боты на aiogram\"}]}"
+  },
+  "e6e8289fc57398195fcda8f77e3a3a31639baaeac829c5fec4e354ff0f0f27e3": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"python\", \"quote\": \"основы python\"}]}"
+  },
+  "ea4b9ebae542ac4efe6840151c23f321281c873f34450fac0b1981834476d8b5": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"golang\", \"quote\": \"Go-разработчик мидл: golang,\"}, {\"field\": \"skill\", \"value\": \"gin\", \"quote\": \"Go-разработчик мидл: golang, gin,\"}, {\"field\": \"skill\", \"value\": \"goroutines\", \"quote\": \"Go-разработчик мидл: golang, gin, goroutines,\"}, {\"field\": \"skill\", \"value\": \"postgresql\", \"quote\": \"Go-разработчик мидл: golang, gin, goroutines, postgresql,\"}, {\"field\": \"skill\", \"value\": \"kafka\", \"quote\": \"Go-разработчик мидл: golang, gin, goroutines, postgresql, kafka,\"}, {\"field\": \"skill\", \"value\": \"docker\", \"quote\": \"Go-разработчик мидл: golang, gin, goroutines, postgresql, kafka, docker.\"}, {\"field\": \"skill\", \"value\": \"k8s\", \"quote\": \"Желательно k8s.\"}]}"
+  },
+  "eab890a3f1963d18a60c9691e6cb3521e09689043e0ec537f946afe36a1c8cdf": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"nestjs\", \"quote\": \"nestjs\"}, {\"field\": \"skill\", \"value\": \"typescript\", \"quote\": \"typescript\"}, {\"field\": \"skill\", \"value\": \"react\", \"quote\": \"react\"}, {\"field\": \"skill\", \"value\": \"graphql\", \"quote\": \"graphql\"}, {\"field\": \"skill\", \"value\": \"postgresql\", \"quote\": \"postgresql\"}, {\"field\": \"skill\", \"value\": \"redis\", \"quote\": \"redis\"}, {\"field\": \"skill\", \"value\": \"kubernetes\", \"quote\": \"Kubernetes приветствуется\"}]}"
+  },
+  "ec30473c941c091eb34c7ae8481f1fa67309fe2922b57787413c11d0feb15745": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"Django\", \"quote\": \"нужны джанго\"}, {\"field\": \"skill\", \"value\": \"PostgreSQL\", \"quote\": \"постгря\"}, {\"field\": \"skill\", \"value\": \"Docker\", \"quote\": \"докер\"}, {\"field\": \"skill\", \"value\": \"асинхронное программирование\", \"quote\": \"пишем на асинке немного\"}, {\"field\": \"skill\", \"value\": \"Redis\", \"quote\": \"Редис и селери — плюсом\"}, {\"field\": \"skill\", \"value\": \"Celery\", \"quote\": \"Редис и селери — плюсом\"}]}"
+  },
+  "f13c7a1f075ed73164648f5e6b9caf2505037d392a3bfea5ec87a695d7cbda8f": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"Pentest\", \"quote\": \"Pentest\"}, {\"field\": \"skill\", \"value\": \"owasp\", \"quote\": \"owasp\"}, {\"field\": \"skill\", \"value\": \"burp\", \"quote\": \"burp\"}, {\"field\": \"skill\", \"value\": \"kali\", \"quote\": \"kali\"}, {\"field\": \"skill\", \"value\": \"siem\", \"quote\": \"siem\"}]}"
+  },
+  "fafaa211199fa2f5ca1ac2616eff8bd7c827da94aa6826012602771569b6367e": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"python3\", \"quote\": \"python3\"}, {\"field\": \"skill\", \"value\": \"django\", \"quote\": \"django\"}, {\"field\": \"skill\", \"value\": \"drf\", \"quote\": \"drf\"}, {\"field\": \"skill\", \"value\": \"postgresql\", \"quote\": \"postgresql\"}, {\"field\": \"skill\", \"value\": \"rest api\", \"quote\": \"rest api\"}, {\"field\": \"skill\", \"value\": \"git\", \"quote\": \"git\"}, {\"field\": \"skill\", \"value\": \"линукс\", \"quote\": \"линукс\"}, {\"field\": \"skill\", \"value\": \"docker\", \"quote\": \"плюс: docker\"}, {\"field\": \"skill\", \"value\": \"jenkins\", \"quote\": \"плюс: jenkins\"}]}"
+  },
+  "fe1061148f5e8d391c7e04d34cc5a4d282dd2d5001d1329332ece600879c9851": {
+   "provider": "gigachat",
+   "task": "brief_skills",
+   "raw": "{\"items\": [{\"field\": \"skill\", \"value\": \"locust\", \"quote\": \"locust or jmeter\"}, {\"field\": \"skill\", \"value\": \"jmeter\", \"quote\": \"locust or jmeter\"}, {\"field\": \"skill\", \"value\": \"grafana\", \"quote\": \"grafana\"}, {\"field\": \"skill\", \"value\": \"prometheus\", \"quote\": \"prometheus\"}, {\"field\": \"skill\", \"value\": \"linux\", \"quote\": \"linux\"}]}"
+  }
+ }
+}

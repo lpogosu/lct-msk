@@ -23,6 +23,7 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import os
 import re
@@ -75,6 +76,28 @@ def _write(path: Path, data: Any) -> None:
     tmp = path.with_suffix(path.suffix + ".tmp")
     tmp.write_text(json.dumps(data, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
     tmp.replace(path)
+
+
+@contextlib.contextmanager
+def _accounts_lock(timeout_s: float = 30.0):
+    """Персоны идут параллельно: read-modify-write файла аккаунтов без блокировки терял записи (пилот, P12)."""
+    lock = ACCOUNTS.with_suffix(".lock")
+    lock.parent.mkdir(parents=True, exist_ok=True)
+    deadline = time.monotonic() + timeout_s
+    while True:
+        try:
+            fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            break
+        except FileExistsError:
+            if time.monotonic() > deadline:
+                lock.unlink(missing_ok=True)  # осиротевшая блокировка упавшего процесса
+                continue
+            time.sleep(0.05)
+    try:
+        yield
+    finally:
+        os.close(fd)
+        lock.unlink(missing_ok=True)
 
 
 def email_of(pid: str, attempt: int) -> str:
@@ -155,8 +178,10 @@ def ensure_account(api: Api, email: str) -> None:
         json={"email": email, "password": password, "role": "candidate", "consent_personal_data": True,
               "consent_text_version": version, "birth_year": 1995},
     )
-    accounts[email] = password
-    _write(ACCOUNTS, accounts)
+    with _accounts_lock():
+        accounts = _read(ACCOUNTS, {})
+        accounts[email] = password
+        _write(ACCOUNTS, accounts)
     api.login(email, password)
 
 
@@ -483,9 +508,11 @@ def cmd_reset(a: argparse.Namespace) -> None:
         emails = [e for e in accounts if e.startswith("pilot-")]
         pattern = "*_a*.json"
     removed = drop_accounts(emails) if emails else 0
-    for e in emails:
-        accounts.pop(e, None)
-    _write(ACCOUNTS, accounts)
+    with _accounts_lock():
+        accounts = _read(ACCOUNTS, {})
+        for e in emails:
+            accounts.pop(e, None)
+        _write(ACCOUNTS, accounts)
     n_state = 0
     for f in STATE_DIR.glob(pattern):
         f.unlink()

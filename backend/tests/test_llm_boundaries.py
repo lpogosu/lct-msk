@@ -22,6 +22,15 @@ pytestmark = pytest.mark.usefixtures("frozen_clock")
 
 
 @pytest.fixture
+def _clean_llm_env(monkeypatch):
+    """Тесты «по умолчанию» не зависят от VZ_LLM_* оператора (например, включённого GigaChat в .env)."""
+    import os
+
+    for k in [k for k in os.environ if k.startswith("VZ_LLM_")]:
+        monkeypatch.delenv(k)
+
+
+@pytest.fixture
 def llm_calls(monkeypatch) -> list[str]:
     calls: list[str] = []
 
@@ -68,7 +77,7 @@ def _settings(**kw):
     return LLMSettings(_env_file=None, **kw)
 
 
-def test_gateway_off_by_default_without_keys():
+def test_gateway_off_by_default_without_keys(_clean_llm_env):
     g = gw.LLMGateway(_settings())
     assert g.mode == "none" and not g.enabled and g.providers == []
     res = g.extract("brief_skills", "Python, FastAPI", "x", allowed_fields={"skill"})

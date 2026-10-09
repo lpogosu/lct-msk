@@ -21,6 +21,7 @@ import hashlib
 import json
 import logging
 import re
+import ssl
 import threading
 import time
 import uuid
@@ -79,17 +80,32 @@ class YandexGPTProvider:
             raise LLMError(f"YandexGPT: {e.__class__.__name__}") from e
 
 
+BUNDLED_CA = Path(__file__).resolve().parent / "certs" / "russian_trusted_root_ca.pem"
+
+
+def _gigachat_verify(value: str) -> bool | ssl.SSLContext:
+    """TLS у GigaChat: «bundled» — корневой сертификат НУЦ Минцифры из поставки (certs/, отпечаток SHA-256 в docs/LLM.md),
+    путь к PEM — свой сертификат, true/false — системное хранилище / без проверки (false — только для разработки)."""
+    v = (value or "true").strip()
+    if v.lower() in ("true", "false"):
+        return v.lower() == "true"
+    path = BUNDLED_CA if v.lower() == "bundled" else Path(v)
+    # к системным корням добавляем корень Минцифры, а не заменяем ими: так же работает и обычный requests-стек
+    return ssl.create_default_context(cafile=str(path))
+
+
 class GigaChatProvider:
     name = "gigachat"
 
     def __init__(self, settings: LLMSettings, client: httpx.Client | None = None) -> None:
         self._s = settings
-        verify: bool | str = settings.gigachat_verify
-        if verify in ("true", "false"):
-            verify = verify == "true"
-        self._client = client or httpx.Client(verify=verify)
+        self._client = client or httpx.Client(verify=_gigachat_verify(settings.gigachat_verify))
         self._token: str | None = None
         self._token_exp = 0.0
+        # накопленный расход токенов по ответам API (поле usage) — для оценки стоимости в eval/llm_brief_eval.py
+        self.usage = {"calls": 0, "prompt_tokens": 0, "completion_tokens": 0}
+        # накопленный расход токенов по ответам API (поле usage) — для оценки стоимости в eval/llm_brief_eval.py
+        self.usage = {"calls": 0, "prompt_tokens": 0, "completion_tokens": 0}
 
     def _access_token(self, timeout_s: float) -> str:
         if self._token and time.monotonic() < self._token_exp:
@@ -124,8 +140,13 @@ class GigaChatProvider:
                 timeout=timeout_s,
             )
             r.raise_for_status()
-            return str(r.json()["choices"][0]["message"]["content"])
-        except (httpx.HTTPError, KeyError, IndexError, ValueError, TypeError) as e:
+            data = r.json()
+            u = data.get("usage") or {}
+            self.usage["calls"] += 1
+            self.usage["prompt_tokens"] += int(u.get("prompt_tokens", 0))
+            self.usage["completion_tokens"] += int(u.get("completion_tokens", 0))
+            return str(data["choices"][0]["message"]["content"])
+        except (httpx.HTTPError, KeyError, IndexError, ValueError, TypeError, AttributeError) as e:
             raise LLMError(f"GigaChat: {e.__class__.__name__}") from e
 
 

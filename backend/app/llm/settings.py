@@ -39,8 +39,9 @@ class LLMSettings(BaseSettings):
     gigachat_model: str = "GigaChat"
     gigachat_oauth_url: str = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth"
     gigachat_url: str = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions"
-    # Сертификат НУЦ Минцифры (путь к PEM) или true/false — проверка TLS у GigaChat
-    gigachat_verify: str = "true"
+    # TLS у GigaChat: bundled — корневой сертификат НУЦ Минцифры из поставки (app/llm/certs); путь к PEM;
+    # true — системное хранилище; false — без проверки (только разработка)
+    gigachat_verify: str = "bundled"
 
     # Любой OpenAI-совместимый /chat/completions: открытые модели (Qwen, Llama, DeepSeek, gpt-oss) у облачных
     # хостингов (OpenRouter, Together, Fireworks, Nebius), собственный vLLM/Ollama, а также зарубежные API.
