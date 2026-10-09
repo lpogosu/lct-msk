@@ -1,22 +1,155 @@
 {
- "n_personas": 1,
- "n_runs": 1,
+ "n_personas": 14,
+ "n_runs": 32,
  "retest": {
-  "n": 0,
-  "exact": null,
-  "within1": null,
-  "kappa": null,
-  "kappa_w": null,
-  "decision_agree": null,
-  "score_mad": null,
-  "score_r": null,
-  "rows": []
+  "n": 12,
+  "exact": 0.8333333333333334,
+  "within1": 1.0,
+  "kappa": 0.6842105263157894,
+  "kappa_w": 0.8333333333333333,
+  "decision_agree": 0.9166666666666666,
+  "score_mad": 20.083333333333332,
+  "score_r": 0.972212005671011,
+  "rows": [
+   {
+    "persona": "P01",
+    "spec": "backend_python",
+    "intended": "junior",
+    "band1": "junior",
+    "band2": "junior",
+    "score1": 472,
+    "score2": 417,
+    "passed1": true,
+    "passed2": true
+   },
+   {
+    "persona": "P02",
+    "spec": "backend_python",
+    "intended": "middle",
+    "band1": "senior",
+    "band2": "senior",
+    "score1": 665,
+    "score2": 698,
+    "passed1": true,
+    "passed2": true
+   },
+   {
+    "persona": "P03",
+    "spec": "backend_python",
+    "intended": "senior",
+    "band1": "senior",
+    "band2": "senior",
+    "score1": 687,
+    "score2": 687,
+    "passed1": true,
+    "passed2": true
+   },
+   {
+    "persona": "P04",
+    "spec": "frontend_js",
+    "intended": "junior",
+    "band1": "junior",
+    "band2": "intern",
+    "score1": 472,
+    "score2": 376,
+    "passed1": true,
+    "passed2": false
+   },
+   {
+    "persona": "P05",
+    "spec": "frontend_js",
+    "intended": "middle",
+    "band1": "senior",
+    "band2": "middle",
+    "score1": 601,
+    "score2": 595,
+    "passed1": true,
+    "passed2": true
+   },
+   {
+    "persona": "P06",
+    "spec": "frontend_js",
+    "intended": "senior",
+    "band1": "senior",
+    "band2": "senior",
+    "score1": 686,
+    "score2": 687,
+    "passed1": true,
+    "passed2": true
+   },
+   {
+    "persona": "P07",
+    "spec": "qa",
+    "intended": "junior",
+    "band1": "junior",
+    "band2": "junior",
+    "score1": 473,
+    "score2": 483,
+    "passed1": true,
+    "passed2": true
+   },
+   {
+    "persona": "P08",
+    "spec": "qa",
+    "intended": "middle",
+    "band1": "senior",
+    "band2": "senior",
+    "score1": 669,
+    "score2": 694,
+    "passed1": true,
+    "passed2": true
+   },
+   {
+    "persona": "P09",
+    "spec": "qa",
+    "intended": "senior",
+    "band1": "senior",
+    "band2": "senior",
+    "score1": 686,
+    "score2": 686,
+    "passed1": true,
+    "passed2": true
+   },
+   {
+    "persona": "P10",
+    "spec": "devops",
+    "intended": "junior",
+    "band1": "junior",
+    "band2": "junior",
+    "score1": 467,
+    "score2": 464,
+    "passed1": true,
+    "passed2": true
+   },
+   {
+    "persona": "P11",
+    "spec": "devops",
+    "intended": "middle",
+    "band1": "senior",
+    "band2": "senior",
+    "score1": 607,
+    "score2": 616,
+    "passed1": true,
+    "passed2": true
+   },
+   {
+    "persona": "P12",
+    "spec": "devops",
+    "intended": "senior",
+    "band1": "senior",
+    "band2": "senior",
+    "score1": 700,
+    "score2": 697,
+    "passed1": true,
+    "passed2": true
+   }
+  ]
  },
  "confusion": {
   "junior": {
    "none": 0,
-   "intern": 0,
-   "junior": 0,
+   "intern": 1,
+   "junior": 7,
    "middle": 0,
    "senior": 0
   },
@@ -24,75 +157,75 @@
    "none": 0,
    "intern": 0,
    "junior": 0,
-   "middle": 0,
-   "senior": 0
+   "middle": 1,
+   "senior": 7
   },
   "senior": {
    "none": 0,
    "intern": 0,
    "junior": 0,
    "middle": 0,
-   "senior": 0
+   "senior": 8
   }
  },
  "bias": {
-  "junior": null,
-  "middle": null,
-  "senior": null
+  "junior": -0.125,
+  "middle": 0.875,
+  "senior": 0.0
  },
  "pass_rate": {
   "junior": [
-   null,
-   0
+   0.875,
+   8
   ],
   "middle": [
-   null,
-   0
+   1.0,
+   8
   ],
   "senior": [
-   null,
-   0
+   1.0,
+   8
   ]
  },
  "exact_level": {
-  "junior": null,
-  "middle": null,
-  "senior": null
+  "junior": 0.875,
+  "middle": 0.125,
+  "senior": 1.0
  },
  "items": {
   "by_level": {
    "junior": {
-    "n_runs": 0,
-    "mean": null,
-    "min": null,
-    "max": null
+    "n_runs": 8,
+    "mean": 13.125,
+    "min": 8,
+    "max": 20
    },
    "middle": {
-    "n_runs": 0,
-    "mean": null,
-    "min": null,
-    "max": null
+    "n_runs": 8,
+    "mean": 8.0,
+    "min": 8,
+    "max": 8
    },
    "senior": {
-    "n_runs": 0,
-    "mean": null,
-    "min": null,
-    "max": null
+    "n_runs": 8,
+    "mean": 9.0,
+    "min": 8,
+    "max": 12
    }
   },
-  "wall_median_s": null,
+  "wall_median_s": 4.3,
   "timed_out": 0,
-  "skipped": 0,
-  "answered": 0,
+  "skipped": 6,
+  "answered": 241,
   "accuracy": {
-   "junior": null,
-   "middle": null,
-   "senior": null
+   "junior": 0.5561698717948718,
+   "middle": 0.9375,
+   "senior": 1.0
   }
  },
  "honest_false_alarms": {
-  "runs": 0,
-  "alarms": 0
+  "runs": 24,
+  "alarms": 1
  },
  "cheaters": [
   {
@@ -100,17 +233,172 @@
    "attempt": 1,
    "claimed": "middle",
    "intended": "junior",
+   "n_items": 14,
+   "copied": 14,
+   "with_twin": 4,
+   "evidence": {
+    "twin_trace": 4
+   },
+   "flags": [],
+   "trust": 1.0,
+   "status": "FINAL",
+   "decision": "подтверждён",
+   "band": "middle",
+   "detected": true,
+   "overrated": true,
+   "posthoc": false
+  },
+  {
+   "persona": "C01",
+   "attempt": 2,
+   "claimed": "middle",
+   "intended": "junior",
+   "n_items": 13,
+   "copied": 13,
+   "with_twin": 4,
+   "evidence": {
+    "twin_trace": 4
+   },
+   "flags": [],
+   "trust": 1.0,
+   "status": "FINAL",
+   "decision": "подтверждён",
+   "band": "middle",
+   "detected": true,
+   "overrated": true,
+   "posthoc": false
+  },
+  {
+   "persona": "C01",
+   "attempt": 3,
+   "claimed": "middle",
+   "intended": "junior",
    "n_items": 8,
    "copied": 8,
-   "with_twin": 0,
-   "evidence": {},
+   "with_twin": 6,
+   "evidence": {
+    "twin_trace": 6
+   },
    "flags": [],
    "trust": null,
    "status": "EXTENSION_OFFERED",
    "decision": "не подтверждён",
-   "band": null,
-   "detected": false
+   "band": "intern",
+   "detected": true,
+   "overrated": false,
+   "posthoc": true
+  },
+  {
+   "persona": "C01",
+   "attempt": 4,
+   "claimed": "middle",
+   "intended": "junior",
+   "n_items": 8,
+   "copied": 8,
+   "with_twin": 7,
+   "evidence": {
+    "twin_trace": 7
+   },
+   "flags": [],
+   "trust": null,
+   "status": "EXTENSION_OFFERED",
+   "decision": "не подтверждён",
+   "band": "intern",
+   "detected": true,
+   "overrated": false,
+   "posthoc": true
+  },
+  {
+   "persona": "C02",
+   "attempt": 1,
+   "claimed": "middle",
+   "intended": "junior",
+   "n_items": 17,
+   "copied": 12,
+   "with_twin": 3,
+   "evidence": {
+    "twin_trace": 3,
+    "correct": 1
+   },
+   "flags": [],
+   "trust": 1.0,
+   "status": "FINAL",
+   "decision": "подтверждён",
+   "band": "middle",
+   "detected": true,
+   "overrated": true,
+   "posthoc": false
+  },
+  {
+   "persona": "C02",
+   "attempt": 2,
+   "claimed": "middle",
+   "intended": "junior",
+   "n_items": 8,
+   "copied": 6,
+   "with_twin": 4,
+   "evidence": {
+    "twin_trace": 4
+   },
+   "flags": [],
+   "trust": null,
+   "status": "EXTENSION_OFFERED",
+   "decision": "не подтверждён",
+   "band": "junior",
+   "detected": true,
+   "overrated": false,
+   "posthoc": false
+  },
+  {
+   "persona": "C02",
+   "attempt": 3,
+   "claimed": "middle",
+   "intended": "junior",
+   "n_items": 8,
+   "copied": 6,
+   "with_twin": 4,
+   "evidence": {
+    "twin_trace": 4
+   },
+   "flags": [],
+   "trust": null,
+   "status": "EXTENSION_OFFERED",
+   "decision": "не подтверждён",
+   "band": "junior",
+   "detected": true,
+   "overrated": false,
+   "posthoc": true
+  },
+  {
+   "persona": "C02",
+   "attempt": 4,
+   "claimed": "middle",
+   "intended": "junior",
+   "n_items": 8,
+   "copied": 6,
+   "with_twin": 5,
+   "evidence": {
+    "twin_trace": 5
+   },
+   "flags": [],
+   "trust": null,
+   "status": "EXTENSION_OFFERED",
+   "decision": "не подтверждён",
+   "band": "junior",
+   "detected": true,
+   "overrated": false,
+   "posthoc": true
   }
  ],
- "cheater_detect_rate": 0.0
+ "cheater_detect_rate": 1.0,
+ "cheater_overrated": {
+  "pre": [
+   3,
+   4
+  ],
+  "post": [
+   0,
+   4
+  ]
+ }
 }
