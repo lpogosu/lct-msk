@@ -4,7 +4,7 @@
 
 Хакатон ЛЦТ-2026, спецтрек ФСП. Кандидат проходит опрос и адаптивный тест на одноразовых заданиях и получает категорию «специализация × грейд» (Backend Python, Frontend JS/TS, QA, DevOps); работодатель получает подборку, где каждый довод ссылается на доказательство. Резюме и самоописание на категорию и ранг не влияют; отсутствие истории ФСП — не штраф. LLM в тесте и ранжировании не участвует.
 
-[![CI](https://github.com/<owner>/<repo>/actions/workflows/ci.yml/badge.svg)](https://github.com/<owner>/<repo>/actions/workflows/ci.yml)
+[![CI](https://github.com/lpogosu/lct-msk/actions/workflows/ci.yml/badge.svg)](https://github.com/lpogosu/lct-msk/actions/workflows/ci.yml)
 [![Лицензия: MIT](https://img.shields.io/badge/лицензия-MIT-402FFF)](LICENSE)
 [![Документация](https://img.shields.io/badge/документация-docs%2FREADME.md-402FFF)](docs/README.md)
 [![PDF](https://img.shields.io/badge/PDF-docs%2Fpdf-402FFF)](docs/pdf/)
