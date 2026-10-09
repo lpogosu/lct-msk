@@ -4,6 +4,8 @@
 
 Хакатон ЛЦТ-2026, спецтрек ФСП. Кандидат проходит опрос и адаптивный тест на одноразовых заданиях и получает категорию «специализация × грейд» (Backend Python, Frontend JS/TS, QA, DevOps); работодатель получает подборку, где каждый довод ссылается на доказательство. Резюме и самоописание на категорию и ранг не влияют; отсутствие истории ФСП — не штраф. LLM в тесте и ранжировании не участвует.
 
+[![CI](https://github.com/<owner>/<repo>/actions/workflows/ci.yml/badge.svg)](https://github.com/<owner>/<repo>/actions/workflows/ci.yml)
+[![Лицензия: MIT](https://img.shields.io/badge/лицензия-MIT-402FFF)](LICENSE)
 [![Документация](https://img.shields.io/badge/документация-docs%2FREADME.md-402FFF)](docs/README.md)
 [![PDF](https://img.shields.io/badge/PDF-docs%2Fpdf-402FFF)](docs/pdf/)
 
@@ -21,7 +23,24 @@
 
 | Тесты | Валидация | Нагрузка |
 |---|---|---|
-| более 2100 тестов бэкенда (`make test`) | 33 из 41 порога, P@10 0,66 против 0,52 (`make validate`) | 100 пользователей: 0 сбоев, p95 170 мс ([LOAD_TEST.md](docs/LOAD_TEST.md)) |
+| 2276 тестов бэкенда проходят (`make test`), CI: линт, `mypy --strict` на ядрах, e2e Playwright ([ENGINEERING.md](docs/ENGINEERING.md)) | 33 из 41 порога, P@10 0,66 против 0,52; с заданиями на навыки 0,71 (`make validate`) | 100 пользователей: 0 сбоев, p95 170 мс ([LOAD_TEST.md](docs/LOAD_TEST.md)) |
+
+### Что ещё есть
+
+| Возможность | Коротко | Документ |
+|---|---|---|
+| Цифровой паспорт навыков | Результат теста и достижение ФСП в виде подписанного файла (W3C VC, Ed25519), проверка по QR и по файлу, отзыв; издатель демонстрационный | [CREDENTIALS.md](docs/CREDENTIALS.md) |
+| «Сигнал интереса» | Кандидат отмечает компанию (2 сигнала за 30 дней); работодатель видит бейдж только у карточек, которые уже открыл; в Score не входит | [MATCHING.md](docs/MATCHING.md) п. 9 |
+| Симуляция рынка | Квоты приглашений и лимиты выбраны прогоном синтетического рынка, границы механизма показаны | [MATCHING.md](docs/MATCHING.md) п. 9.1 |
+| Задания на навыки в проверочном наборе вакансии | PostgreSQL, FastAPI, Redis, очереди: 11 семейств с ключом-исполнением; P@10 +0,048 [+0,017; +0,082] | [MATCHING.md](docs/MATCHING.md) |
+| Открытые данные рынка | Словарь навыков и рыночная вилка из открытых данных Trudvsem, без ПДн | [MATCHING.md](docs/MATCHING.md) п. 13 |
+| Качество заданий | DIF по Мантелю–Хензелю, дрейф сложности, экспозиция; экран «Лаборатория → Качество» | [TESTING_MECHANISM.md](docs/TESTING_MECHANISM.md) п. 16 |
+| Панель ФСП «Кадровый резерв» | Воронка от соревнований до найма; только агрегаты, k-анонимность не меньше 5 | [FSP_INTEGRATION.md](docs/FSP_INTEGRATION.md) п. 11 |
+| Вход через ФСП ID | OIDC + PKCE, достижения из реестра, VSS; без истории ФСП кандидат не штрафуется | [FSP_INTEGRATION.md](docs/FSP_INTEGRATION.md) |
+| Доверие и безопасность | «Проверенная компания», жалобы, кандидаты 15–17 лет с согласием представителя | [TRUST_AND_SAFETY.md](docs/TRUST_AND_SAFETY.md), [SECURITY.md](docs/SECURITY.md) |
+| ATS и чат | Pull-API, вебхуки, адаптер «Хантфлоу»; чат после взаимного «да» | [ATS_INTEGRATION.md](docs/ATS_INTEGRATION.md) |
+| Вакансия без брифа | «Создать вакансию» сразу, без предварительного брифа; банк кандидатов без брифа | [MATCHING.md](docs/MATCHING.md) п. 11 |
+| Инженерия и доступность | CI GitHub Actions, e2e, типы, аудит зависимостей; axe: 0 serious и critical | [ENGINEERING.md](docs/ENGINEERING.md), [ACCESSIBILITY.md](docs/ACCESSIBILITY.md) |
 
 ## Как это выглядит
 
@@ -47,7 +66,10 @@ docker compose exec -T backend python scripts/seed_demo.py     # демо-мир
 3. **«Попробовать списать»**: скопируйте условие в ИИ и убедитесь, что в буфер попало условие-двойник, а на экране истинное.
 4. Войдите демо-работодателем (кнопка на `/jury`), опишите потребность текстом, откройте подборку и панель доказательств.
 5. **Свои данные:** `make jury-check PROFILES=backend/eval/jury_profiles_example.jsonl` прогоняет ваши профили и брифы; администратор может загрузить пары «бриф × кандидат» через `/api/admin/import`.
-6. Воспроизвести цифры: `make validate` (≈ 6 минут), `make loadtest USERS=100 RUNTIME=3m`.
+6. **Паспорт навыков:** в профиле кандидата — «Паспорт навыков»: выпустите, скачайте файл, измените в нём один байт и загрузите на `/v/…`: подпись не совпадёт.
+7. **Сигнал интереса:** кандидат отправляет сигнал из карточки вакансии; работодатель увидит бейдж только у кандидата, чью карточку откроет.
+8. **Панель ФСП:** на `/jury` кнопка «Панель ФСП» (`/fsp/reserve`), агрегаты с k-анонимностью.
+9. Воспроизвести цифры: `make validate` (≈ 6 минут), `make loadtest USERS=100 RUNTIME=3m`.
 
 Подробнее — «Быстрый старт» и «Проверьте сами за 5 минут» ниже, [DEPLOY.md](docs/DEPLOY.md) и [памятка жюри](docs/README.md#1-памятка-для-жюри).
 
@@ -63,7 +85,8 @@ docker compose exec -T backend python scripts/seed_demo.py     # демо-мир
 | 6 | Описание API | [API.md](docs/API.md), Swagger UI `/api/docs`, ReDoc `/api/redoc` | [PDF](<docs/pdf/06 Описание API.pdf>) |
 | 7 | Библиотеки с версиями | [THIRD_PARTY.md](docs/THIRD_PARTY.md) | [PDF](<docs/pdf/07 Библиотеки и версии.pdf>) |
 | 8 | Сборка и запуск | [DEPLOY.md](docs/DEPLOY.md) и «Быстрый старт» ниже | [PDF](<docs/pdf/08 Сборка и запуск.pdf>) |
-| + | ATS · доверие и безопасность · 152-ФЗ · LLM · нагрузка | [ATS_INTEGRATION.md](docs/ATS_INTEGRATION.md), [TRUST_AND_SAFETY.md](docs/TRUST_AND_SAFETY.md), [SECURITY.md](docs/SECURITY.md), [LLM.md](docs/LLM.md), [LOAD_TEST.md](docs/LOAD_TEST.md) | |
+| + | ATS · доверие и безопасность · 152-ФЗ · LLM · нагрузка · паспорт навыков · инженерия · доступность | [ATS_INTEGRATION.md](docs/ATS_INTEGRATION.md), [TRUST_AND_SAFETY.md](docs/TRUST_AND_SAFETY.md), [SECURITY.md](docs/SECURITY.md), [LLM.md](docs/LLM.md), [LOAD_TEST.md](docs/LOAD_TEST.md), [CREDENTIALS.md](docs/CREDENTIALS.md), [ENGINEERING.md](docs/ENGINEERING.md), [ACCESSIBILITY.md](docs/ACCESSIBILITY.md) | [14](<docs/pdf/14 Цифровой паспорт навыков.pdf>), [15](<docs/pdf/15 Инженерные практики.pdf>), [16](<docs/pdf/16 Доступность и адаптивность.pdf>) |
+| ← | Требование задачи → где реализовано → как проверить | [REQUIREMENTS.md](docs/REQUIREMENTS.md) | [PDF](<docs/pdf/00.1 Требования задачи и где они реализованы.pdf>) |
 
 Всё одним файлом: [Взаимно — документация.pdf](<docs/pdf/Взаимно — документация.pdf>).
 
@@ -76,7 +99,7 @@ docker compose exec -T backend python scripts/seed_demo.py     # демо-мир
 | Фронтенд | React 18, Vite 7, TypeScript 5.9, Tailwind 3.4, TanStack Query, типы API из OpenAPI |
 | Интеграции | Keycloak 26 (ФСП ID, OIDC + PKCE), мок реестра ФСП, вебхуки и pull-API для ATS |
 | Развёртывание | Docker Compose, nginx, Caddy (прод, HTTPS) |
-| Тест и нагрузка | pytest, ruff, Locust |
+| Тест и нагрузка | pytest, ruff, mypy, Playwright (e2e, axe), Locust, GitHub Actions |
 
 Полный список с версиями и лицензиями — [THIRD_PARTY.md](docs/THIRD_PARTY.md).
 
@@ -207,7 +230,7 @@ cd frontend && npm install && npm run dev      # http://localhost:5173
 | Файл | О чём |
 |---|---|
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | устройство системы, контейнеры, данные, сценарии |
-| [docs/API.md](docs/API.md) | HTTP-API: 219 эндпоинтов |
+| [docs/API.md](docs/API.md) | HTTP-API: 234 эндпоинта |
 | [docs/TESTING_MECHANISM.md](docs/TESTING_MECHANISM.md) | адаптивный тест, одноразовые клоны, «Антиподсказчик» |
 | [docs/MATCHING.md](docs/MATCHING.md) | разбор брифа, формула Score, объяснения |
 | [docs/FSP_INTEGRATION.md](docs/FSP_INTEGRATION.md) | достижения ФСП, VSS, вход через ФСП ID |
@@ -217,6 +240,9 @@ cd frontend && npm install && npm run dev      # http://localhost:5173
 | [docs/LLM.md](docs/LLM.md) | где и как используется LLM |
 | [docs/VALIDATION_PLAN.md](docs/VALIDATION_PLAN.md), [docs/VALIDATION.md](docs/VALIDATION.md) | протокол валидации и её результаты |
 | [docs/LOAD_TEST.md](docs/LOAD_TEST.md) | нагрузочное тестирование |
+| [docs/CREDENTIALS.md](docs/CREDENTIALS.md) | цифровой паспорт навыков |
+| [docs/ENGINEERING.md](docs/ENGINEERING.md), [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md) | CI, тесты, типы, безопасность; доступность |
+| [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) | требования задачи и где они реализованы |
 | [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md), [docs/DEPLOY.md](docs/DEPLOY.md) | библиотеки и версии; сборка и запуск |
 | [services/fsp-mock/README.md](services/fsp-mock/README.md) | мок реестра ФСП |
 | [deploy/keycloak/README.md](deploy/keycloak/README.md) | realm `fsp` (ФСП ID) |

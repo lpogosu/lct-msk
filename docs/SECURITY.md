@@ -107,7 +107,7 @@
 | Ротация и обнаружение кражи | Каждый `refresh` выдаёт новый токен той же цепочки (`family_id`), старый помечается использованным. Повторное предъявление использованного токена — цепочка отзывается (`401 refresh_reused`); повтор в пределах 10 с трактуется как гонка вкладок (`409 refresh_superseded`). `logout` отзывает всю цепочку устройства. Access-токен после выхода живёт до истечения (до 15 минут), но сервер сверяет статус аккаунта по БД |
 | Коды email | 6 цифр от `secrets.randbelow`; в БД — **HMAC-SHA256** от пары «`user_id`, код» ключом `VZ_APP_SECRET` (утечка таблицы не раскрывает коды: перебор 10⁶ без секрета не сходится); сравнение `hmac.compare_digest`; новый код гасит предыдущие; 5 попыток на код; повторная отправка не чаще раза в 60 с и 5 писем в час |
 | CSRF | Состояние меняется только запросами с заголовком `Authorization: Bearer`, которого межсайтовая форма отправить не может; единственная cookie (`vz_refresh`) ограничена путём `/api/auth` и `SameSite=Lax`. Страница сверки `/api/v/{code}` и `GET`-маршруты состояния не меняют |
-| Заголовки | `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, `Cache-Control: no-store` на `/api/auth/*`. HSTS и TLS задаёт Caddy (см. [DEPLOY.md](DEPLOY.md)); CSP — в разработке |
+| Заголовки | `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, `Cache-Control: no-store` на `/api/auth/*`. HSTS и TLS задаёт Caddy (см. [DEPLOY.md](DEPLOY.md)); CSP интерфейса — `frontend/csp.conf`, подключается nginx образа `web` ([ENGINEERING.md](ENGINEERING.md)): `default-src 'self'`, скрипты только `'self'`, `'unsafe-inline'` лишь для стилей (React и Tailwind задают встроенные), `object-src 'none'`, `frame-ancestors 'none'`; на `/api/` политика не накладывается (Swagger UI бэкенда использует встроенные скрипты) |
 | Вход через ФСП ID | OIDC authorization code + PKCE S256; `state` (в БД только sha256, одноразовый), `nonce`, привязка к браузеру cookie `vz_fsp_flow`; проверка подписи id_token по JWKS, `iss`, `aud`, `nonce`, срока; HS-алгоритмы и `none` запрещены; email из ФСП ID не даёт права на чужой аккаунт; защита от «предзахвата» аккаунта (см. [FSP_INTEGRATION.md](FSP_INTEGRATION.md)) |
 
 ## 4. Ограничение частоты запросов
@@ -208,7 +208,9 @@ LLM **выключена по умолчанию** (`VZ_LLM_PROVIDER=none`). Д�
 |---|---|
 | Согласие законного представителя 15–17 лет | Реализовано (п. 1.4); ограничение MVP — адрес представителя не сверяется с документом, отзыв согласия представителем — через поддержку или удаление аккаунта |
 | Rate limit при нескольких воркерах | Корзины в памяти процесса; общая корзина (Redis или PostgreSQL) — в разработке |
-| CSP, Subresource Integrity, автоматический аудит зависимостей | В разработке; HSTS и TLS — на Caddy |
+| CSP интерфейса | Реализовано: `frontend/csp.conf` (см. строку «Заголовки» и [ENGINEERING.md](ENGINEERING.md)); остаток — `'unsafe-inline'` для стилей и отсутствие CSP на `/api/docs`; HSTS и TLS — на Caddy |
+| Subresource Integrity | Не нужна: внешних скриптов и стилей нет, всё отдаётся с того же origin |
+| Аудит зависимостей | Реализован в CI: `pip-audit` и `npm audit --omit=dev` ([ENGINEERING.md](ENGINEERING.md)) |
 | `/api/docs`, `/api/redoc` | Ассеты Swagger UI и ReDoc лежат в `backend/app/static/docs` и отдаются самим бэкенд-ом (`/api/docs-assets`, лицензии рядом): ни CDN, ни Google Fonts |
 | Регистрация показывает занятость email | `409 email_taken` для подтверждённого адреса (вход и восстановление пароля занятость не выдают) |
 | Access-токен не отзывается до истечения | До 15 минут; статус и роль проверяются по БД, блокировка действует сразу |

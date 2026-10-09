@@ -256,7 +256,7 @@ sequenceDiagram
 
 Гейты генератора (`twins.py`, `gates.py`): ключ X′ ≠ ключу X; не равен ни одному дистрактору; не равен ключу типичной ошибки (`K_err`: исполнение до 40 мутантов Python, 10 JavaScript, 40 SQL); не совпадает с ключом другого клона пула; ровно один изменённый токен, длина ±1, относительное изменение значения 12–80 %; не путаемые на мелком шрифте пары глифов (17/38/56, l/1, O/0 и др.); изменённый токен не в строке, которую переведёт переводчик страницы. Если безопасного двойника нет, клон выдаётся без него.
 
-**Покрытие каталога** (`python -m app.testing.anticheat.report`, 50 сидов на семейство; 91 семейство всех четырёх специализаций): формат `predict_output` или `sql_result` у 76 семейств; по форме двойник возможен у **37** (ответ вводится текстом, язык исполняется офлайн), у остальных 39 двойник невозможен: у 25 язык не исполняется (JSX, HTML, CSS, shell и др.), у 14 ответ выбирается из вариантов (ключ двойника совпал бы с вариантом-дистрактором). Из 37 пригодных валидный двойник на не менее чем 90 % сидов даёт 33 семейства (89,2 % при пороге 85 %; ниже порога `py.mro.super`, `react.batched_updates`, `react.controlled_input`, `react.stale_closure`), 88,6 % экземпляров пригодных семейств получают двойник. То есть двойник защищает около трети каталога (33 из 91 семейства), остальное защищают клоны, детекторы и живая сверка.
+**Покрытие каталога** (`python -m app.testing.anticheat.report`, 50 сидов на семейство; 102 семейства): формат `predict_output` или `sql_result` у 87 семейств; по форме двойник возможен у **39** (ответ вводится текстом, язык исполняется офлайн), у остальных 48 двойник невозможен: у 32 язык не исполняется (JSX, HTML, CSS, shell и др.), у 14 ответ выбирается из вариантов (ключ двойника совпал бы с вариантом-дистрактором), у 2 в задании нет кода или данных. Из 39 пригодных валидный двойник на не менее чем 90 % сидов даёт 35 семейств (89,7 % при пороге 85 %; ниже порога `py.mro.super`, `react.batched_updates`, `react.controlled_input`, `react.stale_closure`), 89,1 % экземпляров пригодных семейств получают двойник. То есть двойник защищает около трети каталога (35 из 102 семейств), остальное защищают клоны, детекторы и живая сверка.
 
 ### 9.2. Улики и что видит каждая сторона
 
@@ -373,6 +373,27 @@ sequenceDiagram
 ## 16. Качество заданий: DIF, дрейф сложности, экспозиция
 
 Три монитора психометрического качества. Формулы — `app/testing/monitoring.py` (чистые функции), пороги — `config/testing.yaml` → `quality`, демонстрация на синтетике — `uv run python -m eval.fairness` (результат — раздел 8 [VALIDATION.md](VALIDATION.md)), экран — «Лаборатория → Качество» (`GET /api/lab/quality`).
+
+Контур мониторинга:
+
+```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#EEF0FF','primaryBorderColor':'#402FFF','primaryTextColor':'#1B1B2F','lineColor':'#6F6F8C','secondaryColor':'#F4F4F8','tertiaryColor':'#FFFFFF','textColor':'#6F6F8C','edgeLabelBackground':'#F4F4F8','clusterBkg':'#F8F8FC','clusterBorder':'#B8B8D0','noteBkgColor':'#F4F4F8','noteTextColor':'#1B1B2F','noteBorderColor':'#9A9AB0','actorBkg':'#EEF0FF','actorBorder':'#402FFF','actorTextColor':'#1B1B2F','actorLineColor':'#9A9AB0','signalColor':'#6F6F8C','signalTextColor':'#6F6F8C','labelBoxBkgColor':'#EEF0FF','labelBoxBorderColor':'#402FFF','labelTextColor':'#1B1B2F','loopTextColor':'#6F6F8C','activationBkgColor':'#DCDFFF','activationBorderColor':'#402FFF','fontSize':'14px'}}}%%
+flowchart LR
+  ss["Сессии и ответы<br/>test_responses"]:::db --> dif["DIF по Мантелю–Хензелю<br/>группы: ФСП, регион,<br/>доступность, экспресс"]
+  ss --> drift["Дрейф сложности d<br/>флаг: d ≤ −0,5 и ДИ ниже 0"]
+  ss --> exp["Экспозиция семейства<br/>доля сессий"]
+  dif --> lab["/lab/quality<br/>классы ETS A, B, C"]:::acc
+  drift --> lab
+  exp --> lab
+  lab --> rev["Ревью методиста<br/>решает человек"]
+  rev --> act["Правка семейства,<br/>перекалибровка, карантин"]
+  exp -. "лимит cat.exposure_cap" .-> cat["Выбор задания в CAT"]
+  act --> ss
+  classDef acc fill:#402FFF,stroke:#402FFF,color:#FFFFFF;
+  classDef ext fill:#F4F4F8,stroke:#9A9AB0,color:#1B1B2F,stroke-dasharray:4 3;
+  classDef db fill:#FFFFFF,stroke:#402FFF,color:#1B1B2F;
+  classDef bad fill:#FFFFFF,stroke:#B3261E,color:#1B1B2F;
+```
 
 ### 16.1. DIF по Мантелю–Хензелю
 

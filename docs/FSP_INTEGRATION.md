@@ -328,6 +328,31 @@ K          : v_k ⊇ 0,8 · m(d, модуль навыка) · VSS_d / 100    Ф
 
 **Что получает ФСП.** Кабинет `/fsp/reserve` (API `GET /api/fsp/dashboard`, выгрузка `/api/fsp/dashboard/export.csv`): воронка «участник соревнований (привязан ФСП ID) → прошёл тест → подтверждённая категория → попал в подборки → получил приглашение → «Взаимно» → нанят» рядом с остальными кандидатами; разрезы по пяти дисциплинам, федеральным округам, регионам и «специализация × грейд»; динамика по неделям; число компаний, приглашавших и нанимавших спортсменов; медианы предложенной зарплаты «ФСП / остальные» по грейдам (на руки и до НДФЛ, ставка в конфиге); «где не хватает кадров» — спрос компаний по категориям против спортсменов ФСП с подтверждённой категорией. Это инструмент, которого у федерации сейчас нет: основа программы трудоустройства.
 
+Поток данных панели:
+
+```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#EEF0FF','primaryBorderColor':'#402FFF','primaryTextColor':'#1B1B2F','lineColor':'#6F6F8C','secondaryColor':'#F4F4F8','tertiaryColor':'#FFFFFF','textColor':'#6F6F8C','edgeLabelBackground':'#F4F4F8','clusterBkg':'#F8F8FC','clusterBorder':'#B8B8D0','noteBkgColor':'#F4F4F8','noteTextColor':'#1B1B2F','noteBorderColor':'#9A9AB0','actorBkg':'#EEF0FF','actorBorder':'#402FFF','actorTextColor':'#1B1B2F','actorLineColor':'#9A9AB0','signalColor':'#6F6F8C','signalTextColor':'#6F6F8C','labelBoxBkgColor':'#EEF0FF','labelBoxBorderColor':'#402FFF','labelTextColor':'#1B1B2F','loopTextColor':'#6F6F8C','activationBkgColor':'#DCDFFF','activationBorderColor':'#402FFF','fontSize':'14px'}}}%%
+flowchart TB
+  subgraph SRC["Источники, только внутри платформы"]
+    l["fsp_links:<br/>привязан ФСП ID"]
+    t["тесты и категории"]
+    n["подборки, приглашения,<br/>«Взаимно», найм"]
+    o["вилки в приглашениях"]
+  end
+  SRC --> agg["Агрегация<br/>счётчики и медианы<br/>без идентификаторов"]
+  agg --> k{"Ячейка меньше 5<br/>человек?"}
+  k -- "да" --> sup["Показ «меньше 5»<br/>плюс вторичное подавление<br/>соседней ячейки"]
+  k -- "нет" --> ok["Показ числа"]
+  sup --> api["GET /api/fsp/dashboard<br/>и export.csv"]:::acc
+  ok --> api
+  api --> ui["/fsp/reserve<br/>методист, администратор"]
+  cfg["config/fsp_dashboard.yaml<br/>k_min 5, компании не меньше 2"]:::ext -.-> k
+  classDef acc fill:#402FFF,stroke:#402FFF,color:#FFFFFF;
+  classDef ext fill:#F4F4F8,stroke:#9A9AB0,color:#1B1B2F,stroke-dasharray:4 3;
+  classDef db fill:#FFFFFF,stroke:#402FFF,color:#1B1B2F;
+  classDef bad fill:#FFFFFF,stroke:#B3261E,color:#1B1B2F;
+```
+
 **Приватность.**
 - В ответе только счётчики и медианы: ни идентификаторов, ни имён, контактов, ФСП ID, ни названий компаний.
 - k-анонимность: ячейка, где меньше 5 человек, отдаётся как «<5» (ноль не скрывается). Для взаимоисключающих строк (округа, регионы) действует вторичное подавление: если скрыта одна ячейка, скрывается и наименьшая соседняя, а мелкие регионы сливаются в «прочие», иначе скрытое число вычиталось бы из итога. Спрос работодателей считается в компаниях и скрыт, пока их меньше 2. Доля от предыдущей стадии не показывается, если скрыта сама ячейка или знаменатель.

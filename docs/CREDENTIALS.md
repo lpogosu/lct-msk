@@ -44,6 +44,31 @@
 
 ## 5. Проверка
 
+Выпуск, проверка и отзыв целиком:
+
+```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#EEF0FF','primaryBorderColor':'#402FFF','primaryTextColor':'#1B1B2F','lineColor':'#6F6F8C','secondaryColor':'#F4F4F8','tertiaryColor':'#FFFFFF','textColor':'#6F6F8C','edgeLabelBackground':'#F4F4F8','clusterBkg':'#F8F8FC','clusterBorder':'#B8B8D0','noteBkgColor':'#F4F4F8','noteTextColor':'#1B1B2F','noteBorderColor':'#9A9AB0','actorBkg':'#EEF0FF','actorBorder':'#402FFF','actorTextColor':'#1B1B2F','actorLineColor':'#9A9AB0','signalColor':'#6F6F8C','signalTextColor':'#6F6F8C','labelBoxBkgColor':'#EEF0FF','labelBoxBorderColor':'#402FFF','labelTextColor':'#1B1B2F','loopTextColor':'#6F6F8C','activationBkgColor':'#DCDFFF','activationBorderColor':'#402FFF','fontSize':'14px'}}}%%
+sequenceDiagram
+  autonumber
+  actor C as Кандидат
+  participant API as Backend
+  participant R as Реестр выдачи
+  actor V as Проверяющий
+  C->>API: выпустить паспорт: категория или достижение ФСП
+  API->>API: данные только из теста и реестра ФСП, подпись Ed25519 поверх JCS
+  API->>R: запись о выдаче и бит в списке отзыва
+  API-->>C: файл JSON (Verifiable Credential) и QR со ссылкой /v/код
+  C->>V: файл или QR
+  V->>API: проверить по коду или загрузить файл, без входа
+  API->>API: формат, издатель did:web, подпись, срок, запись в реестре
+  API->>R: статус в Bitstring Status List
+  API-->>V: зелёный результат, при ошибке подписи содержимое не показывается
+  C->>API: отозвать паспорт
+  API->>R: бит отзыва ставится сразу
+  V->>API: повторная проверка
+  API-->>V: «Отозван владельцем»
+```
+
 Страница `/v/<код>` (QR) и блок «Проверить файл» на той же странице; публично, без входа, с ограничением частоты запросов. Проверяются по отдельности:
 
 | Проверка | Красный результат |

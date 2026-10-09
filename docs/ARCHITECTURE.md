@@ -1,6 +1,6 @@
 # Архитектура «Взаимно»
 
-Документ описывает, из чего состоит платформа, где проходят границы модулей и как данные движутся между ними. Все утверждения сверены с кодом `backend/app`, `services/fsp-mock`, `deploy/keycloak`, `docker-compose.yml` и `config/*.yaml`. То, что ещё не построено, помечено «в разработке».
+Документ описывает, из чего состоит платформа, где проходят границы модулей и как данные движутся между ними. Все утверждения сверены с кодом `backend/app`, `services/fsp-mock`, `deploy/keycloak`, `docker-compose.yml` и `config/*.yaml`. То, что ещё не построено, помечено «в разработке». Инженерные практики — [ENGINEERING.md](ENGINEERING.md), доступность — [ACCESSIBILITY.md](ACCESSIBILITY.md), требования задачи и где они реализованы — [REQUIREMENTS.md](REQUIREMENTS.md).
 
 Содержание: [1. Принципы](#1-принципы) · [2. Функциональная архитектура](#2-функциональная-архитектура) · [3. Контекст и контейнеры (C4)](#3-контекст-и-контейнеры-c4) · [4. Модули монолита](#4-модули-монолита-и-их-границы) · [5. Данные (ERD)](#5-данные-erd) · [6. Сквозные сценарии](#6-сквозные-сценарии-sequence) · [7. Состояния](#7-машины-состояний) · [8. Сквозные механизмы](#8-сквозные-механизмы) · [9. Статус реализации](#9-статус-реализации)
 
@@ -59,7 +59,11 @@ flowchart LR
 |---|---|---|---|---|
 | Опрос и классификатор специализации | `/api/survey/*` | — | — | `app.testing.survey`, [TESTING_MECHANISM.md](TESTING_MECHANISM.md) |
 | Адаптивный тест, результат, разбор, смена грейда | `/api/tests/*` | — | трасса, флаги, калибровка (`/api/lab/*`) | `app.testing`, `app.services.testing` |
-| Защита от подсказок («Антиподсказчик») | флаг видит и оспаривает | не видит | акт сверки | `app.testing.anticheat` (библиотека готова, подключение в разработке) |
+| Защита от подсказок («Антиподсказчик») | флаг видит и оспаривает | не видит | акт сверки | `app.testing.anticheat`, `app.services.anticheat` ([TESTING_MECHANISM.md](TESTING_MECHANISM.md) п. 9) |
+| Сигнал интереса | отправляет и отзывает (`/api/interest`) | видит бейдж «Взаимный интерес» только у открытых карточек | — | `app.services.contact`, [MATCHING.md](MATCHING.md) п. 9 |
+| Цифровой паспорт навыков | выпускает, скачивает, отзывает (`/api/credentials/me`) | проверяет по QR `/v/код`, видит «Паспорт проверен» | — | `app.credentials`, [CREDENTIALS.md](CREDENTIALS.md) |
+| Качество заданий (DIF, дрейф, экспозиция) | — | — | `/api/lab/quality` | `app.testing.monitoring`, [TESTING_MECHANISM.md](TESTING_MECHANISM.md) п. 16 |
+| Панель ФСП «Кадровый резерв» | — | — | `/api/fsp/dashboard` (методист, админ) | `app.services.fsp_dashboard`, [FSP_INTEGRATION.md](FSP_INTEGRATION.md) п. 11 |
 | Разбор брифа, категории, охват | — | `/api/needs/*` | — | `app.matching`, [MATCHING.md](MATCHING.md) |
 | Score, объяснения, версии подборки, банк | «как меня видят» | `/api/needs/*/versions`, `/api/bank` | — | `app.matching`, `app.services.matching` |
 | Приглашение, «Да / Да, если… / Нет», раскрытие контактов, надёжность компании | `/api/invitations/inbox/*` | `/api/invitations/*` | — | `app.contact`, `app.services.contact` |
@@ -166,7 +170,7 @@ flowchart TB
     s_test["services.testing"]
     s_match["services.matching"]
     s_contact["services.contact"]
-    s_fsp["services.fsp_link"]
+    s_fsp["services.fsp_link, fsp_dashboard"]
     s_misc["services.tasks, profile, resume, pdf, notify"]
   end
   subgraph CORE_ENGINES["Чистые ядра: без БД и HTTP"]
@@ -176,6 +180,7 @@ flowchart TB
     c_match["matching: brief_parser, skills, scoring, explain, selection, coverage"]
     c_contact["contact: invitation, quotas, reliability, visibility, disclosure, terms"]
     c_fsp["fsp: models, vss, provider, schema, config"]
+    c_cred["credentials: JCS, Ed25519, статус-лист"]
   end
   subgraph PLATFORM["Платформа"]
     p_core["core: settings, security, auth_service, consents, access, audit, rate_limit, errors, clock, configs"]
@@ -220,7 +225,7 @@ flowchart TB
 | Контракт реестра в бэкенде и в `fsp-mock` совпадает байт-в-байт | `tests/test_fsp_mock.py` |
 | Клоны: 200 экземпляров без исключений, детерминизм по seed, ≥ 95 % различных ключей, дистракторы ≠ ключу | `tests/test_bank_gates.py`, `tests/test_bank_*.py` |
 
-Всего в `backend/tests` собирается 2147 тестов (`uv run pytest --collect-only -q`). Для тестов API нужен PostgreSQL (`VZ_TEST_DATABASE_URL`).
+Всего в `backend/tests` собирается 2297 тестов (`uv run pytest --collect-only -q`). Для тестов API нужен PostgreSQL (`VZ_TEST_DATABASE_URL`).
 
 ## 5. Данные (ERD)
 
@@ -242,6 +247,9 @@ erDiagram
   test_sessions ||--o{ test_responses : "ответы"
   item_instances ||--o{ test_responses : "клон"
   users ||--o| fsp_links : "ФСП ID"
+  users ||--o{ interest_signals : "сигналы интереса"
+  companies ||--o{ interest_signals : "адресат"
+  users ||--o{ issued_credentials : "паспорта навыков"
   companies ||--o{ users : "сотрудники"
   companies ||--o{ needs : "потребности"
   needs ||--o{ need_versions : "версии подборки"
@@ -806,13 +814,19 @@ stateDiagram-v2
 
 | Область | Статус |
 |---|---|
-| Бэкенд: аутентификация, согласия, опрос, тестирование, банк (91 семейство в 10 модулях: Backend, Frontend, QA, DevOps), подбор, контакт, ФСП ID и реестр, профиль и резюме, PDF-профиль со сверкой, регулярные задачи, уведомления, вебхуки, лаборатория, валидация | Готово, покрыто тестами |
+| Бэкенд: аутентификация, согласия, опрос, тестирование, банк (102 семейства в 14 модулях: Backend, Frontend, QA, DevOps и 11 семейств навыков для проверочных наборов), подбор, контакт, ФСП ID и реестр, профиль и резюме, PDF-профиль со сверкой, регулярные задачи, уведомления, вебхуки, лаборатория, валидация | Готово, покрыто тестами |
 | Контракт реестра ФСП, `fsp-mock`, realm Keycloak `fsp` | Готово |
 | Фронтенд | Готово: кандидат (опрос, брифинг, тест, результат, «Мой грейд», приглашения, ФСП, приватность, профиль и PDF), работодатель (потребности, подборка, приглашения, банк, вакансии, задачи, профиль компании), лаборатория, страница жюри и песочница; образ `web` (nginx) |
 | «Антиподсказчик»: двойники, улики, акт сверки, «Подтверждение за 5 минут», песочница | Готово: библиотека `app/testing/anticheat`, сервис `app/services/anticheat`, хуки `anticheat_hooks.py` подключены к выдаче заданий и ответам, клиентский обработчик буфера (`frontend/src/features/anticheat`), лента сверок и акты в лаборатории, песочница жюри |
 | Банки DevOps и QA | Готово: обе специализации `active` (модули `devops_core` 11 и `qa_testing` 11 семейств плюс общие `git_linux`, `http_api`, `sql`); банк меньше, чем у Backend и Frontend |
 | `/api/admin/*` (импорт данных жюри, ранжирование с компонентами Score, метрики по размеченным парам, валидация) и `/api/demo/*` (часы «+1 день», сброс, автоответчик, режим жюри, приёмник вебхуков; только при `VZ_DEMO_MODE=true`) | Готово; наполнение демо-мира — `make seed` (`backend/scripts/seed_demo.py`) |
-| «Сигнал интереса» | В разработке (в коде нет) |
+| «Сигнал интереса» и симуляция рынка | Готово: `/api/interest`, бейдж «Взаимный интерес», квоты и недельные лимиты из `config/contact.yaml`; симуляция `eval/market_sim.py` ([MATCHING.md](MATCHING.md) п. 9) |
+| Цифровой паспорт навыков | Готово: подписанный Verifiable Credential (Ed25519, `did:web`), QR `/v/код`, отзыв по Bitstring Status List; издатель демонстрационный ([CREDENTIALS.md](CREDENTIALS.md)) |
+| Качество заданий: DIF, дрейф, экспозиция | Готово: `app/testing/monitoring.py`, экран «Лаборатория → Качество» (`/api/lab/quality`), `eval.fairness` ([TESTING_MECHANISM.md](TESTING_MECHANISM.md) п. 16) |
+| Панель ФСП «Кадровый резерв» | Готово: `/fsp/reserve`, `/api/fsp/dashboard`, k-анонимность и вторичное подавление ([FSP_INTEGRATION.md](FSP_INTEGRATION.md) п. 11) |
+| Задания на конкретные навыки в проверочном наборе вакансии; открытые данные рынка | Готово ([MATCHING.md](MATCHING.md), «Навыки, наблюдаемые через проверочный набор» и п. 13) |
+| Вакансия без брифа, банк кандидатов без брифа | Готово: «Создать вакансию» и `GET /api/bank` |
+| Инженерия: CI, e2e, типы, безопасность; доступность | Готово: `.github/workflows/ci.yml`, Playwright, `mypy --strict` на ядрах ([ENGINEERING.md](ENGINEERING.md)); axe: 0 serious и critical ([ACCESSIBILITY.md](ACCESSIBILITY.md)) |
 | Фабрика семейств (LLM пишет черновик генератора офлайн) | В разработке |
 | Эмбеддинги и колонки `vector` | В разработке |
 | ATS: исходящие вебхуки, pull-API, обратная синхронизация статусов, адаптер «Хантфлоу» (эмулятор), чат после «Взаимно» | Готово ([ATS_INTEGRATION.md](ATS_INTEGRATION.md)); боевой режим Хантфлоу на живом сервисе не проверялся |

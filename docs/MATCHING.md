@@ -192,6 +192,25 @@ Score(кандидат | бриф) = 100 · G · Cov · Cond · ( wT·T + wK·K 
 
 Вторая сторона обратной механики (DECISIONS 24): кандидат может отметить компанию, которая ему интересна. **Реализовано** (`POST /api/interest`, `GET /api/interest/me`, `POST /api/interest/{id}/revoke`; кнопка «Отправить сигнал интереса (осталось 2 из 2)» в карточке вакансии).
 
+Правило в одной схеме:
+
+```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#EEF0FF','primaryBorderColor':'#402FFF','primaryTextColor':'#1B1B2F','lineColor':'#6F6F8C','secondaryColor':'#F4F4F8','tertiaryColor':'#FFFFFF','textColor':'#6F6F8C','edgeLabelBackground':'#F4F4F8','clusterBkg':'#F8F8FC','clusterBorder':'#B8B8D0','noteBkgColor':'#F4F4F8','noteTextColor':'#1B1B2F','noteBorderColor':'#9A9AB0','actorBkg':'#EEF0FF','actorBorder':'#402FFF','actorTextColor':'#1B1B2F','actorLineColor':'#9A9AB0','signalColor':'#6F6F8C','signalTextColor':'#6F6F8C','labelBoxBkgColor':'#EEF0FF','labelBoxBorderColor':'#402FFF','labelTextColor':'#1B1B2F','loopTextColor':'#6F6F8C','activationBkgColor':'#DCDFFF','activationBorderColor':'#402FFF','fontSize':'14px'}}}%%
+flowchart TB
+  c["Кандидат отмечает компанию<br/>нужно согласие interest_signal"] --> q{"Лимит<br/>2 сигнала за 30 дней<br/>1 действующий на компанию"}
+  q -- "нет" --> x["Отказ: слот не вернулся"]:::bad
+  q -- "да" --> s["Сигнал живёт 60 дней<br/>отзыв слот не возвращает"]
+  s --> v{"Компания уже открыла<br/>карточку или закрепила<br/>кандидата?"}
+  v -- "нет" --> h["Невидим: ни уведомления,<br/>ни списка входящих"]
+  v -- "да" --> b["Бейдж «Взаимный интерес»<br/>в подборке, банке, шортлисте"]:::acc
+  b --> sc["Score не меняется<br/>фильтр interest и порядок interest_first"]
+  rv["Отзыв согласия"] -. "гасит все сигналы" .-> s
+  classDef acc fill:#402FFF,stroke:#402FFF,color:#FFFFFF;
+  classDef ext fill:#F4F4F8,stroke:#9A9AB0,color:#1B1B2F,stroke-dasharray:4 3;
+  classDef db fill:#FFFFFF,stroke:#402FFF,color:#1B1B2F;
+  classDef bad fill:#FFFFFF,stroke:#B3261E,color:#1B1B2F;
+```
+
 - **Лимит и срок** (`config/contact.yaml → interest`): 2 сигнала за скользящие 30 дней, каждый виден 60 дней, отзывается; отзыв слот **не возвращает** (иначе сигналы можно «качать»). Один действующий сигнал на компанию.
 - **Видимость.** Работодатель не получает уведомления и списка входящих. Бейдж «Взаимный интерес» (подсказка: «Кандидат отметил интерес к вашей компании») появляется в подборке, банке, шортлисте и карточке **только у тех кандидатов, чью карточку компания уже открыла или закрепила** (DECISIONS 7); проверка пакетная в `visible_for_company`. Остальные компании сигнала не видят. От «закрепить всех, чтобы прочитать сигналы» защищает лимит шортлиста (30 на бриф).
 - **Score не меняется.** Сигнал показывается отдельным блоком в панели объяснения («в Score не входит»); в банке по нему можно отфильтровать (`interest=true`) или поставить отметивших первыми (`interest_first=true`) — порядок остальных сохраняется. Тест `test_bank_badge_filter_sort_and_score_unchanged` проверяет, что Score и порядок без флагов те же.
