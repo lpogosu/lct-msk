@@ -60,7 +60,8 @@ jobs:
             args: "tests --ignore-glob=tests/test_api_*.py --ignore-glob=tests/test_anticheat_*.py --ignore-glob=tests/test_bank_*.py --ignore-glob=tests/test_cat_*.py --ignore-glob=tests/test_qa_*.py --ignore-glob=tests/test_taxonomy_*.py"
     services:
       postgres:
-        image: pgvector/pgvector:0.8.7-pg16
+        # Зеркало Google вместо Docker Hub: анонимный лимит pull на общих адресах раннеров GitHub (toomanyrequests) роняет все задачи
+        image: mirror.gcr.io/pgvector/pgvector:0.8.7-pg16
         env:
           POSTGRES_USER: vzaimno
           POSTGRES_PASSWORD: vzaimno
@@ -98,7 +99,8 @@ jobs:
     timeout-minutes: 10
     services:
       postgres:
-        image: pgvector/pgvector:0.8.7-pg16
+        # Зеркало Google вместо Docker Hub: анонимный лимит pull на общих адресах раннеров GitHub (toomanyrequests) роняет все задачи
+        image: mirror.gcr.io/pgvector/pgvector:0.8.7-pg16
         env:
           POSTGRES_USER: vzaimno
           POSTGRES_PASSWORD: vzaimno
@@ -156,7 +158,8 @@ jobs:
     needs: [frontend]
     services:
       postgres:
-        image: pgvector/pgvector:0.8.7-pg16
+        # Зеркало Google вместо Docker Hub: анонимный лимит pull на общих адресах раннеров GitHub (toomanyrequests) роняет все задачи
+        image: mirror.gcr.io/pgvector/pgvector:0.8.7-pg16
         env:
           POSTGRES_USER: vzaimno
           POSTGRES_PASSWORD: vzaimno
@@ -221,6 +224,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
+        with:
+          # базовые образы (python, node, nginx) тоже через зеркало, по той же причине
+          buildkitd-config-inline: |
+            [registry."docker.io"]
+              mirrors = ["mirror.gcr.io"]
       - name: "backend (pool использует тот же образ)"
         uses: docker/build-push-action@v6
         with:
