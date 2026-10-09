@@ -75,7 +75,8 @@ class RunConfig:
     b3_broken: float = 0.10
     cusum_reps: int = 20
     cusum_sessions: int = 3000
-    cusum_h: tuple[float, ...] = (4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0)
+    cusum_h: tuple[float, ...] = (4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0)
+    cusum_calib_seeds: tuple[int, ...] = (301, 302, 303)  # другие популяции: порог h подбирается НЕ на основном сиде
     calib_reps: int = 5
     calib_ns: tuple[int, ...] = (0, 30, 100, 300)
     n_boot: int = 2000
@@ -144,6 +145,17 @@ def _leak_task(pop: Population, *, n_cheaters: int, coalitions: tuple[int, ...],
     return res
 
 
+def _cusum_calib_task(pop: Population, *, seed: int, n_pop: int, replicates: int, h_grid: tuple[float, ...],
+                      sessions_per_phase: int) -> dict[str, Any]:
+    """Подбор порога CUSUM на отдельной популяции (другой сид): нулевые потоки и слив 50% — только сводка по h."""
+    cfg = PopulationConfig(n=n_pop, seed=seed)
+    other = Population(cfg, generate_chunk(cfg, list(range(cfg.n)), True), real_bank())
+    res = T.cusum_section(other, replicates=replicates, h_grid=h_grid, sessions_per_phase=sessions_per_phase)
+    pick = {s: [{k: row[k] for k in ("h", "detected", "median_delay", "false_quarantine")} for row in v["by_h"]]
+            for s, v in res["scenarios"].items()}
+    return {"seed": seed, "n_pop": n_pop, **pick}
+
+
 def _match_task(pop: Population, *, seed: int, n_boot: int) -> dict[str, Any]:
     return ME.evaluate(pop, seed=seed, n_boot=n_boot)
 
@@ -156,6 +168,7 @@ TASKS: dict[str, Callable[..., Any]] = {
     "cusum": lambda pop, **kw: T.cusum_section(pop, **kw),
     "calibration": lambda pop, **kw: T.calibration_section(pop, **kw),
     "matching": _match_task,
+    "cusum_calib": _cusum_calib_task,
     "vcat": lambda pop, **kw: vcat.evaluate(**kw),
 }
 
@@ -176,6 +189,9 @@ def _tasks(rc: RunConfig) -> list[tuple[str, str, dict[str, Any]]]:
         ("calibration", "calibration", {"replicates": rc.calib_reps, "ns": rc.calib_ns}),
         ("vcat", "vcat", {"seed": rc.seed}),
     ]
+    for s in rc.cusum_calib_seeds:
+        out.append((f"cusum_calib:{s}", "cusum_calib", {"seed": s, "n_pop": rc.n_pop, "replicates": rc.cusum_reps,
+                                                         "h_grid": rc.cusum_h, "sessions_per_phase": rc.cusum_sessions}))
     # Тяжёлые разделы режем на независимые части (одно условие / один вариант B3 на задачу).
     for s in rc.s2_sigmas:
         out.append((f"s2:sigma:{s}", "s2", {"n": rc.n_s2, "sigmas": (s,), "a_values": ()}))
@@ -275,7 +291,7 @@ def run(rc: RunConfig, *, workers: int | None = None, log: bool = True) -> dict[
         "expert_error": _merge_s2(parts, rc),
         "baselines": _merge_baselines(parts, rc),
         "leak": parts["leak"],
-        "cusum": parts["cusum"],
+        "cusum": {**parts["cusum"], "calibration_seeds": [parts[f"cusum_calib:{s}"] for s in rc.cusum_calib_seeds]},
         "calibration": parts["calibration"],
         "discrimination": T.discrimination_section(pop),
         "tags": T.tags_section(pop),

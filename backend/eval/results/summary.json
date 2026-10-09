@@ -2,7 +2,7 @@
  "meta": {
   "mode": "full",
   "seed": 20261005,
-  "git_sha": "c4c83a4f312090a0202932c9a4cb96c157732070",
+  "git_sha": "50538b0f9ddd71ef88101018202a6ff3b1dc3e3d",
   "bank_families": 102,
   "scoring_config_version": "1-dc239901d9"
  },
@@ -272,12 +272,12 @@
    "id": "d_delay",
    "kind": "drift",
    "section": "Дрейф",
-   "label": "CUSUM, 50% знают метод: медиана задержки (h = 6), ответов",
-   "value": 306.0,
+   "label": "CUSUM, 50% знают метод: медиана задержки (прод-порог h), ответов",
+   "value": 603.0,
    "op": "le",
    "target": 200,
    "format": "int",
-   "value_text": "306",
+   "value_text": "603",
    "target_text": "≤ 200",
    "pass": false
   },
@@ -285,27 +285,27 @@
    "id": "d_false",
    "kind": "drift",
    "section": "Дрейф",
-   "label": "CUSUM: ложные карантины без утечки (h = 6)",
-   "value": 0.2045,
+   "label": "CUSUM: ложные карантины без утечки (прод-порог h)",
+   "value": 0.0114,
    "op": "le",
    "target": 0.05,
    "format": "share",
-   "value_text": "0,20",
+   "value_text": "0,01",
    "target_text": "≤ 0,05",
-   "pass": false
+   "pass": true
   },
   {
    "id": "c_macro_f1",
    "kind": "vcat",
    "section": "Категоризация",
    "label": "macro-F1 подсказки специализации (V-CAT)",
-   "value": 0.8769,
+   "value": 0.9329,
    "op": "ge",
    "target": 0.9,
    "format": "num",
-   "value_text": "0,88",
+   "value_text": "0,93",
    "target_text": "≥ 0,90",
-   "pass": false
+   "pass": true
   },
   {
    "id": "c_no_fsp",
@@ -451,6 +451,32 @@
    "pass": false
   },
   {
+   "id": "m_stab_p10",
+   "kind": "matching",
+   "section": "Устойчивость",
+   "label": "P@10 после пересдачи (постфактум): качество десятки не зависит от шума теста",
+   "value": 0.68,
+   "op": "ge",
+   "target": 0.6,
+   "format": "num",
+   "value_text": "0,68",
+   "target_text": "≥ 0,60",
+   "pass": true
+  },
+  {
+   "id": "m_stab_ceiling",
+   "kind": "matching",
+   "section": "Устойчивость",
+   "label": "Стабильность топ-10 / потолок ранжирования по одному измерению уровня при той же надёжности (постфактум)",
+   "value": 3.3149,
+   "op": "ge",
+   "target": 1.0,
+   "format": "num1",
+   "value_text": "3,3",
+   "target_text": "≥ 1,0",
+   "pass": true
+  },
+  {
    "id": "m_jaccard",
    "kind": "matching",
    "section": "Устойчивость",
@@ -578,24 +604,24 @@
    "kind": "matching",
    "section": "Объяснения",
    "label": "Без доказательства довода №1 Score падает не меньше превышения над медианой",
-   "value": 0.9588,
+   "value": 1.0,
    "op": "ge",
    "target": 1.0,
    "format": "share",
-   "value_text": "0,96",
+   "value_text": "1,00",
    "target_text": "≥ 1,00",
-   "pass": false
+   "pass": true
   },
   {
    "id": "m_build",
    "kind": "matching",
    "section": "Производительность",
    "label": "p95 сборки версии подборки, мс",
-   "value": 210.5639,
+   "value": 215.4269,
    "op": "le",
    "target": 300,
    "format": "num0",
-   "value_text": "211",
+   "value_text": "215",
    "target_text": "≤ 300",
    "pass": true
   }

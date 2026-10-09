@@ -412,3 +412,28 @@ def test_condition_con_names_multiplier_and_numbers_add_up():
         assert abs(r.cond - r.cond_parts["salary"] * r.cond_parts["format"]) < 1e-12
         sigma = sum(float(r.weights[k]) * r.x[k] for k in r.x)
         assert abs(r.score - 100 * r.G * r.Cov * r.cond * sigma) < 1e-9
+
+
+def test_counterfactual_without_cited_evidence_drops_score_by_at_least_delta():
+    """Довод по K и A ссылается на ВСЕ источники навыка/окна (v_k и A — максимум): убрав их, Score падает не меньше
+    превышения над медианой. Раньше называлось по одному лучшему источнику — запасной источник скрывал падение."""
+    ctx = ScoringContext.build(POOL)
+    by_id = {c.candidate_id: c for c in POOL}
+    checked = 0
+    for r in score_pool(POOL, BRIEF, ctx=ctx):
+        top = next((p for p in EXPL[r.candidate_id].pros if p.component in ("K", "A")), None)
+        if top is None:
+            continue
+        f = by_id[r.candidate_id]
+        tasks = {e.id for e in top.evidence if e.type == "task"}
+        mods = {e.id for e in top.evidence if e.type == "module"}
+        drop_fsp = any(e.type == "fsp_result" for e in top.evidence)
+        cf = replace(
+            f,
+            tasks=tuple(t for t in f.tasks if t.task_id not in tasks),
+            modules={m: (replace(s, tag="none") if m in mods else s) for m, s in f.modules.items()},
+            vss_by_discipline={} if drop_fsp else f.vss_by_discipline,
+        )
+        assert r.score - score_candidate(cf, BRIEF, ctx).score >= top.delta - 1e-6, (r.candidate_id, top.component)
+        checked += 1
+    assert checked > 5

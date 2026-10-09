@@ -495,6 +495,45 @@ def skill_value(
     return best
 
 
+def skill_sources(
+    skill_id: str, c: CandidateFeatures, brief_grade: str, cfg: ScoringConfig, cat: SkillCatalog
+) -> list[tuple[str, str, str]]:
+    """ВСЕ источники, из которых складывается v_k: (источник, ссылка, подпись), главный (по v) первым.
+
+    skill_value берёт максимум, поэтому для объяснения мало назвать один источник: убери его — и v_k упадёт лишь до
+    запасного. «Доказательство довода» по стеку — полный набор (VALIDATION.md §4.6, контрфакт довода №1)."""
+    kc = cfg.section("K")
+    modules = cat.modules_of(skill_id)
+    specific = set(cat.specific_modules_of(skill_id))
+    cut = cfg.cuts[brief_grade]
+    scored: list[tuple[float, tuple[str, str, str]]] = []
+    if c.confirmed:
+        tags = set(kc["confirmed_module_tags"])
+        for m in (m for m in modules if m not in specific):
+            ms = c.modules.get(m)
+            if ms is None or ms.tag not in tags:
+                continue
+            v = float(kc["test_factor"]) * _p_module(ms, cut)
+            if v > 0:
+                scored.append((v, ("test", m, _module_label(cat, m, ms.tag))))
+    for t in c.tasks:
+        if t.kind != "A":
+            continue
+        if not (skill_id in t.skills or (t.module is not None and t.module in modules)):
+            continue
+        v = float(kc["task_factor"]) * t.q * 2.0 ** (-max(0.0, t.days_ago) / float(kc["task_half_life_days"]))
+        if v > 0:
+            scored.append((v, ("task", t.task_id, f"Задача «{t.title or t.task_id}» {round(t.q * 5)}/5")))
+    rel = cfg.fsp.get("module_relevance", {})
+    factor = float(cfg.fsp.get("skill_evidence_factor", 0.8))
+    for d in sorted(c.vss_by_discipline):
+        rel_m = max((float(rel.get(d, {}).get(mod, 0.0)) for mod in modules), default=0.0)
+        v = factor * rel_m * float(c.vss_by_discipline[d]) / 100.0
+        if v > 0:
+            scored.append((v, ("fsp", d, f"ФСП: {_discipline_label(cfg, d)}")))
+    return [s for _, s in sorted(scored, key=lambda x: -x[0])]
+
+
 def _discipline_label(cfg: ScoringConfig, short: str) -> str:
     for d in cfg.fsp.get("disciplines", ()):
         if d.get("short") == short or d.get("code") == short:

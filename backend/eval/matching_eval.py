@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import bisect
 import json
+import math
 import statistics
 import time
 from collections.abc import Callable, Mapping, Sequence
@@ -372,6 +373,22 @@ def rank_fast(spec: BriefSpec, categories: Sequence[tuple[str, str]], pool: Sequ
     """Тот же порядок, что «Общий топ» build_version без фильтров (проверяется тестом), но без объяснений."""
     cats = set(categories)
     res = rank_results((score_candidate(c, spec, ctx) for c in pool if (c.spec, c.grade) in cats), ctx.cfg)
+    seen: set[str] = set()
+    out = []
+    for r in res:
+        if r.candidate_id not in seen:
+            seen.add(r.candidate_id)
+            out.append(r.candidate_id)
+    return out
+
+
+def rank_fast_banded(spec: BriefSpec, categories: Sequence[tuple[str, str]], pool: Sequence[CandidateFeatures],
+                     ctx: ScoringContext, width: float) -> list[str]:
+    """Эксперимент «равные по уровню»: Score режется на полосы шириной width, внутри полосы порядок по hash.
+    Только для проверки, помогает ли это устойчивости; в продукт не внесено (VALIDATION_PLAN §7)."""
+    cats = set(categories)
+    res = [score_candidate(c, spec, ctx) for c in pool if (c.spec, c.grade) in cats]
+    res.sort(key=lambda r: (0 if r.confirmed else 1, -math.floor(r.score / width), r.tie_hash))
     seen: set[str] = set()
     out = []
     for r in res:
@@ -914,6 +931,51 @@ def _fidelity(briefs: Sequence[Brief], versions: Mapping[str, SelectionVersion],
     return out
 
 
+def _within_category_reliability(first: Sequence[CandidateFeatures], second: Sequence[CandidateFeatures]) -> dict[str, Any]:
+    """Корреляция оценок уровня между двумя сессиями у кандидатов категории первой сессии (категория — по первой).
+
+    В категории размах истинного уровня — одна полоса грейда, а SE теста сопоставим с ней, поэтому надёжность внутри
+    категории (≈ 0,3) намного ниже общей по популяции (0,86): это и ограничивает стабильность любой выдачи, опирающейся
+    на одну оценку уровня (Sackett & Yang, 2000: сужение диапазона). Отбор только по первой сессии, а не по обеим
+    (оставшиеся в той же категории), чтобы не сужать диапазон второй раз."""
+    b = {f.candidate_id: f for f in second}
+    pairs: dict[tuple[str, str], list[tuple[float, float]]] = {}
+    for f in first:
+        g = b.get(f.candidate_id)
+        if g is not None and g.spec == f.spec and f.theta is not None and g.theta is not None:
+            pairs.setdefault((f.spec, f.grade), []).append((float(f.theta), float(g.theta)))
+    by_cat: dict[tuple[str, str], float] = {}
+    for k, v in pairs.items():
+        if len(v) >= 30:
+            r = M.pearson([x for x, _ in v], [y for _, y in v])
+            if r is not None:
+                by_cat[k] = max(0.0, float(r))
+    return {"by_cat": by_cat, "mean_r": M.mean(list(by_cat.values())) if by_cat else None}
+
+
+def _single_measure_ceiling(categories: Sequence[tuple[str, str]], counts: Mapping[tuple[str, str], int],
+                            reliability: Mapping[str, Any], k: int, seed: int, reps: int = 200) -> float:
+    """Ожидаемый overlap@k двух ранжирований по ОДНОМУ измерению уровня с найденной надёжностью r (модель
+    m = √r·t + √(1−r)·e, независимые e); n — число кандидатов в категориях брифа. Это потолок для формулы, которая
+    была бы чистой сортировкой по оценке теста; наш Score выше, потому что в нём есть стабильные компоненты (F, A, U)."""
+    import numpy as np
+
+    by_cat = reliability["by_cat"]
+    cats = [c for c in categories if c in by_cat and counts.get(c, 0) > k]
+    n = sum(counts.get(c, 0) for c in categories)
+    if not cats or n <= k:
+        return float("nan")
+    r = sum(by_cat[c] * counts[c] for c in cats) / sum(counts[c] for c in cats)
+    rng = np.random.default_rng(seed)
+    t = rng.standard_normal((reps, n))
+    m1 = r**0.5 * t + (1 - r) ** 0.5 * rng.standard_normal((reps, n))
+    m2 = r**0.5 * t + (1 - r) ** 0.5 * rng.standard_normal((reps, n))
+    top1 = np.argsort(-m1, axis=1)[:, :k]
+    top2 = np.argsort(-m2, axis=1)[:, :k]
+    ov = [len(set(x) & set(y)) / k for x, y in zip(top1.tolist(), top2.tolist(), strict=True)]
+    return float(np.mean(ov))
+
+
 def robustness(briefs: Sequence[Brief], runs: Mapping[str, BriefRun], rels: Mapping[str, Mapping[str, int]],
                versions: Mapping[str, SelectionVersion], rankings: Mapping[str, Mapping[str, list[str]]],
                world: World, pop: Population, point_pool: Sequence[CandidateFeatures], seed: int) -> dict[str, Any]:
@@ -961,15 +1023,53 @@ def robustness(briefs: Sequence[Brief], runs: Mapping[str, BriefRun], rels: Mapp
         ctx_pt = _ctx(world, pool=point_pool, stats=build_category_stats(point_pool, cfg))
         ctx_pt_rt = _ctx(world, pool=point_rt, stats=build_category_stats(point_rt, cfg))
         ov_lcb, ov_point, ov_b2 = [], [], []
-        for b in briefs:
+        post: dict[str, list[float]] = {k: [] for k in ("rbo", "kuncheva", "chance", "ceiling", "p10_first", "p10_retest",
+                                                       "in_top50", "gone")}
+        r_within = _within_category_reliability(world.pool, retest_pool)
+        for bi, b in enumerate(briefs):
             r = runs[b.id]
             a = rankings[b.id]["ours"]
-            ov_lcb.append(M.overlap_at_k(a, rank_fast(r.spec, r.categories, retest_pool, ctx_rt), 10))
+            b_rank = rank_fast(r.spec, r.categories, retest_pool, ctx_rt)
+            ov_lcb.append(M.overlap_at_k(a, b_rank, 10))
             ov_point.append(M.overlap_at_k(rank_fast(r.spec, r.categories, point_pool, ctx_pt),
                                            rank_fast(r.spec, r.categories, point_rt, ctx_pt_rt), 10))
             ov_b2.append(M.overlap_at_k(rankings[b.id]["b2"], rank_b2(r.categories, retest_pool, world), 10))
+            # Постфактум-метрики (VALIDATION_PLAN §7): шум теста неизбежно меняет состав десятки, поэтому смотрим ещё
+            # на качество десятки после пересдачи, поправку на случайность, RBO и потолок «ранжирования по одному
+            # измерению уровня» при той же надёжности.
+            rl = rels[b.id]
+            n_scope = len(a)
+            n_rel = sum(1 for x in rl.values() if x >= RELEVANT)
+            pos_b = rank_positions(b_rank)
+            post["rbo"].append(M.rank_biased_overlap(a, b_rank))
+            if 10 < n_scope:
+                post["kuncheva"].append(M.kuncheva_index(a, b_rank, 10, n_scope))
+            post["chance"].append(10 / max(n_rel, 10))
+            post["ceiling"].append(_single_measure_ceiling(r.categories, world.counts, r_within, 10, seed + bi))
+            post["p10_first"].append(M.precision_at_k([rl.get(x, 0) for x in a], 10, RELEVANT))
+            post["p10_retest"].append(M.precision_at_k([rl.get(x, 0) for x in b_rank], 10, RELEVANT))
+            post["in_top50"].append(sum(1 for c in a[:10] if pos_b.get(c, 10**9) <= 50) / 10)
+            post["gone"].append(sum(1 for c in a[:10] if c not in pos_b) / 10)
+        banded = []
+        for width in (2.0, 5.0, 8.0):
+            ovb, p10b = [], []
+            for b in briefs:
+                r = runs[b.id]
+                ra = rank_fast_banded(r.spec, r.categories, world.pool, ctx, width)
+                rb = rank_fast_banded(r.spec, r.categories, retest_pool, ctx_rt, width)
+                ovb.append(M.overlap_at_k(ra, rb, 10))
+                p10b.append(M.precision_at_k([rels[b.id].get(x, 0) for x in ra], 10, RELEVANT))
+            banded.append({"width": width, "overlap10": M.mean(ovb), "p10": M.mean(p10b)})
+        out["stability_banded"] = banded
         out["stability"] = {"ours_overlap10": M.mean(ov_lcb), "point_overlap10": M.mean(ov_point),
-                            "b2_overlap10": M.mean(ov_b2), "n_briefs": len(ov_lcb)}
+                            "b2_overlap10": M.mean(ov_b2), "n_briefs": len(ov_lcb),
+                            "rbo": M.mean(post["rbo"]), "kuncheva10": M.mean(post["kuncheva"]),
+                            "chance_overlap10": M.mean(post["chance"]),
+                            "single_measure_ceiling10": M.mean(post["ceiling"]),
+                            "p10_first": M.mean(post["p10_first"]), "p10_retest": M.mean(post["p10_retest"]),
+                            "top10_in_top50_retest": M.mean(post["in_top50"]),
+                            "top10_left_category": M.mean(post["gone"]),
+                            "r_within_category": r_within["mean_r"]}
 
     # 3. Жаккар топ-10 до и после «добавлен nice-навык».
     jac = []

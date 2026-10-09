@@ -240,6 +240,49 @@ def tuning_hint(regular: Sequence[Profile], specs: Sequence[str]) -> dict[str, A
     }
 
 
+PREV_SURVEY_WEIGHTS = (0.3, 0.5)  # (tech_weight, choice_bonus) до подбора по другим сидам
+TUNE_SEEDS = (11, 12, 13, 14)  # популяции, на которых подбирались веса (не основной сид)
+HELD_SEEDS = (21, 22, 23, 24)  # популяции, которые в подборе не участвовали
+
+
+def seed_check(specs: Sequence[str], per_spec: int = 30) -> dict[str, Any]:
+    """Подбор весов опроса НЕ на основном сиде: прежние веса и текущие (прод-конфиг) на сидах подбора и на отложенных.
+
+    Генератор профилей тот же (его писала та же команда), меняются только случайные профили: проверяется, что выигрыш
+    не подогнан под 300 профилей основного прогона, а не что он переносится на живых людей."""
+    base = load_survey_config()
+    prev = replace(base, tech_weight=PREV_SURVEY_WEIGHTS[0], choice_bonus=PREV_SURVEY_WEIGHTS[1])
+
+    def block(seeds: Sequence[int], cfg: Any) -> dict[str, Any]:
+        reg: list[Profile] = []
+        hard: list[Profile] = []
+        for s in seeds:
+            r, h = generate(per_spec, s)
+            reg += r
+            hard += h
+        res = [classify(p.answers, cfg) for p in reg]
+        hints = [(x, p) for x, p in zip(res, reg, strict=True) if x.hint]
+        wrong = [(x, p) for x, p in zip(res, reg, strict=True) if p.answers.chosen_spec != p.true_spec]
+        hres = [(classify(p.answers, cfg), p) for p in hard]
+        return {
+            "n_profiles": len(reg),
+            "macro_f1": M.macro_f1([p.true_spec for p in reg], [x.top for x in res], specs),
+            "hint_rate": len(hints) / len(reg),
+            "hint_precision": M.mean([float(x.top == p.true_spec) for x, p in hints]) if hints else None,
+            "wrong_choice_hint_recall": M.mean([float(x.hint and x.top == p.true_spec) for x, p in wrong]) if wrong else None,
+            "hard_top_accuracy": M.mean([float(x.top == p.true_spec) for x, p in hres]),
+        }
+
+    return {
+        "prev": {"tech_weight": prev.tech_weight, "choice_bonus": prev.choice_bonus},
+        "current": {"tech_weight": base.tech_weight, "choice_bonus": base.choice_bonus},
+        "tune_seeds": list(TUNE_SEEDS),
+        "held_seeds": list(HELD_SEEDS),
+        "tune": {"prev": block(TUNE_SEEDS, prev), "current": block(TUNE_SEEDS, base)},
+        "held": {"prev": block(HELD_SEEDS, prev), "current": block(HELD_SEEDS, base)},
+    }
+
+
 def evaluate(per_spec: int = 30, seed: int = MASTER_SEED) -> dict[str, Any]:
     """macro-F1 подсказки классификатора, бейзлайн «выбор кандидата», трудные случаи."""
     regular, hard = generate(per_spec, seed)
@@ -286,6 +329,7 @@ def evaluate(per_spec: int = 30, seed: int = MASTER_SEED) -> dict[str, Any]:
         "no_fsp_inputs_in_survey": _no_fsp_inputs(),
         "generator": {"noise": NOISE, "ambitious": AMBITIOUS, "choice_true": CHOICE_TRUE},
         "tuning_hint": tuning_hint(regular, specs),
+        "seed_check": seed_check(specs, per_spec),
     }
 
 

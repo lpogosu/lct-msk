@@ -190,3 +190,22 @@ def test_tile_pass_logic_and_tiles_on_partial_result():
     assert by["t_decision"]["pass"] is True
     assert by["m_p10"]["pass"] is None  # раздела нет — статус «справочно», а не ошибка
     assert all("θ" not in t["label"] for t in ts)
+
+
+def test_kuncheva_index_corrects_overlap_for_chance():
+    ids = list(range(100))
+    assert M.kuncheva_index(ids, ids, 10, 100) == pytest.approx(1.0)
+    assert M.kuncheva_index(ids, list(range(10, 110)), 10, 100) == pytest.approx(-0.111111, abs=1e-5)  # r = 0
+    # 3 общих из 10 при n = 100: (3·100 − 100) / (10·90)
+    assert M.kuncheva_index(ids, [0, 1, 2, *range(50, 57)], 10, 100) == pytest.approx(200 / 900)
+    with pytest.raises(ValueError):
+        M.kuncheva_index(ids, ids, 10, 10)
+
+
+def test_rank_biased_overlap_bounds_and_top_weighting():
+    a = list(range(50))
+    assert M.rank_biased_overlap(a, a) == pytest.approx(1.0)
+    assert M.rank_biased_overlap(a, list(range(100, 150))) == 0.0
+    swapped_top = [1, 0, *range(2, 50)]
+    swapped_bottom = [*range(0, 48), 49, 48]
+    assert M.rank_biased_overlap(a, swapped_top) < M.rank_biased_overlap(a, swapped_bottom) < 1.0

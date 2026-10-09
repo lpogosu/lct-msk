@@ -214,6 +214,35 @@ def overlap_at_k(a: Sequence[Hashable], b: Sequence[Hashable], k: int) -> float:
     return len(set(a[:k]) & set(b[:k])) / k
 
 
+def kuncheva_index(a: Sequence[Hashable], b: Sequence[Hashable], k: int, n: int) -> float:
+    """Индекс Кунчевой — overlap@k с поправкой на случайность: (r·n − k²) / (k·(n − k)), r = |топ-k(a) ∩ топ-k(b)|.
+
+    0 — столько же совпадений, сколько у двух случайных k-подмножеств из n, 1 — полное совпадение
+    (Kuncheva, «A stability index for feature selection», 2007). Обычный overlap@k в категории из сотен кандидатов
+    сравнивать с 0,70 некорректно: случайный выбор дал бы k/n."""
+    if not 0 < k < n:
+        raise ValueError("нужно 0 < k < n")
+    r = len(set(a[:k]) & set(b[:k]))
+    return (r * n - k * k) / (k * (n - k))
+
+
+def rank_biased_overlap(a: Sequence[Hashable], b: Sequence[Hashable], p: float = 0.9, depth: int = 50) -> float:
+    """RBO (Webber, Moffat, Zobel, 2010), усечённый на глубине depth и нормированный на максимум: взвешивает совпадения
+    у верха выдачи сильнее, вес позиции d — p^(d−1). 1 — одинаковые списки, 0 — нет общих элементов."""
+    seen_a: set[Hashable] = set()
+    seen_b: set[Hashable] = set()
+    acc = norm = 0.0
+    for d in range(1, depth + 1):
+        if d <= len(a):
+            seen_a.add(a[d - 1])
+        if d <= len(b):
+            seen_b.add(b[d - 1])
+        w = p ** (d - 1)
+        acc += w * len(seen_a & seen_b) / d
+        norm += w
+    return acc / norm
+
+
 def jaccard(a: Sequence[Hashable], b: Sequence[Hashable]) -> float:
     sa, sb = set(a), set(b)
     if not sa and not sb:

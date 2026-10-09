@@ -93,7 +93,7 @@ detectors:
   foreign_key_quarantine_count: 3      # ≥ 3 «чужих ключа» по семейству …
   foreign_key_quarantine_days: 7       # … за 7 дней → QUARANTINE
   cusum_shift: 0.5             # p1 считается при b − 0.5
-  cusum_h: 6.0                 # порог тревоги (подбирается симуляцией)
+  cusum_h: 11.0                # порог тревоги; подобран на нулевых потоках (без утечки) НА ДРУГИХ сидах: ложные карантины ≤ 5% при h ≥ 11 (VALIDATION.md §2.7)
 
 # §3.9 Дообучение (фаза 1)
 calibration:
@@ -125,8 +125,8 @@ freshness:
 survey:
   version: 1
   temperature: 0.5
-  tech_weight: 0.3
-  choice_bonus: 0.5
+  tech_weight: 1.2
+  choice_bonus: 0.8
   hint_margin: 0.2
   frequency_levels:
     - { code: never, label: Не делал, value: 0.0 }

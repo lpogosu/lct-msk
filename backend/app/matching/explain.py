@@ -23,6 +23,7 @@ from app.matching.scoring import (
     display_parts,
     fmt1,
     round1,
+    skill_sources,
 )
 from app.matching.skills import SkillCatalog, get_catalog
 
@@ -143,6 +144,25 @@ def _skill_evidence(r: ScoreResult, skill_ids: Iterable[str]) -> tuple[Evidence,
     return tuple(out)
 
 
+def _full_skill_evidence(
+    r: ScoreResult, skill_ids: Iterable[str], brief: BriefSpec, cfg: ScoringConfig, cat: SkillCatalog
+) -> tuple[Evidence, ...]:
+    """Полный набор доказательств по навыкам: v_k — максимум по источникам, значит доводом считается каждый источник,
+    а не только лучший; иначе «без этого доказательства» оставляет запасной источник (контрфакт, VALIDATION.md §4.6)."""
+    f = r.features
+    out: dict[tuple[str, str], Evidence] = {}
+    for sid in skill_ids:
+        for src, ref, label in skill_sources(sid, f, brief.grade, cfg, cat):
+            if src == "test":
+                out.setdefault(("module", ref), Evidence("module", ref, label))
+            elif src == "task":
+                out.setdefault(("task", ref), Evidence("task", ref, label))
+            else:
+                key = f.fsp_ref or f"fsp:{ref}"
+                out.setdefault(("fsp_result", key), Evidence("fsp_result", key, label))
+    return tuple(out.values())
+
+
 def _pro(
     r: ScoreResult,
     comp: str,
@@ -181,6 +201,9 @@ def _pro(
             else "Ваши модули теста подходят под запрос"
         )
         ev = _skill_evidence(r, [ch.skill_id for ch in conf[:3]]) or (_test_evidence(r),)
+        if brief is not None and conf:
+            # Текст называет до трёх навыков, но K складывается из всех подтверждённых: доказательства — все.
+            ev = _full_skill_evidence(r, [ch.skill_id for ch in conf], brief, cfg, cat) or ev
         return Reason("pro", "stack", comp, text, ev, delta), you
     if comp == "F":
         summary = f.fsp_summary or (
@@ -204,7 +227,14 @@ def _pro(
         score5 = f", {round((a.q or 0) * 5)}/5" if a.q is not None else ""
         text = f"Свежая задача «{title}», {relative_days(a.days_ago)}{score5}"
         you = f"Вы недавно решили задачу «{title}»{score5}"
-        return Reason("pro", "fresh", comp, text, (Evidence("task", a.task_id or "", title),), delta), you
+        # A — максимум по задачам окна: лучшая названа в тексте первой, остальные окна — тоже доказательства довода.
+        window = float(cfg.section("A")["window_days"])
+        ev_a = [Evidence("task", a.task_id or "", title)] + [
+            Evidence("task", t.task_id, t.title or None)
+            for t in f.tasks
+            if t.task_id != a.task_id and t.days_ago <= window
+        ]
+        return Reason("pro", "fresh", comp, text, tuple(ev_a), delta), you
     # U: называем только то, что правда совпало («Ожидания в вашей вилке ✓; гибрид подходит», §4.2).
     # U может быть выше медианы и при ожиданиях чуть выше вилки — тогда про деньги молчим, а не пишем «в вилке».
     u = r.u

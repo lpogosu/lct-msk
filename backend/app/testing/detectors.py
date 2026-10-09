@@ -58,7 +58,7 @@ class DetectorConfig:
     foreign_key_quarantine_count: int = 3
     foreign_key_quarantine_days: int = 7
     cusum_shift: float = 0.5
-    cusum_h: float = 6.0
+    cusum_h: float = 11.0
     trust_clean: float = 1.0
     trust_soft: float = 0.75
     soft_flags_for_review: int = 3
