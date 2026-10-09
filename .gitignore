@@ -61,3 +61,4 @@ docs/pdf-tools/node_modules/
 
 # Учётные записи стенда, которые пишет deploy/bootstrap.sh
 demo_accounts.local.md
+presentation/shots5/
