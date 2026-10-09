@@ -42,7 +42,7 @@ def test_config_has_all_thresholds_from_the_spec():
     assert CFG.gate.n == 50 and CFG.gate.min_twin_share == 0.9 and CFG.gate.max_honest_collision == 0.01
     assert CFG.gate.min_family_share == 0.85
     assert CFG.evidence.trust_weight == 0.0 and CFG.evidence.calibrated is False and CFG.evidence.auto_ban is False
-    assert CFG.evidence.review_p_threshold == 1e-3 and CFG.evidence.twin_rate_per_session == 4
+    assert CFG.evidence.review_p_threshold == 1e-3 and CFG.evidence.twin_rate_per_session == 20  # двойник на каждом готовом задании (VALIDATION §10)
     assert CFG.evidence.cap_before_warning == "note" and CFG.evidence.cap_a11y_mode == "note"
     assert CFG.verification.n_trace_questions == 3 and CFG.verification.max_skill_questions == 2
     assert CFG.verification.rubric_max == 2

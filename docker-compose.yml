@@ -124,7 +124,8 @@ services:
     volumes:
       - vzvar:/app/var
     environment: *backend-env
-    command: ["python", "scripts/generate_pool.py"]
+    # Пул, затем двойники в буфере для каждого экземпляра: без них «Антиподсказчик» в тесте не работает (VALIDATION §10)
+    command: ["sh", "-c", "python scripts/generate_pool.py && python -m app.services.anticheat.precompute"]
     healthcheck:
       disable: true  # HEALTHCHECK образа проверяет HTTP бэкенда, а здесь одноразовый скрипт без сервера
     mem_limit: 1g

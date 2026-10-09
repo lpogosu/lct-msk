@@ -116,7 +116,8 @@ services:
       VZ_CORS_ORIGINS: https://${VZ_PUBLIC_DOMAIN}
       VZ_SMTP_HOST: ${VZ_SMTP_HOST:?задайте VZ_SMTP_HOST}
       VZ_MAIL_FROM: ${VZ_MAIL_FROM:?задайте VZ_MAIL_FROM}
-    command: ["python", "scripts/generate_pool.py"]
+    # Пул, затем двойники в буфере для каждого экземпляра: без них «Антиподсказчик» в тесте не работает (VALIDATION §10)
+    command: ["sh", "-c", "python scripts/generate_pool.py && python -m app.services.anticheat.precompute"]
     healthcheck:
       disable: true  # HEALTHCHECK образа проверяет HTTP бэкенда, а здесь одноразовый скрипт без сервера
     mem_limit: 1g

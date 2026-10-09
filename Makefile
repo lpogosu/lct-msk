@@ -74,6 +74,7 @@ migrate:
 # Экземпляры заданий для тестов (идемпотентно; повторный запуск только доливает пул)
 gen-pool:
 	$(UV) python scripts/generate_pool.py
+	$(UV) python -m app.services.anticheat.precompute   # двойники в буфере для каждого экземпляра пула
 
 # Демо-мир (идемпотентно). Логины и пароли — в backend/var/demo_accounts.md (в .gitignore)
 seed:
