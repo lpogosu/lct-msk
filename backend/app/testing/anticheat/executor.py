@@ -14,6 +14,7 @@ ExecOutcome.via, а значит и в Twin.executor.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 import threading
@@ -29,7 +30,17 @@ from app.testing.bank.execution import run_js, run_python, run_sql
 T = TypeVar("T")
 R = TypeVar("R")
 
-EXEC_WORKERS = 12
+def _cpu_count() -> int:
+    try:
+        return len(os.sched_getaffinity(0))  # Linux: ядра, реально доступные процессу (раннер CI, контейнер)
+    except AttributeError:
+        return os.cpu_count() or 4
+
+
+# Потоков исполнения: не больше 2 на ядро. Каждый поток держит подпроцесс интерпретатора (импорт fastapi ≈ 0,6 с CPU), и
+# 12 потоков на раннере GitHub с 2 vCPU упирались в exec_timeout_s — семейства FastAPI получали executor_failed. Число
+# потоков на результат не влияет: parallel_map сохраняет порядок, ключи считаются исполнением.
+EXEC_WORKERS = max(2, min(12, 2 * _cpu_count()))
 
 
 @dataclass(frozen=True)
