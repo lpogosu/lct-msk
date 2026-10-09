@@ -88,6 +88,8 @@ jobs:
       - name: pytest
         # Жёсткий предел шага (timeout-minutes) + faulthandler_timeout из pyproject: зависший тест даёт стек, а не молчание.
         timeout-minutes: 35
+        env:
+          VZ_PYTEST_FAST_EXIT: "1"  # выход сразу после отчёта: см. pytest_unconfigure в tests/conftest.py (SIGSEGV при остановке интерпретатора)
         run: uv run pytest -q --durations=15 -o faulthandler_timeout=300 ${{ matrix.shard.args }}
 
   migrations:

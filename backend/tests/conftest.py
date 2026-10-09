@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import os
 import re
+import sys
 import uuid
 from collections.abc import Callable, Iterator
 from dataclasses import dataclass
@@ -213,3 +214,28 @@ def make_account(client, mailer, test_settings) -> Callable[..., Account]:
         return Account(email, password, role, uuid.UUID(body["user"]["id"]), body["access_token"], cookie)
 
     return _make
+
+
+# ----------------------------------------------------------------------------- завершение процесса в CI
+
+_EXIT_STATUS = 0
+
+
+def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
+    global _EXIT_STATUS  # noqa: PLW0603 — запоминаем итог для pytest_unconfigure
+    _EXIT_STATUS = int(exitstatus)
+
+
+def pytest_unconfigure(config: pytest.Config) -> None:
+    """CI (VZ_PYTEST_FAST_EXIT=1): выйти сразу после итогового отчёта, не доводя интерпретатор до штатного завершения.
+
+    Зачем: шард `api` проходит целиком («324 passed»), а затем процесс падает с кодом 139: SIGSEGV в финальной сборке
+    мусора при остановке интерпретатора (под gdb: Py_FinalizeEx -> _PyGC_CollectNoFail -> delete_garbage -> dealloc
+    datetime -> код pydantic_core; тот же сбой на pydantic 2.14 / pydantic-core 2.50.0, воспроизведён в python:3.12
+    под Linux). Тесты и их результат не затронуты — падает только разбор кучи после последнего теста; отчёт к этому
+    моменту уже напечатан. Код возврата — настоящий итог pytest, пропущенных или отключённых тестов нет."""
+    if os.environ.get("VZ_PYTEST_FAST_EXIT") != "1":
+        return
+    sys.stdout.flush()
+    sys.stderr.flush()
+    os._exit(_EXIT_STATUS)
