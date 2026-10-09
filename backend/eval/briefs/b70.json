@@ -1,0 +1,30 @@
+{
+  "id": "b70",
+  "split": "test2",
+  "style": "mixed_en",
+  "author": "team",
+  "text": "Junior Frontend Developer в продуктовую команду. Must: JavaScript, React, REST API, CSS/Sass. Nice to have: TypeScript, Redux. Hybrid, Санкт-Петербург. Оклад 95–125 тыс. руб. на руки.",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "junior",
+    "must": [
+      "javascript",
+      "react",
+      "rest",
+      "sass"
+    ],
+    "nice": [
+      "typescript",
+      "redux"
+    ],
+    "formats": [
+      "hybrid"
+    ],
+    "city": "spb",
+    "salary_from": 95000,
+    "salary_to": 125000,
+    "salary_net": true
+  },
+  "note": null
+}

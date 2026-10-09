@@ -1,0 +1,30 @@
+{
+  "id": "b44",
+  "split": "test2",
+  "style": "formal",
+  "author": "team",
+  "text": "Компания «Тихая Гавань» (логистическая платформа) приглашает Junior Python-разработчика. Обязательно: Python, Django, PostgreSQL, Git. Приветствуется: Docker, Celery. Формат: офис в Казани. Зарплата 100 000 – 140 000 руб. до вычета налогов.",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "junior",
+    "must": [
+      "python",
+      "django",
+      "postgresql",
+      "git"
+    ],
+    "nice": [
+      "docker",
+      "celery"
+    ],
+    "formats": [
+      "office"
+    ],
+    "city": "kazan",
+    "salary_from": 100000,
+    "salary_to": 140000,
+    "salary_net": false
+  },
+  "note": null
+}

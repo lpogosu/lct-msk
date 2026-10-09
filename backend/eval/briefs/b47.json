@@ -1,0 +1,32 @@
+{
+  "id": "b47",
+  "split": "test2",
+  "style": "long",
+  "author": "team",
+  "text": "Мы — небольшая студия, делаем бэкенды для мобильных приложений заказчиков.\n\nИщем: Junior Python-разработчика.\n\nЧто нужно знать:\n- Python и Django, Django REST Framework;\n- PostgreSQL на уровне простых запросов;\n- Git.\n\nБудет плюсом: Redis, Linux.\n\nУсловия: офис в Новосибирске или гибрид, вилка 85–115 тыс. руб. на руки.",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "junior",
+    "must": [
+      "python",
+      "django",
+      "drf",
+      "postgresql",
+      "git"
+    ],
+    "nice": [
+      "redis",
+      "linux"
+    ],
+    "formats": [
+      "office",
+      "hybrid"
+    ],
+    "city": "novosibirsk",
+    "salary_from": 85000,
+    "salary_to": 115000,
+    "salary_net": true
+  },
+  "note": null
+}

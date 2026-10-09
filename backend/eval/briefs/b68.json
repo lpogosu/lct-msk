@@ -1,0 +1,31 @@
+{
+  "id": "b68",
+  "split": "test2",
+  "style": "formal",
+  "author": "team",
+  "text": "Интернет-магазин «Семь Холмов» ищет Junior Frontend-разработчика. Обязательно: JavaScript, Vue 3, HTML, CSS, Git. Будет плюсом: Pinia, TypeScript. Формат: офис в Казани. Зарплата 85 000 – 115 000 руб. до налогов.",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "junior",
+    "must": [
+      "javascript",
+      "vue",
+      "html",
+      "css",
+      "git"
+    ],
+    "nice": [
+      "pinia",
+      "typescript"
+    ],
+    "formats": [
+      "office"
+    ],
+    "city": "kazan",
+    "salary_from": 85000,
+    "salary_to": 115000,
+    "salary_net": false
+  },
+  "note": null
+}

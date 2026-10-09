@@ -1,0 +1,31 @@
+{
+  "id": "b49",
+  "split": "test2",
+  "style": "formal",
+  "author": "team",
+  "text": "Ищем Middle Python-разработчика в команду биллинга компании «Северная Звезда». Обязательно: Python, FastAPI, PostgreSQL, Docker, SQLAlchemy. Будет плюсом: Kafka, Kubernetes. Формат: удалённо, по России. Вилка 240–300 тыс. руб. на руки.",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "middle",
+    "must": [
+      "python",
+      "fastapi",
+      "postgresql",
+      "docker",
+      "sqlalchemy"
+    ],
+    "nice": [
+      "kafka",
+      "kubernetes"
+    ],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 240000,
+    "salary_to": 300000,
+    "salary_net": true
+  },
+  "note": null
+}

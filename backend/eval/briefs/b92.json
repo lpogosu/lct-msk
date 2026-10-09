@@ -1,0 +1,31 @@
+{
+  "id": "b92",
+  "split": "test2",
+  "style": "formal",
+  "author": "team",
+  "text": "Ищем Middle Fullstack-разработчика в команду внутренних сервисов компании «Каменный Мост». Обязательно: TypeScript, React, Node.js (NestJS), PostgreSQL, Docker. Будет плюсом: Redis, Kubernetes. Формат: гибрид, Санкт-Петербург. Вилка 230–300 тыс. руб. на руки.",
+  "form": null,
+  "gold": {
+    "spec": "fullstack",
+    "grade": "middle",
+    "must": [
+      "typescript",
+      "react",
+      "nestjs",
+      "postgresql",
+      "docker"
+    ],
+    "nice": [
+      "redis",
+      "kubernetes"
+    ],
+    "formats": [
+      "hybrid"
+    ],
+    "city": "spb",
+    "salary_from": 230000,
+    "salary_to": 300000,
+    "salary_net": true
+  },
+  "note": null
+}

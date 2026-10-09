@@ -1,0 +1,27 @@
+{
+  "id": "b100",
+  "split": "test2",
+  "style": "short",
+  "author": "team",
+  "text": "senior fullstack, django + react, highload-опыт, офис Москва, 330-400к на руки",
+  "form": null,
+  "gold": {
+    "spec": "fullstack",
+    "grade": "senior",
+    "must": [
+      "python",
+      "django",
+      "react",
+      "highload"
+    ],
+    "nice": [],
+    "formats": [
+      "office"
+    ],
+    "city": "moscow",
+    "salary_from": 330000,
+    "salary_to": 400000,
+    "salary_net": true
+  },
+  "note": null
+}

@@ -1,0 +1,32 @@
+{
+  "id": "b97",
+  "split": "test2",
+  "style": "formal",
+  "author": "team",
+  "text": "Ищем Senior Fullstack-разработчика в продуктовую команду «Холодный Ручей». Обязательно: TypeScript, React, Node.js, PostgreSQL, проектирование API, Docker. Будет плюсом: Kubernetes, Kafka. Формат: удалённо. Вилка 350–420 тыс. руб. на руки.",
+  "form": null,
+  "gold": {
+    "spec": "fullstack",
+    "grade": "senior",
+    "must": [
+      "typescript",
+      "react",
+      "nodejs",
+      "postgresql",
+      "api_design",
+      "docker"
+    ],
+    "nice": [
+      "kubernetes",
+      "kafka"
+    ],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 350000,
+    "salary_to": 420000,
+    "salary_net": true
+  },
+  "note": null
+}

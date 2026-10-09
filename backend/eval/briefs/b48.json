@@ -1,0 +1,29 @@
+{
+  "id": "b48",
+  "split": "test2",
+  "style": "chat",
+  "author": "team",
+  "text": "ищем питониста без большого опыта, сидеть в офисе в Самаре. нужен питон, sql, основы aiohttp или fastapi (что-то одно ок). бонус - kafka. вилка 80-110",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "junior",
+    "must": [
+      "python",
+      "sql"
+    ],
+    "nice": [
+      "fastapi",
+      "aiohttp",
+      "kafka"
+    ],
+    "formats": [
+      "office"
+    ],
+    "city": "samara",
+    "salary_from": 80000,
+    "salary_to": 110000,
+    "salary_net": null
+  },
+  "note": null
+}

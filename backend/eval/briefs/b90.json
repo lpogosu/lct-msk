@@ -1,0 +1,31 @@
+{
+  "id": "b90",
+  "split": "test2",
+  "style": "chat",
+  "author": "team",
+  "text": "ищем джуна фулстека, python + немного реакта. django, js, postgres, git. удалёнка, 90-120 чистыми. плюсом docker",
+  "form": null,
+  "gold": {
+    "spec": "fullstack",
+    "grade": "junior",
+    "must": [
+      "python",
+      "django",
+      "javascript",
+      "postgresql",
+      "git"
+    ],
+    "nice": [
+      "react",
+      "docker"
+    ],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 90000,
+    "salary_to": 120000,
+    "salary_net": true
+  },
+  "note": null
+}

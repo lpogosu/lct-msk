@@ -1,0 +1,32 @@
+{
+  "id": "b99",
+  "split": "test2",
+  "style": "mixed_en",
+  "author": "team",
+  "text": "Senior Fullstack Engineer, SaaS-продукт. Must: TypeScript, React, Node.js, GraphQL, PostgreSQL, system design. Nice: AWS, Terraform. Remote, вилка 380–450 тыс. руб. на руки.",
+  "form": null,
+  "gold": {
+    "spec": "fullstack",
+    "grade": "senior",
+    "must": [
+      "typescript",
+      "react",
+      "nodejs",
+      "graphql",
+      "postgresql",
+      "system_design"
+    ],
+    "nice": [
+      "aws",
+      "terraform"
+    ],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 380000,
+    "salary_to": 450000,
+    "salary_net": true
+  },
+  "note": null
+}

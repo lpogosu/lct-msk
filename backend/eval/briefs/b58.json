@@ -1,0 +1,31 @@
+{
+  "id": "b58",
+  "split": "test2",
+  "style": "formal",
+  "author": "team",
+  "text": "Ищем Senior Python-разработчика в команду высоконагруженного платёжного сервиса компании «Янтарный Мост». Обязательно: Python, asyncio, PostgreSQL, Kafka, проектирование систем. Будет плюсом: Kubernetes, Go. Формат: гибрид, Москва. Вилка 380–480 тыс. руб. на руки.",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "senior",
+    "must": [
+      "python",
+      "asyncio",
+      "postgresql",
+      "kafka",
+      "system_design"
+    ],
+    "nice": [
+      "kubernetes",
+      "go"
+    ],
+    "formats": [
+      "hybrid"
+    ],
+    "city": "moscow",
+    "salary_from": 380000,
+    "salary_to": 480000,
+    "salary_net": true
+  },
+  "note": null
+}

@@ -1,0 +1,26 @@
+{
+  "id": "b96",
+  "split": "test2",
+  "style": "short",
+  "author": "team",
+  "text": "Fullstack middle: Next.js + NestJS + Postgres, офис Новосибирск, 200-250к",
+  "form": null,
+  "gold": {
+    "spec": "fullstack",
+    "grade": "middle",
+    "must": [
+      "nextjs",
+      "nestjs",
+      "postgresql"
+    ],
+    "nice": [],
+    "formats": [
+      "office"
+    ],
+    "city": "novosibirsk",
+    "salary_from": 200000,
+    "salary_to": 250000,
+    "salary_net": null
+  },
+  "note": null
+}

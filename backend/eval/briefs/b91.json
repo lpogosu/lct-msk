@@ -1,0 +1,26 @@
+{
+  "id": "b91",
+  "split": "test2",
+  "style": "short",
+  "author": "team",
+  "text": "Fullstack junior, Node.js + React, MySQL, гибрид Москва, 100-140к до налогов",
+  "form": null,
+  "gold": {
+    "spec": "fullstack",
+    "grade": "junior",
+    "must": [
+      "nodejs",
+      "react",
+      "mysql"
+    ],
+    "nice": [],
+    "formats": [
+      "hybrid"
+    ],
+    "city": "moscow",
+    "salary_from": 100000,
+    "salary_to": 140000,
+    "salary_net": false
+  },
+  "note": null
+}

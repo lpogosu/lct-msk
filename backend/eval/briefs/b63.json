@@ -1,0 +1,31 @@
+{
+  "id": "b63",
+  "split": "test2",
+  "style": "formal",
+  "author": "team",
+  "text": "Крупная торговая сеть «Большая Корзина» ищет Senior Python-разработчика. Обязательно: Python, Django, PostgreSQL, Redis, CI/CD. Приветствуется: Elasticsearch, Docker. Формат: гибрид в Краснодаре. Зарплата 330 000 – 420 000 руб. до вычета налогов.",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "senior",
+    "must": [
+      "python",
+      "django",
+      "postgresql",
+      "redis",
+      "ci_cd"
+    ],
+    "nice": [
+      "elasticsearch",
+      "docker"
+    ],
+    "formats": [
+      "hybrid"
+    ],
+    "city": "krasnodar",
+    "salary_from": 330000,
+    "salary_to": 420000,
+    "salary_net": false
+  },
+  "note": null
+}

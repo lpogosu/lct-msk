@@ -1,0 +1,27 @@
+{
+  "id": "b72",
+  "split": "test2",
+  "style": "short",
+  "author": "team",
+  "text": "фронтенд джун, vue/nuxt, офис Екатеринбург, 80-110",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "junior",
+    "must": [
+      "vue",
+      "javascript"
+    ],
+    "nice": [
+      "nuxt"
+    ],
+    "formats": [
+      "office"
+    ],
+    "city": "ekaterinburg",
+    "salary_from": 80000,
+    "salary_to": 110000,
+    "salary_net": null
+  },
+  "note": null
+}

@@ -1,0 +1,30 @@
+{
+  "id": "b93",
+  "split": "test2",
+  "style": "chat",
+  "author": "team",
+  "text": "нужен мидл-фулстек: фронт на react+ts, бэк на fastapi, база постгрес. удалённо, 220-290 на руки. ci/cd и docker плюсом",
+  "form": null,
+  "gold": {
+    "spec": "fullstack",
+    "grade": "middle",
+    "must": [
+      "react",
+      "typescript",
+      "fastapi",
+      "postgresql"
+    ],
+    "nice": [
+      "ci_cd",
+      "docker"
+    ],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 220000,
+    "salary_to": 290000,
+    "salary_net": true
+  },
+  "note": null
+}

@@ -1,0 +1,32 @@
+{
+  "id": "b77",
+  "split": "test2",
+  "style": "long",
+  "author": "team",
+  "text": "О продукте: сервис управления проектами для небольших команд, 300 тыс. пользователей.\n\nКого ищем: Frontend-разработчика уровня Middle.\n\nЧто нужно уметь:\n1) React и TypeScript;\n2) GraphQL, работа с websocket;\n3) оптимизация производительности интерфейса;\n4) покрытие тестами (Jest, Cypress).\n\nПлюсом: Webpack, микрофронтенды.\n\nФормат: гибрид в Новосибирске. Вилка 220–270 тыс. на руки.",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "middle",
+    "must": [
+      "react",
+      "typescript",
+      "graphql",
+      "websocket",
+      "jest",
+      "cypress"
+    ],
+    "nice": [
+      "webpack",
+      "microfrontends"
+    ],
+    "formats": [
+      "hybrid"
+    ],
+    "city": "novosibirsk",
+    "salary_from": 220000,
+    "salary_to": 270000,
+    "salary_net": true
+  },
+  "note": null
+}

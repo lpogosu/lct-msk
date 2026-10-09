@@ -1,0 +1,32 @@
+{
+  "id": "b60",
+  "split": "test2",
+  "style": "chat",
+  "author": "team",
+  "text": "Ищем сильного сеньора по питону, нужно уметь вести архитектуру и ревьюить код. Django, DRF, PostgreSQL, Celery. Плюс: kubernetes. Офис или гибрид в СПб. 350-430 тыс до налогов",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "senior",
+    "must": [
+      "python",
+      "django",
+      "drf",
+      "postgresql",
+      "celery",
+      "code_review"
+    ],
+    "nice": [
+      "kubernetes"
+    ],
+    "formats": [
+      "office",
+      "hybrid"
+    ],
+    "city": "spb",
+    "salary_from": 350000,
+    "salary_to": 430000,
+    "salary_net": false
+  },
+  "note": null
+}

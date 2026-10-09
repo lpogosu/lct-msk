@@ -1,0 +1,35 @@
+{
+  "id": "b95",
+  "split": "test2",
+  "style": "long",
+  "author": "team",
+  "text": "О проекте: сервис бронирования для сети фитнес-клубов.\n\nКого ищем: Fullstack-разработчика уровня Middle.\n\nЧто нужно:\n1) Python, Django и Django REST Framework на бэке;\n2) Vue 3 и TypeScript на фронте;\n3) PostgreSQL, Redis;\n4) Docker, базовый CI.\n\nПлюсом: Celery, Nuxt.\n\nФормат: офис в Екатеринбурге или удалённо. Вилка 210–270 тыс. на руки.",
+  "form": null,
+  "gold": {
+    "spec": "fullstack",
+    "grade": "middle",
+    "must": [
+      "python",
+      "django",
+      "drf",
+      "vue",
+      "typescript",
+      "postgresql",
+      "redis",
+      "docker"
+    ],
+    "nice": [
+      "celery",
+      "nuxt"
+    ],
+    "formats": [
+      "office",
+      "remote"
+    ],
+    "city": "ekaterinburg",
+    "salary_from": 210000,
+    "salary_to": 270000,
+    "salary_net": true
+  },
+  "note": null
+}

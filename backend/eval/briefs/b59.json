@@ -1,0 +1,28 @@
+{
+  "id": "b59",
+  "split": "test2",
+  "style": "short",
+  "author": "team",
+  "text": "Senior Python, highload, Postgres + Redis + Kafka, удалённо, 400-500к на руки",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "senior",
+    "must": [
+      "python",
+      "highload",
+      "postgresql",
+      "redis",
+      "kafka"
+    ],
+    "nice": [],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 400000,
+    "salary_to": 500000,
+    "salary_net": true
+  },
+  "note": null
+}

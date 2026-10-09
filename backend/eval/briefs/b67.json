@@ -1,0 +1,27 @@
+{
+  "id": "b67",
+  "split": "test2",
+  "style": "short",
+  "author": "team",
+  "text": "Junior frontend, React + JS, вёрстка, гибрид Москва, 90–120к на руки",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "junior",
+    "must": [
+      "react",
+      "javascript",
+      "html",
+      "css"
+    ],
+    "nice": [],
+    "formats": [
+      "hybrid"
+    ],
+    "city": "moscow",
+    "salary_from": 90000,
+    "salary_to": 120000,
+    "salary_net": true
+  },
+  "note": null
+}

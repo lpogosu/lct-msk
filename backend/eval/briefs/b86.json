@@ -1,0 +1,32 @@
+{
+  "id": "b86",
+  "split": "test2",
+  "style": "long",
+  "author": "team",
+  "text": "О нас: платформа онлайн-образования, 2 млн студентов.\n\nКого ищем: Senior Frontend-разработчика в команду видеоплеера и лекций.\n\nЧто нужно:\n- Vue 3 и TypeScript на экспертном уровне;\n- Nuxt, SSR, производительность;\n- Pinia, архитектура больших SPA;\n- ревью кода, наставничество.\n\nПлюсом: Vite, WebSocket.\n\nФормат: удалённо. Вилка 370–450 тыс. руб. на руки.",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "senior",
+    "must": [
+      "vue",
+      "typescript",
+      "nuxt",
+      "ssr",
+      "pinia",
+      "code_review"
+    ],
+    "nice": [
+      "vite",
+      "websocket"
+    ],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 370000,
+    "salary_to": 450000,
+    "salary_net": true
+  },
+  "note": null
+}

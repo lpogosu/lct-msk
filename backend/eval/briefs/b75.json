@@ -1,0 +1,26 @@
+{
+  "id": "b75",
+  "split": "test2",
+  "style": "short",
+  "author": "team",
+  "text": "Middle frontend, React + TS, react-query, удалёнка, 220–280к net",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "middle",
+    "must": [
+      "react",
+      "typescript",
+      "react_query"
+    ],
+    "nice": [],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 220000,
+    "salary_to": 280000,
+    "salary_net": true
+  },
+  "note": null
+}

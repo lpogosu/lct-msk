@@ -423,8 +423,8 @@ def _data_section(r: Mapping[str, Any]) -> list[str]:
         ("Навыков в истинном стеке / приписано в самоописании (в среднем)", f"{num(p['true_skills_mean'], 1)} / {num(p['fake_skills_mean'], 1)}"),
     ])
     L += ["",
-          f"**Брифы** (`eval/briefs/*.json`): {len(per)} русскоязычных брифов, разбиение 20 dev / 20 test зафиксировано в "
-          "файлах. Стили: " + ", ".join(f"{style_names.get(k, k)} — {v}" for k, v in sorted(styles.items())) + ". "
+          f"**Брифы** (`eval/briefs/*.json`): {len(per)} русскоязычных брифов, разбиение 20 dev / 20 test (b01–b40) и "
+          "60 test2 (b41–b100, предрегистрированная отложенная выборка, VALIDATION_PLAN §8) зафиксировано в файлах. Стили: " + ", ".join(f"{style_names.get(k, k)} — {v}" for k, v in sorted(styles.items())) + ". "
           "**Тексты и эталонная разметка (специализация, грейд, must/nice, формат, город, вилка) написаны командой с "
           "помощью ИИ-ассистента**; посторонних авторов в наборе нет, а история правок эталона до первого коммита не "
           "зафиксирована. Все итоговые цифры подбора — по test-брифам; веса на брифах не подбирались.", ""]
@@ -680,6 +680,55 @@ def _vcat_section(r: Mapping[str, Any]) -> list[str]:
     return L
 
 
+def _test2_lines(m: Mapping[str, Any]) -> list[str]:
+    """4.1а: предрегистрированная отложенная выборка test2 (VALIDATION_PLAN §8). Решение — по правилу §8.3, без пересмотра."""
+    t2, ta = m["test2"], m["test_all"]
+    labels = m["systems"]
+    fr = m.get("test2_freeze") or {}
+    pv = t2["paired_vs_b2"]["ours"]
+    ok = bool(pv["significant"] and (pv["diff"] or 0) > 0)
+    L = ["### 4.1а. Предрегистрированная отложенная выборка test2 (60 брифов b41–b100)", "",
+         f"План и правило решения записаны до написания брифов (VALIDATION_PLAN §8, 9 октября 2026, 09:06 MSK); брифы заморожены "
+         f"в 09:09 MSK, до первого запуска разбора и Score на них; оценка выполнена один раз. Заморозка при этом прогоне: "
+         f"хэш манифеста {'совпадает' if fr.get('ok') else 'НЕ СОВПАДАЕТ'} с записанным в плане "
+         f"(`{(fr.get('manifest_sha256') or '—')[:16]}…`, файлов {num(fr.get('n_files', 0))}, расхождений {num(len(fr.get('mismatched', [])))}).", ""]
+    order = ["ours", "ours_gold", "ours_noq", "b2", "b0", "b1", "b3"]
+    L += table(["Система", "P@10 test2", "nDCG@10 test2", "P@10 test + test2 (80)", "nDCG@10 test + test2 (80)"],
+               [(labels[s], ci(t2["systems"][s]["p10"]), ci(t2["systems"][s]["ndcg10"]),
+                 ci(ta["systems"][s]["p10"]), ci(ta["systems"][s]["ndcg10"])) for s in order])
+    tt = t2.get("t_test_p10_vs_b2") or {}
+    L += ["", "Парный бутстреп по брифам (наш сквозной режим минус сравниваемая система), 2 000 повторов:", ""]
+    rows = []
+    for name, sub in (("test2", t2), ("test + test2", ta)):
+        p_b2 = sub["paired_vs_b2"]["ours"]
+        p_b0 = sub["paired_p10_vs_b0"]
+        n_b2 = sub["paired_ndcg_vs"]["b2"]
+        n_b0 = sub["paired_ndcg_vs"]["b0"]
+        for lab, d in (("P@10 − B2", p_b2), ("P@10 − B0 (случайный)", p_b0), ("nDCG@10 − B2", n_b2), ("nDCG@10 − B0", n_b0)):
+            rows.append((name, lab, num(d["diff"]), f"[{num(d['ci_low'])}; {num(d['ci_high'])}]", "да" if d["significant"] else "нет"))
+    L += table(["Выборка", "Разность", "Значение", "95% ДИ", "Значимо"], rows)
+    L += ["", f"Справочно: парный t-критерий P@10 наш − B2 на test2: t = {num(tt.get('t'))}, p {'< 0,001' if (tt.get('p') or 0) < 0.001 else '= ' + num(tt.get('p'), 3)} "
+          "(решает бутстреп, §8.3).", ""]
+    target = t2["systems"]["ours"]["p10"]
+    L += [f"**Решение по предрегистрированному правилу (нижняя граница ДИ разности P@10 с B2 > 0):** "
+          f"{'подтверждено' if ok else 'не подтверждено'} — разность {num(pv['diff'])} [{num(pv['ci_low'])}; {num(pv['ci_high'])}]. "
+          f"Абсолютный P@10 на test2 {ci(target)}: "
+          + ("порог 0,60 (§2.3) выполнен." if (target["mean"] or 0) >= 0.60 else "**ниже порога 0,60 (§2.3), порог на этой выборке не выполнен** — пишем как есть.")
+          + " "
+          "Ни Score, ни конфиг, ни оракул после просмотра результата не менялись.", ""]
+    by = m.get("test2_by_spec") or {}
+    if by:
+        L += ["Описательно, по специализациям (малые выборки, выводов не делаем):", ""]
+        L += table(["Специализация", "Брифов", "P@10 наш", "P@10 B2", "Разность P@10"],
+                   [(sp, num(x["n_briefs"]), ci(x["systems"]["ours"]["p10"]), ci(x["systems"]["b2"]["p10"]),
+                     num(x["paired_vs_b2"]["ours"]["diff"])) for sp, x in by.items()])
+        L += [""]
+    pr = (m.get("parser") or {}).get("test2")
+    if pr:
+        L += [f"Разбор брифа на test2 (справочно): специализация top-1 {num(pr.get('spec_top1'))}, грейд точно {num(pr.get('grade_exact'))}.", ""]
+    return L
+
+
 def _matching_section(r: Mapping[str, Any], cm: Mapping[str, Path], doc_dir: Path) -> list[str]:
     m = r["matching"]
     labels = m["systems"]
@@ -720,6 +769,8 @@ def _matching_section(r: Mapping[str, Any], cm: Mapping[str, Path], doc_dir: Pat
               f"[{num(pa['ci_low'])}; {num(pa['ci_high'])}] — {'значима' if pa['significant'] else 'не значима'}. "
               f"Против случайного порядка в тех же категориях: {num(pb0['diff'])} [{num(pb0['ci_low'])}; {num(pb0['ci_high'])}]. "
               "Добавленный pooled-срез отмечен как постфактум: заявленная метрика остаётся на 20 test-брифах.", ""]
+    if "test2" in m and "test_all" in m:
+        L += _test2_lines(m)
     if not (ours_b2["significant"] and (ours_b2["diff"] or 0) > 0):
         worse = (ours_b2["diff"] or 0) < 0
         L += [("**По оракулу наш подбор не обгоняет B2 — так и пишем"
@@ -971,7 +1022,9 @@ def _limits_section(r: Mapping[str, Any], failed: Sequence[Mapping[str, Any]]) -
                        "сигналом методисту, а не автоматической блокировкой.",
             "m_vs_b2": "**P@10 значимо выше B2 на 20 test-брифах.** Разница и её ДИ — в 4.1: при 20 брифах интервал чуть "
                        "захватывает 0, на всех 40 брифах разница значима. Оракул награждает ровно то, по чему сортирует B2 "
-                       "(уровень), а формат, свежесть и ФСП оракул не видит; подгонять веса под оракул ради значимости не будем.",
+                       "(уровень), а формат, свежесть и ФСП оракул не видит; подгонять веса под оракул ради значимости не будем. "
+                       "Мощности не хватало, поэтому разность проверена на 60 новых брифах по предрегистрированному протоколу "
+                       "(VALIDATION_PLAN §8): результат — в 4.1а, пункт 20 test-брифов остаётся невыполненным.",
             "m_stability": "**Стабильность топ-10 при пересдаче (overlap@10 ≥ 0,70).** Цель поставлена некорректно: при "
                            "надёжности оценки уровня внутри категории порядка 0,25–0,3 даже идеальное ранжирование по одному "
                            "измерению даёт overlap@10 около 0,1 (раздел 4.4). Постфактум-метрики — P@10 после пересдачи и "

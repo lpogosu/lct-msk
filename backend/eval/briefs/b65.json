@@ -1,0 +1,30 @@
+{
+  "id": "b65",
+  "split": "test2",
+  "style": "formal",
+  "author": "team",
+  "text": "Стажировка для начинающих frontend-разработчиков в студии «Лёгкий Пиксель». Ждём: HTML, CSS, базовый JavaScript, Git. Будет плюсом: React, адаптивная вёрстка. Формат: офис в Новосибирске, неполный день. Стипендия 35 000 – 55 000 руб. на руки.",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "intern",
+    "must": [
+      "html",
+      "css",
+      "javascript",
+      "git"
+    ],
+    "nice": [
+      "react",
+      "responsive"
+    ],
+    "formats": [
+      "office"
+    ],
+    "city": "novosibirsk",
+    "salary_from": 35000,
+    "salary_to": 55000,
+    "salary_net": true
+  },
+  "note": null
+}

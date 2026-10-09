@@ -1,0 +1,32 @@
+{
+  "id": "b81",
+  "split": "test2",
+  "style": "long",
+  "author": "team",
+  "text": "О нас: маркетплейс услуг для дома, команда фронтенда — 7 человек.\n\nИщем: Frontend-разработчика уровня Middle.\n\nЧто нужно:\n- React и JavaScript/TypeScript;\n- Redux или другой state-менеджер;\n- адаптивная вёрстка (CSS, Sass, BEM);\n- Git и code review.\n\nПлюсом: Storybook, Jest.\n\nФормат: гибрид в Ростове-на-Дону. Вилка 180–230 тыс. руб. до вычета налогов.",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "middle",
+    "must": [
+      "react",
+      "javascript",
+      "redux",
+      "responsive",
+      "css",
+      "git"
+    ],
+    "nice": [
+      "storybook",
+      "jest"
+    ],
+    "formats": [
+      "hybrid"
+    ],
+    "city": "rostov",
+    "salary_from": 180000,
+    "salary_to": 230000,
+    "salary_net": false
+  },
+  "note": null
+}

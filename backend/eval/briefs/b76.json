@@ -1,0 +1,33 @@
+{
+  "id": "b76",
+  "split": "test2",
+  "style": "mixed_en",
+  "author": "team",
+  "text": "Middle Frontend Engineer (React). Must have: React, hooks, TypeScript, unit-тесты (Jest). Nice to have: zustand или redux, Playwright, a11y. Офис в Санкт-Петербурге или hybrid. 200–260 тыс. gross.",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "middle",
+    "must": [
+      "react",
+      "react_hooks",
+      "typescript",
+      "jest"
+    ],
+    "nice": [
+      "zustand",
+      "redux",
+      "playwright",
+      "accessibility"
+    ],
+    "formats": [
+      "office",
+      "hybrid"
+    ],
+    "city": "spb",
+    "salary_from": 200000,
+    "salary_to": 260000,
+    "salary_net": false
+  },
+  "note": null
+}

@@ -1,0 +1,26 @@
+{
+  "id": "b42",
+  "split": "test2",
+  "style": "short",
+  "author": "team",
+  "text": "стажёр python, офис Екатеринбург, django желательно, 40-55к",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "intern",
+    "must": [
+      "python"
+    ],
+    "nice": [
+      "django"
+    ],
+    "formats": [
+      "office"
+    ],
+    "city": "ekaterinburg",
+    "salary_from": 40000,
+    "salary_to": 55000,
+    "salary_net": null
+  },
+  "note": null
+}

@@ -2,7 +2,7 @@
  "meta": {
   "mode": "full",
   "seed": 20261005,
-  "git_sha": "50538b0f9ddd71ef88101018202a6ff3b1dc3e3d",
+  "git_sha": "0b0647c9164ba71770a8f82647830f38d4402baf",
   "bank_families": 102,
   "scoring_config_version": "1-dc239901d9"
  },
@@ -617,11 +617,11 @@
    "kind": "matching",
    "section": "Производительность",
    "label": "p95 сборки версии подборки, мс",
-   "value": 215.4269,
+   "value": 184.1929,
    "op": "le",
    "target": 300,
    "format": "num0",
-   "value_text": "215",
+   "value_text": "184",
    "target_text": "≤ 300",
    "pass": true
   }

@@ -4,7 +4,7 @@
   "mode": "full",
   "seed": 20261005,
   "ref_date": "2026-10-05",
-  "git_sha": "50538b0f9ddd71ef88101018202a6ff3b1dc3e3d",
+  "git_sha": "0b0647c9164ba71770a8f82647830f38d4402baf",
   "workers": 4,
   "bank_families": 102,
   "scoring_config_version": "1-dc239901d9",
@@ -68,29 +68,29 @@
    "n_boot": 2000
   },
   "durations_s": {
-   "population": 15.68,
-   "matching": 45.41,
-   "leak": 43.05,
-   "hysteresis": 4.06,
-   "cusum": 10.38,
-   "calibration": 0.23,
+   "population": 15.09,
+   "matching": 75.78,
+   "leak": 42.69,
+   "hysteresis": 4.03,
+   "cusum": 10.35,
+   "calibration": 0.25,
    "vcat": 0.44,
-   "cusum_calib:301": 65.6,
-   "cusum_calib:302": 64.62,
-   "cusum_calib:303": 70.5,
-   "s2:sigma:0.0": 6.68,
-   "s2:sigma:0.3": 5.7,
-   "s2:sigma:0.5": 5.7,
-   "s2:a:1.0": 6.05,
-   "s2:a:2.0": 5.76,
-   "baselines:0": 11.43,
-   "baselines:1": 6.5,
-   "baselines:2": 5.86,
-   "baselines:3": 6.52,
-   "baselines:4": 11.07,
-   "spec_validation": 339.56
+   "cusum_calib:301": 65.56,
+   "cusum_calib:302": 64.85,
+   "cusum_calib:303": 68.82,
+   "s2:sigma:0.0": 5.17,
+   "s2:sigma:0.3": 5.39,
+   "s2:sigma:0.5": 4.99,
+   "s2:a:1.0": 5.32,
+   "s2:a:2.0": 5.44,
+   "baselines:0": 11.4,
+   "baselines:1": 5.68,
+   "baselines:2": 5.89,
+   "baselines:3": 5.94,
+   "baselines:4": 11.79,
+   "spec_validation": 367.31
   },
-  "total_s": 471.1
+  "total_s": 496.4
  },
  "population": {
   "n": 2000,
@@ -7532,7 +7532,32 @@
      "significant": true
     }
    },
-   "p10_ceiling": 1.0
+   "p10_ceiling": 1.0,
+   "paired_ndcg_vs": {
+    "b2": {
+     "diff": 0.1232,
+     "ci_low": 0.0238,
+     "ci_high": 0.2163,
+     "significant": true
+    },
+    "b0": {
+     "diff": 0.2659,
+     "ci_low": 0.1892,
+     "ci_high": 0.3424,
+     "significant": true
+    }
+   },
+   "paired_p10_vs_b0": {
+    "diff": 0.375,
+    "ci_low": 0.265,
+    "ci_high": 0.48,
+    "significant": true
+   },
+   "t_test_p10_vs_b2": {
+    "t": 1.7498,
+    "p": 0.0963,
+    "n": 20.0
+   }
   },
   "dev": {
    "n_briefs": 20,
@@ -8040,7 +8065,32 @@
      "significant": true
     }
    },
-   "p10_ceiling": 1.0
+   "p10_ceiling": 1.0,
+   "paired_ndcg_vs": {
+    "b2": {
+     "diff": 0.0925,
+     "ci_low": -0.0004,
+     "ci_high": 0.1944,
+     "significant": false
+    },
+    "b0": {
+     "diff": 0.2906,
+     "ci_low": 0.2066,
+     "ci_high": 0.3761,
+     "significant": true
+    }
+   },
+   "paired_p10_vs_b0": {
+    "diff": 0.355,
+    "ci_low": 0.23,
+    "ci_high": 0.475,
+    "significant": true
+   },
+   "t_test_p10_vs_b2": {
+    "t": 1.92,
+    "p": 0.07,
+    "n": 20.0
+   }
   },
   "all": {
    "n_briefs": 40,
@@ -8548,7 +8598,2699 @@
      "significant": true
     }
    },
-   "p10_ceiling": 1.0
+   "p10_ceiling": 1.0,
+   "paired_ndcg_vs": {
+    "b2": {
+     "diff": 0.1078,
+     "ci_low": 0.0378,
+     "ci_high": 0.1755,
+     "significant": true
+    },
+    "b0": {
+     "diff": 0.2783,
+     "ci_low": 0.2222,
+     "ci_high": 0.3426,
+     "significant": true
+    }
+   },
+   "paired_p10_vs_b0": {
+    "diff": 0.365,
+    "ci_low": 0.2825,
+    "ci_high": 0.445,
+    "significant": true
+   },
+   "t_test_p10_vs_b2": {
+    "t": 2.6028,
+    "p": 0.013,
+    "n": 40.0
+   }
+  },
+  "test2": {
+   "n_briefs": 60,
+   "systems": {
+    "ours": {
+     "p10": {
+      "mean": 0.54,
+      "ci_low": 0.4717,
+      "ci_high": 0.615,
+      "n": 60.0
+     },
+     "p5": {
+      "mean": 0.5667,
+      "ci_low": 0.4833,
+      "ci_high": 0.6533,
+      "n": 60.0
+     },
+     "ndcg10": {
+      "mean": 0.5538,
+      "ci_low": 0.5053,
+      "ci_high": 0.6089,
+      "n": 60.0
+     },
+     "recall50": {
+      "mean": 0.3407,
+      "ci_low": 0.2881,
+      "ci_high": 0.3923,
+      "n": 60.0
+     },
+     "mrr": {
+      "mean": 0.6936,
+      "ci_low": 0.5977,
+      "ci_high": 0.7922,
+      "n": 60.0
+     }
+    },
+    "ours_gold": {
+     "p10": {
+      "mean": 0.535,
+      "ci_low": 0.4583,
+      "ci_high": 0.6133,
+      "n": 60.0
+     },
+     "p5": {
+      "mean": 0.54,
+      "ci_low": 0.4567,
+      "ci_high": 0.6267,
+      "n": 60.0
+     },
+     "ndcg10": {
+      "mean": 0.553,
+      "ci_low": 0.4996,
+      "ci_high": 0.6074,
+      "n": 60.0
+     },
+     "recall50": {
+      "mean": 0.3056,
+      "ci_low": 0.2537,
+      "ci_high": 0.3578,
+      "n": 60.0
+     },
+     "mrr": {
+      "mean": 0.6653,
+      "ci_low": 0.569,
+      "ci_high": 0.7642,
+      "n": 60.0
+     }
+    },
+    "ours_noq": {
+     "p10": {
+      "mean": 0.5317,
+      "ci_low": 0.46,
+      "ci_high": 0.6067,
+      "n": 60.0
+     },
+     "p5": {
+      "mean": 0.5567,
+      "ci_low": 0.47,
+      "ci_high": 0.6401,
+      "n": 60.0
+     },
+     "ndcg10": {
+      "mean": 0.5467,
+      "ci_low": 0.495,
+      "ci_high": 0.6008,
+      "n": 60.0
+     },
+     "recall50": {
+      "mean": 0.3366,
+      "ci_low": 0.2861,
+      "ci_high": 0.3907,
+      "n": 60.0
+     },
+     "mrr": {
+      "mean": 0.6714,
+      "ci_low": 0.572,
+      "ci_high": 0.7662,
+      "n": 60.0
+     }
+    },
+    "b0": {
+     "p10": {
+      "mean": 0.1667,
+      "ci_low": 0.125,
+      "ci_high": 0.2117,
+      "n": 60.0
+     },
+     "p5": {
+      "mean": 0.1567,
+      "ci_low": 0.1067,
+      "ci_high": 0.2101,
+      "n": 60.0
+     },
+     "ndcg10": {
+      "mean": 0.2028,
+      "ci_low": 0.1667,
+      "ci_high": 0.2415,
+      "n": 60.0
+     },
+     "recall50": {
+      "mean": 0.1031,
+      "ci_low": 0.0883,
+      "ci_high": 0.1196,
+      "n": 60.0
+     },
+     "mrr": {
+      "mean": 0.3339,
+      "ci_low": 0.243,
+      "ci_high": 0.4272,
+      "n": 60.0
+     }
+    },
+    "b1": {
+     "p10": {
+      "mean": 0.14,
+      "ci_low": 0.1017,
+      "ci_high": 0.18,
+      "n": 60.0
+     },
+     "p5": {
+      "mean": 0.15,
+      "ci_low": 0.1033,
+      "ci_high": 0.2,
+      "n": 60.0
+     },
+     "ndcg10": {
+      "mean": 0.148,
+      "ci_low": 0.1199,
+      "ci_high": 0.1776,
+      "n": 60.0
+     },
+     "recall50": {
+      "mean": 0.0923,
+      "ci_low": 0.0744,
+      "ci_high": 0.1128,
+      "n": 60.0
+     },
+     "mrr": {
+      "mean": 0.2786,
+      "ci_low": 0.2032,
+      "ci_high": 0.3605,
+      "n": 60.0
+     }
+    },
+    "b2": {
+     "p10": {
+      "mean": 0.3517,
+      "ci_low": 0.2767,
+      "ci_high": 0.4267,
+      "n": 60.0
+     },
+     "p5": {
+      "mean": 0.34,
+      "ci_low": 0.26,
+      "ci_high": 0.42,
+      "n": 60.0
+     },
+     "ndcg10": {
+      "mean": 0.377,
+      "ci_low": 0.327,
+      "ci_high": 0.4268,
+      "n": 60.0
+     },
+     "recall50": {
+      "mean": 0.1646,
+      "ci_low": 0.1442,
+      "ci_high": 0.1864,
+      "n": 60.0
+     },
+     "mrr": {
+      "mean": 0.5283,
+      "ci_low": 0.4276,
+      "ci_high": 0.6365,
+      "n": 60.0
+     }
+    },
+    "b3": {
+     "p10": {
+      "mean": 0.1333,
+      "ci_low": 0.1,
+      "ci_high": 0.1667,
+      "n": 60.0
+     },
+     "p5": {
+      "mean": 0.1267,
+      "ci_low": 0.0867,
+      "ci_high": 0.1733,
+      "n": 60.0
+     },
+     "ndcg10": {
+      "mean": 0.1435,
+      "ci_low": 0.1141,
+      "ci_high": 0.1736,
+      "n": 60.0
+     },
+     "recall50": {
+      "mean": 0.0875,
+      "ci_low": 0.0686,
+      "ci_high": 0.1096,
+      "n": 60.0
+     },
+     "mrr": {
+      "mean": 0.2905,
+      "ci_low": 0.212,
+      "ci_high": 0.3776,
+      "n": 60.0
+     }
+    },
+    "no_lcb": {
+     "p10": {
+      "mean": 0.5367,
+      "ci_low": 0.4633,
+      "ci_high": 0.61,
+      "n": 60.0
+     },
+     "p5": {
+      "mean": 0.55,
+      "ci_low": 0.4667,
+      "ci_high": 0.6333,
+      "n": 60.0
+     },
+     "ndcg10": {
+      "mean": 0.556,
+      "ci_low": 0.5062,
+      "ci_high": 0.6069,
+      "n": 60.0
+     },
+     "recall50": {
+      "mean": 0.339,
+      "ci_low": 0.2866,
+      "ci_high": 0.3915,
+      "n": 60.0
+     },
+     "mrr": {
+      "mean": 0.7089,
+      "ci_low": 0.6209,
+      "ci_high": 0.8042,
+      "n": 60.0
+     }
+    },
+    "no_K": {
+     "p10": {
+      "mean": 0.52,
+      "ci_low": 0.4466,
+      "ci_high": 0.5933,
+      "n": 60.0
+     },
+     "p5": {
+      "mean": 0.55,
+      "ci_low": 0.4633,
+      "ci_high": 0.63,
+      "n": 60.0
+     },
+     "ndcg10": {
+      "mean": 0.5439,
+      "ci_low": 0.4944,
+      "ci_high": 0.596,
+      "n": 60.0
+     },
+     "recall50": {
+      "mean": 0.3265,
+      "ci_low": 0.2779,
+      "ci_high": 0.3772,
+      "n": 60.0
+     },
+     "mrr": {
+      "mean": 0.7002,
+      "ci_low": 0.5975,
+      "ci_high": 0.7957,
+      "n": 60.0
+     }
+    },
+    "no_F": {
+     "p10": {
+      "mean": 0.5417,
+      "ci_low": 0.4667,
+      "ci_high": 0.61,
+      "n": 60.0
+     },
+     "p5": {
+      "mean": 0.5967,
+      "ci_low": 0.51,
+      "ci_high": 0.68,
+      "n": 60.0
+     },
+     "ndcg10": {
+      "mean": 0.5662,
+      "ci_low": 0.5134,
+      "ci_high": 0.6176,
+      "n": 60.0
+     },
+     "recall50": {
+      "mean": 0.3405,
+      "ci_low": 0.2907,
+      "ci_high": 0.3929,
+      "n": 60.0
+     },
+     "mrr": {
+      "mean": 0.7259,
+      "ci_low": 0.6282,
+      "ci_high": 0.8166,
+      "n": 60.0
+     }
+    },
+    "no_A": {
+     "p10": {
+      "mean": 0.5467,
+      "ci_low": 0.475,
+      "ci_high": 0.62,
+      "n": 60.0
+     },
+     "p5": {
+      "mean": 0.54,
+      "ci_low": 0.46,
+      "ci_high": 0.6167,
+      "n": 60.0
+     },
+     "ndcg10": {
+      "mean": 0.5495,
+      "ci_low": 0.4989,
+      "ci_high": 0.6039,
+      "n": 60.0
+     },
+     "recall50": {
+      "mean": 0.3389,
+      "ci_low": 0.2899,
+      "ci_high": 0.3905,
+      "n": 60.0
+     },
+     "mrr": {
+      "mean": 0.6776,
+      "ci_low": 0.5819,
+      "ci_high": 0.7627,
+      "n": 60.0
+     }
+    },
+    "no_U": {
+     "p10": {
+      "mean": 0.5333,
+      "ci_low": 0.4583,
+      "ci_high": 0.6067,
+      "n": 60.0
+     },
+     "p5": {
+      "mean": 0.5533,
+      "ci_low": 0.47,
+      "ci_high": 0.6333,
+      "n": 60.0
+     },
+     "ndcg10": {
+      "mean": 0.549,
+      "ci_low": 0.4989,
+      "ci_high": 0.5988,
+      "n": 60.0
+     },
+     "recall50": {
+      "mean": 0.3317,
+      "ci_low": 0.2843,
+      "ci_high": 0.3836,
+      "n": 60.0
+     },
+     "mrr": {
+      "mean": 0.6943,
+      "ci_low": 0.5981,
+      "ci_high": 0.7919,
+      "n": 60.0
+     }
+    }
+   },
+   "paired_vs_b2": {
+    "ours": {
+     "diff": 0.1883,
+     "ci_low": 0.1283,
+     "ci_high": 0.245,
+     "significant": true
+    },
+    "ours_gold": {
+     "diff": 0.1833,
+     "ci_low": 0.115,
+     "ci_high": 0.2517,
+     "significant": true
+    },
+    "ours_noq": {
+     "diff": 0.18,
+     "ci_low": 0.1167,
+     "ci_high": 0.24,
+     "significant": true
+    },
+    "b0": {
+     "diff": -0.185,
+     "ci_low": -0.24,
+     "ci_high": -0.1317,
+     "significant": true
+    },
+    "b1": {
+     "diff": -0.2117,
+     "ci_low": -0.2733,
+     "ci_high": -0.1517,
+     "significant": true
+    },
+    "b3": {
+     "diff": -0.2183,
+     "ci_low": -0.2833,
+     "ci_high": -0.1566,
+     "significant": true
+    },
+    "no_lcb": {
+     "diff": 0.185,
+     "ci_low": 0.125,
+     "ci_high": 0.2417,
+     "significant": true
+    },
+    "no_K": {
+     "diff": 0.1683,
+     "ci_low": 0.115,
+     "ci_high": 0.2233,
+     "significant": true
+    },
+    "no_F": {
+     "diff": 0.19,
+     "ci_low": 0.1333,
+     "ci_high": 0.245,
+     "significant": true
+    },
+    "no_A": {
+     "diff": 0.195,
+     "ci_low": 0.14,
+     "ci_high": 0.2533,
+     "significant": true
+    },
+    "no_U": {
+     "diff": 0.1817,
+     "ci_low": 0.125,
+     "ci_high": 0.24,
+     "significant": true
+    }
+   },
+   "paired_vs_ours": {
+    "no_lcb": {
+     "diff": 0.0033,
+     "ci_low": -0.015,
+     "ci_high": 0.0217,
+     "significant": false
+    },
+    "no_K": {
+     "diff": 0.02,
+     "ci_low": 0.0033,
+     "ci_high": 0.0383,
+     "significant": true
+    },
+    "no_F": {
+     "diff": -0.0017,
+     "ci_low": -0.0217,
+     "ci_high": 0.0183,
+     "significant": false
+    },
+    "no_A": {
+     "diff": -0.0067,
+     "ci_low": -0.0283,
+     "ci_high": 0.015,
+     "significant": false
+    },
+    "no_U": {
+     "diff": 0.0067,
+     "ci_low": -0.005,
+     "ci_high": 0.0183,
+     "significant": false
+    },
+    "b0": {
+     "diff": 0.3733,
+     "ci_low": 0.3033,
+     "ci_high": 0.4417,
+     "significant": true
+    },
+    "b1": {
+     "diff": 0.4,
+     "ci_low": 0.3416,
+     "ci_high": 0.4667,
+     "significant": true
+    },
+    "b3": {
+     "diff": 0.4067,
+     "ci_low": 0.3417,
+     "ci_high": 0.47,
+     "significant": true
+    }
+   },
+   "p10_ceiling": 0.9383,
+   "paired_ndcg_vs": {
+    "b2": {
+     "diff": 0.1768,
+     "ci_low": 0.1319,
+     "ci_high": 0.222,
+     "significant": true
+    },
+    "b0": {
+     "diff": 0.351,
+     "ci_low": 0.2954,
+     "ci_high": 0.4066,
+     "significant": true
+    }
+   },
+   "paired_p10_vs_b0": {
+    "diff": 0.3733,
+    "ci_low": 0.305,
+    "ci_high": 0.4417,
+    "significant": true
+   },
+   "t_test_p10_vs_b2": {
+    "t": 6.3217,
+    "p": 0.0,
+    "n": 60.0
+   }
+  },
+  "test_all": {
+   "n_briefs": 80,
+   "systems": {
+    "ours": {
+     "p10": {
+      "mean": 0.5575,
+      "ci_low": 0.495,
+      "ci_high": 0.6213,
+      "n": 80.0
+     },
+     "p5": {
+      "mean": 0.5675,
+      "ci_low": 0.4925,
+      "ci_high": 0.6375,
+      "n": 80.0
+     },
+     "ndcg10": {
+      "mean": 0.54,
+      "ci_low": 0.4978,
+      "ci_high": 0.5851,
+      "n": 80.0
+     },
+     "recall50": {
+      "mean": 0.3135,
+      "ci_low": 0.2719,
+      "ci_high": 0.3589,
+      "n": 80.0
+     },
+     "mrr": {
+      "mean": 0.6813,
+      "ci_low": 0.5968,
+      "ci_high": 0.7611,
+      "n": 80.0
+     }
+    },
+    "ours_gold": {
+     "p10": {
+      "mean": 0.5588,
+      "ci_low": 0.4913,
+      "ci_high": 0.625,
+      "n": 80.0
+     },
+     "p5": {
+      "mean": 0.55,
+      "ci_low": 0.475,
+      "ci_high": 0.625,
+      "n": 80.0
+     },
+     "ndcg10": {
+      "mean": 0.5427,
+      "ci_low": 0.4983,
+      "ci_high": 0.5886,
+      "n": 80.0
+     },
+     "recall50": {
+      "mean": 0.2881,
+      "ci_low": 0.2485,
+      "ci_high": 0.3306,
+      "n": 80.0
+     },
+     "mrr": {
+      "mean": 0.6654,
+      "ci_low": 0.5827,
+      "ci_high": 0.744,
+      "n": 80.0
+     }
+    },
+    "ours_noq": {
+     "p10": {
+      "mean": 0.5513,
+      "ci_low": 0.49,
+      "ci_high": 0.6163,
+      "n": 80.0
+     },
+     "p5": {
+      "mean": 0.56,
+      "ci_low": 0.49,
+      "ci_high": 0.635,
+      "n": 80.0
+     },
+     "ndcg10": {
+      "mean": 0.5346,
+      "ci_low": 0.4921,
+      "ci_high": 0.5795,
+      "n": 80.0
+     },
+     "recall50": {
+      "mean": 0.3104,
+      "ci_low": 0.2679,
+      "ci_high": 0.3541,
+      "n": 80.0
+     },
+     "mrr": {
+      "mean": 0.6646,
+      "ci_low": 0.5794,
+      "ci_high": 0.7461,
+      "n": 80.0
+     }
+    },
+    "b0": {
+     "p10": {
+      "mean": 0.1837,
+      "ci_low": 0.1437,
+      "ci_high": 0.2238,
+      "n": 80.0
+     },
+     "p5": {
+      "mean": 0.18,
+      "ci_low": 0.135,
+      "ci_high": 0.2325,
+      "n": 80.0
+     },
+     "ndcg10": {
+      "mean": 0.2102,
+      "ci_low": 0.181,
+      "ci_high": 0.2438,
+      "n": 80.0
+     },
+     "recall50": {
+      "mean": 0.1012,
+      "ci_low": 0.0884,
+      "ci_high": 0.1148,
+      "n": 80.0
+     },
+     "mrr": {
+      "mean": 0.3518,
+      "ci_low": 0.2732,
+      "ci_high": 0.4286,
+      "n": 80.0
+     }
+    },
+    "b1": {
+     "p10": {
+      "mean": 0.1375,
+      "ci_low": 0.1075,
+      "ci_high": 0.1725,
+      "n": 80.0
+     },
+     "p5": {
+      "mean": 0.1425,
+      "ci_low": 0.1025,
+      "ci_high": 0.185,
+      "n": 80.0
+     },
+     "ndcg10": {
+      "mean": 0.1463,
+      "ci_low": 0.1225,
+      "ci_high": 0.1712,
+      "n": 80.0
+     },
+     "recall50": {
+      "mean": 0.0868,
+      "ci_low": 0.0722,
+      "ci_high": 0.1038,
+      "n": 80.0
+     },
+     "mrr": {
+      "mean": 0.2688,
+      "ci_low": 0.2079,
+      "ci_high": 0.3387,
+      "n": 80.0
+     }
+    },
+    "b2": {
+     "p10": {
+      "mean": 0.38,
+      "ci_low": 0.3188,
+      "ci_high": 0.4463,
+      "n": 80.0
+     },
+     "p5": {
+      "mean": 0.375,
+      "ci_low": 0.305,
+      "ci_high": 0.4475,
+      "n": 80.0
+     },
+     "ndcg10": {
+      "mean": 0.3766,
+      "ci_low": 0.3346,
+      "ci_high": 0.4214,
+      "n": 80.0
+     },
+     "recall50": {
+      "mean": 0.1578,
+      "ci_low": 0.1406,
+      "ci_high": 0.174,
+      "n": 80.0
+     },
+     "mrr": {
+      "mean": 0.5797,
+      "ci_low": 0.4897,
+      "ci_high": 0.672,
+      "n": 80.0
+     }
+    },
+    "b3": {
+     "p10": {
+      "mean": 0.1412,
+      "ci_low": 0.1125,
+      "ci_high": 0.1737,
+      "n": 80.0
+     },
+     "p5": {
+      "mean": 0.1325,
+      "ci_low": 0.0975,
+      "ci_high": 0.17,
+      "n": 80.0
+     },
+     "ndcg10": {
+      "mean": 0.1476,
+      "ci_low": 0.1242,
+      "ci_high": 0.1722,
+      "n": 80.0
+     },
+     "recall50": {
+      "mean": 0.0814,
+      "ci_low": 0.0674,
+      "ci_high": 0.0987,
+      "n": 80.0
+     },
+     "mrr": {
+      "mean": 0.2971,
+      "ci_low": 0.231,
+      "ci_high": 0.3714,
+      "n": 80.0
+     }
+    },
+    "no_lcb": {
+     "p10": {
+      "mean": 0.5538,
+      "ci_low": 0.4888,
+      "ci_high": 0.6138,
+      "n": 80.0
+     },
+     "p5": {
+      "mean": 0.56,
+      "ci_low": 0.4875,
+      "ci_high": 0.6275,
+      "n": 80.0
+     },
+     "ndcg10": {
+      "mean": 0.543,
+      "ci_low": 0.4991,
+      "ci_high": 0.5878,
+      "n": 80.0
+     },
+     "recall50": {
+      "mean": 0.312,
+      "ci_low": 0.2686,
+      "ci_high": 0.3554,
+      "n": 80.0
+     },
+     "mrr": {
+      "mean": 0.7094,
+      "ci_low": 0.628,
+      "ci_high": 0.7919,
+      "n": 80.0
+     }
+    },
+    "no_K": {
+     "p10": {
+      "mean": 0.5413,
+      "ci_low": 0.4787,
+      "ci_high": 0.605,
+      "n": 80.0
+     },
+     "p5": {
+      "mean": 0.5525,
+      "ci_low": 0.4825,
+      "ci_high": 0.6225,
+      "n": 80.0
+     },
+     "ndcg10": {
+      "mean": 0.5289,
+      "ci_low": 0.4851,
+      "ci_high": 0.5709,
+      "n": 80.0
+     },
+     "recall50": {
+      "mean": 0.3016,
+      "ci_low": 0.2624,
+      "ci_high": 0.3421,
+      "n": 80.0
+     },
+     "mrr": {
+      "mean": 0.6923,
+      "ci_low": 0.6108,
+      "ci_high": 0.7684,
+      "n": 80.0
+     }
+    },
+    "no_F": {
+     "p10": {
+      "mean": 0.5688,
+      "ci_low": 0.5037,
+      "ci_high": 0.6312,
+      "n": 80.0
+     },
+     "p5": {
+      "mean": 0.615,
+      "ci_low": 0.5425,
+      "ci_high": 0.685,
+      "n": 80.0
+     },
+     "ndcg10": {
+      "mean": 0.5539,
+      "ci_low": 0.5128,
+      "ci_high": 0.5978,
+      "n": 80.0
+     },
+     "recall50": {
+      "mean": 0.312,
+      "ci_low": 0.2678,
+      "ci_high": 0.3561,
+      "n": 80.0
+     },
+     "mrr": {
+      "mean": 0.7354,
+      "ci_low": 0.6566,
+      "ci_high": 0.813,
+      "n": 80.0
+     }
+    },
+    "no_A": {
+     "p10": {
+      "mean": 0.5613,
+      "ci_low": 0.495,
+      "ci_high": 0.625,
+      "n": 80.0
+     },
+     "p5": {
+      "mean": 0.555,
+      "ci_low": 0.4825,
+      "ci_high": 0.6275,
+      "n": 80.0
+     },
+     "ndcg10": {
+      "mean": 0.5311,
+      "ci_low": 0.4888,
+      "ci_high": 0.5763,
+      "n": 80.0
+     },
+     "recall50": {
+      "mean": 0.3107,
+      "ci_low": 0.2676,
+      "ci_high": 0.3545,
+      "n": 80.0
+     },
+     "mrr": {
+      "mean": 0.6559,
+      "ci_low": 0.5769,
+      "ci_high": 0.7308,
+      "n": 80.0
+     }
+    },
+    "no_U": {
+     "p10": {
+      "mean": 0.55,
+      "ci_low": 0.485,
+      "ci_high": 0.6125,
+      "n": 80.0
+     },
+     "p5": {
+      "mean": 0.5575,
+      "ci_low": 0.48,
+      "ci_high": 0.6301,
+      "n": 80.0
+     },
+     "ndcg10": {
+      "mean": 0.5332,
+      "ci_low": 0.4911,
+      "ci_high": 0.5779,
+      "n": 80.0
+     },
+     "recall50": {
+      "mean": 0.3054,
+      "ci_low": 0.2648,
+      "ci_high": 0.3504,
+      "n": 80.0
+     },
+     "mrr": {
+      "mean": 0.6774,
+      "ci_low": 0.6006,
+      "ci_high": 0.7564,
+      "n": 80.0
+     }
+    }
+   },
+   "paired_vs_b2": {
+    "ours": {
+     "diff": 0.1775,
+     "ci_low": 0.1212,
+     "ci_high": 0.2375,
+     "significant": true
+    },
+    "ours_gold": {
+     "diff": 0.1787,
+     "ci_low": 0.1163,
+     "ci_high": 0.2437,
+     "significant": true
+    },
+    "ours_noq": {
+     "diff": 0.1712,
+     "ci_low": 0.11,
+     "ci_high": 0.2287,
+     "significant": true
+    },
+    "b0": {
+     "diff": -0.1962,
+     "ci_low": -0.2475,
+     "ci_high": -0.1475,
+     "significant": true
+    },
+    "b1": {
+     "diff": -0.2425,
+     "ci_low": -0.3063,
+     "ci_high": -0.1838,
+     "significant": true
+    },
+    "b3": {
+     "diff": -0.2388,
+     "ci_low": -0.3025,
+     "ci_high": -0.1787,
+     "significant": true
+    },
+    "no_lcb": {
+     "diff": 0.1737,
+     "ci_low": 0.1175,
+     "ci_high": 0.2312,
+     "significant": true
+    },
+    "no_K": {
+     "diff": 0.1613,
+     "ci_low": 0.1025,
+     "ci_high": 0.22,
+     "significant": true
+    },
+    "no_F": {
+     "diff": 0.1888,
+     "ci_low": 0.1325,
+     "ci_high": 0.2438,
+     "significant": true
+    },
+    "no_A": {
+     "diff": 0.1812,
+     "ci_low": 0.12,
+     "ci_high": 0.24,
+     "significant": true
+    },
+    "no_U": {
+     "diff": 0.17,
+     "ci_low": 0.1112,
+     "ci_high": 0.225,
+     "significant": true
+    }
+   },
+   "paired_vs_ours": {
+    "no_lcb": {
+     "diff": 0.0038,
+     "ci_low": -0.0137,
+     "ci_high": 0.02,
+     "significant": false
+    },
+    "no_K": {
+     "diff": 0.0162,
+     "ci_low": 0.0025,
+     "ci_high": 0.0325,
+     "significant": true
+    },
+    "no_F": {
+     "diff": -0.0113,
+     "ci_low": -0.0312,
+     "ci_high": 0.0063,
+     "significant": false
+    },
+    "no_A": {
+     "diff": -0.0038,
+     "ci_low": -0.0213,
+     "ci_high": 0.0137,
+     "significant": false
+    },
+    "no_U": {
+     "diff": 0.0075,
+     "ci_low": -0.0025,
+     "ci_high": 0.0175,
+     "significant": false
+    },
+    "b0": {
+     "diff": 0.3737,
+     "ci_low": 0.315,
+     "ci_high": 0.43,
+     "significant": true
+    },
+    "b1": {
+     "diff": 0.42,
+     "ci_low": 0.3588,
+     "ci_high": 0.4788,
+     "significant": true
+    },
+    "b3": {
+     "diff": 0.4163,
+     "ci_low": 0.3563,
+     "ci_high": 0.4763,
+     "significant": true
+    }
+   },
+   "p10_ceiling": 0.9537,
+   "paired_ndcg_vs": {
+    "b2": {
+     "diff": 0.1634,
+     "ci_low": 0.1188,
+     "ci_high": 0.2051,
+     "significant": true
+    },
+    "b0": {
+     "diff": 0.3297,
+     "ci_low": 0.2813,
+     "ci_high": 0.3773,
+     "significant": true
+    }
+   },
+   "paired_p10_vs_b0": {
+    "diff": 0.3737,
+    "ci_low": 0.3125,
+    "ci_high": 0.4325,
+    "significant": true
+   },
+   "t_test_p10_vs_b2": {
+    "t": 5.8696,
+    "p": 0.0,
+    "n": 80.0
+   }
+  },
+  "test2_by_spec": {
+   "backend_python": {
+    "n_briefs": 24,
+    "systems": {
+     "ours": {
+      "p10": {
+       "mean": 0.6417,
+       "ci_low": 0.5667,
+       "ci_high": 0.7167,
+       "n": 24.0
+      },
+      "p5": {
+       "mean": 0.6583,
+       "ci_low": 0.5583,
+       "ci_high": 0.75,
+       "n": 24.0
+      },
+      "ndcg10": {
+       "mean": 0.5386,
+       "ci_low": 0.4709,
+       "ci_high": 0.6058,
+       "n": 24.0
+      },
+      "recall50": {
+       "mean": 0.3565,
+       "ci_low": 0.2766,
+       "ci_high": 0.4327,
+       "n": 24.0
+      },
+      "mrr": {
+       "mean": 0.8361,
+       "ci_low": 0.7111,
+       "ci_high": 0.9458,
+       "n": 24.0
+      }
+     },
+     "ours_gold": {
+      "p10": {
+       "mean": 0.65,
+       "ci_low": 0.575,
+       "ci_high": 0.7292,
+       "n": 24.0
+      },
+      "p5": {
+       "mean": 0.6667,
+       "ci_low": 0.5667,
+       "ci_high": 0.7583,
+       "n": 24.0
+      },
+      "ndcg10": {
+       "mean": 0.5448,
+       "ci_low": 0.4776,
+       "ci_high": 0.6169,
+       "n": 24.0
+      },
+      "recall50": {
+       "mean": 0.3574,
+       "ci_low": 0.2817,
+       "ci_high": 0.4386,
+       "n": 24.0
+      },
+      "mrr": {
+       "mean": 0.8382,
+       "ci_low": 0.7166,
+       "ci_high": 0.9459,
+       "n": 24.0
+      }
+     },
+     "ours_noq": {
+      "p10": {
+       "mean": 0.6417,
+       "ci_low": 0.5667,
+       "ci_high": 0.7167,
+       "n": 24.0
+      },
+      "p5": {
+       "mean": 0.6583,
+       "ci_low": 0.5583,
+       "ci_high": 0.75,
+       "n": 24.0
+      },
+      "ndcg10": {
+       "mean": 0.5371,
+       "ci_low": 0.4711,
+       "ci_high": 0.6008,
+       "n": 24.0
+      },
+      "recall50": {
+       "mean": 0.3565,
+       "ci_low": 0.2805,
+       "ci_high": 0.4365,
+       "n": 24.0
+      },
+      "mrr": {
+       "mean": 0.8361,
+       "ci_low": 0.7167,
+       "ci_high": 0.9458,
+       "n": 24.0
+      }
+     },
+     "b0": {
+      "p10": {
+       "mean": 0.2292,
+       "ci_low": 0.1667,
+       "ci_high": 0.2917,
+       "n": 24.0
+      },
+      "p5": {
+       "mean": 0.225,
+       "ci_low": 0.15,
+       "ci_high": 0.3,
+       "n": 24.0
+      },
+      "ndcg10": {
+       "mean": 0.2223,
+       "ci_low": 0.1773,
+       "ci_high": 0.2696,
+       "n": 24.0
+      },
+      "recall50": {
+       "mean": 0.1106,
+       "ci_low": 0.0911,
+       "ci_high": 0.133,
+       "n": 24.0
+      },
+      "mrr": {
+       "mean": 0.514,
+       "ci_low": 0.3541,
+       "ci_high": 0.6728,
+       "n": 24.0
+      }
+     },
+     "b1": {
+      "p10": {
+       "mean": 0.1583,
+       "ci_low": 0.1,
+       "ci_high": 0.225,
+       "n": 24.0
+      },
+      "p5": {
+       "mean": 0.1583,
+       "ci_low": 0.0833,
+       "ci_high": 0.25,
+       "n": 24.0
+      },
+      "ndcg10": {
+       "mean": 0.1415,
+       "ci_low": 0.1096,
+       "ci_high": 0.1753,
+       "n": 24.0
+      },
+      "recall50": {
+       "mean": 0.0857,
+       "ci_low": 0.0682,
+       "ci_high": 0.1044,
+       "n": 24.0
+      },
+      "mrr": {
+       "mean": 0.2818,
+       "ci_low": 0.1798,
+       "ci_high": 0.3966,
+       "n": 24.0
+      }
+     },
+     "b2": {
+      "p10": {
+       "mean": 0.4333,
+       "ci_low": 0.3167,
+       "ci_high": 0.55,
+       "n": 24.0
+      },
+      "p5": {
+       "mean": 0.3917,
+       "ci_low": 0.2667,
+       "ci_high": 0.5167,
+       "n": 24.0
+      },
+      "ndcg10": {
+       "mean": 0.3607,
+       "ci_low": 0.3005,
+       "ci_high": 0.4233,
+       "n": 24.0
+      },
+      "recall50": {
+       "mean": 0.1538,
+       "ci_low": 0.1352,
+       "ci_high": 0.1745,
+       "n": 24.0
+      },
+      "mrr": {
+       "mean": 0.6454,
+       "ci_low": 0.4921,
+       "ci_high": 0.7925,
+       "n": 24.0
+      }
+     },
+     "b3": {
+      "p10": {
+       "mean": 0.1583,
+       "ci_low": 0.1083,
+       "ci_high": 0.2043,
+       "n": 24.0
+      },
+      "p5": {
+       "mean": 0.1417,
+       "ci_low": 0.075,
+       "ci_high": 0.2083,
+       "n": 24.0
+      },
+      "ndcg10": {
+       "mean": 0.1449,
+       "ci_low": 0.1128,
+       "ci_high": 0.1766,
+       "n": 24.0
+      },
+      "recall50": {
+       "mean": 0.069,
+       "ci_low": 0.0553,
+       "ci_high": 0.0834,
+       "n": 24.0
+      },
+      "mrr": {
+       "mean": 0.3063,
+       "ci_low": 0.204,
+       "ci_high": 0.4159,
+       "n": 24.0
+      }
+     },
+     "no_lcb": {
+      "p10": {
+       "mean": 0.6292,
+       "ci_low": 0.5583,
+       "ci_high": 0.7042,
+       "n": 24.0
+      },
+      "p5": {
+       "mean": 0.6083,
+       "ci_low": 0.5167,
+       "ci_high": 0.7,
+       "n": 24.0
+      },
+      "ndcg10": {
+       "mean": 0.5297,
+       "ci_low": 0.4598,
+       "ci_high": 0.5954,
+       "n": 24.0
+      },
+      "recall50": {
+       "mean": 0.3522,
+       "ci_low": 0.2779,
+       "ci_high": 0.4352,
+       "n": 24.0
+      },
+      "mrr": {
+       "mean": 0.8139,
+       "ci_low": 0.6972,
+       "ci_high": 0.9167,
+       "n": 24.0
+      }
+     },
+     "no_K": {
+      "p10": {
+       "mean": 0.6333,
+       "ci_low": 0.5583,
+       "ci_high": 0.7125,
+       "n": 24.0
+      },
+      "p5": {
+       "mean": 0.6333,
+       "ci_low": 0.5417,
+       "ci_high": 0.7333,
+       "n": 24.0
+      },
+      "ndcg10": {
+       "mean": 0.5403,
+       "ci_low": 0.4784,
+       "ci_high": 0.6057,
+       "n": 24.0
+      },
+      "recall50": {
+       "mean": 0.3345,
+       "ci_low": 0.2696,
+       "ci_high": 0.4056,
+       "n": 24.0
+      },
+      "mrr": {
+       "mean": 0.8625,
+       "ci_low": 0.7514,
+       "ci_high": 0.9667,
+       "n": 24.0
+      }
+     },
+     "no_F": {
+      "p10": {
+       "mean": 0.65,
+       "ci_low": 0.5875,
+       "ci_high": 0.7125,
+       "n": 24.0
+      },
+      "p5": {
+       "mean": 0.725,
+       "ci_low": 0.6417,
+       "ci_high": 0.8083,
+       "n": 24.0
+      },
+      "ndcg10": {
+       "mean": 0.5596,
+       "ci_low": 0.4888,
+       "ci_high": 0.6279,
+       "n": 24.0
+      },
+      "recall50": {
+       "mean": 0.352,
+       "ci_low": 0.2793,
+       "ci_high": 0.4266,
+       "n": 24.0
+      },
+      "mrr": {
+       "mean": 0.8556,
+       "ci_low": 0.7472,
+       "ci_high": 0.9514,
+       "n": 24.0
+      }
+     },
+     "no_A": {
+      "p10": {
+       "mean": 0.6542,
+       "ci_low": 0.5833,
+       "ci_high": 0.7251,
+       "n": 24.0
+      },
+      "p5": {
+       "mean": 0.625,
+       "ci_low": 0.5417,
+       "ci_high": 0.7083,
+       "n": 24.0
+      },
+      "ndcg10": {
+       "mean": 0.5403,
+       "ci_low": 0.4764,
+       "ci_high": 0.6012,
+       "n": 24.0
+      },
+      "recall50": {
+       "mean": 0.352,
+       "ci_low": 0.2766,
+       "ci_high": 0.4298,
+       "n": 24.0
+      },
+      "mrr": {
+       "mean": 0.8208,
+       "ci_low": 0.7125,
+       "ci_high": 0.9167,
+       "n": 24.0
+      }
+     },
+     "no_U": {
+      "p10": {
+       "mean": 0.6375,
+       "ci_low": 0.5667,
+       "ci_high": 0.7083,
+       "n": 24.0
+      },
+      "p5": {
+       "mean": 0.65,
+       "ci_low": 0.55,
+       "ci_high": 0.75,
+       "n": 24.0
+      },
+      "ndcg10": {
+       "mean": 0.5359,
+       "ci_low": 0.4731,
+       "ci_high": 0.5968,
+       "n": 24.0
+      },
+      "recall50": {
+       "mean": 0.3456,
+       "ci_low": 0.2731,
+       "ci_high": 0.4226,
+       "n": 24.0
+      },
+      "mrr": {
+       "mean": 0.8382,
+       "ci_low": 0.7222,
+       "ci_high": 0.9459,
+       "n": 24.0
+      }
+     }
+    },
+    "paired_vs_b2": {
+     "ours": {
+      "diff": 0.2083,
+      "ci_low": 0.0958,
+      "ci_high": 0.3042,
+      "significant": true
+     },
+     "ours_gold": {
+      "diff": 0.2167,
+      "ci_low": 0.1042,
+      "ci_high": 0.3208,
+      "significant": true
+     },
+     "ours_noq": {
+      "diff": 0.2083,
+      "ci_low": 0.1,
+      "ci_high": 0.3167,
+      "significant": true
+     },
+     "b0": {
+      "diff": -0.2042,
+      "ci_low": -0.2833,
+      "ci_high": -0.1166,
+      "significant": true
+     },
+     "b1": {
+      "diff": -0.275,
+      "ci_low": -0.3667,
+      "ci_high": -0.1792,
+      "significant": true
+     },
+     "b3": {
+      "diff": -0.275,
+      "ci_low": -0.3875,
+      "ci_high": -0.1583,
+      "significant": true
+     },
+     "no_lcb": {
+      "diff": 0.1958,
+      "ci_low": 0.0875,
+      "ci_high": 0.3042,
+      "significant": true
+     },
+     "no_K": {
+      "diff": 0.2,
+      "ci_low": 0.0958,
+      "ci_high": 0.2958,
+      "significant": true
+     },
+     "no_F": {
+      "diff": 0.2167,
+      "ci_low": 0.1208,
+      "ci_high": 0.3083,
+      "significant": true
+     },
+     "no_A": {
+      "diff": 0.2208,
+      "ci_low": 0.125,
+      "ci_high": 0.3126,
+      "significant": true
+     },
+     "no_U": {
+      "diff": 0.2042,
+      "ci_low": 0.1,
+      "ci_high": 0.3042,
+      "significant": true
+     }
+    },
+    "paired_vs_ours": {
+     "no_lcb": {
+      "diff": 0.0125,
+      "ci_low": -0.0167,
+      "ci_high": 0.0458,
+      "significant": false
+     },
+     "no_K": {
+      "diff": 0.0083,
+      "ci_low": -0.0167,
+      "ci_high": 0.0417,
+      "significant": false
+     },
+     "no_F": {
+      "diff": -0.0083,
+      "ci_low": -0.0417,
+      "ci_high": 0.0208,
+      "significant": false
+     },
+     "no_A": {
+      "diff": -0.0125,
+      "ci_low": -0.0458,
+      "ci_high": 0.0167,
+      "significant": false
+     },
+     "no_U": {
+      "diff": 0.0042,
+      "ci_low": -0.0167,
+      "ci_high": 0.025,
+      "significant": false
+     },
+     "b0": {
+      "diff": 0.4125,
+      "ci_low": 0.3167,
+      "ci_high": 0.5083,
+      "significant": true
+     },
+     "b1": {
+      "diff": 0.4833,
+      "ci_low": 0.3958,
+      "ci_high": 0.5708,
+      "significant": true
+     },
+     "b3": {
+      "diff": 0.4833,
+      "ci_low": 0.4,
+      "ci_high": 0.5792,
+      "significant": true
+     }
+    },
+    "p10_ceiling": 1.0,
+    "paired_ndcg_vs": {
+     "b2": {
+      "diff": 0.1779,
+      "ci_low": 0.1015,
+      "ci_high": 0.2526,
+      "significant": true
+     },
+     "b0": {
+      "diff": 0.3163,
+      "ci_low": 0.2384,
+      "ci_high": 0.3954,
+      "significant": true
+     }
+    },
+    "paired_p10_vs_b0": {
+     "diff": 0.4125,
+     "ci_low": 0.3167,
+     "ci_high": 0.5042,
+     "significant": true
+    },
+    "t_test_p10_vs_b2": {
+     "t": 3.8716,
+     "p": 0.0008,
+     "n": 24.0
+    }
+   },
+   "frontend_js": {
+    "n_briefs": 24,
+    "systems": {
+     "ours": {
+      "p10": {
+       "mean": 0.55,
+       "ci_low": 0.4167,
+       "ci_high": 0.6875,
+       "n": 24.0
+      },
+      "p5": {
+       "mean": 0.5833,
+       "ci_low": 0.4417,
+       "ci_high": 0.7167,
+       "n": 24.0
+      },
+      "ndcg10": {
+       "mean": 0.5931,
+       "ci_low": 0.4962,
+       "ci_high": 0.6923,
+       "n": 24.0
+      },
+      "recall50": {
+       "mean": 0.3476,
+       "ci_low": 0.2588,
+       "ci_high": 0.4406,
+       "n": 24.0
+      },
+      "mrr": {
+       "mean": 0.6604,
+       "ci_low": 0.5044,
+       "ci_high": 0.8195,
+       "n": 24.0
+      }
+     },
+     "ours_gold": {
+      "p10": {
+       "mean": 0.5875,
+       "ci_low": 0.4625,
+       "ci_high": 0.7125,
+       "n": 24.0
+      },
+      "p5": {
+       "mean": 0.5833,
+       "ci_low": 0.4417,
+       "ci_high": 0.7167,
+       "n": 24.0
+      },
+      "ndcg10": {
+       "mean": 0.6264,
+       "ci_low": 0.5391,
+       "ci_high": 0.7179,
+       "n": 24.0
+      },
+      "recall50": {
+       "mean": 0.34,
+       "ci_low": 0.2749,
+       "ci_high": 0.4049,
+       "n": 24.0
+      },
+      "mrr": {
+       "mean": 0.6762,
+       "ci_low": 0.5236,
+       "ci_high": 0.8243,
+       "n": 24.0
+      }
+     },
+     "ours_noq": {
+      "p10": {
+       "mean": 0.55,
+       "ci_low": 0.4125,
+       "ci_high": 0.6751,
+       "n": 24.0
+      },
+      "p5": {
+       "mean": 0.5833,
+       "ci_low": 0.4333,
+       "ci_high": 0.725,
+       "n": 24.0
+      },
+      "ndcg10": {
+       "mean": 0.5931,
+       "ci_low": 0.5016,
+       "ci_high": 0.6946,
+       "n": 24.0
+      },
+      "recall50": {
+       "mean": 0.3476,
+       "ci_low": 0.2599,
+       "ci_high": 0.4384,
+       "n": 24.0
+      },
+      "mrr": {
+       "mean": 0.6604,
+       "ci_low": 0.4962,
+       "ci_high": 0.8056,
+       "n": 24.0
+      }
+     },
+     "b0": {
+      "p10": {
+       "mean": 0.1125,
+       "ci_low": 0.0458,
+       "ci_high": 0.1959,
+       "n": 24.0
+      },
+      "p5": {
+       "mean": 0.1167,
+       "ci_low": 0.0333,
+       "ci_high": 0.2167,
+       "n": 24.0
+      },
+      "ndcg10": {
+       "mean": 0.1742,
+       "ci_low": 0.1196,
+       "ci_high": 0.2347,
+       "n": 24.0
+      },
+      "recall50": {
+       "mean": 0.1003,
+       "ci_low": 0.0754,
+       "ci_high": 0.1267,
+       "n": 24.0
+      },
+      "mrr": {
+       "mean": 0.2043,
+       "ci_low": 0.1043,
+       "ci_high": 0.327,
+       "n": 24.0
+      }
+     },
+     "b1": {
+      "p10": {
+       "mean": 0.1417,
+       "ci_low": 0.0833,
+       "ci_high": 0.2083,
+       "n": 24.0
+      },
+      "p5": {
+       "mean": 0.1583,
+       "ci_low": 0.0833,
+       "ci_high": 0.2417,
+       "n": 24.0
+      },
+      "ndcg10": {
+       "mean": 0.1535,
+       "ci_low": 0.1086,
+       "ci_high": 0.1987,
+       "n": 24.0
+      },
+      "recall50": {
+       "mean": 0.0965,
+       "ci_low": 0.067,
+       "ci_high": 0.1313,
+       "n": 24.0
+      },
+      "mrr": {
+       "mean": 0.2834,
+       "ci_low": 0.1614,
+       "ci_high": 0.4308,
+       "n": 24.0
+      }
+     },
+     "b2": {
+      "p10": {
+       "mean": 0.3083,
+       "ci_low": 0.1917,
+       "ci_high": 0.4376,
+       "n": 24.0
+      },
+      "p5": {
+       "mean": 0.3167,
+       "ci_low": 0.1748,
+       "ci_high": 0.475,
+       "n": 24.0
+      },
+      "ndcg10": {
+       "mean": 0.3839,
+       "ci_low": 0.2979,
+       "ci_high": 0.4812,
+       "n": 24.0
+      },
+      "recall50": {
+       "mean": 0.1806,
+       "ci_low": 0.1416,
+       "ci_high": 0.2208,
+       "n": 24.0
+      },
+      "mrr": {
+       "mean": 0.4343,
+       "ci_low": 0.2822,
+       "ci_high": 0.5971,
+       "n": 24.0
+      }
+     },
+     "b3": {
+      "p10": {
+       "mean": 0.125,
+       "ci_low": 0.075,
+       "ci_high": 0.1792,
+       "n": 24.0
+      },
+      "p5": {
+       "mean": 0.1083,
+       "ci_low": 0.05,
+       "ci_high": 0.1833,
+       "n": 24.0
+      },
+      "ndcg10": {
+       "mean": 0.1367,
+       "ci_low": 0.0904,
+       "ci_high": 0.1858,
+       "n": 24.0
+      },
+      "recall50": {
+       "mean": 0.096,
+       "ci_low": 0.0666,
+       "ci_high": 0.1286,
+       "n": 24.0
+      },
+      "mrr": {
+       "mean": 0.2889,
+       "ci_low": 0.1487,
+       "ci_high": 0.4429,
+       "n": 24.0
+      }
+     },
+     "no_lcb": {
+      "p10": {
+       "mean": 0.5458,
+       "ci_low": 0.4125,
+       "ci_high": 0.675,
+       "n": 24.0
+      },
+      "p5": {
+       "mean": 0.5833,
+       "ci_low": 0.4333,
+       "ci_high": 0.7333,
+       "n": 24.0
+      },
+      "ndcg10": {
+       "mean": 0.5983,
+       "ci_low": 0.5057,
+       "ci_high": 0.6948,
+       "n": 24.0
+      },
+      "recall50": {
+       "mean": 0.3476,
+       "ci_low": 0.2573,
+       "ci_high": 0.4433,
+       "n": 24.0
+      },
+      "mrr": {
+       "mean": 0.7023,
+       "ci_low": 0.5359,
+       "ci_high": 0.8542,
+       "n": 24.0
+      }
+     },
+     "no_K": {
+      "p10": {
+       "mean": 0.5292,
+       "ci_low": 0.4041,
+       "ci_high": 0.6625,
+       "n": 24.0
+      },
+      "p5": {
+       "mean": 0.5583,
+       "ci_low": 0.4167,
+       "ci_high": 0.7083,
+       "n": 24.0
+      },
+      "ndcg10": {
+       "mean": 0.5779,
+       "ci_low": 0.4902,
+       "ci_high": 0.683,
+       "n": 24.0
+      },
+      "recall50": {
+       "mean": 0.3391,
+       "ci_low": 0.2561,
+       "ci_high": 0.4277,
+       "n": 24.0
+      },
+      "mrr": {
+       "mean": 0.6599,
+       "ci_low": 0.505,
+       "ci_high": 0.8206,
+       "n": 24.0
+      }
+     },
+     "no_F": {
+      "p10": {
+       "mean": 0.5417,
+       "ci_low": 0.4042,
+       "ci_high": 0.6708,
+       "n": 24.0
+      },
+      "p5": {
+       "mean": 0.5667,
+       "ci_low": 0.4167,
+       "ci_high": 0.7083,
+       "n": 24.0
+      },
+      "ndcg10": {
+       "mean": 0.5848,
+       "ci_low": 0.4896,
+       "ci_high": 0.6766,
+       "n": 24.0
+      },
+      "recall50": {
+       "mean": 0.3473,
+       "ci_low": 0.259,
+       "ci_high": 0.4407,
+       "n": 24.0
+      },
+      "mrr": {
+       "mean": 0.6652,
+       "ci_low": 0.5148,
+       "ci_high": 0.8102,
+       "n": 24.0
+      }
+     },
+     "no_A": {
+      "p10": {
+       "mean": 0.5375,
+       "ci_low": 0.4041,
+       "ci_high": 0.675,
+       "n": 24.0
+      },
+      "p5": {
+       "mean": 0.575,
+       "ci_low": 0.425,
+       "ci_high": 0.7167,
+       "n": 24.0
+      },
+      "ndcg10": {
+       "mean": 0.5768,
+       "ci_low": 0.4773,
+       "ci_high": 0.6736,
+       "n": 24.0
+      },
+      "recall50": {
+       "mean": 0.3441,
+       "ci_low": 0.2631,
+       "ci_high": 0.4345,
+       "n": 24.0
+      },
+      "mrr": {
+       "mean": 0.6436,
+       "ci_low": 0.4851,
+       "ci_high": 0.7981,
+       "n": 24.0
+      }
+     },
+     "no_U": {
+      "p10": {
+       "mean": 0.5458,
+       "ci_low": 0.4083,
+       "ci_high": 0.6875,
+       "n": 24.0
+      },
+      "p5": {
+       "mean": 0.5667,
+       "ci_low": 0.425,
+       "ci_high": 0.7083,
+       "n": 24.0
+      },
+      "ndcg10": {
+       "mean": 0.5866,
+       "ci_low": 0.4861,
+       "ci_high": 0.6912,
+       "n": 24.0
+      },
+      "recall50": {
+       "mean": 0.3408,
+       "ci_low": 0.259,
+       "ci_high": 0.4338,
+       "n": 24.0
+      },
+      "mrr": {
+       "mean": 0.6606,
+       "ci_low": 0.4974,
+       "ci_high": 0.8122,
+       "n": 24.0
+      }
+     }
+    },
+    "paired_vs_b2": {
+     "ours": {
+      "diff": 0.2417,
+      "ci_low": 0.1625,
+      "ci_high": 0.3208,
+      "significant": true
+     },
+     "ours_gold": {
+      "diff": 0.2792,
+      "ci_low": 0.1958,
+      "ci_high": 0.3625,
+      "significant": true
+     },
+     "ours_noq": {
+      "diff": 0.2417,
+      "ci_low": 0.1625,
+      "ci_high": 0.3208,
+      "significant": true
+     },
+     "b0": {
+      "diff": -0.1958,
+      "ci_low": -0.2875,
+      "ci_high": -0.1042,
+      "significant": true
+     },
+     "b1": {
+      "diff": -0.1667,
+      "ci_low": -0.2625,
+      "ci_high": -0.0874,
+      "significant": true
+     },
+     "b3": {
+      "diff": -0.1833,
+      "ci_low": -0.2792,
+      "ci_high": -0.0958,
+      "significant": true
+     },
+     "no_lcb": {
+      "diff": 0.2375,
+      "ci_low": 0.1625,
+      "ci_high": 0.3167,
+      "significant": true
+     },
+     "no_K": {
+      "diff": 0.2208,
+      "ci_low": 0.1457,
+      "ci_high": 0.3042,
+      "significant": true
+     },
+     "no_F": {
+      "diff": 0.2333,
+      "ci_low": 0.1542,
+      "ci_high": 0.3125,
+      "significant": true
+     },
+     "no_A": {
+      "diff": 0.2292,
+      "ci_low": 0.1417,
+      "ci_high": 0.3167,
+      "significant": true
+     },
+     "no_U": {
+      "diff": 0.2375,
+      "ci_low": 0.1625,
+      "ci_high": 0.3167,
+      "significant": true
+     }
+    },
+    "paired_vs_ours": {
+     "no_lcb": {
+      "diff": 0.0042,
+      "ci_low": -0.0125,
+      "ci_high": 0.0208,
+      "significant": false
+     },
+     "no_K": {
+      "diff": 0.0208,
+      "ci_low": 0.0041,
+      "ci_high": 0.0417,
+      "significant": true
+     },
+     "no_F": {
+      "diff": 0.0083,
+      "ci_low": -0.0083,
+      "ci_high": 0.025,
+      "significant": false
+     },
+     "no_A": {
+      "diff": 0.0125,
+      "ci_low": -0.0125,
+      "ci_high": 0.0417,
+      "significant": false
+     },
+     "no_U": {
+      "diff": 0.0042,
+      "ci_low": -0.0083,
+      "ci_high": 0.0208,
+      "significant": false
+     },
+     "b0": {
+      "diff": 0.4375,
+      "ci_low": 0.325,
+      "ci_high": 0.5583,
+      "significant": true
+     },
+     "b1": {
+      "diff": 0.4083,
+      "ci_low": 0.3083,
+      "ci_high": 0.5125,
+      "significant": true
+     },
+     "b3": {
+      "diff": 0.425,
+      "ci_low": 0.3083,
+      "ci_high": 0.5333,
+      "significant": true
+     }
+    },
+    "p10_ceiling": 0.8875,
+    "paired_ndcg_vs": {
+     "b2": {
+      "diff": 0.2092,
+      "ci_low": 0.1376,
+      "ci_high": 0.2709,
+      "significant": true
+     },
+     "b0": {
+      "diff": 0.4189,
+      "ci_low": 0.3235,
+      "ci_high": 0.5224,
+      "significant": true
+     }
+    },
+    "paired_p10_vs_b0": {
+     "diff": 0.4375,
+     "ci_low": 0.3208,
+     "ci_high": 0.5583,
+     "significant": true
+    },
+    "t_test_p10_vs_b2": {
+     "t": 5.6826,
+     "p": 0.0,
+     "n": 24.0
+    }
+   },
+   "fullstack": {
+    "n_briefs": 12,
+    "systems": {
+     "ours": {
+      "p10": {
+       "mean": 0.3167,
+       "ci_low": 0.1833,
+       "ci_high": 0.45,
+       "n": 12.0
+      },
+      "p5": {
+       "mean": 0.35,
+       "ci_low": 0.1667,
+       "ci_high": 0.5667,
+       "n": 12.0
+      },
+      "ndcg10": {
+       "mean": 0.5057,
+       "ci_low": 0.4056,
+       "ci_high": 0.6084,
+       "n": 12.0
+      },
+      "recall50": {
+       "mean": 0.2953,
+       "ci_low": 0.1919,
+       "ci_high": 0.4082,
+       "n": 12.0
+      },
+      "mrr": {
+       "mean": 0.4752,
+       "ci_low": 0.2576,
+       "ci_high": 0.7038,
+       "n": 12.0
+      }
+     },
+     "ours_gold": {
+      "p10": {
+       "mean": 0.2,
+       "ci_low": 0.0917,
+       "ci_high": 0.325,
+       "n": 12.0
+      },
+      "p5": {
+       "mean": 0.2,
+       "ci_low": 0.0333,
+       "ci_high": 0.4,
+       "n": 12.0
+      },
+      "ndcg10": {
+       "mean": 0.4225,
+       "ci_low": 0.3291,
+       "ci_high": 0.5284,
+       "n": 12.0
+      },
+      "recall50": {
+       "mean": 0.1329,
+       "ci_low": 0.0508,
+       "ci_high": 0.2319,
+       "n": 12.0
+      },
+      "mrr": {
+       "mean": 0.298,
+       "ci_low": 0.1228,
+       "ci_high": 0.5075,
+       "n": 12.0
+      }
+     },
+     "ours_noq": {
+      "p10": {
+       "mean": 0.275,
+       "ci_low": 0.1583,
+       "ci_high": 0.3917,
+       "n": 12.0
+      },
+      "p5": {
+       "mean": 0.3,
+       "ci_low": 0.1333,
+       "ci_high": 0.4838,
+       "n": 12.0
+      },
+      "ndcg10": {
+       "mean": 0.4733,
+       "ci_low": 0.3698,
+       "ci_high": 0.5842,
+       "n": 12.0
+      },
+      "recall50": {
+       "mean": 0.2744,
+       "ci_low": 0.1777,
+       "ci_high": 0.3813,
+       "n": 12.0
+      },
+      "mrr": {
+       "mean": 0.3641,
+       "ci_low": 0.1991,
+       "ci_high": 0.5556,
+       "n": 12.0
+      }
+     },
+     "b0": {
+      "p10": {
+       "mean": 0.15,
+       "ci_low": 0.075,
+       "ci_high": 0.25,
+       "n": 12.0
+      },
+      "p5": {
+       "mean": 0.1,
+       "ci_low": 0.0333,
+       "ci_high": 0.1833,
+       "n": 12.0
+      },
+      "ndcg10": {
+       "mean": 0.2209,
+       "ci_low": 0.1248,
+       "ci_high": 0.3282,
+       "n": 12.0
+      },
+      "recall50": {
+       "mean": 0.094,
+       "ci_low": 0.0568,
+       "ci_high": 0.1372,
+       "n": 12.0
+      },
+      "mrr": {
+       "mean": 0.2326,
+       "ci_low": 0.1043,
+       "ci_high": 0.3956,
+       "n": 12.0
+      }
+     },
+     "b1": {
+      "p10": {
+       "mean": 0.1,
+       "ci_low": 0.025,
+       "ci_high": 0.1917,
+       "n": 12.0
+      },
+      "p5": {
+       "mean": 0.1167,
+       "ci_low": 0.0167,
+       "ci_high": 0.2333,
+       "n": 12.0
+      },
+      "ndcg10": {
+       "mean": 0.1501,
+       "ci_low": 0.0678,
+       "ci_high": 0.2527,
+       "n": 12.0
+      },
+      "recall50": {
+       "mean": 0.0969,
+       "ci_low": 0.0446,
+       "ci_high": 0.1691,
+       "n": 12.0
+      },
+      "mrr": {
+       "mean": 0.2624,
+       "ci_low": 0.0822,
+       "ci_high": 0.4781,
+       "n": 12.0
+      }
+     },
+     "b2": {
+      "p10": {
+       "mean": 0.275,
+       "ci_low": 0.1583,
+       "ci_high": 0.3917,
+       "n": 12.0
+      },
+      "p5": {
+       "mean": 0.2833,
+       "ci_low": 0.15,
+       "ci_high": 0.4333,
+       "n": 12.0
+      },
+      "ndcg10": {
+       "mean": 0.3959,
+       "ci_low": 0.28,
+       "ci_high": 0.5214,
+       "n": 12.0
+      },
+      "recall50": {
+       "mean": 0.1542,
+       "ci_low": 0.1098,
+       "ci_high": 0.1988,
+       "n": 12.0
+      },
+      "mrr": {
+       "mean": 0.4824,
+       "ci_low": 0.2612,
+       "ci_high": 0.7094,
+       "n": 12.0
+      }
+     },
+     "b3": {
+      "p10": {
+       "mean": 0.1,
+       "ci_low": 0.0417,
+       "ci_high": 0.175,
+       "n": 12.0
+      },
+      "p5": {
+       "mean": 0.1333,
+       "ci_low": 0.0333,
+       "ci_high": 0.25,
+       "n": 12.0
+      },
+      "ndcg10": {
+       "mean": 0.1542,
+       "ci_low": 0.0691,
+       "ci_high": 0.2469,
+       "n": 12.0
+      },
+      "recall50": {
+       "mean": 0.1075,
+       "ci_low": 0.051,
+       "ci_high": 0.1807,
+       "n": 12.0
+      },
+      "mrr": {
+       "mean": 0.2619,
+       "ci_low": 0.0767,
+       "ci_high": 0.4861,
+       "n": 12.0
+      }
+     },
+     "no_lcb": {
+      "p10": {
+       "mean": 0.3333,
+       "ci_low": 0.2,
+       "ci_high": 0.4583,
+       "n": 12.0
+      },
+      "p5": {
+       "mean": 0.3667,
+       "ci_low": 0.1833,
+       "ci_high": 0.5504,
+       "n": 12.0
+      },
+      "ndcg10": {
+       "mean": 0.5238,
+       "ci_low": 0.4135,
+       "ci_high": 0.6376,
+       "n": 12.0
+      },
+      "recall50": {
+       "mean": 0.2955,
+       "ci_low": 0.1921,
+       "ci_high": 0.4034,
+       "n": 12.0
+      },
+      "mrr": {
+       "mean": 0.512,
+       "ci_low": 0.2837,
+       "ci_high": 0.7583,
+       "n": 12.0
+      }
+     },
+     "no_K": {
+      "p10": {
+       "mean": 0.275,
+       "ci_low": 0.1583,
+       "ci_high": 0.3917,
+       "n": 12.0
+      },
+      "p5": {
+       "mean": 0.3667,
+       "ci_low": 0.1829,
+       "ci_high": 0.5671,
+       "n": 12.0
+      },
+      "ndcg10": {
+       "mean": 0.4833,
+       "ci_low": 0.3818,
+       "ci_high": 0.5806,
+       "n": 12.0
+      },
+      "recall50": {
+       "mean": 0.2851,
+       "ci_low": 0.1816,
+       "ci_high": 0.3987,
+       "n": 12.0
+      },
+      "mrr": {
+       "mean": 0.4561,
+       "ci_low": 0.2339,
+       "ci_high": 0.6833,
+       "n": 12.0
+      }
+     },
+     "no_F": {
+      "p10": {
+       "mean": 0.325,
+       "ci_low": 0.2,
+       "ci_high": 0.45,
+       "n": 12.0
+      },
+      "p5": {
+       "mean": 0.4,
+       "ci_low": 0.2,
+       "ci_high": 0.5833,
+       "n": 12.0
+      },
+      "ndcg10": {
+       "mean": 0.5423,
+       "ci_low": 0.4414,
+       "ci_high": 0.6434,
+       "n": 12.0
+      },
+      "recall50": {
+       "mean": 0.3042,
+       "ci_low": 0.1992,
+       "ci_high": 0.4092,
+       "n": 12.0
+      },
+      "mrr": {
+       "mean": 0.5879,
+       "ci_low": 0.3369,
+       "ci_high": 0.8148,
+       "n": 12.0
+      }
+     },
+     "no_A": {
+      "p10": {
+       "mean": 0.35,
+       "ci_low": 0.225,
+       "ci_high": 0.4833,
+       "n": 12.0
+      },
+      "p5": {
+       "mean": 0.3,
+       "ci_low": 0.15,
+       "ci_high": 0.45,
+       "n": 12.0
+      },
+      "ndcg10": {
+       "mean": 0.5133,
+       "ci_low": 0.4199,
+       "ci_high": 0.616,
+       "n": 12.0
+      },
+      "recall50": {
+       "mean": 0.3025,
+       "ci_low": 0.1952,
+       "ci_high": 0.411,
+       "n": 12.0
+      },
+      "mrr": {
+       "mean": 0.4593,
+       "ci_low": 0.2726,
+       "ci_high": 0.6676,
+       "n": 12.0
+      }
+     },
+     "no_U": {
+      "p10": {
+       "mean": 0.3,
+       "ci_low": 0.1667,
+       "ci_high": 0.425,
+       "n": 12.0
+      },
+      "p5": {
+       "mean": 0.3333,
+       "ci_low": 0.15,
+       "ci_high": 0.5333,
+       "n": 12.0
+      },
+      "ndcg10": {
+       "mean": 0.4999,
+       "ci_low": 0.4001,
+       "ci_high": 0.6018,
+       "n": 12.0
+      },
+      "recall50": {
+       "mean": 0.2858,
+       "ci_low": 0.1836,
+       "ci_high": 0.3939,
+       "n": 12.0
+      },
+      "mrr": {
+       "mean": 0.4738,
+       "ci_low": 0.2526,
+       "ci_high": 0.6951,
+       "n": 12.0
+      }
+     }
+    },
+    "paired_vs_b2": {
+     "ours": {
+      "diff": 0.0417,
+      "ci_low": -0.025,
+      "ci_high": 0.125,
+      "significant": false
+     },
+     "ours_gold": {
+      "diff": -0.075,
+      "ci_low": -0.2,
+      "ci_high": 0.0333,
+      "significant": false
+     },
+     "ours_noq": {
+      "diff": -0.0,
+      "ci_low": -0.0917,
+      "ci_high": 0.0917,
+      "significant": false
+     },
+     "b0": {
+      "diff": -0.125,
+      "ci_low": -0.225,
+      "ci_high": -0.0417,
+      "significant": true
+     },
+     "b1": {
+      "diff": -0.175,
+      "ci_low": -0.3,
+      "ci_high": -0.0583,
+      "significant": true
+     },
+     "b3": {
+      "diff": -0.175,
+      "ci_low": -0.2917,
+      "ci_high": -0.0665,
+      "significant": true
+     },
+     "no_lcb": {
+      "diff": 0.0583,
+      "ci_low": -0.0167,
+      "ci_high": 0.1333,
+      "significant": false
+     },
+     "no_K": {
+      "diff": 0.0,
+      "ci_low": -0.0667,
+      "ci_high": 0.0667,
+      "significant": false
+     },
+     "no_F": {
+      "diff": 0.05,
+      "ci_low": -0.0417,
+      "ci_high": 0.1417,
+      "significant": false
+     },
+     "no_A": {
+      "diff": 0.075,
+      "ci_low": 0.0167,
+      "ci_high": 0.1252,
+      "significant": true
+     },
+     "no_U": {
+      "diff": 0.025,
+      "ci_low": -0.05,
+      "ci_high": 0.1,
+      "significant": false
+     }
+    },
+    "paired_vs_ours": {
+     "no_lcb": {
+      "diff": -0.0167,
+      "ci_low": -0.075,
+      "ci_high": 0.0417,
+      "significant": false
+     },
+     "no_K": {
+      "diff": 0.0417,
+      "ci_low": -0.0083,
+      "ci_high": 0.0917,
+      "significant": false
+     },
+     "no_F": {
+      "diff": -0.0083,
+      "ci_low": -0.0833,
+      "ci_high": 0.0583,
+      "significant": false
+     },
+     "no_A": {
+      "diff": -0.0333,
+      "ci_low": -0.0917,
+      "ci_high": 0.025,
+      "significant": false
+     },
+     "no_U": {
+      "diff": 0.0167,
+      "ci_low": -0.0167,
+      "ci_high": 0.05,
+      "significant": false
+     },
+     "b0": {
+      "diff": 0.1667,
+      "ci_low": 0.0583,
+      "ci_high": 0.275,
+      "significant": true
+     },
+     "b1": {
+      "diff": 0.2167,
+      "ci_low": 0.1,
+      "ci_high": 0.3333,
+      "significant": true
+     },
+     "b3": {
+      "diff": 0.2167,
+      "ci_low": 0.0917,
+      "ci_high": 0.35,
+      "significant": true
+     }
+    },
+    "p10_ceiling": 0.9167,
+    "paired_ndcg_vs": {
+     "b2": {
+      "diff": 0.1097,
+      "ci_low": 0.0232,
+      "ci_high": 0.2124,
+      "significant": true
+     },
+     "b0": {
+      "diff": 0.2847,
+      "ci_low": 0.1753,
+      "ci_high": 0.3963,
+      "significant": true
+     }
+    },
+    "paired_p10_vs_b0": {
+     "diff": 0.1667,
+     "ci_low": 0.0583,
+     "ci_high": 0.2667,
+     "significant": true
+    },
+    "t_test_p10_vs_b2": {
+     "t": 1.0467,
+     "p": 0.3177,
+     "n": 12.0
+    }
+   }
   },
   "parser": {
    "test": {
@@ -9155,6 +11897,877 @@
       "missed": [],
       "extra": [],
       "kind_errors": [],
+      "question": null
+     }
+    ]
+   },
+   "test2": {
+    "n": 60,
+    "spec_top1": 0.9667,
+    "grade_exact": 0.9667,
+    "grade_within1": 1.0,
+    "skills": {
+     "precision": 0.9485,
+     "recall": 0.9695,
+     "f1": 0.9589
+    },
+    "must": {
+     "precision": 0.9121,
+     "recall": 0.8104,
+     "f1": 0.8583
+    },
+    "must_nice_accuracy": 0.8571,
+    "category_top3": 1.0,
+    "salary_exact": 0.8333,
+    "salary_basis_accuracy": 0.8333,
+    "formats_exact": 1.0,
+    "city_accuracy": 1.0,
+    "question_rate": 0.2,
+    "rows": [
+     {
+      "id": "b100",
+      "style": "short",
+      "spec_ok": true,
+      "parsed_spec": "fullstack",
+      "grade": "senior",
+      "gold_grade": "senior",
+      "missed": [
+       "python"
+      ],
+      "extra": [],
+      "kind_errors": [],
+      "question": "spec"
+     },
+     {
+      "id": "b41",
+      "style": "formal",
+      "spec_ok": true,
+      "parsed_spec": "backend_python",
+      "grade": "intern",
+      "gold_grade": "intern",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b42",
+      "style": "short",
+      "spec_ok": true,
+      "parsed_spec": "backend_python",
+      "grade": "intern",
+      "gold_grade": "intern",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b43",
+      "style": "chat",
+      "spec_ok": true,
+      "parsed_spec": "backend_python",
+      "grade": "junior",
+      "gold_grade": "junior",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b44",
+      "style": "formal",
+      "spec_ok": true,
+      "parsed_spec": "backend_python",
+      "grade": "junior",
+      "gold_grade": "junior",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b45",
+      "style": "short",
+      "spec_ok": true,
+      "parsed_spec": "backend_python",
+      "grade": "junior",
+      "gold_grade": "junior",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b46",
+      "style": "mixed_en",
+      "spec_ok": true,
+      "parsed_spec": "backend_python",
+      "grade": "junior",
+      "gold_grade": "junior",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b47",
+      "style": "long",
+      "spec_ok": true,
+      "parsed_spec": "backend_python",
+      "grade": "junior",
+      "gold_grade": "junior",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b48",
+      "style": "chat",
+      "spec_ok": true,
+      "parsed_spec": "backend_python",
+      "grade": "junior",
+      "gold_grade": "junior",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [
+       "aiohttp",
+       "fastapi",
+       "kafka"
+      ],
+      "question": "grade"
+     },
+     {
+      "id": "b49",
+      "style": "formal",
+      "spec_ok": true,
+      "parsed_spec": "backend_python",
+      "grade": "middle",
+      "gold_grade": "middle",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b50",
+      "style": "chat",
+      "spec_ok": true,
+      "parsed_spec": "backend_python",
+      "grade": "middle",
+      "gold_grade": "middle",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [],
+      "question": "salary"
+     },
+     {
+      "id": "b51",
+      "style": "short",
+      "spec_ok": true,
+      "parsed_spec": "backend_python",
+      "grade": "middle",
+      "gold_grade": "middle",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b52",
+      "style": "mixed_en",
+      "spec_ok": true,
+      "parsed_spec": "backend_python",
+      "grade": "middle",
+      "gold_grade": "middle",
+      "missed": [],
+      "extra": [
+       "unit_testing"
+      ],
+      "kind_errors": [
+       "pytest"
+      ],
+      "question": null
+     },
+     {
+      "id": "b53",
+      "style": "long",
+      "spec_ok": true,
+      "parsed_spec": "backend_python",
+      "grade": "middle",
+      "gold_grade": "middle",
+      "missed": [],
+      "extra": [
+       "fastapi",
+       "flask",
+       "integrations"
+      ],
+      "kind_errors": [
+       "docker",
+       "postgresql",
+       "query_optimization",
+       "rabbitmq"
+      ],
+      "question": null
+     },
+     {
+      "id": "b54",
+      "style": "formal",
+      "spec_ok": true,
+      "parsed_spec": "backend_python",
+      "grade": "middle",
+      "gold_grade": "middle",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b55",
+      "style": "chat",
+      "spec_ok": true,
+      "parsed_spec": "backend_python",
+      "grade": "middle",
+      "gold_grade": "middle",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [
+       "clickhouse"
+      ],
+      "question": null
+     },
+     {
+      "id": "b56",
+      "style": "short",
+      "spec_ok": true,
+      "parsed_spec": "backend_python",
+      "grade": "middle",
+      "gold_grade": "middle",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b57",
+      "style": "formal",
+      "spec_ok": true,
+      "parsed_spec": "backend_python",
+      "grade": "middle",
+      "gold_grade": "middle",
+      "missed": [],
+      "extra": [
+       "django"
+      ],
+      "kind_errors": [
+       "clickhouse"
+      ],
+      "question": null
+     },
+     {
+      "id": "b58",
+      "style": "formal",
+      "spec_ok": true,
+      "parsed_spec": "backend_python",
+      "grade": "senior",
+      "gold_grade": "senior",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b59",
+      "style": "short",
+      "spec_ok": true,
+      "parsed_spec": "backend_python",
+      "grade": "senior",
+      "gold_grade": "senior",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b60",
+      "style": "chat",
+      "spec_ok": true,
+      "parsed_spec": "backend_python",
+      "grade": "senior",
+      "gold_grade": "senior",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [
+       "celery",
+       "postgresql"
+      ],
+      "question": null
+     },
+     {
+      "id": "b61",
+      "style": "mixed_en",
+      "spec_ok": true,
+      "parsed_spec": "backend_python",
+      "grade": "senior",
+      "gold_grade": "senior",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [
+       "docker",
+       "postgresql"
+      ],
+      "question": null
+     },
+     {
+      "id": "b62",
+      "style": "long",
+      "spec_ok": true,
+      "parsed_spec": "backend_python",
+      "grade": "senior",
+      "gold_grade": "senior",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [
+       "rabbitmq",
+       "redis",
+       "transactions"
+      ],
+      "question": null
+     },
+     {
+      "id": "b63",
+      "style": "formal",
+      "spec_ok": true,
+      "parsed_spec": "backend_python",
+      "grade": "senior",
+      "gold_grade": "senior",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b64",
+      "style": "chat",
+      "spec_ok": true,
+      "parsed_spec": "backend_python",
+      "grade": "senior",
+      "gold_grade": "senior",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [
+       "postgresql",
+       "pytest"
+      ],
+      "question": "salary"
+     },
+     {
+      "id": "b65",
+      "style": "formal",
+      "spec_ok": true,
+      "parsed_spec": "frontend_js",
+      "grade": "junior",
+      "gold_grade": "intern",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b66",
+      "style": "chat",
+      "spec_ok": true,
+      "parsed_spec": "frontend_js",
+      "grade": "intern",
+      "gold_grade": "intern",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b67",
+      "style": "short",
+      "spec_ok": true,
+      "parsed_spec": "frontend_js",
+      "grade": "junior",
+      "gold_grade": "junior",
+      "missed": [
+       "css",
+       "html"
+      ],
+      "extra": [
+       "layout"
+      ],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b68",
+      "style": "formal",
+      "spec_ok": true,
+      "parsed_spec": "frontend_js",
+      "grade": "junior",
+      "gold_grade": "junior",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b69",
+      "style": "chat",
+      "spec_ok": true,
+      "parsed_spec": "frontend_js",
+      "grade": "junior",
+      "gold_grade": "junior",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [
+       "jest",
+       "typescript"
+      ],
+      "question": "salary"
+     },
+     {
+      "id": "b70",
+      "style": "mixed_en",
+      "spec_ok": true,
+      "parsed_spec": "frontend_js",
+      "grade": "junior",
+      "gold_grade": "junior",
+      "missed": [],
+      "extra": [
+       "css"
+      ],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b71",
+      "style": "long",
+      "spec_ok": true,
+      "parsed_spec": "frontend_js",
+      "grade": "junior",
+      "gold_grade": "junior",
+      "missed": [],
+      "extra": [
+       "layout"
+      ],
+      "kind_errors": [
+       "git",
+       "javascript",
+       "responsive"
+      ],
+      "question": null
+     },
+     {
+      "id": "b72",
+      "style": "short",
+      "spec_ok": true,
+      "parsed_spec": "frontend_js",
+      "grade": "junior",
+      "gold_grade": "junior",
+      "missed": [
+       "javascript"
+      ],
+      "extra": [],
+      "kind_errors": [
+       "nuxt"
+      ],
+      "question": "salary"
+     },
+     {
+      "id": "b73",
+      "style": "formal",
+      "spec_ok": true,
+      "parsed_spec": "frontend_js",
+      "grade": "middle",
+      "gold_grade": "middle",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b74",
+      "style": "chat",
+      "spec_ok": true,
+      "parsed_spec": "frontend_js",
+      "grade": "middle",
+      "gold_grade": "middle",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b75",
+      "style": "short",
+      "spec_ok": true,
+      "parsed_spec": "frontend_js",
+      "grade": "middle",
+      "gold_grade": "middle",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b76",
+      "style": "mixed_en",
+      "spec_ok": true,
+      "parsed_spec": "frontend_js",
+      "grade": "middle",
+      "gold_grade": "middle",
+      "missed": [
+       "react_hooks"
+      ],
+      "extra": [
+       "unit_testing"
+      ],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b77",
+      "style": "long",
+      "spec_ok": true,
+      "parsed_spec": "frontend_js",
+      "grade": "middle",
+      "gold_grade": "middle",
+      "missed": [],
+      "extra": [
+       "unit_testing"
+      ],
+      "kind_errors": [
+       "cypress",
+       "jest"
+      ],
+      "question": null
+     },
+     {
+      "id": "b78",
+      "style": "formal",
+      "spec_ok": true,
+      "parsed_spec": "frontend_js",
+      "grade": "middle",
+      "gold_grade": "middle",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [
+       "css",
+       "html"
+      ],
+      "question": null
+     },
+     {
+      "id": "b79",
+      "style": "chat",
+      "spec_ok": true,
+      "parsed_spec": "frontend_js",
+      "grade": "middle",
+      "gold_grade": "middle",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b80",
+      "style": "short",
+      "spec_ok": true,
+      "parsed_spec": "frontend_js",
+      "grade": "middle",
+      "gold_grade": "middle",
+      "missed": [
+       "jest"
+      ],
+      "extra": [],
+      "kind_errors": [],
+      "question": "salary"
+     },
+     {
+      "id": "b81",
+      "style": "long",
+      "spec_ok": true,
+      "parsed_spec": "frontend_js",
+      "grade": "middle",
+      "gold_grade": "middle",
+      "missed": [],
+      "extra": [
+       "bem",
+       "code_review",
+       "sass",
+       "typescript"
+      ],
+      "kind_errors": [
+       "css",
+       "git",
+       "responsive"
+      ],
+      "question": null
+     },
+     {
+      "id": "b82",
+      "style": "formal",
+      "spec_ok": true,
+      "parsed_spec": "frontend_js",
+      "grade": "senior",
+      "gold_grade": "senior",
+      "missed": [
+       "accessibility"
+      ],
+      "extra": [
+       "ui_ux"
+      ],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b83",
+      "style": "short",
+      "spec_ok": true,
+      "parsed_spec": "frontend_js",
+      "grade": "senior",
+      "gold_grade": "senior",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b84",
+      "style": "chat",
+      "spec_ok": true,
+      "parsed_spec": "frontend_js",
+      "grade": "senior",
+      "gold_grade": "senior",
+      "missed": [
+       "code_review"
+      ],
+      "extra": [],
+      "kind_errors": [
+       "d3",
+       "webpack"
+      ],
+      "question": "salary"
+     },
+     {
+      "id": "b85",
+      "style": "mixed_en",
+      "spec_ok": true,
+      "parsed_spec": "frontend_js",
+      "grade": "senior",
+      "gold_grade": "senior",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [
+       "ci_cd"
+      ],
+      "question": null
+     },
+     {
+      "id": "b86",
+      "style": "long",
+      "spec_ok": true,
+      "parsed_spec": "frontend_js",
+      "grade": "senior",
+      "gold_grade": "senior",
+      "missed": [],
+      "extra": [
+       "spa"
+      ],
+      "kind_errors": [
+       "code_review",
+       "pinia"
+      ],
+      "question": null
+     },
+     {
+      "id": "b87",
+      "style": "formal",
+      "spec_ok": true,
+      "parsed_spec": "frontend_js",
+      "grade": "senior",
+      "gold_grade": "senior",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b88",
+      "style": "chat",
+      "spec_ok": true,
+      "parsed_spec": "frontend_js",
+      "grade": "middle",
+      "gold_grade": "senior",
+      "missed": [
+       "nextjs",
+       "system_design"
+      ],
+      "extra": [],
+      "kind_errors": [],
+      "question": "salary"
+     },
+     {
+      "id": "b89",
+      "style": "formal",
+      "spec_ok": true,
+      "parsed_spec": "fullstack",
+      "grade": "junior",
+      "gold_grade": "junior",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b90",
+      "style": "chat",
+      "spec_ok": true,
+      "parsed_spec": "fullstack",
+      "grade": "junior",
+      "gold_grade": "junior",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [
+       "git",
+       "postgresql",
+       "react"
+      ],
+      "question": "spec"
+     },
+     {
+      "id": "b91",
+      "style": "short",
+      "spec_ok": true,
+      "parsed_spec": "fullstack",
+      "grade": "junior",
+      "gold_grade": "junior",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b92",
+      "style": "formal",
+      "spec_ok": true,
+      "parsed_spec": "fullstack",
+      "grade": "middle",
+      "gold_grade": "middle",
+      "missed": [],
+      "extra": [
+       "nodejs"
+      ],
+      "kind_errors": [
+       "docker",
+       "postgresql"
+      ],
+      "question": null
+     },
+     {
+      "id": "b93",
+      "style": "chat",
+      "spec_ok": true,
+      "parsed_spec": "fullstack",
+      "grade": "middle",
+      "gold_grade": "middle",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [],
+      "question": "salary"
+     },
+     {
+      "id": "b94",
+      "style": "mixed_en",
+      "spec_ok": true,
+      "parsed_spec": "fullstack",
+      "grade": "middle",
+      "gold_grade": "middle",
+      "missed": [],
+      "extra": [
+       "nodejs"
+      ],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b95",
+      "style": "long",
+      "spec_ok": false,
+      "parsed_spec": "backend_python",
+      "grade": "middle",
+      "gold_grade": "middle",
+      "missed": [],
+      "extra": [
+       "ci_cd"
+      ],
+      "kind_errors": [
+       "docker",
+       "postgresql",
+       "redis",
+       "typescript"
+      ],
+      "question": null
+     },
+     {
+      "id": "b96",
+      "style": "short",
+      "spec_ok": true,
+      "parsed_spec": "fullstack",
+      "grade": "middle",
+      "gold_grade": "middle",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [],
+      "question": null
+     },
+     {
+      "id": "b97",
+      "style": "formal",
+      "spec_ok": true,
+      "parsed_spec": "fullstack",
+      "grade": "senior",
+      "gold_grade": "senior",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [
+       "api_design",
+       "docker"
+      ],
+      "question": null
+     },
+     {
+      "id": "b98",
+      "style": "chat",
+      "spec_ok": false,
+      "parsed_spec": "backend_python",
+      "grade": "senior",
+      "gold_grade": "senior",
+      "missed": [
+       "code_review"
+      ],
+      "extra": [],
+      "kind_errors": [],
+      "question": "salary"
+     },
+     {
+      "id": "b99",
+      "style": "mixed_en",
+      "spec_ok": true,
+      "parsed_spec": "fullstack",
+      "grade": "senior",
+      "gold_grade": "senior",
+      "missed": [],
+      "extra": [],
+      "kind_errors": [
+       "postgresql",
+       "system_design"
+      ],
       "question": null
      }
     ]
@@ -10211,6 +13824,117 @@
       "p5": 1.0,
       "ndcg10": 0.4286,
       "recall50": 0.2191,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b100": {
+    "split": "test2",
+    "style": "short",
+    "spec": "fullstack",
+    "grade": "senior",
+    "n_relevant": 60,
+    "p10_ceiling": 1.0,
+    "in_scope": 157,
+    "categories": [
+     [
+      "fullstack",
+      "senior"
+     ],
+     [
+      "fullstack",
+      "middle"
+     ],
+     [
+      "backend_python",
+      "senior"
+     ]
+    ],
+    "question": "spec",
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.5,
+      "p5": 0.4,
+      "ndcg10": 0.6139,
+      "recall50": 0.4667,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.6308,
+      "recall50": 0.4667,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 0.2,
+      "p5": 0.4,
+      "ndcg10": 0.4142,
+      "recall50": 0.3,
+      "mrr": 0.3333
+     },
+     "b0": {
+      "p10": 0.6,
+      "p5": 0.4,
+      "ndcg10": 0.6921,
+      "recall50": 0.2667,
+      "mrr": 1.0
+     },
+     "b1": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0245,
+      "recall50": 0.05,
+      "mrr": 0.0233
+     },
+     "b2": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.6765,
+      "recall50": 0.1833,
+      "mrr": 1.0
+     },
+     "b3": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0221,
+      "recall50": 0.05,
+      "mrr": 0.0312
+     },
+     "no_lcb": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.6282,
+      "recall50": 0.5,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.5,
+      "p5": 0.8,
+      "ndcg10": 0.6892,
+      "recall50": 0.4667,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.5,
+      "p5": 0.8,
+      "ndcg10": 0.7149,
+      "recall50": 0.4833,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.5619,
+      "recall50": 0.4833,
+      "mrr": 0.5
+     },
+     "no_U": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.635,
+      "recall50": 0.45,
       "mrr": 1.0
      }
     }
@@ -13368,13 +17092,6250 @@
       "mrr": 1.0
      }
     }
+   },
+   "b41": {
+    "split": "test2",
+    "style": "formal",
+    "spec": "backend_python",
+    "grade": "intern",
+    "n_relevant": 116,
+    "p10_ceiling": 1.0,
+    "in_scope": 208,
+    "categories": [
+     [
+      "backend_python",
+      "intern"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.6959,
+      "recall50": 0.25,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.6959,
+      "recall50": 0.25,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.6959,
+      "recall50": 0.25,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.3,
+      "p5": 0.4,
+      "ndcg10": 0.358,
+      "recall50": 0.1552,
+      "mrr": 1.0
+     },
+     "b1": {
+      "p10": 0.2,
+      "p5": 0.0,
+      "ndcg10": 0.0826,
+      "recall50": 0.0431,
+      "mrr": 0.1111
+     },
+     "b2": {
+      "p10": 0.8,
+      "p5": 0.8,
+      "ndcg10": 0.3657,
+      "recall50": 0.1466,
+      "mrr": 0.5
+     },
+     "b3": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0,
+      "recall50": 0.0259,
+      "mrr": 0.0526
+     },
+     "no_lcb": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.7014,
+      "recall50": 0.2414,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.6833,
+      "recall50": 0.25,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.6921,
+      "recall50": 0.25,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.7549,
+      "recall50": 0.2414,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.6921,
+      "recall50": 0.2414,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b42": {
+    "split": "test2",
+    "style": "short",
+    "spec": "backend_python",
+    "grade": "intern",
+    "n_relevant": 113,
+    "p10_ceiling": 1.0,
+    "in_scope": 208,
+    "categories": [
+     [
+      "backend_python",
+      "intern"
+     ],
+     [
+      "data_ml",
+      "intern"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.9,
+      "p5": 0.8,
+      "ndcg10": 0.6445,
+      "recall50": 0.3186,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 0.9,
+      "p5": 0.8,
+      "ndcg10": 0.6445,
+      "recall50": 0.3186,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 0.9,
+      "p5": 0.8,
+      "ndcg10": 0.6445,
+      "recall50": 0.3186,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.1602,
+      "recall50": 0.1239,
+      "mrr": 0.3333
+     },
+     "b1": {
+      "p10": 0.2,
+      "p5": 0.4,
+      "ndcg10": 0.1705,
+      "recall50": 0.0531,
+      "mrr": 1.0
+     },
+     "b2": {
+      "p10": 0.7,
+      "p5": 0.6,
+      "ndcg10": 0.3386,
+      "recall50": 0.177,
+      "mrr": 0.5
+     },
+     "b3": {
+      "p10": 0.3,
+      "p5": 0.4,
+      "ndcg10": 0.1691,
+      "recall50": 0.0442,
+      "mrr": 0.5
+     },
+     "no_lcb": {
+      "p10": 0.9,
+      "p5": 0.8,
+      "ndcg10": 0.6485,
+      "recall50": 0.3274,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.9,
+      "p5": 0.8,
+      "ndcg10": 0.6999,
+      "recall50": 0.3363,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.9,
+      "p5": 0.8,
+      "ndcg10": 0.6514,
+      "recall50": 0.3274,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.9,
+      "p5": 0.8,
+      "ndcg10": 0.6463,
+      "recall50": 0.3363,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 0.9,
+      "p5": 0.8,
+      "ndcg10": 0.6066,
+      "recall50": 0.3097,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b43": {
+    "split": "test2",
+    "style": "chat",
+    "spec": "backend_python",
+    "grade": "junior",
+    "n_relevant": 242,
+    "p10_ceiling": 1.0,
+    "in_scope": 333,
+    "categories": [
+     [
+      "backend_python",
+      "junior"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.8,
+      "p5": 1.0,
+      "ndcg10": 0.4292,
+      "recall50": 0.1653,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 0.8,
+      "p5": 1.0,
+      "ndcg10": 0.4292,
+      "recall50": 0.1653,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 0.8,
+      "p5": 1.0,
+      "ndcg10": 0.4292,
+      "recall50": 0.1653,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.2481,
+      "recall50": 0.1033,
+      "mrr": 0.5
+     },
+     "b1": {
+      "p10": 0.3,
+      "p5": 0.4,
+      "ndcg10": 0.2692,
+      "recall50": 0.0579,
+      "mrr": 0.25
+     },
+     "b2": {
+      "p10": 0.7,
+      "p5": 0.6,
+      "ndcg10": 0.3855,
+      "recall50": 0.1157,
+      "mrr": 1.0
+     },
+     "b3": {
+      "p10": 0.4,
+      "p5": 0.4,
+      "ndcg10": 0.3368,
+      "recall50": 0.0702,
+      "mrr": 0.5
+     },
+     "no_lcb": {
+      "p10": 0.8,
+      "p5": 1.0,
+      "ndcg10": 0.4256,
+      "recall50": 0.157,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.8,
+      "p5": 1.0,
+      "ndcg10": 0.4359,
+      "recall50": 0.1694,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.7,
+      "p5": 1.0,
+      "ndcg10": 0.4168,
+      "recall50": 0.1736,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.8,
+      "p5": 0.8,
+      "ndcg10": 0.5019,
+      "recall50": 0.1694,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 0.8,
+      "p5": 1.0,
+      "ndcg10": 0.4364,
+      "recall50": 0.1694,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b44": {
+    "split": "test2",
+    "style": "formal",
+    "spec": "backend_python",
+    "grade": "junior",
+    "n_relevant": 66,
+    "p10_ceiling": 1.0,
+    "in_scope": 333,
+    "categories": [
+     [
+      "backend_python",
+      "junior"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.3578,
+      "recall50": 0.3788,
+      "mrr": 0.5
+     },
+     "ours_gold": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.3578,
+      "recall50": 0.3788,
+      "mrr": 0.5
+     },
+     "ours_noq": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.3578,
+      "recall50": 0.3788,
+      "mrr": 0.5
+     },
+     "b0": {
+      "p10": 0.3,
+      "p5": 0.4,
+      "ndcg10": 0.2406,
+      "recall50": 0.1212,
+      "mrr": 1.0
+     },
+     "b1": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0643,
+      "recall50": 0.0152,
+      "mrr": 0.05
+     },
+     "b2": {
+      "p10": 0.2,
+      "p5": 0.0,
+      "ndcg10": 0.1779,
+      "recall50": 0.1364,
+      "mrr": 0.1429
+     },
+     "b3": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.2082,
+      "recall50": 0.0606,
+      "mrr": 0.25
+     },
+     "no_lcb": {
+      "p10": 0.7,
+      "p5": 0.4,
+      "ndcg10": 0.3842,
+      "recall50": 0.3636,
+      "mrr": 0.5
+     },
+     "no_K": {
+      "p10": 0.7,
+      "p5": 0.6,
+      "ndcg10": 0.4223,
+      "recall50": 0.3485,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.3546,
+      "recall50": 0.3939,
+      "mrr": 0.5
+     },
+     "no_A": {
+      "p10": 0.7,
+      "p5": 0.6,
+      "ndcg10": 0.4223,
+      "recall50": 0.3788,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 0.7,
+      "p5": 0.6,
+      "ndcg10": 0.3788,
+      "recall50": 0.3485,
+      "mrr": 0.5
+     }
+    }
+   },
+   "b45": {
+    "split": "test2",
+    "style": "short",
+    "spec": "backend_python",
+    "grade": "junior",
+    "n_relevant": 96,
+    "p10_ceiling": 1.0,
+    "in_scope": 333,
+    "categories": [
+     [
+      "backend_python",
+      "junior"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.4,
+      "p5": 0.6,
+      "ndcg10": 0.3119,
+      "recall50": 0.3021,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 0.4,
+      "p5": 0.6,
+      "ndcg10": 0.3119,
+      "recall50": 0.3021,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 0.4,
+      "p5": 0.6,
+      "ndcg10": 0.3119,
+      "recall50": 0.3021,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.2,
+      "p5": 0.2,
+      "ndcg10": 0.1788,
+      "recall50": 0.0938,
+      "mrr": 1.0
+     },
+     "b1": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.0591,
+      "recall50": 0.125,
+      "mrr": 0.2
+     },
+     "b2": {
+      "p10": 0.4,
+      "p5": 0.4,
+      "ndcg10": 0.2589,
+      "recall50": 0.1042,
+      "mrr": 0.5
+     },
+     "b3": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.1037,
+      "recall50": 0.1458,
+      "mrr": 0.5
+     },
+     "no_lcb": {
+      "p10": 0.5,
+      "p5": 0.4,
+      "ndcg10": 0.2896,
+      "recall50": 0.2917,
+      "mrr": 0.5
+     },
+     "no_K": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.3685,
+      "recall50": 0.3125,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.3685,
+      "recall50": 0.3125,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.4,
+      "p5": 0.4,
+      "ndcg10": 0.3086,
+      "recall50": 0.3021,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.3728,
+      "recall50": 0.3125,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b46": {
+    "split": "test2",
+    "style": "mixed_en",
+    "spec": "backend_python",
+    "grade": "junior",
+    "n_relevant": 273,
+    "p10_ceiling": 1.0,
+    "in_scope": 333,
+    "categories": [
+     [
+      "backend_python",
+      "junior"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.9,
+      "p5": 1.0,
+      "ndcg10": 0.6963,
+      "recall50": 0.1575,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 0.9,
+      "p5": 1.0,
+      "ndcg10": 0.6963,
+      "recall50": 0.1575,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 0.9,
+      "p5": 1.0,
+      "ndcg10": 0.6963,
+      "recall50": 0.1575,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.1833,
+      "recall50": 0.0842,
+      "mrr": 0.5
+     },
+     "b1": {
+      "p10": 0.7,
+      "p5": 0.8,
+      "ndcg10": 0.3916,
+      "recall50": 0.0659,
+      "mrr": 0.5
+     },
+     "b2": {
+      "p10": 0.8,
+      "p5": 0.8,
+      "ndcg10": 0.4154,
+      "recall50": 0.1209,
+      "mrr": 1.0
+     },
+     "b3": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.1589,
+      "recall50": 0.0549,
+      "mrr": 0.2
+     },
+     "no_lcb": {
+      "p10": 0.8,
+      "p5": 1.0,
+      "ndcg10": 0.6762,
+      "recall50": 0.1575,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.9,
+      "p5": 1.0,
+      "ndcg10": 0.7077,
+      "recall50": 0.1648,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.8,
+      "p5": 1.0,
+      "ndcg10": 0.6866,
+      "recall50": 0.1538,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.9,
+      "p5": 0.8,
+      "ndcg10": 0.6727,
+      "recall50": 0.1612,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 0.8,
+      "p5": 1.0,
+      "ndcg10": 0.6727,
+      "recall50": 0.1648,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b47": {
+    "split": "test2",
+    "style": "long",
+    "spec": "backend_python",
+    "grade": "junior",
+    "n_relevant": 27,
+    "p10_ceiling": 1.0,
+    "in_scope": 333,
+    "categories": [
+     [
+      "backend_python",
+      "junior"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.6843,
+      "recall50": 0.6667,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.6843,
+      "recall50": 0.6667,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.6843,
+      "recall50": 0.6667,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.186,
+      "recall50": 0.1852,
+      "mrr": 0.0476
+     },
+     "b1": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.1855,
+      "recall50": 0.1481,
+      "mrr": 0.2
+     },
+     "b2": {
+      "p10": 0.2,
+      "p5": 0.0,
+      "ndcg10": 0.3107,
+      "recall50": 0.1852,
+      "mrr": 0.1429
+     },
+     "b3": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.2941,
+      "recall50": 0.1481,
+      "mrr": 1.0
+     },
+     "no_lcb": {
+      "p10": 0.6,
+      "p5": 0.4,
+      "ndcg10": 0.6704,
+      "recall50": 0.6667,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.6997,
+      "recall50": 0.6667,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.6783,
+      "recall50": 0.6667,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.7098,
+      "recall50": 0.6667,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.6681,
+      "recall50": 0.6667,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b48": {
+    "split": "test2",
+    "style": "chat",
+    "spec": "backend_python",
+    "grade": "junior",
+    "n_relevant": 163,
+    "p10_ceiling": 1.0,
+    "in_scope": 333,
+    "categories": [
+     [
+      "backend_python",
+      "junior"
+     ]
+    ],
+    "question": "grade",
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.7209,
+      "recall50": 0.2209,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.7209,
+      "recall50": 0.2209,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.6828,
+      "recall50": 0.2209,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.2,
+      "p5": 0.2,
+      "ndcg10": 0.1852,
+      "recall50": 0.0859,
+      "mrr": 1.0
+     },
+     "b1": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0663,
+      "recall50": 0.0184,
+      "mrr": 0.0909
+     },
+     "b2": {
+      "p10": 0.6,
+      "p5": 0.4,
+      "ndcg10": 0.3029,
+      "recall50": 0.1227,
+      "mrr": 1.0
+     },
+     "b3": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0717,
+      "recall50": 0.0184,
+      "mrr": 0.0625
+     },
+     "no_lcb": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.7153,
+      "recall50": 0.2209,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.7314,
+      "recall50": 0.2025,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.7331,
+      "recall50": 0.2147,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.7171,
+      "recall50": 0.2147,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.7314,
+      "recall50": 0.2209,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b49": {
+    "split": "test2",
+    "style": "formal",
+    "spec": "backend_python",
+    "grade": "middle",
+    "n_relevant": 236,
+    "p10_ceiling": 1.0,
+    "in_scope": 475,
+    "categories": [
+     [
+      "backend_python",
+      "middle"
+     ],
+     [
+      "backend_python",
+      "senior"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.2535,
+      "recall50": 0.1271,
+      "mrr": 0.3333
+     },
+     "ours_gold": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.2535,
+      "recall50": 0.1271,
+      "mrr": 0.3333
+     },
+     "ours_noq": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.2535,
+      "recall50": 0.1271,
+      "mrr": 0.3333
+     },
+     "b0": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.269,
+      "recall50": 0.089,
+      "mrr": 1.0
+     },
+     "b1": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.2668,
+      "recall50": 0.0763,
+      "mrr": 0.5
+     },
+     "b2": {
+      "p10": 0.7,
+      "p5": 0.6,
+      "ndcg10": 0.4779,
+      "recall50": 0.1017,
+      "mrr": 1.0
+     },
+     "b3": {
+      "p10": 0.2,
+      "p5": 0.0,
+      "ndcg10": 0.1587,
+      "recall50": 0.0763,
+      "mrr": 0.1667
+     },
+     "no_lcb": {
+      "p10": 0.4,
+      "p5": 0.2,
+      "ndcg10": 0.2709,
+      "recall50": 0.1314,
+      "mrr": 0.3333
+     },
+     "no_K": {
+      "p10": 0.4,
+      "p5": 0.2,
+      "ndcg10": 0.2719,
+      "recall50": 0.1314,
+      "mrr": 0.3333
+     },
+     "no_F": {
+      "p10": 0.6,
+      "p5": 0.4,
+      "ndcg10": 0.3727,
+      "recall50": 0.1271,
+      "mrr": 0.5
+     },
+     "no_A": {
+      "p10": 0.5,
+      "p5": 0.2,
+      "ndcg10": 0.2983,
+      "recall50": 0.1356,
+      "mrr": 0.5
+     },
+     "no_U": {
+      "p10": 0.4,
+      "p5": 0.2,
+      "ndcg10": 0.2744,
+      "recall50": 0.1271,
+      "mrr": 0.3333
+     }
+    }
+   },
+   "b50": {
+    "split": "test2",
+    "style": "chat",
+    "spec": "backend_python",
+    "grade": "middle",
+    "n_relevant": 83,
+    "p10_ceiling": 1.0,
+    "in_scope": 318,
+    "categories": [
+     [
+      "backend_python",
+      "middle"
+     ]
+    ],
+    "question": "salary",
+    "salary_filled": true,
+    "metrics": {
+     "ours": {
+      "p10": 0.5,
+      "p5": 0.4,
+      "ndcg10": 0.3955,
+      "recall50": 0.3614,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 0.5,
+      "p5": 0.4,
+      "ndcg10": 0.3955,
+      "recall50": 0.3614,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 0.5,
+      "p5": 0.4,
+      "ndcg10": 0.3955,
+      "recall50": 0.3614,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.1996,
+      "recall50": 0.0964,
+      "mrr": 1.0
+     },
+     "b1": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.1113,
+      "recall50": 0.0843,
+      "mrr": 0.1429
+     },
+     "b2": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.1284,
+      "recall50": 0.0964,
+      "mrr": 0.0909
+     },
+     "b3": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.0712,
+      "recall50": 0.0964,
+      "mrr": 0.1
+     },
+     "no_lcb": {
+      "p10": 0.5,
+      "p5": 0.4,
+      "ndcg10": 0.3834,
+      "recall50": 0.3494,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.5,
+      "p5": 0.4,
+      "ndcg10": 0.3955,
+      "recall50": 0.3494,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.3976,
+      "recall50": 0.3494,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.5,
+      "p5": 0.4,
+      "ndcg10": 0.3989,
+      "recall50": 0.3494,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 0.5,
+      "p5": 0.4,
+      "ndcg10": 0.3955,
+      "recall50": 0.3494,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b51": {
+    "split": "test2",
+    "style": "short",
+    "spec": "backend_python",
+    "grade": "middle",
+    "n_relevant": 60,
+    "p10_ceiling": 1.0,
+    "in_scope": 318,
+    "categories": [
+     [
+      "backend_python",
+      "middle"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.7,
+      "p5": 0.8,
+      "ndcg10": 0.6998,
+      "recall50": 0.55,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 0.7,
+      "p5": 0.8,
+      "ndcg10": 0.6998,
+      "recall50": 0.55,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 0.7,
+      "p5": 0.8,
+      "ndcg10": 0.6998,
+      "recall50": 0.55,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0547,
+      "recall50": 0.0333,
+      "mrr": 0.0714
+     },
+     "b1": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.1239,
+      "recall50": 0.0833,
+      "mrr": 0.0909
+     },
+     "b2": {
+      "p10": 0.2,
+      "p5": 0.2,
+      "ndcg10": 0.3396,
+      "recall50": 0.1667,
+      "mrr": 1.0
+     },
+     "b3": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.1715,
+      "recall50": 0.0833,
+      "mrr": 0.2
+     },
+     "no_lcb": {
+      "p10": 0.7,
+      "p5": 0.6,
+      "ndcg10": 0.6824,
+      "recall50": 0.55,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.7,
+      "p5": 0.8,
+      "ndcg10": 0.7015,
+      "recall50": 0.5,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.7,
+      "p5": 0.8,
+      "ndcg10": 0.7361,
+      "recall50": 0.55,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.7,
+      "p5": 0.8,
+      "ndcg10": 0.7098,
+      "recall50": 0.5667,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 0.7,
+      "p5": 0.8,
+      "ndcg10": 0.6985,
+      "recall50": 0.5333,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b52": {
+    "split": "test2",
+    "style": "mixed_en",
+    "spec": "backend_python",
+    "grade": "middle",
+    "n_relevant": 162,
+    "p10_ceiling": 1.0,
+    "in_scope": 318,
+    "categories": [
+     [
+      "backend_python",
+      "middle"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.5,
+      "p5": 0.4,
+      "ndcg10": 0.2594,
+      "recall50": 0.1543,
+      "mrr": 0.3333
+     },
+     "ours_gold": {
+      "p10": 0.5,
+      "p5": 0.4,
+      "ndcg10": 0.2594,
+      "recall50": 0.1481,
+      "mrr": 0.3333
+     },
+     "ours_noq": {
+      "p10": 0.5,
+      "p5": 0.4,
+      "ndcg10": 0.2594,
+      "recall50": 0.1543,
+      "mrr": 0.3333
+     },
+     "b0": {
+      "p10": 0.2,
+      "p5": 0.0,
+      "ndcg10": 0.0909,
+      "recall50": 0.0926,
+      "mrr": 0.125
+     },
+     "b1": {
+      "p10": 0.3,
+      "p5": 0.4,
+      "ndcg10": 0.2205,
+      "recall50": 0.1049,
+      "mrr": 1.0
+     },
+     "b2": {
+      "p10": 0.4,
+      "p5": 0.2,
+      "ndcg10": 0.241,
+      "recall50": 0.0988,
+      "mrr": 1.0
+     },
+     "b3": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.1618,
+      "recall50": 0.0741,
+      "mrr": 0.5
+     },
+     "no_lcb": {
+      "p10": 0.3,
+      "p5": 0.4,
+      "ndcg10": 0.2181,
+      "recall50": 0.1667,
+      "mrr": 0.5
+     },
+     "no_K": {
+      "p10": 0.5,
+      "p5": 0.4,
+      "ndcg10": 0.2594,
+      "recall50": 0.1667,
+      "mrr": 0.3333
+     },
+     "no_F": {
+      "p10": 0.5,
+      "p5": 0.4,
+      "ndcg10": 0.2609,
+      "recall50": 0.1543,
+      "mrr": 0.3333
+     },
+     "no_A": {
+      "p10": 0.5,
+      "p5": 0.4,
+      "ndcg10": 0.266,
+      "recall50": 0.1728,
+      "mrr": 0.5
+     },
+     "no_U": {
+      "p10": 0.4,
+      "p5": 0.4,
+      "ndcg10": 0.2322,
+      "recall50": 0.1605,
+      "mrr": 0.3333
+     }
+    }
+   },
+   "b53": {
+    "split": "test2",
+    "style": "long",
+    "spec": "backend_python",
+    "grade": "middle",
+    "n_relevant": 21,
+    "p10_ceiling": 1.0,
+    "in_scope": 318,
+    "categories": [
+     [
+      "backend_python",
+      "middle"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.4522,
+      "recall50": 0.619,
+      "mrr": 0.2
+     },
+     "ours_gold": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.457,
+      "recall50": 0.619,
+      "mrr": 0.25
+     },
+     "ours_noq": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.4522,
+      "recall50": 0.619,
+      "mrr": 0.2
+     },
+     "b0": {
+      "p10": 0.2,
+      "p5": 0.0,
+      "ndcg10": 0.2032,
+      "recall50": 0.0952,
+      "mrr": 0.1111
+     },
+     "b1": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0465,
+      "recall50": 0.0476,
+      "mrr": 0.0294
+     },
+     "b2": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.1986,
+      "recall50": 0.0952,
+      "mrr": 0.0526
+     },
+     "b3": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0734,
+      "recall50": 0.0476,
+      "mrr": 0.04
+     },
+     "no_lcb": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.4505,
+      "recall50": 0.619,
+      "mrr": 0.2
+     },
+     "no_K": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.4505,
+      "recall50": 0.5238,
+      "mrr": 0.2
+     },
+     "no_F": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.4522,
+      "recall50": 0.619,
+      "mrr": 0.2
+     },
+     "no_A": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.4527,
+      "recall50": 0.619,
+      "mrr": 0.2
+     },
+     "no_U": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.4535,
+      "recall50": 0.5238,
+      "mrr": 0.2
+     }
+    }
+   },
+   "b54": {
+    "split": "test2",
+    "style": "formal",
+    "spec": "backend_python",
+    "grade": "middle",
+    "n_relevant": 44,
+    "p10_ceiling": 1.0,
+    "in_scope": 318,
+    "categories": [
+     [
+      "backend_python",
+      "middle"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.4558,
+      "recall50": 0.3182,
+      "mrr": 0.5
+     },
+     "ours_gold": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.4558,
+      "recall50": 0.3182,
+      "mrr": 0.5
+     },
+     "ours_noq": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.4558,
+      "recall50": 0.3182,
+      "mrr": 0.5
+     },
+     "b0": {
+      "p10": 0.2,
+      "p5": 0.2,
+      "ndcg10": 0.2604,
+      "recall50": 0.0909,
+      "mrr": 1.0
+     },
+     "b1": {
+      "p10": 0.3,
+      "p5": 0.0,
+      "ndcg10": 0.1644,
+      "recall50": 0.1136,
+      "mrr": 0.1667
+     },
+     "b2": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.1639,
+      "recall50": 0.1364,
+      "mrr": 0.1667
+     },
+     "b3": {
+      "p10": 0.3,
+      "p5": 0.0,
+      "ndcg10": 0.1573,
+      "recall50": 0.1364,
+      "mrr": 0.1429
+     },
+     "no_lcb": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.4463,
+      "recall50": 0.3182,
+      "mrr": 0.5
+     },
+     "no_K": {
+      "p10": 0.6,
+      "p5": 0.4,
+      "ndcg10": 0.4447,
+      "recall50": 0.3182,
+      "mrr": 0.5
+     },
+     "no_F": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.4528,
+      "recall50": 0.3182,
+      "mrr": 0.5
+     },
+     "no_A": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.4514,
+      "recall50": 0.3182,
+      "mrr": 0.5
+     },
+     "no_U": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.4558,
+      "recall50": 0.3182,
+      "mrr": 0.5
+     }
+    }
+   },
+   "b55": {
+    "split": "test2",
+    "style": "chat",
+    "spec": "backend_python",
+    "grade": "middle",
+    "n_relevant": 275,
+    "p10_ceiling": 1.0,
+    "in_scope": 475,
+    "categories": [
+     [
+      "backend_python",
+      "middle"
+     ],
+     [
+      "backend_python",
+      "senior"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.3076,
+      "recall50": 0.1164,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.3065,
+      "recall50": 0.12,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.3076,
+      "recall50": 0.1164,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.4,
+      "p5": 0.6,
+      "ndcg10": 0.2621,
+      "recall50": 0.0582,
+      "mrr": 1.0
+     },
+     "b1": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.1235,
+      "recall50": 0.0618,
+      "mrr": 0.25
+     },
+     "b2": {
+      "p10": 0.7,
+      "p5": 0.6,
+      "ndcg10": 0.3444,
+      "recall50": 0.0909,
+      "mrr": 1.0
+     },
+     "b3": {
+      "p10": 0.4,
+      "p5": 0.4,
+      "ndcg10": 0.1667,
+      "recall50": 0.0545,
+      "mrr": 0.5
+     },
+     "no_lcb": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.3051,
+      "recall50": 0.12,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.303,
+      "recall50": 0.1164,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.3338,
+      "recall50": 0.1164,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.7,
+      "p5": 0.6,
+      "ndcg10": 0.3176,
+      "recall50": 0.1127,
+      "mrr": 0.5
+     },
+     "no_U": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.3065,
+      "recall50": 0.1164,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b56": {
+    "split": "test2",
+    "style": "short",
+    "spec": "backend_python",
+    "grade": "middle",
+    "n_relevant": 220,
+    "p10_ceiling": 1.0,
+    "in_scope": 318,
+    "categories": [
+     [
+      "backend_python",
+      "middle"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.8,
+      "p5": 0.8,
+      "ndcg10": 0.4669,
+      "recall50": 0.1455,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 0.8,
+      "p5": 0.8,
+      "ndcg10": 0.4669,
+      "recall50": 0.1455,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 0.8,
+      "p5": 0.8,
+      "ndcg10": 0.4669,
+      "recall50": 0.1455,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.2,
+      "p5": 0.2,
+      "ndcg10": 0.12,
+      "recall50": 0.1136,
+      "mrr": 0.25
+     },
+     "b1": {
+      "p10": 0.2,
+      "p5": 0.4,
+      "ndcg10": 0.146,
+      "recall50": 0.05,
+      "mrr": 0.5
+     },
+     "b2": {
+      "p10": 0.5,
+      "p5": 0.4,
+      "ndcg10": 0.3254,
+      "recall50": 0.0955,
+      "mrr": 1.0
+     },
+     "b3": {
+      "p10": 0.3,
+      "p5": 0.4,
+      "ndcg10": 0.1875,
+      "recall50": 0.0727,
+      "mrr": 0.5
+     },
+     "no_lcb": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.3969,
+      "recall50": 0.1545,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.8,
+      "p5": 0.8,
+      "ndcg10": 0.4646,
+      "recall50": 0.1455,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.7,
+      "p5": 1.0,
+      "ndcg10": 0.4243,
+      "recall50": 0.1455,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.8,
+      "p5": 0.8,
+      "ndcg10": 0.4732,
+      "recall50": 0.15,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 0.8,
+      "p5": 0.8,
+      "ndcg10": 0.4689,
+      "recall50": 0.15,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b57": {
+    "split": "test2",
+    "style": "formal",
+    "spec": "backend_python",
+    "grade": "middle",
+    "n_relevant": 22,
+    "p10_ceiling": 1.0,
+    "in_scope": 318,
+    "categories": [
+     [
+      "backend_python",
+      "middle"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.6,
+      "p5": 0.8,
+      "ndcg10": 0.7403,
+      "recall50": 0.6818,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 0.6,
+      "p5": 0.8,
+      "ndcg10": 0.7403,
+      "recall50": 0.6818,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 0.6,
+      "p5": 0.8,
+      "ndcg10": 0.7403,
+      "recall50": 0.6818,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.1094,
+      "recall50": 0.0455,
+      "mrr": 0.0455
+     },
+     "b1": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.1682,
+      "recall50": 0.1818,
+      "mrr": 0.25
+     },
+     "b2": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.262,
+      "recall50": 0.1818,
+      "mrr": 0.25
+     },
+     "b3": {
+      "p10": 0.2,
+      "p5": 0.0,
+      "ndcg10": 0.2382,
+      "recall50": 0.0909,
+      "mrr": 0.1429
+     },
+     "no_lcb": {
+      "p10": 0.7,
+      "p5": 0.6,
+      "ndcg10": 0.7781,
+      "recall50": 0.6818,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.6,
+      "p5": 0.8,
+      "ndcg10": 0.7386,
+      "recall50": 0.5455,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.6,
+      "p5": 0.8,
+      "ndcg10": 0.7697,
+      "recall50": 0.6364,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.6,
+      "p5": 0.8,
+      "ndcg10": 0.6844,
+      "recall50": 0.6364,
+      "mrr": 0.5
+     },
+     "no_U": {
+      "p10": 0.6,
+      "p5": 0.8,
+      "ndcg10": 0.7403,
+      "recall50": 0.5909,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b58": {
+    "split": "test2",
+    "style": "formal",
+    "spec": "backend_python",
+    "grade": "senior",
+    "n_relevant": 43,
+    "p10_ceiling": 1.0,
+    "in_scope": 157,
+    "categories": [
+     [
+      "backend_python",
+      "senior"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.5,
+      "p5": 0.2,
+      "ndcg10": 0.5779,
+      "recall50": 0.4651,
+      "mrr": 0.2
+     },
+     "ours_gold": {
+      "p10": 0.5,
+      "p5": 0.2,
+      "ndcg10": 0.5779,
+      "recall50": 0.4651,
+      "mrr": 0.2
+     },
+     "ours_noq": {
+      "p10": 0.5,
+      "p5": 0.2,
+      "ndcg10": 0.5779,
+      "recall50": 0.4651,
+      "mrr": 0.2
+     },
+     "b0": {
+      "p10": 0.4,
+      "p5": 0.2,
+      "ndcg10": 0.4152,
+      "recall50": 0.2326,
+      "mrr": 0.25
+     },
+     "b1": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0245,
+      "recall50": 0.1395,
+      "mrr": 0.0833
+     },
+     "b2": {
+      "p10": 0.4,
+      "p5": 0.6,
+      "ndcg10": 0.6049,
+      "recall50": 0.186,
+      "mrr": 0.5
+     },
+     "b3": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0245,
+      "recall50": 0.093,
+      "mrr": 0.0588
+     },
+     "no_lcb": {
+      "p10": 0.5,
+      "p5": 0.4,
+      "ndcg10": 0.6254,
+      "recall50": 0.4651,
+      "mrr": 0.5
+     },
+     "no_K": {
+      "p10": 0.5,
+      "p5": 0.4,
+      "ndcg10": 0.607,
+      "recall50": 0.4419,
+      "mrr": 0.3333
+     },
+     "no_F": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.6258,
+      "recall50": 0.4651,
+      "mrr": 0.5
+     },
+     "no_A": {
+      "p10": 0.4,
+      "p5": 0.6,
+      "ndcg10": 0.5769,
+      "recall50": 0.4419,
+      "mrr": 0.5
+     },
+     "no_U": {
+      "p10": 0.5,
+      "p5": 0.2,
+      "ndcg10": 0.5864,
+      "recall50": 0.4419,
+      "mrr": 0.25
+     }
+    }
+   },
+   "b59": {
+    "split": "test2",
+    "style": "short",
+    "spec": "backend_python",
+    "grade": "senior",
+    "n_relevant": 103,
+    "p10_ceiling": 1.0,
+    "in_scope": 157,
+    "categories": [
+     [
+      "backend_python",
+      "senior"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.7,
+      "p5": 0.6,
+      "ndcg10": 0.8082,
+      "recall50": 0.233,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 0.7,
+      "p5": 0.6,
+      "ndcg10": 0.8082,
+      "recall50": 0.233,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 0.7,
+      "p5": 0.6,
+      "ndcg10": 0.8082,
+      "recall50": 0.233,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.2,
+      "p5": 0.4,
+      "ndcg10": 0.5293,
+      "recall50": 0.1845,
+      "mrr": 1.0
+     },
+     "b1": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.1333,
+      "recall50": 0.0777,
+      "mrr": 0.1429
+     },
+     "b2": {
+      "p10": 0.7,
+      "p5": 0.6,
+      "ndcg10": 0.7979,
+      "recall50": 0.2136,
+      "mrr": 1.0
+     },
+     "b3": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.1435,
+      "recall50": 0.068,
+      "mrr": 0.1667
+     },
+     "no_lcb": {
+      "p10": 0.7,
+      "p5": 0.8,
+      "ndcg10": 0.811,
+      "recall50": 0.2233,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.762,
+      "recall50": 0.233,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.7,
+      "p5": 1.0,
+      "ndcg10": 0.8612,
+      "recall50": 0.233,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.7602,
+      "recall50": 0.233,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 0.6,
+      "p5": 0.8,
+      "ndcg10": 0.7681,
+      "recall50": 0.233,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b60": {
+    "split": "test2",
+    "style": "chat",
+    "spec": "backend_python",
+    "grade": "senior",
+    "n_relevant": 35,
+    "p10_ceiling": 1.0,
+    "in_scope": 475,
+    "categories": [
+     [
+      "backend_python",
+      "senior"
+     ],
+     [
+      "backend_python",
+      "middle"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.5,
+      "p5": 0.8,
+      "ndcg10": 0.6752,
+      "recall50": 0.6286,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 0.5,
+      "p5": 0.8,
+      "ndcg10": 0.6565,
+      "recall50": 0.6286,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 0.5,
+      "p5": 0.8,
+      "ndcg10": 0.6752,
+      "recall50": 0.6286,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.1133,
+      "recall50": 0.0571,
+      "mrr": 0.0435
+     },
+     "b1": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.165,
+      "recall50": 0.0571,
+      "mrr": 0.5
+     },
+     "b2": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.3631,
+      "recall50": 0.2286,
+      "mrr": 0.5
+     },
+     "b3": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.1854,
+      "recall50": 0.0286,
+      "mrr": 0.5
+     },
+     "no_lcb": {
+      "p10": 0.4,
+      "p5": 0.6,
+      "ndcg10": 0.6341,
+      "recall50": 0.6,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.6907,
+      "recall50": 0.5429,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.5,
+      "p5": 0.8,
+      "ndcg10": 0.7024,
+      "recall50": 0.5429,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.6,
+      "p5": 0.4,
+      "ndcg10": 0.6974,
+      "recall50": 0.6,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.6877,
+      "recall50": 0.6,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b61": {
+    "split": "test2",
+    "style": "mixed_en",
+    "spec": "backend_python",
+    "grade": "senior",
+    "n_relevant": 167,
+    "p10_ceiling": 1.0,
+    "in_scope": 157,
+    "categories": [
+     [
+      "backend_python",
+      "senior"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.7,
+      "p5": 0.6,
+      "ndcg10": 0.607,
+      "recall50": 0.2036,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 0.7,
+      "p5": 0.6,
+      "ndcg10": 0.609,
+      "recall50": 0.2096,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 0.7,
+      "p5": 0.6,
+      "ndcg10": 0.607,
+      "recall50": 0.2036,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.6,
+      "p5": 0.4,
+      "ndcg10": 0.4836,
+      "recall50": 0.2216,
+      "mrr": 0.3333
+     },
+     "b1": {
+      "p10": 0.2,
+      "p5": 0.0,
+      "ndcg10": 0.1732,
+      "recall50": 0.0778,
+      "mrr": 0.1429
+     },
+     "b2": {
+      "p10": 0.9,
+      "p5": 0.8,
+      "ndcg10": 0.7164,
+      "recall50": 0.2156,
+      "mrr": 1.0
+     },
+     "b3": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.0714,
+      "recall50": 0.0539,
+      "mrr": 0.1111
+     },
+     "no_lcb": {
+      "p10": 0.7,
+      "p5": 0.6,
+      "ndcg10": 0.6107,
+      "recall50": 0.2096,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.6,
+      "p5": 0.4,
+      "ndcg10": 0.5747,
+      "recall50": 0.2156,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.586,
+      "recall50": 0.2096,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.6,
+      "p5": 0.4,
+      "ndcg10": 0.5079,
+      "recall50": 0.1976,
+      "mrr": 0.5
+     },
+     "no_U": {
+      "p10": 0.7,
+      "p5": 0.6,
+      "ndcg10": 0.6123,
+      "recall50": 0.1976,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b62": {
+    "split": "test2",
+    "style": "long",
+    "spec": "backend_python",
+    "grade": "senior",
+    "n_relevant": 26,
+    "p10_ceiling": 1.0,
+    "in_scope": 475,
+    "categories": [
+     [
+      "backend_python",
+      "senior"
+     ],
+     [
+      "backend_python",
+      "middle"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.7,
+      "p5": 0.8,
+      "ndcg10": 0.7446,
+      "recall50": 0.7308,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 0.8,
+      "p5": 0.8,
+      "ndcg10": 0.8088,
+      "recall50": 0.7308,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 0.7,
+      "p5": 0.8,
+      "ndcg10": 0.7446,
+      "recall50": 0.7308,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.1388,
+      "recall50": 0.0769,
+      "mrr": 0.3333
+     },
+     "b1": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0913,
+      "recall50": 0.1538,
+      "mrr": 0.037
+     },
+     "b2": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.3047,
+      "recall50": 0.2308,
+      "mrr": 0.1429
+     },
+     "b3": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.0738,
+      "recall50": 0.0769,
+      "mrr": 0.1429
+     },
+     "no_lcb": {
+      "p10": 0.7,
+      "p5": 0.6,
+      "ndcg10": 0.7367,
+      "recall50": 0.6923,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.4,
+      "p5": 0.6,
+      "ndcg10": 0.5969,
+      "recall50": 0.6538,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.7,
+      "p5": 0.8,
+      "ndcg10": 0.832,
+      "recall50": 0.7308,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.6,
+      "p5": 0.8,
+      "ndcg10": 0.6523,
+      "recall50": 0.6923,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 0.6,
+      "p5": 0.8,
+      "ndcg10": 0.697,
+      "recall50": 0.7308,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b63": {
+    "split": "test2",
+    "style": "formal",
+    "spec": "backend_python",
+    "grade": "senior",
+    "n_relevant": 32,
+    "p10_ceiling": 1.0,
+    "in_scope": 475,
+    "categories": [
+     [
+      "backend_python",
+      "senior"
+     ],
+     [
+      "backend_python",
+      "middle"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.4904,
+      "recall50": 0.5625,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 0.7,
+      "p5": 0.8,
+      "ndcg10": 0.5847,
+      "recall50": 0.5625,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.4904,
+      "recall50": 0.5625,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.1978,
+      "recall50": 0.125,
+      "mrr": 0.25
+     },
+     "b1": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0132,
+      "recall50": 0.1562,
+      "mrr": 0.0256
+     },
+     "b2": {
+      "p10": 0.3,
+      "p5": 0.4,
+      "ndcg10": 0.3191,
+      "recall50": 0.25,
+      "mrr": 1.0
+     },
+     "b3": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.042,
+      "recall50": 0.0,
+      "mrr": 0.0152
+     },
+     "no_lcb": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.4447,
+      "recall50": 0.5625,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.48,
+      "recall50": 0.5,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.6,
+      "p5": 0.8,
+      "ndcg10": 0.5425,
+      "recall50": 0.5625,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.6,
+      "p5": 0.8,
+      "ndcg10": 0.5168,
+      "recall50": 0.5625,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.4688,
+      "recall50": 0.5938,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b64": {
+    "split": "test2",
+    "style": "chat",
+    "spec": "backend_python",
+    "grade": "senior",
+    "n_relevant": 170,
+    "p10_ceiling": 1.0,
+    "in_scope": 475,
+    "categories": [
+     [
+      "backend_python",
+      "senior"
+     ],
+     [
+      "backend_python",
+      "middle"
+     ]
+    ],
+    "question": "salary",
+    "salary_filled": true,
+    "metrics": {
+     "ours": {
+      "p10": 0.7,
+      "p5": 0.8,
+      "ndcg10": 0.4523,
+      "recall50": 0.2,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 0.7,
+      "p5": 0.8,
+      "ndcg10": 0.4553,
+      "recall50": 0.2176,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 0.7,
+      "p5": 0.8,
+      "ndcg10": 0.4523,
+      "recall50": 0.2,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.2,
+      "p5": 0.0,
+      "ndcg10": 0.1488,
+      "recall50": 0.0882,
+      "mrr": 0.1429
+     },
+     "b1": {
+      "p10": 0.2,
+      "p5": 0.2,
+      "ndcg10": 0.1351,
+      "recall50": 0.0647,
+      "mrr": 0.5
+     },
+     "b2": {
+      "p10": 0.8,
+      "p5": 1.0,
+      "ndcg10": 0.5146,
+      "recall50": 0.1941,
+      "mrr": 1.0
+     },
+     "b3": {
+      "p10": 0.2,
+      "p5": 0.4,
+      "ndcg10": 0.2081,
+      "recall50": 0.0353,
+      "mrr": 1.0
+     },
+     "no_lcb": {
+      "p10": 0.6,
+      "p5": 0.8,
+      "ndcg10": 0.4066,
+      "recall50": 0.1824,
+      "mrr": 0.5
+     },
+     "no_K": {
+      "p10": 0.7,
+      "p5": 0.8,
+      "ndcg10": 0.4773,
+      "recall50": 0.1941,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.8,
+      "p5": 0.8,
+      "ndcg10": 0.498,
+      "recall50": 0.1941,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.8,
+      "p5": 0.6,
+      "ndcg10": 0.4694,
+      "recall50": 0.1882,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 0.7,
+      "p5": 0.6,
+      "ndcg10": 0.4569,
+      "recall50": 0.1941,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b65": {
+    "split": "test2",
+    "style": "formal",
+    "spec": "frontend_js",
+    "grade": "intern",
+    "n_relevant": 44,
+    "p10_ceiling": 1.0,
+    "in_scope": 433,
+    "categories": [
+     [
+      "frontend_js",
+      "junior"
+     ],
+     [
+      "frontend_js",
+      "intern"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.5,
+      "p5": 1.0,
+      "ndcg10": 0.453,
+      "recall50": 0.25,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.5429,
+      "recall50": 0.4545,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 0.5,
+      "p5": 1.0,
+      "ndcg10": 0.453,
+      "recall50": 0.25,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0507,
+      "recall50": 0.0455,
+      "mrr": 0.027
+     },
+     "b1": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.0844,
+      "recall50": 0.0227,
+      "mrr": 0.3333
+     },
+     "b2": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0721,
+      "recall50": 0.0227,
+      "mrr": 0.0294
+     },
+     "b3": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.057,
+      "recall50": 0.0455,
+      "mrr": 0.2
+     },
+     "no_lcb": {
+      "p10": 0.5,
+      "p5": 1.0,
+      "ndcg10": 0.447,
+      "recall50": 0.2273,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.5,
+      "p5": 1.0,
+      "ndcg10": 0.4644,
+      "recall50": 0.2955,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.5,
+      "p5": 1.0,
+      "ndcg10": 0.453,
+      "recall50": 0.2727,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.5,
+      "p5": 1.0,
+      "ndcg10": 0.453,
+      "recall50": 0.2273,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 0.4,
+      "p5": 0.4,
+      "ndcg10": 0.3762,
+      "recall50": 0.2273,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b66": {
+    "split": "test2",
+    "style": "chat",
+    "spec": "frontend_js",
+    "grade": "intern",
+    "n_relevant": 177,
+    "p10_ceiling": 1.0,
+    "in_scope": 175,
+    "categories": [
+     [
+      "frontend_js",
+      "intern"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.6341,
+      "recall50": 0.2655,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.6341,
+      "recall50": 0.2655,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.6341,
+      "recall50": 0.2655,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.5,
+      "p5": 0.8,
+      "ndcg10": 0.49,
+      "recall50": 0.1695,
+      "mrr": 0.5
+     },
+     "b1": {
+      "p10": 0.2,
+      "p5": 0.4,
+      "ndcg10": 0.1035,
+      "recall50": 0.0791,
+      "mrr": 0.3333
+     },
+     "b2": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.5084,
+      "recall50": 0.1864,
+      "mrr": 1.0
+     },
+     "b3": {
+      "p10": 0.2,
+      "p5": 0.0,
+      "ndcg10": 0.072,
+      "recall50": 0.0678,
+      "mrr": 0.1429
+     },
+     "no_lcb": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.6326,
+      "recall50": 0.2655,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.6449,
+      "recall50": 0.2655,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.6355,
+      "recall50": 0.2655,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.5741,
+      "recall50": 0.2655,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.6326,
+      "recall50": 0.2599,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b67": {
+    "split": "test2",
+    "style": "short",
+    "spec": "frontend_js",
+    "grade": "junior",
+    "n_relevant": 217,
+    "p10_ceiling": 1.0,
+    "in_scope": 258,
+    "categories": [
+     [
+      "frontend_js",
+      "junior"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.8731,
+      "recall50": 0.2074,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.8731,
+      "recall50": 0.2074,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.8731,
+      "recall50": 0.2074,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.6,
+      "p5": 0.8,
+      "ndcg10": 0.5768,
+      "recall50": 0.1198,
+      "mrr": 1.0
+     },
+     "b1": {
+      "p10": 0.4,
+      "p5": 0.6,
+      "ndcg10": 0.4799,
+      "recall50": 0.0691,
+      "mrr": 1.0
+     },
+     "b2": {
+      "p10": 0.8,
+      "p5": 1.0,
+      "ndcg10": 0.5186,
+      "recall50": 0.1429,
+      "mrr": 1.0
+     },
+     "b3": {
+      "p10": 0.4,
+      "p5": 0.4,
+      "ndcg10": 0.4376,
+      "recall50": 0.0553,
+      "mrr": 1.0
+     },
+     "no_lcb": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.8792,
+      "recall50": 0.2074,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.9065,
+      "recall50": 0.2074,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.8952,
+      "recall50": 0.2074,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.8885,
+      "recall50": 0.2074,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.8702,
+      "recall50": 0.2074,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b68": {
+    "split": "test2",
+    "style": "formal",
+    "spec": "frontend_js",
+    "grade": "junior",
+    "n_relevant": 16,
+    "p10_ceiling": 1.0,
+    "in_scope": 433,
+    "categories": [
+     [
+      "frontend_js",
+      "junior"
+     ],
+     [
+      "frontend_js",
+      "intern"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.5145,
+      "recall50": 0.625,
+      "mrr": 0.3333
+     },
+     "ours_gold": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.5212,
+      "recall50": 0.5,
+      "mrr": 0.3333
+     },
+     "ours_noq": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.5145,
+      "recall50": 0.625,
+      "mrr": 0.3333
+     },
+     "b0": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.1684,
+      "recall50": 0.125,
+      "mrr": 0.5
+     },
+     "b1": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.065,
+      "recall50": 0.0,
+      "mrr": 0.0116
+     },
+     "b2": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.2468,
+      "recall50": 0.1875,
+      "mrr": 0.1667
+     },
+     "b3": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0219,
+      "recall50": 0.0,
+      "mrr": 0.0135
+     },
+     "no_lcb": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.5145,
+      "recall50": 0.6875,
+      "mrr": 0.3333
+     },
+     "no_K": {
+      "p10": 0.5,
+      "p5": 0.4,
+      "ndcg10": 0.4572,
+      "recall50": 0.6875,
+      "mrr": 0.3333
+     },
+     "no_F": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.4653,
+      "recall50": 0.625,
+      "mrr": 0.3333
+     },
+     "no_A": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.5294,
+      "recall50": 0.5625,
+      "mrr": 0.5
+     },
+     "no_U": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.4653,
+      "recall50": 0.5625,
+      "mrr": 0.3333
+     }
+    }
+   },
+   "b69": {
+    "split": "test2",
+    "style": "chat",
+    "spec": "frontend_js",
+    "grade": "junior",
+    "n_relevant": 215,
+    "p10_ceiling": 1.0,
+    "in_scope": 258,
+    "categories": [
+     [
+      "frontend_js",
+      "junior"
+     ]
+    ],
+    "question": "salary",
+    "salary_filled": true,
+    "metrics": {
+     "ours": {
+      "p10": 0.9,
+      "p5": 1.0,
+      "ndcg10": 0.6304,
+      "recall50": 0.2,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 0.9,
+      "p5": 1.0,
+      "ndcg10": 0.614,
+      "recall50": 0.2,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 0.9,
+      "p5": 1.0,
+      "ndcg10": 0.6304,
+      "recall50": 0.2,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.5,
+      "p5": 0.2,
+      "ndcg10": 0.2628,
+      "recall50": 0.107,
+      "mrr": 0.5
+     },
+     "b1": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.3829,
+      "recall50": 0.0605,
+      "mrr": 1.0
+     },
+     "b2": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.5991,
+      "recall50": 0.1535,
+      "mrr": 1.0
+     },
+     "b3": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.3263,
+      "recall50": 0.0698,
+      "mrr": 1.0
+     },
+     "no_lcb": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.6856,
+      "recall50": 0.2,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.9,
+      "p5": 1.0,
+      "ndcg10": 0.6013,
+      "recall50": 0.1953,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 0.6614,
+      "recall50": 0.2047,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.9,
+      "p5": 0.8,
+      "ndcg10": 0.5651,
+      "recall50": 0.2,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 0.9,
+      "p5": 1.0,
+      "ndcg10": 0.6391,
+      "recall50": 0.2,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b70": {
+    "split": "test2",
+    "style": "mixed_en",
+    "spec": "frontend_js",
+    "grade": "junior",
+    "n_relevant": 68,
+    "p10_ceiling": 1.0,
+    "in_scope": 258,
+    "categories": [
+     [
+      "frontend_js",
+      "junior"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.8,
+      "p5": 0.8,
+      "ndcg10": 0.467,
+      "recall50": 0.3676,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 0.8,
+      "p5": 0.8,
+      "ndcg10": 0.4655,
+      "recall50": 0.4118,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 0.8,
+      "p5": 0.8,
+      "ndcg10": 0.467,
+      "recall50": 0.3676,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.0565,
+      "recall50": 0.1176,
+      "mrr": 0.1
+     },
+     "b1": {
+      "p10": 0.2,
+      "p5": 0.2,
+      "ndcg10": 0.0839,
+      "recall50": 0.1029,
+      "mrr": 0.2
+     },
+     "b2": {
+      "p10": 0.3,
+      "p5": 0.0,
+      "ndcg10": 0.1961,
+      "recall50": 0.1765,
+      "mrr": 0.1667
+     },
+     "b3": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.1178,
+      "recall50": 0.1471,
+      "mrr": 1.0
+     },
+     "no_lcb": {
+      "p10": 0.8,
+      "p5": 0.8,
+      "ndcg10": 0.465,
+      "recall50": 0.3676,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.8,
+      "p5": 0.8,
+      "ndcg10": 0.4269,
+      "recall50": 0.3824,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.8,
+      "p5": 0.8,
+      "ndcg10": 0.4623,
+      "recall50": 0.3971,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.8,
+      "p5": 0.8,
+      "ndcg10": 0.4715,
+      "recall50": 0.3824,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 0.8,
+      "p5": 0.8,
+      "ndcg10": 0.4623,
+      "recall50": 0.3676,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b71": {
+    "split": "test2",
+    "style": "long",
+    "spec": "frontend_js",
+    "grade": "junior",
+    "n_relevant": 110,
+    "p10_ceiling": 1.0,
+    "in_scope": 433,
+    "categories": [
+     [
+      "frontend_js",
+      "junior"
+     ],
+     [
+      "frontend_js",
+      "intern"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.7,
+      "p5": 0.4,
+      "ndcg10": 0.4743,
+      "recall50": 0.3636,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 0.7,
+      "p5": 0.4,
+      "ndcg10": 0.4743,
+      "recall50": 0.3636,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 0.7,
+      "p5": 0.4,
+      "ndcg10": 0.4743,
+      "recall50": 0.3636,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0874,
+      "recall50": 0.0818,
+      "mrr": 0.0435
+     },
+     "b1": {
+      "p10": 0.2,
+      "p5": 0.2,
+      "ndcg10": 0.1312,
+      "recall50": 0.0727,
+      "mrr": 0.2
+     },
+     "b2": {
+      "p10": 0.6,
+      "p5": 0.8,
+      "ndcg10": 0.6736,
+      "recall50": 0.1727,
+      "mrr": 1.0
+     },
+     "b3": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.1119,
+      "recall50": 0.0727,
+      "mrr": 0.1111
+     },
+     "no_lcb": {
+      "p10": 0.6,
+      "p5": 0.4,
+      "ndcg10": 0.4471,
+      "recall50": 0.3727,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.6,
+      "p5": 0.4,
+      "ndcg10": 0.5101,
+      "recall50": 0.3273,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.7,
+      "p5": 0.4,
+      "ndcg10": 0.441,
+      "recall50": 0.3636,
+      "mrr": 0.5
+     },
+     "no_A": {
+      "p10": 0.7,
+      "p5": 0.6,
+      "ndcg10": 0.481,
+      "recall50": 0.3636,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 0.7,
+      "p5": 0.4,
+      "ndcg10": 0.4743,
+      "recall50": 0.3455,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b72": {
+    "split": "test2",
+    "style": "short",
+    "spec": "frontend_js",
+    "grade": "junior",
+    "n_relevant": 37,
+    "p10_ceiling": 1.0,
+    "in_scope": 258,
+    "categories": [
+     [
+      "frontend_js",
+      "junior"
+     ]
+    ],
+    "question": "salary",
+    "salary_filled": true,
+    "metrics": {
+     "ours": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.4726,
+      "recall50": 0.3784,
+      "mrr": 0.5
+     },
+     "ours_gold": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.4726,
+      "recall50": 0.3784,
+      "mrr": 0.5
+     },
+     "ours_noq": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.4726,
+      "recall50": 0.3784,
+      "mrr": 0.5
+     },
+     "b0": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.1998,
+      "recall50": 0.2162,
+      "mrr": 0.2
+     },
+     "b1": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.2544,
+      "recall50": 0.2162,
+      "mrr": 1.0
+     },
+     "b2": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.2991,
+      "recall50": 0.1892,
+      "mrr": 0.2
+     },
+     "b3": {
+      "p10": 0.2,
+      "p5": 0.4,
+      "ndcg10": 0.289,
+      "recall50": 0.2162,
+      "mrr": 1.0
+     },
+     "no_lcb": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.511,
+      "recall50": 0.3514,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.5,
+      "p5": 0.4,
+      "ndcg10": 0.4374,
+      "recall50": 0.4595,
+      "mrr": 0.5
+     },
+     "no_F": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.4714,
+      "recall50": 0.4054,
+      "mrr": 0.5
+     },
+     "no_A": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.4714,
+      "recall50": 0.3784,
+      "mrr": 0.5
+     },
+     "no_U": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.4714,
+      "recall50": 0.3784,
+      "mrr": 0.5
+     }
+    }
+   },
+   "b73": {
+    "split": "test2",
+    "style": "formal",
+    "spec": "frontend_js",
+    "grade": "middle",
+    "n_relevant": 66,
+    "p10_ceiling": 1.0,
+    "in_scope": 415,
+    "categories": [
+     [
+      "frontend_js",
+      "middle"
+     ],
+     [
+      "frontend_js",
+      "senior"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.3717,
+      "recall50": 0.3333,
+      "mrr": 0.5
+     },
+     "ours_gold": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.3717,
+      "recall50": 0.3333,
+      "mrr": 0.5
+     },
+     "ours_noq": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.3717,
+      "recall50": 0.3333,
+      "mrr": 0.5
+     },
+     "b0": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.1792,
+      "recall50": 0.0758,
+      "mrr": 0.1429
+     },
+     "b1": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.237,
+      "recall50": 0.0758,
+      "mrr": 0.25
+     },
+     "b2": {
+      "p10": 0.2,
+      "p5": 0.4,
+      "ndcg10": 0.2748,
+      "recall50": 0.1364,
+      "mrr": 1.0
+     },
+     "b3": {
+      "p10": 0.3,
+      "p5": 0.4,
+      "ndcg10": 0.1966,
+      "recall50": 0.0758,
+      "mrr": 0.3333
+     },
+     "no_lcb": {
+      "p10": 0.5,
+      "p5": 0.8,
+      "ndcg10": 0.3777,
+      "recall50": 0.3636,
+      "mrr": 0.5
+     },
+     "no_K": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.3754,
+      "recall50": 0.303,
+      "mrr": 0.5
+     },
+     "no_F": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.4109,
+      "recall50": 0.3333,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.6,
+      "p5": 0.4,
+      "ndcg10": 0.3907,
+      "recall50": 0.3333,
+      "mrr": 0.5
+     },
+     "no_U": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.3705,
+      "recall50": 0.3182,
+      "mrr": 0.5
+     }
+    }
+   },
+   "b74": {
+    "split": "test2",
+    "style": "chat",
+    "spec": "frontend_js",
+    "grade": "middle",
+    "n_relevant": 18,
+    "p10_ceiling": 1.0,
+    "in_scope": 269,
+    "categories": [
+     [
+      "frontend_js",
+      "middle"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.2,
+      "p5": 0.4,
+      "ndcg10": 0.3858,
+      "recall50": 0.2222,
+      "mrr": 0.25
+     },
+     "ours_gold": {
+      "p10": 0.2,
+      "p5": 0.4,
+      "ndcg10": 0.3858,
+      "recall50": 0.2222,
+      "mrr": 0.25
+     },
+     "ours_noq": {
+      "p10": 0.2,
+      "p5": 0.4,
+      "ndcg10": 0.3858,
+      "recall50": 0.2222,
+      "mrr": 0.25
+     },
+     "b0": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.1294,
+      "recall50": 0.1667,
+      "mrr": 0.0769
+     },
+     "b1": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.1672,
+      "recall50": 0.2778,
+      "mrr": 0.0714
+     },
+     "b2": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.342,
+      "recall50": 0.2222,
+      "mrr": 0.25
+     },
+     "b3": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.2206,
+      "recall50": 0.2778,
+      "mrr": 0.1667
+     },
+     "no_lcb": {
+      "p10": 0.2,
+      "p5": 0.4,
+      "ndcg10": 0.4236,
+      "recall50": 0.2222,
+      "mrr": 0.3333
+     },
+     "no_K": {
+      "p10": 0.2,
+      "p5": 0.2,
+      "ndcg10": 0.3779,
+      "recall50": 0.2222,
+      "mrr": 0.25
+     },
+     "no_F": {
+      "p10": 0.2,
+      "p5": 0.2,
+      "ndcg10": 0.3718,
+      "recall50": 0.2778,
+      "mrr": 0.5
+     },
+     "no_A": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.2472,
+      "recall50": 0.2222,
+      "mrr": 0.0833
+     },
+     "no_U": {
+      "p10": 0.2,
+      "p5": 0.4,
+      "ndcg10": 0.3858,
+      "recall50": 0.2222,
+      "mrr": 0.25
+     }
+    }
+   },
+   "b75": {
+    "split": "test2",
+    "style": "short",
+    "spec": "frontend_js",
+    "grade": "middle",
+    "n_relevant": 170,
+    "p10_ceiling": 1.0,
+    "in_scope": 269,
+    "categories": [
+     [
+      "frontend_js",
+      "middle"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.3472,
+      "recall50": 0.1647,
+      "mrr": 0.3333
+     },
+     "ours_gold": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.3472,
+      "recall50": 0.1647,
+      "mrr": 0.3333
+     },
+     "ours_noq": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.3472,
+      "recall50": 0.1647,
+      "mrr": 0.3333
+     },
+     "b0": {
+      "p10": 0.3,
+      "p5": 0.4,
+      "ndcg10": 0.3151,
+      "recall50": 0.1059,
+      "mrr": 1.0
+     },
+     "b1": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.0658,
+      "recall50": 0.0706,
+      "mrr": 0.1111
+     },
+     "b2": {
+      "p10": 0.4,
+      "p5": 0.6,
+      "ndcg10": 0.2334,
+      "recall50": 0.1176,
+      "mrr": 0.3333
+     },
+     "b3": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.1037,
+      "recall50": 0.0882,
+      "mrr": 0.1111
+     },
+     "no_lcb": {
+      "p10": 0.7,
+      "p5": 0.6,
+      "ndcg10": 0.3654,
+      "recall50": 0.1529,
+      "mrr": 0.3333
+     },
+     "no_K": {
+      "p10": 0.7,
+      "p5": 0.4,
+      "ndcg10": 0.3645,
+      "recall50": 0.1588,
+      "mrr": 0.3333
+     },
+     "no_F": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.3619,
+      "recall50": 0.1588,
+      "mrr": 0.5
+     },
+     "no_A": {
+      "p10": 0.4,
+      "p5": 0.6,
+      "ndcg10": 0.2446,
+      "recall50": 0.1588,
+      "mrr": 0.5
+     },
+     "no_U": {
+      "p10": 0.7,
+      "p5": 0.6,
+      "ndcg10": 0.3636,
+      "recall50": 0.1588,
+      "mrr": 0.3333
+     }
+    }
+   },
+   "b76": {
+    "split": "test2",
+    "style": "mixed_en",
+    "spec": "frontend_js",
+    "grade": "middle",
+    "n_relevant": 32,
+    "p10_ceiling": 1.0,
+    "in_scope": 269,
+    "categories": [
+     [
+      "frontend_js",
+      "middle"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.7,
+      "p5": 0.4,
+      "ndcg10": 0.5213,
+      "recall50": 0.5625,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 0.7,
+      "p5": 0.4,
+      "ndcg10": 0.5213,
+      "recall50": 0.5938,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 0.7,
+      "p5": 0.4,
+      "ndcg10": 0.5213,
+      "recall50": 0.5625,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.091,
+      "recall50": 0.1875,
+      "mrr": 0.0833
+     },
+     "b1": {
+      "p10": 0.2,
+      "p5": 0.4,
+      "ndcg10": 0.2765,
+      "recall50": 0.125,
+      "mrr": 1.0
+     },
+     "b2": {
+      "p10": 0.3,
+      "p5": 0.0,
+      "ndcg10": 0.2288,
+      "recall50": 0.2812,
+      "mrr": 0.125
+     },
+     "b3": {
+      "p10": 0.2,
+      "p5": 0.2,
+      "ndcg10": 0.2481,
+      "recall50": 0.125,
+      "mrr": 1.0
+     },
+     "no_lcb": {
+      "p10": 0.7,
+      "p5": 0.4,
+      "ndcg10": 0.592,
+      "recall50": 0.5625,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.7,
+      "p5": 0.6,
+      "ndcg10": 0.5287,
+      "recall50": 0.5625,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.7,
+      "p5": 0.4,
+      "ndcg10": 0.5326,
+      "recall50": 0.5625,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.7,
+      "p5": 0.6,
+      "ndcg10": 0.5518,
+      "recall50": 0.5625,
+      "mrr": 0.5
+     },
+     "no_U": {
+      "p10": 0.7,
+      "p5": 0.6,
+      "ndcg10": 0.5287,
+      "recall50": 0.5625,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b77": {
+    "split": "test2",
+    "style": "long",
+    "spec": "frontend_js",
+    "grade": "middle",
+    "n_relevant": 8,
+    "p10_ceiling": 0.8,
+    "in_scope": 269,
+    "categories": [
+     [
+      "frontend_js",
+      "middle"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.2,
+      "p5": 0.0,
+      "ndcg10": 0.409,
+      "recall50": 0.25,
+      "mrr": 0.1111
+     },
+     "ours_gold": {
+      "p10": 0.2,
+      "p5": 0.0,
+      "ndcg10": 0.409,
+      "recall50": 0.25,
+      "mrr": 0.1111
+     },
+     "ours_noq": {
+      "p10": 0.2,
+      "p5": 0.0,
+      "ndcg10": 0.409,
+      "recall50": 0.25,
+      "mrr": 0.1111
+     },
+     "b0": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0817,
+      "recall50": 0.0,
+      "mrr": 0.0192
+     },
+     "b1": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.1219,
+      "recall50": 0.0,
+      "mrr": 0.0152
+     },
+     "b2": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.1743,
+      "recall50": 0.125,
+      "mrr": 0.0476
+     },
+     "b3": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0874,
+      "recall50": 0.25,
+      "mrr": 0.0385
+     },
+     "no_lcb": {
+      "p10": 0.2,
+      "p5": 0.0,
+      "ndcg10": 0.4196,
+      "recall50": 0.25,
+      "mrr": 0.1111
+     },
+     "no_K": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.3731,
+      "recall50": 0.25,
+      "mrr": 0.1111
+     },
+     "no_F": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.3731,
+      "recall50": 0.25,
+      "mrr": 0.1111
+     },
+     "no_A": {
+      "p10": 0.2,
+      "p5": 0.0,
+      "ndcg10": 0.4114,
+      "recall50": 0.25,
+      "mrr": 0.125
+     },
+     "no_U": {
+      "p10": 0.2,
+      "p5": 0.0,
+      "ndcg10": 0.409,
+      "recall50": 0.25,
+      "mrr": 0.1111
+     }
+    }
+   },
+   "b78": {
+    "split": "test2",
+    "style": "formal",
+    "spec": "frontend_js",
+    "grade": "middle",
+    "n_relevant": 14,
+    "p10_ceiling": 1.0,
+    "in_scope": 527,
+    "categories": [
+     [
+      "frontend_js",
+      "middle"
+     ],
+     [
+      "frontend_js",
+      "junior"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.5,
+      "p5": 0.8,
+      "ndcg10": 0.7449,
+      "recall50": 0.9286,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 0.7,
+      "p5": 0.8,
+      "ndcg10": 0.8362,
+      "recall50": 0.6429,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 0.5,
+      "p5": 0.8,
+      "ndcg10": 0.7449,
+      "recall50": 0.9286,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0611,
+      "recall50": 0.0714,
+      "mrr": 0.0323
+     },
+     "b1": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0231,
+      "recall50": 0.0714,
+      "mrr": 0.0286
+     },
+     "b2": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.2544,
+      "recall50": 0.2857,
+      "mrr": 0.1429
+     },
+     "b3": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0261,
+      "recall50": 0.0,
+      "mrr": 0.0143
+     },
+     "no_lcb": {
+      "p10": 0.5,
+      "p5": 0.8,
+      "ndcg10": 0.755,
+      "recall50": 0.9286,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.5,
+      "p5": 0.8,
+      "ndcg10": 0.7223,
+      "recall50": 0.9286,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.5,
+      "p5": 0.8,
+      "ndcg10": 0.7449,
+      "recall50": 0.9286,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.5,
+      "p5": 0.8,
+      "ndcg10": 0.7449,
+      "recall50": 0.9286,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 0.5,
+      "p5": 0.8,
+      "ndcg10": 0.7256,
+      "recall50": 0.9286,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b79": {
+    "split": "test2",
+    "style": "chat",
+    "spec": "frontend_js",
+    "grade": "middle",
+    "n_relevant": 0,
+    "p10_ceiling": 0.0,
+    "in_scope": 269,
+    "categories": [
+     [
+      "frontend_js",
+      "middle"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.8048,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "ours_gold": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.8048,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "ours_noq": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.8048,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "b0": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.3836,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "b1": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "b2": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.6164,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "b3": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "no_lcb": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.8166,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "no_K": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.7663,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "no_F": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.6353,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "no_A": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.6688,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "no_U": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.8048,
+      "recall50": null,
+      "mrr": 0.0
+     }
+    }
+   },
+   "b80": {
+    "split": "test2",
+    "style": "short",
+    "spec": "frontend_js",
+    "grade": "middle",
+    "n_relevant": 15,
+    "p10_ceiling": 1.0,
+    "in_scope": 269,
+    "categories": [
+     [
+      "frontend_js",
+      "middle"
+     ]
+    ],
+    "question": "salary",
+    "salary_filled": true,
+    "metrics": {
+     "ours": {
+      "p10": 0.4,
+      "p5": 0.4,
+      "ndcg10": 0.3913,
+      "recall50": 0.4667,
+      "mrr": 0.5
+     },
+     "ours_gold": {
+      "p10": 0.4,
+      "p5": 0.4,
+      "ndcg10": 0.3913,
+      "recall50": 0.4667,
+      "mrr": 0.5
+     },
+     "ours_noq": {
+      "p10": 0.4,
+      "p5": 0.4,
+      "ndcg10": 0.3913,
+      "recall50": 0.4667,
+      "mrr": 0.5
+     },
+     "b0": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0567,
+      "recall50": 0.2,
+      "mrr": 0.0556
+     },
+     "b1": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0219,
+      "recall50": 0.1333,
+      "mrr": 0.0588
+     },
+     "b2": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.2974,
+      "recall50": 0.4667,
+      "mrr": 0.5
+     },
+     "b3": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0189,
+      "recall50": 0.1333,
+      "mrr": 0.0588
+     },
+     "no_lcb": {
+      "p10": 0.4,
+      "p5": 0.4,
+      "ndcg10": 0.4436,
+      "recall50": 0.4667,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.4,
+      "p5": 0.4,
+      "ndcg10": 0.37,
+      "recall50": 0.4667,
+      "mrr": 0.5
+     },
+     "no_F": {
+      "p10": 0.4,
+      "p5": 0.4,
+      "ndcg10": 0.3715,
+      "recall50": 0.4667,
+      "mrr": 0.3333
+     },
+     "no_A": {
+      "p10": 0.4,
+      "p5": 0.4,
+      "ndcg10": 0.3765,
+      "recall50": 0.4667,
+      "mrr": 0.3333
+     },
+     "no_U": {
+      "p10": 0.4,
+      "p5": 0.4,
+      "ndcg10": 0.375,
+      "recall50": 0.4667,
+      "mrr": 0.5
+     }
+    }
+   },
+   "b81": {
+    "split": "test2",
+    "style": "long",
+    "spec": "frontend_js",
+    "grade": "middle",
+    "n_relevant": 21,
+    "p10_ceiling": 1.0,
+    "in_scope": 527,
+    "categories": [
+     [
+      "frontend_js",
+      "middle"
+     ],
+     [
+      "frontend_js",
+      "junior"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.6,
+      "p5": 0.8,
+      "ndcg10": 0.7892,
+      "recall50": 0.5714,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 0.8,
+      "p5": 1.0,
+      "ndcg10": 0.8727,
+      "recall50": 0.4762,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 0.6,
+      "p5": 0.8,
+      "ndcg10": 0.7892,
+      "recall50": 0.5714,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0577,
+      "recall50": 0.0952,
+      "mrr": 0.0208
+     },
+     "b1": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.0734,
+      "recall50": 0.0476,
+      "mrr": 0.1429
+     },
+     "b2": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.2312,
+      "recall50": 0.2857,
+      "mrr": 0.1429
+     },
+     "b3": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0221,
+      "recall50": 0.0952,
+      "mrr": 0.0526
+     },
+     "no_lcb": {
+      "p10": 0.6,
+      "p5": 1.0,
+      "ndcg10": 0.7878,
+      "recall50": 0.5714,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.7769,
+      "recall50": 0.5714,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.6,
+      "p5": 0.8,
+      "ndcg10": 0.8104,
+      "recall50": 0.5714,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.6,
+      "p5": 1.0,
+      "ndcg10": 0.8182,
+      "recall50": 0.5714,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 0.6,
+      "p5": 0.8,
+      "ndcg10": 0.8104,
+      "recall50": 0.5714,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b82": {
+    "split": "test2",
+    "style": "formal",
+    "spec": "frontend_js",
+    "grade": "senior",
+    "n_relevant": 68,
+    "p10_ceiling": 1.0,
+    "in_scope": 415,
+    "categories": [
+     [
+      "frontend_js",
+      "senior"
+     ],
+     [
+      "frontend_js",
+      "middle"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 1.0,
+      "recall50": 0.4853,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 1.0,
+      "recall50": 0.5441,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 1.0,
+      "recall50": 0.4853,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0904,
+      "recall50": 0.0882,
+      "mrr": 0.0476
+     },
+     "b1": {
+      "p10": 0.2,
+      "p5": 0.2,
+      "ndcg10": 0.2259,
+      "recall50": 0.0735,
+      "mrr": 0.3333
+     },
+     "b2": {
+      "p10": 0.4,
+      "p5": 0.4,
+      "ndcg10": 0.5442,
+      "recall50": 0.2941,
+      "mrr": 1.0
+     },
+     "b3": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.1125,
+      "recall50": 0.0735,
+      "mrr": 0.1111
+     },
+     "no_lcb": {
+      "p10": 0.9,
+      "p5": 0.8,
+      "ndcg10": 0.9432,
+      "recall50": 0.4706,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 1.0,
+      "recall50": 0.4265,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 1.0,
+      "recall50": 0.4412,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 1.0,
+      "recall50": 0.4559,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 1.0,
+      "recall50": 0.4706,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b83": {
+    "split": "test2",
+    "style": "short",
+    "spec": "frontend_js",
+    "grade": "senior",
+    "n_relevant": 163,
+    "p10_ceiling": 1.0,
+    "in_scope": 415,
+    "categories": [
+     [
+      "frontend_js",
+      "senior"
+     ],
+     [
+      "frontend_js",
+      "middle"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 1.0,
+      "recall50": 0.2393,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 1.0,
+      "recall50": 0.2454,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 1.0,
+      "recall50": 0.2393,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.1454,
+      "recall50": 0.0798,
+      "mrr": 0.0833
+     },
+     "b1": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.1113,
+      "recall50": 0.0491,
+      "mrr": 0.2
+     },
+     "b2": {
+      "p10": 0.8,
+      "p5": 1.0,
+      "ndcg10": 0.9048,
+      "recall50": 0.2454,
+      "mrr": 1.0
+     },
+     "b3": {
+      "p10": 0.2,
+      "p5": 0.0,
+      "ndcg10": 0.1845,
+      "recall50": 0.0613,
+      "mrr": 0.1667
+     },
+     "no_lcb": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 1.0,
+      "recall50": 0.227,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.9,
+      "p5": 1.0,
+      "ndcg10": 0.9558,
+      "recall50": 0.2025,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.9,
+      "p5": 1.0,
+      "ndcg10": 0.9511,
+      "recall50": 0.227,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.9,
+      "p5": 1.0,
+      "ndcg10": 0.9537,
+      "recall50": 0.2393,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 1.0,
+      "recall50": 0.2209,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b84": {
+    "split": "test2",
+    "style": "chat",
+    "spec": "frontend_js",
+    "grade": "senior",
+    "n_relevant": 123,
+    "p10_ceiling": 1.0,
+    "in_scope": 415,
+    "categories": [
+     [
+      "frontend_js",
+      "senior"
+     ],
+     [
+      "frontend_js",
+      "middle"
+     ]
+    ],
+    "question": "salary",
+    "salary_filled": true,
+    "metrics": {
+     "ours": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 1.0,
+      "recall50": 0.2602,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 1.0,
+      "recall50": 0.3008,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 1.0,
+      "recall50": 0.2602,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.1127,
+      "recall50": 0.1057,
+      "mrr": 0.125
+     },
+     "b1": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.3159,
+      "recall50": 0.1138,
+      "mrr": 0.2
+     },
+     "b2": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.7066,
+      "recall50": 0.2358,
+      "mrr": 1.0
+     },
+     "b3": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.3295,
+      "recall50": 0.0894,
+      "mrr": 0.25
+     },
+     "no_lcb": {
+      "p10": 0.9,
+      "p5": 1.0,
+      "ndcg10": 0.9511,
+      "recall50": 0.2602,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.9,
+      "p5": 1.0,
+      "ndcg10": 0.9337,
+      "recall50": 0.2114,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 1.0,
+      "recall50": 0.2439,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 1.0,
+      "recall50": 0.2683,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 1.0,
+      "p5": 1.0,
+      "ndcg10": 1.0,
+      "recall50": 0.2602,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b85": {
+    "split": "test2",
+    "style": "mixed_en",
+    "spec": "frontend_js",
+    "grade": "senior",
+    "n_relevant": 5,
+    "p10_ceiling": 0.5,
+    "in_scope": 415,
+    "categories": [
+     [
+      "frontend_js",
+      "senior"
+     ],
+     [
+      "frontend_js",
+      "middle"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.2748,
+      "recall50": 0.8,
+      "mrr": 0.0714
+     },
+     "ours_gold": {
+      "p10": 0.2,
+      "p5": 0.2,
+      "ndcg10": 0.4749,
+      "recall50": 0.6,
+      "mrr": 0.2
+     },
+     "ours_noq": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.2748,
+      "recall50": 0.8,
+      "mrr": 0.0714
+     },
+     "b0": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0479,
+      "recall50": 0.0,
+      "mrr": 0.006
+     },
+     "b1": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.1358,
+      "recall50": 0.2,
+      "mrr": 0.0204
+     },
+     "b2": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0945,
+      "recall50": 0.2,
+      "mrr": 0.0769
+     },
+     "b3": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0673,
+      "recall50": 0.0,
+      "mrr": 0.011
+     },
+     "no_lcb": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.2662,
+      "recall50": 0.8,
+      "mrr": 0.0769
+     },
+     "no_K": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.2032,
+      "recall50": 0.6,
+      "mrr": 0.0588
+     },
+     "no_F": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.2537,
+      "recall50": 0.8,
+      "mrr": 0.0769
+     },
+     "no_A": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.2717,
+      "recall50": 0.8,
+      "mrr": 0.0714
+     },
+     "no_U": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.2363,
+      "recall50": 0.8,
+      "mrr": 0.0769
+     }
+    }
+   },
+   "b86": {
+    "split": "test2",
+    "style": "long",
+    "spec": "frontend_js",
+    "grade": "senior",
+    "n_relevant": 0,
+    "p10_ceiling": 0.0,
+    "in_scope": 321,
+    "categories": [
+     [
+      "frontend_js",
+      "senior"
+     ],
+     [
+      "frontend_js",
+      "intern"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 1.0,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "ours_gold": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 1.0,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "ours_noq": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 1.0,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "b0": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.224,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "b1": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "b2": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.8318,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "b3": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "no_lcb": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 1.0,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "no_K": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 1.0,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "no_F": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 1.0,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "no_A": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 1.0,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "no_U": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 1.0,
+      "recall50": null,
+      "mrr": 0.0
+     }
+    }
+   },
+   "b87": {
+    "split": "test2",
+    "style": "formal",
+    "spec": "frontend_js",
+    "grade": "senior",
+    "n_relevant": 18,
+    "p10_ceiling": 1.0,
+    "in_scope": 415,
+    "categories": [
+     [
+      "frontend_js",
+      "senior"
+     ],
+     [
+      "frontend_js",
+      "middle"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.3,
+      "p5": 0.4,
+      "ndcg10": 0.4642,
+      "recall50": 0.3333,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 0.3,
+      "p5": 0.4,
+      "ndcg10": 0.4586,
+      "recall50": 0.3333,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 0.3,
+      "p5": 0.4,
+      "ndcg10": 0.4642,
+      "recall50": 0.3333,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.2904,
+      "recall50": 0.2222,
+      "mrr": 0.25
+     },
+     "b1": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.2022,
+      "recall50": 0.2778,
+      "mrr": 0.2
+     },
+     "b2": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.1486,
+      "recall50": 0.1667,
+      "mrr": 0.0417
+     },
+     "b3": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0448,
+      "recall50": 0.2222,
+      "mrr": 0.0526
+     },
+     "no_lcb": {
+      "p10": 0.3,
+      "p5": 0.4,
+      "ndcg10": 0.4314,
+      "recall50": 0.3333,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.3,
+      "p5": 0.6,
+      "ndcg10": 0.4792,
+      "recall50": 0.3333,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.3,
+      "p5": 0.4,
+      "ndcg10": 0.4652,
+      "recall50": 0.2778,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.3,
+      "p5": 0.4,
+      "ndcg10": 0.4652,
+      "recall50": 0.3333,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 0.3,
+      "p5": 0.4,
+      "ndcg10": 0.4642,
+      "recall50": 0.3333,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b88": {
+    "split": "test2",
+    "style": "chat",
+    "spec": "frontend_js",
+    "grade": "senior",
+    "n_relevant": 73,
+    "p10_ceiling": 1.0,
+    "in_scope": 673,
+    "categories": [
+     [
+      "frontend_js",
+      "middle"
+     ],
+     [
+      "frontend_js",
+      "junior"
+     ],
+     [
+      "frontend_js",
+      "senior"
+     ]
+    ],
+    "question": "salary",
+    "salary_filled": true,
+    "metrics": {
+     "ours": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.2105,
+      "recall50": 0.0685,
+      "mrr": 0.25
+     },
+     "ours_gold": {
+      "p10": 0.4,
+      "p5": 0.2,
+      "ndcg10": 0.5635,
+      "recall50": 0.2055,
+      "mrr": 0.5
+     },
+     "ours_noq": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.2105,
+      "recall50": 0.0685,
+      "mrr": 0.25
+     },
+     "b0": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0221,
+      "recall50": 0.0274,
+      "mrr": 0.0909
+     },
+     "b1": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.1216,
+      "recall50": 0.1781,
+      "mrr": 0.0909
+     },
+     "b2": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.2162,
+      "recall50": 0.0411,
+      "mrr": 0.2
+     },
+     "b3": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.1846,
+      "recall50": 0.137,
+      "mrr": 0.1
+     },
+     "no_lcb": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.2047,
+      "recall50": 0.0548,
+      "mrr": 0.1667
+     },
+     "no_K": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.1939,
+      "recall50": 0.0822,
+      "mrr": 0.25
+     },
+     "no_F": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.2681,
+      "recall50": 0.0548,
+      "mrr": 0.1111
+     },
+     "no_A": {
+      "p10": 0.2,
+      "p5": 0.2,
+      "ndcg10": 0.2644,
+      "recall50": 0.0822,
+      "mrr": 0.3333
+     },
+     "no_U": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.2138,
+      "recall50": 0.0685,
+      "mrr": 0.25
+     }
+    }
+   },
+   "b89": {
+    "split": "test2",
+    "style": "formal",
+    "spec": "fullstack",
+    "grade": "junior",
+    "n_relevant": 16,
+    "p10_ceiling": 1.0,
+    "in_scope": 591,
+    "categories": [
+     [
+      "fullstack",
+      "junior"
+     ],
+     [
+      "frontend_js",
+      "junior"
+     ],
+     [
+      "backend_python",
+      "junior"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.4638,
+      "recall50": 0.4375,
+      "mrr": 0.3333
+     },
+     "ours_gold": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.3102,
+      "recall50": 0.0625,
+      "mrr": 0.3333
+     },
+     "ours_noq": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.4638,
+      "recall50": 0.4375,
+      "mrr": 0.3333
+     },
+     "b0": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0727,
+      "recall50": 0.0,
+      "mrr": 0.0122
+     },
+     "b1": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0724,
+      "recall50": 0.0625,
+      "mrr": 0.0244
+     },
+     "b2": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.2239,
+      "recall50": 0.125,
+      "mrr": 0.037
+     },
+     "b3": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.1493,
+      "recall50": 0.1875,
+      "mrr": 0.0238
+     },
+     "no_lcb": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.3751,
+      "recall50": 0.4375,
+      "mrr": 0.3333
+     },
+     "no_K": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.352,
+      "recall50": 0.4375,
+      "mrr": 0.3333
+     },
+     "no_F": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.4664,
+      "recall50": 0.4375,
+      "mrr": 0.3333
+     },
+     "no_A": {
+      "p10": 0.2,
+      "p5": 0.2,
+      "ndcg10": 0.424,
+      "recall50": 0.4375,
+      "mrr": 0.3333
+     },
+     "no_U": {
+      "p10": 0.2,
+      "p5": 0.2,
+      "ndcg10": 0.4193,
+      "recall50": 0.4375,
+      "mrr": 0.3333
+     }
+    }
+   },
+   "b90": {
+    "split": "test2",
+    "style": "chat",
+    "spec": "fullstack",
+    "grade": "junior",
+    "n_relevant": 156,
+    "p10_ceiling": 1.0,
+    "in_scope": 333,
+    "categories": [
+     [
+      "fullstack",
+      "junior"
+     ],
+     [
+      "backend_python",
+      "junior"
+     ]
+    ],
+    "question": "spec",
+    "salary_filled": true,
+    "metrics": {
+     "ours": {
+      "p10": 0.6,
+      "p5": 1.0,
+      "ndcg10": 0.4837,
+      "recall50": 0.1923,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 0.6,
+      "p5": 0.8,
+      "ndcg10": 0.4751,
+      "recall50": 0.1923,
+      "mrr": 1.0
+     },
+     "ours_noq": {
+      "p10": 0.4,
+      "p5": 0.4,
+      "ndcg10": 0.2957,
+      "recall50": 0.109,
+      "mrr": 0.3333
+     },
+     "b0": {
+      "p10": 0.2,
+      "p5": 0.0,
+      "ndcg10": 0.2216,
+      "recall50": 0.0833,
+      "mrr": 0.1429
+     },
+     "b1": {
+      "p10": 0.4,
+      "p5": 0.6,
+      "ndcg10": 0.3449,
+      "recall50": 0.0577,
+      "mrr": 1.0
+     },
+     "b2": {
+      "p10": 0.5,
+      "p5": 0.4,
+      "ndcg10": 0.4186,
+      "recall50": 0.1154,
+      "mrr": 1.0
+     },
+     "b3": {
+      "p10": 0.4,
+      "p5": 0.6,
+      "ndcg10": 0.3368,
+      "recall50": 0.0833,
+      "mrr": 1.0
+     },
+     "no_lcb": {
+      "p10": 0.6,
+      "p5": 0.8,
+      "ndcg10": 0.4736,
+      "recall50": 0.1859,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.6,
+      "p5": 1.0,
+      "ndcg10": 0.4831,
+      "recall50": 0.1859,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.5,
+      "p5": 1.0,
+      "ndcg10": 0.4562,
+      "recall50": 0.1923,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.4751,
+      "recall50": 0.1859,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 0.6,
+      "p5": 1.0,
+      "ndcg10": 0.4892,
+      "recall50": 0.1795,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b91": {
+    "split": "test2",
+    "style": "short",
+    "spec": "fullstack",
+    "grade": "junior",
+    "n_relevant": 16,
+    "p10_ceiling": 1.0,
+    "in_scope": 591,
+    "categories": [
+     [
+      "fullstack",
+      "junior"
+     ],
+     [
+      "frontend_js",
+      "junior"
+     ],
+     [
+      "backend_python",
+      "junior"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.3089,
+      "recall50": 0.375,
+      "mrr": 0.0909
+     },
+     "ours_gold": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.2868,
+      "recall50": 0.0625,
+      "mrr": 0.037
+     },
+     "ours_noq": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.3089,
+      "recall50": 0.375,
+      "mrr": 0.0909
+     },
+     "b0": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.1765,
+      "recall50": 0.0625,
+      "mrr": 0.3333
+     },
+     "b1": {
+      "p10": 0.2,
+      "p5": 0.2,
+      "ndcg10": 0.3345,
+      "recall50": 0.4375,
+      "mrr": 0.5
+     },
+     "b2": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.2454,
+      "recall50": 0.1875,
+      "mrr": 0.5
+     },
+     "b3": {
+      "p10": 0.2,
+      "p5": 0.4,
+      "ndcg10": 0.4421,
+      "recall50": 0.4375,
+      "mrr": 1.0
+     },
+     "no_lcb": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.3544,
+      "recall50": 0.375,
+      "mrr": 0.1111
+     },
+     "no_K": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.3537,
+      "recall50": 0.375,
+      "mrr": 0.1
+     },
+     "no_F": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.3775,
+      "recall50": 0.375,
+      "mrr": 0.1111
+     },
+     "no_A": {
+      "p10": 0.2,
+      "p5": 0.0,
+      "ndcg10": 0.388,
+      "recall50": 0.375,
+      "mrr": 0.1429
+     },
+     "no_U": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.3089,
+      "recall50": 0.375,
+      "mrr": 0.0909
+     }
+    }
+   },
+   "b92": {
+    "split": "test2",
+    "style": "formal",
+    "spec": "fullstack",
+    "grade": "middle",
+    "n_relevant": 10,
+    "p10_ceiling": 1.0,
+    "in_scope": 587,
+    "categories": [
+     [
+      "fullstack",
+      "middle"
+     ],
+     [
+      "frontend_js",
+      "middle"
+     ],
+     [
+      "backend_python",
+      "middle"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.2805,
+      "recall50": 0.4,
+      "mrr": 0.0833
+     },
+     "ours_gold": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.3011,
+      "recall50": 0.1,
+      "mrr": 0.1
+     },
+     "ours_noq": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.2805,
+      "recall50": 0.4,
+      "mrr": 0.0833
+     },
+     "b0": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0,
+      "recall50": 0.1,
+      "mrr": 0.0213
+     },
+     "b1": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0684,
+      "recall50": 0.2,
+      "mrr": 0.0769
+     },
+     "b2": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0909,
+      "recall50": 0.1,
+      "mrr": 0.025
+     },
+     "b3": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0284,
+      "recall50": 0.2,
+      "mrr": 0.0385
+     },
+     "no_lcb": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.3265,
+      "recall50": 0.3,
+      "mrr": 0.1
+     },
+     "no_K": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.2493,
+      "recall50": 0.3,
+      "mrr": 0.0625
+     },
+     "no_F": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.29,
+      "recall50": 0.4,
+      "mrr": 0.0769
+     },
+     "no_A": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.2552,
+      "recall50": 0.4,
+      "mrr": 0.0588
+     },
+     "no_U": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.2805,
+      "recall50": 0.3,
+      "mrr": 0.0667
+     }
+    }
+   },
+   "b93": {
+    "split": "test2",
+    "style": "chat",
+    "spec": "fullstack",
+    "grade": "middle",
+    "n_relevant": 227,
+    "p10_ceiling": 1.0,
+    "in_scope": 587,
+    "categories": [
+     [
+      "fullstack",
+      "middle"
+     ],
+     [
+      "frontend_js",
+      "middle"
+     ],
+     [
+      "backend_python",
+      "middle"
+     ]
+    ],
+    "question": "salary",
+    "salary_filled": true,
+    "metrics": {
+     "ours": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.2862,
+      "recall50": 0.0881,
+      "mrr": 0.3333
+     },
+     "ours_gold": {
+      "p10": 0.2,
+      "p5": 0.0,
+      "ndcg10": 0.2357,
+      "recall50": 0.0396,
+      "mrr": 0.1429
+     },
+     "ours_noq": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.2862,
+      "recall50": 0.0881,
+      "mrr": 0.3333
+     },
+     "b0": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.1972,
+      "recall50": 0.0485,
+      "mrr": 0.3333
+     },
+     "b1": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.0688,
+      "recall50": 0.0352,
+      "mrr": 0.1429
+     },
+     "b2": {
+      "p10": 0.4,
+      "p5": 0.4,
+      "ndcg10": 0.3631,
+      "recall50": 0.0793,
+      "mrr": 0.3333
+     },
+     "b3": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.0818,
+      "recall50": 0.0308,
+      "mrr": 0.25
+     },
+     "no_lcb": {
+      "p10": 0.3,
+      "p5": 0.4,
+      "ndcg10": 0.2828,
+      "recall50": 0.0925,
+      "mrr": 0.25
+     },
+     "no_K": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.2532,
+      "recall50": 0.0793,
+      "mrr": 0.2
+     },
+     "no_F": {
+      "p10": 0.6,
+      "p5": 0.4,
+      "ndcg10": 0.3868,
+      "recall50": 0.0837,
+      "mrr": 0.3333
+     },
+     "no_A": {
+      "p10": 0.2,
+      "p5": 0.2,
+      "ndcg10": 0.2416,
+      "recall50": 0.0881,
+      "mrr": 0.3333
+     },
+     "no_U": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.2759,
+      "recall50": 0.0837,
+      "mrr": 0.25
+     }
+    }
+   },
+   "b94": {
+    "split": "test2",
+    "style": "mixed_en",
+    "spec": "fullstack",
+    "grade": "middle",
+    "n_relevant": 14,
+    "p10_ceiling": 1.0,
+    "in_scope": 587,
+    "categories": [
+     [
+      "fullstack",
+      "middle"
+     ],
+     [
+      "frontend_js",
+      "middle"
+     ],
+     [
+      "backend_python",
+      "middle"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.2,
+      "p5": 0.2,
+      "ndcg10": 0.3694,
+      "recall50": 0.6429,
+      "mrr": 0.25
+     },
+     "ours_gold": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.1903,
+      "recall50": 0.0,
+      "mrr": 0.0105
+     },
+     "ours_noq": {
+      "p10": 0.2,
+      "p5": 0.2,
+      "ndcg10": 0.3694,
+      "recall50": 0.6429,
+      "mrr": 0.25
+     },
+     "b0": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0547,
+      "recall50": 0.0714,
+      "mrr": 0.027
+     },
+     "b1": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0506,
+      "recall50": 0.0,
+      "mrr": 0.0089
+     },
+     "b2": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.2081,
+      "recall50": 0.2143,
+      "mrr": 0.1429
+     },
+     "b3": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0505,
+      "recall50": 0.0,
+      "mrr": 0.0119
+     },
+     "no_lcb": {
+      "p10": 0.4,
+      "p5": 0.2,
+      "ndcg10": 0.4938,
+      "recall50": 0.6429,
+      "mrr": 0.25
+     },
+     "no_K": {
+      "p10": 0.2,
+      "p5": 0.2,
+      "ndcg10": 0.3796,
+      "recall50": 0.6429,
+      "mrr": 0.3333
+     },
+     "no_F": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.535,
+      "recall50": 0.6429,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.4779,
+      "recall50": 0.6429,
+      "mrr": 0.5
+     },
+     "no_U": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.4199,
+      "recall50": 0.6429,
+      "mrr": 0.3333
+     }
+    }
+   },
+   "b95": {
+    "split": "test2",
+    "style": "long",
+    "spec": "fullstack",
+    "grade": "middle",
+    "n_relevant": 153,
+    "p10_ceiling": 1.0,
+    "in_scope": 318,
+    "categories": [
+     [
+      "backend_python",
+      "middle"
+     ],
+     [
+      "fullstack",
+      "middle"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.2,
+      "p5": 0.0,
+      "ndcg10": 0.3601,
+      "recall50": 0.1111,
+      "mrr": 0.1111
+     },
+     "ours_gold": {
+      "p10": 0.2,
+      "p5": 0.0,
+      "ndcg10": 0.4319,
+      "recall50": 0.1111,
+      "mrr": 0.1667
+     },
+     "ours_noq": {
+      "p10": 0.2,
+      "p5": 0.0,
+      "ndcg10": 0.3601,
+      "recall50": 0.1111,
+      "mrr": 0.1111
+     },
+     "b0": {
+      "p10": 0.2,
+      "p5": 0.0,
+      "ndcg10": 0.2919,
+      "recall50": 0.085,
+      "mrr": 0.1429
+     },
+     "b1": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.1563,
+      "recall50": 0.098,
+      "mrr": 0.0769
+     },
+     "b2": {
+      "p10": 0.3,
+      "p5": 0.2,
+      "ndcg10": 0.4324,
+      "recall50": 0.0915,
+      "mrr": 0.25
+     },
+     "b3": {
+      "p10": 0.2,
+      "p5": 0.0,
+      "ndcg10": 0.3192,
+      "recall50": 0.098,
+      "mrr": 0.1429
+     },
+     "no_lcb": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.2938,
+      "recall50": 0.1242,
+      "mrr": 0.1
+     },
+     "no_K": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.3051,
+      "recall50": 0.1046,
+      "mrr": 0.1111
+     },
+     "no_F": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.3303,
+      "recall50": 0.1046,
+      "mrr": 0.2
+     },
+     "no_A": {
+      "p10": 0.4,
+      "p5": 0.0,
+      "ndcg10": 0.4688,
+      "recall50": 0.1176,
+      "mrr": 0.1429
+     },
+     "no_U": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.3177,
+      "recall50": 0.1046,
+      "mrr": 0.1111
+     }
+    }
+   },
+   "b96": {
+    "split": "test2",
+    "style": "short",
+    "spec": "fullstack",
+    "grade": "middle",
+    "n_relevant": 0,
+    "p10_ceiling": 0.0,
+    "in_scope": 587,
+    "categories": [
+     [
+      "fullstack",
+      "middle"
+     ],
+     [
+      "frontend_js",
+      "middle"
+     ],
+     [
+      "backend_python",
+      "middle"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.6948,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "ours_gold": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.7799,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "ours_noq": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.6948,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "b0": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "b1": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "b2": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.137,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "b3": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "no_lcb": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.7015,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "no_K": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.6851,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "no_F": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.8048,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "no_A": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.6851,
+      "recall50": null,
+      "mrr": 0.0
+     },
+     "no_U": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.6948,
+      "recall50": null,
+      "mrr": 0.0
+     }
+    }
+   },
+   "b97": {
+    "split": "test2",
+    "style": "formal",
+    "spec": "fullstack",
+    "grade": "senior",
+    "n_relevant": 85,
+    "p10_ceiling": 1.0,
+    "in_scope": 303,
+    "categories": [
+     [
+      "fullstack",
+      "senior"
+     ],
+     [
+      "frontend_js",
+      "senior"
+     ],
+     [
+      "backend_python",
+      "senior"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.6,
+      "p5": 1.0,
+      "ndcg10": 0.8122,
+      "recall50": 0.1765,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.3822,
+      "recall50": 0.0353,
+      "mrr": 0.1429
+     },
+     "ours_noq": {
+      "p10": 0.6,
+      "p5": 1.0,
+      "ndcg10": 0.8122,
+      "recall50": 0.1765,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.2,
+      "p5": 0.2,
+      "ndcg10": 0.3247,
+      "recall50": 0.0941,
+      "mrr": 0.3333
+     },
+     "b1": {
+      "p10": 0.1,
+      "p5": 0.2,
+      "ndcg10": 0.1391,
+      "recall50": 0.0588,
+      "mrr": 0.25
+     },
+     "b2": {
+      "p10": 0.7,
+      "p5": 0.8,
+      "ndcg10": 0.7927,
+      "recall50": 0.2941,
+      "mrr": 1.0
+     },
+     "b3": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.0663,
+      "recall50": 0.0706,
+      "mrr": 0.1111
+     },
+     "no_lcb": {
+      "p10": 0.7,
+      "p5": 1.0,
+      "ndcg10": 0.8564,
+      "recall50": 0.2118,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.5,
+      "p5": 0.8,
+      "ndcg10": 0.7555,
+      "recall50": 0.1765,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.7412,
+      "recall50": 0.2235,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.8,
+      "p5": 0.6,
+      "ndcg10": 0.8634,
+      "recall50": 0.2235,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 0.6,
+      "p5": 0.8,
+      "ndcg10": 0.8077,
+      "recall50": 0.2,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b98": {
+    "split": "test2",
+    "style": "chat",
+    "spec": "fullstack",
+    "grade": "senior",
+    "n_relevant": 51,
+    "p10_ceiling": 1.0,
+    "in_scope": 157,
+    "categories": [
+     [
+      "backend_python",
+      "senior"
+     ],
+     [
+      "fullstack",
+      "senior"
+     ]
+    ],
+    "question": "salary",
+    "salary_filled": true,
+    "metrics": {
+     "ours": {
+      "p10": 0.5,
+      "p5": 0.8,
+      "ndcg10": 0.7175,
+      "recall50": 0.4902,
+      "mrr": 1.0
+     },
+     "ours_gold": {
+      "p10": 0.5,
+      "p5": 0.8,
+      "ndcg10": 0.6634,
+      "recall50": 0.4902,
+      "mrr": 0.5
+     },
+     "ours_noq": {
+      "p10": 0.5,
+      "p5": 0.8,
+      "ndcg10": 0.7175,
+      "recall50": 0.4902,
+      "mrr": 1.0
+     },
+     "b0": {
+      "p10": 0.2,
+      "p5": 0.0,
+      "ndcg10": 0.2837,
+      "recall50": 0.1765,
+      "mrr": 0.1111
+     },
+     "b1": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0,
+      "recall50": 0.0588,
+      "mrr": 0.0455
+     },
+     "b2": {
+      "p10": 0.3,
+      "p5": 0.4,
+      "ndcg10": 0.615,
+      "recall50": 0.2157,
+      "mrr": 1.0
+     },
+     "b3": {
+      "p10": 0.0,
+      "p5": 0.0,
+      "ndcg10": 0.0,
+      "recall50": 0.0392,
+      "mrr": 0.0333
+     },
+     "no_lcb": {
+      "p10": 0.5,
+      "p5": 0.8,
+      "ndcg10": 0.7581,
+      "recall50": 0.4902,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.7212,
+      "recall50": 0.4902,
+      "mrr": 1.0
+     },
+     "no_F": {
+      "p10": 0.6,
+      "p5": 0.8,
+      "ndcg10": 0.7618,
+      "recall50": 0.5098,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.4,
+      "p5": 0.6,
+      "ndcg10": 0.6396,
+      "recall50": 0.4902,
+      "mrr": 1.0
+     },
+     "no_U": {
+      "p10": 0.5,
+      "p5": 0.6,
+      "ndcg10": 0.7131,
+      "recall50": 0.4706,
+      "mrr": 1.0
+     }
+    }
+   },
+   "b99": {
+    "split": "test2",
+    "style": "mixed_en",
+    "spec": "fullstack",
+    "grade": "senior",
+    "n_relevant": 86,
+    "p10_ceiling": 1.0,
+    "in_scope": 303,
+    "categories": [
+     [
+      "fullstack",
+      "senior"
+     ],
+     [
+      "frontend_js",
+      "senior"
+     ],
+     [
+      "backend_python",
+      "senior"
+     ]
+    ],
+    "question": null,
+    "salary_filled": false,
+    "metrics": {
+     "ours": {
+      "p10": 0.6,
+      "p5": 0.4,
+      "ndcg10": 0.6769,
+      "recall50": 0.1628,
+      "mrr": 0.5
+     },
+     "ours_gold": {
+      "p10": 0.1,
+      "p5": 0.0,
+      "ndcg10": 0.3822,
+      "recall50": 0.0349,
+      "mrr": 0.1429
+     },
+     "ours_noq": {
+      "p10": 0.6,
+      "p5": 0.4,
+      "ndcg10": 0.6769,
+      "recall50": 0.1628,
+      "mrr": 0.5
+     },
+     "b0": {
+      "p10": 0.2,
+      "p5": 0.2,
+      "ndcg10": 0.336,
+      "recall50": 0.1395,
+      "mrr": 0.3333
+     },
+     "b1": {
+      "p10": 0.4,
+      "p5": 0.4,
+      "ndcg10": 0.5413,
+      "recall50": 0.1047,
+      "mrr": 1.0
+     },
+     "b2": {
+      "p10": 0.4,
+      "p5": 0.4,
+      "ndcg10": 0.5475,
+      "recall50": 0.2442,
+      "mrr": 0.5
+     },
+     "b3": {
+      "p10": 0.2,
+      "p5": 0.4,
+      "ndcg10": 0.3544,
+      "recall50": 0.093,
+      "mrr": 0.5
+     },
+     "no_lcb": {
+      "p10": 0.6,
+      "p5": 0.4,
+      "ndcg10": 0.7412,
+      "recall50": 0.186,
+      "mrr": 1.0
+     },
+     "no_K": {
+      "p10": 0.4,
+      "p5": 0.6,
+      "ndcg10": 0.5729,
+      "recall50": 0.1628,
+      "mrr": 0.3333
+     },
+     "no_F": {
+      "p10": 0.4,
+      "p5": 0.6,
+      "ndcg10": 0.6424,
+      "recall50": 0.1977,
+      "mrr": 1.0
+     },
+     "no_A": {
+      "p10": 0.6,
+      "p5": 0.6,
+      "ndcg10": 0.6787,
+      "recall50": 0.186,
+      "mrr": 0.5
+     },
+     "no_U": {
+      "p10": 0.5,
+      "p5": 0.4,
+      "ndcg10": 0.6366,
+      "recall50": 0.186,
+      "mrr": 0.5
+     }
+    }
    }
   },
   "build_ms": {
-   "p50": 67.3514,
-   "p95": 215.4269,
-   "max": 219.8306,
-   "n": 40,
+   "p50": 55.0934,
+   "p95": 184.1929,
+   "max": 360.7829,
+   "n": 100,
    "pool": 1864
   },
   "weights_balance": {
@@ -13383,6 +23344,12 @@
    "F": 0.15,
    "A": 0.1,
    "U": 0.1
+  },
+  "test2_freeze": {
+   "ok": true,
+   "manifest_sha256": "fa766490b26e3c4e6f38900f3081d6456a15e45dfd25bbcf47fb6efbcbddb1c4",
+   "n_files": 60,
+   "mismatched": []
   },
   "robustness": {
    "stuffing": {
@@ -14679,11 +24646,11 @@
    "kind": "matching",
    "section": "Производительность",
    "label": "p95 сборки версии подборки, мс",
-   "value": 215.4269,
+   "value": 184.1929,
    "op": "le",
    "target": 300,
    "format": "num0",
-   "value_text": "215",
+   "value_text": "184",
    "target_text": "≤ 300",
    "pass": true
   }

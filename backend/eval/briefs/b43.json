@@ -1,0 +1,30 @@
+{
+  "id": "b43",
+  "split": "test2",
+  "style": "chat",
+  "author": "team",
+  "text": "Привет! Нужен джун на питон в интернет-магазин, удалёнка. Надо знать python, flask, sql, ну и git конечно. Плюсом redis или докер. Платим 90–120 тыс на руки",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "junior",
+    "must": [
+      "python",
+      "flask",
+      "sql",
+      "git"
+    ],
+    "nice": [
+      "redis",
+      "docker"
+    ],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 90000,
+    "salary_to": 120000,
+    "salary_net": true
+  },
+  "note": null
+}

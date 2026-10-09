@@ -1,0 +1,31 @@
+{
+  "id": "b64",
+  "split": "test2",
+  "style": "chat",
+  "author": "team",
+  "text": "нужен сеньор-бэкендер на питон в удалёнку. микросервисы, fastapi, kafka, постгрес, написание нормальных тестов (pytest). из плюсов - опыт с aws. 380-460 на руки, без собесов на 5 часов)",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "senior",
+    "must": [
+      "python",
+      "microservices",
+      "fastapi",
+      "kafka",
+      "postgresql",
+      "pytest"
+    ],
+    "nice": [
+      "aws"
+    ],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 380000,
+    "salary_to": 460000,
+    "salary_net": true
+  },
+  "note": null
+}

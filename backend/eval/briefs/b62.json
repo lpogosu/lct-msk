@@ -1,0 +1,33 @@
+{
+  "id": "b62",
+  "split": "test2",
+  "style": "long",
+  "author": "team",
+  "text": "О нас: ритейл-платформа, 8 млн заказов в месяц.\n\nКого ищем: Senior Python-разработчика в команду заказов.\n\nЧто нужно:\n- глубокое знание Python и Django;\n- PostgreSQL: индексы, транзакции, разбор планов запросов;\n- Redis, RabbitMQ;\n- опыт проектирования и ревью.\n\nПлюсом: Kubernetes, ClickHouse.\n\nФормат: офис в Екатеринбурге, вилка 370–450 тыс. на руки.",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "senior",
+    "must": [
+      "python",
+      "django",
+      "postgresql",
+      "sql_indexes",
+      "transactions",
+      "redis",
+      "rabbitmq"
+    ],
+    "nice": [
+      "kubernetes",
+      "clickhouse"
+    ],
+    "formats": [
+      "office"
+    ],
+    "city": "ekaterinburg",
+    "salary_from": 370000,
+    "salary_to": 450000,
+    "salary_net": true
+  },
+  "note": null
+}

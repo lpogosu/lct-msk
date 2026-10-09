@@ -1,0 +1,29 @@
+{
+  "id": "b55",
+  "split": "test2",
+  "style": "chat",
+  "author": "team",
+  "text": "добрый день) нужен backend-разработчик на python уровня мидл, полностью удалённо. фастапи, постгрес, обязательно kafka. будет круто знание clickhouse. зп 250-320 на руки",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "middle",
+    "must": [
+      "python",
+      "fastapi",
+      "postgresql",
+      "kafka"
+    ],
+    "nice": [
+      "clickhouse"
+    ],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 250000,
+    "salary_to": 320000,
+    "salary_net": true
+  },
+  "note": null
+}

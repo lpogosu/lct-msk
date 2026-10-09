@@ -51,6 +51,7 @@ from eval.population import Candidate, Population
 from eval.textsearch import BM25, TfIdf, rank_positions
 
 BRIEFS_DIR = Path(__file__).resolve().parent / "briefs"
+TEST2 = "test2"  # split второй отложенной выборки (предрегистрация, VALIDATION_PLAN §8)
 RELEVANT = 2  # релевантен ⇔ rel ≥ 2 (концепция §7.1)
 FORMAT_OK = 0.7  # посадка формата не ниже этой величины считается «согласен работать так» (офис↔гибрид 0,7)
 SYSTEMS = ("ours", "ours_gold", "ours_noq", "b0", "b1", "b2", "b3")
@@ -96,13 +97,60 @@ class Brief:
     note: str | None = None
 
 
-def load_briefs(path: Path = BRIEFS_DIR) -> list[Brief]:
+def load_briefs(path: Path = BRIEFS_DIR, *, include_test2: bool = False) -> list[Brief]:
+    """b01–b40 (dev/test). Предрегистрированная отложенная выборка test2 (b41–b100, VALIDATION_PLAN §8) — только по запросу."""
     out = []
     for f in sorted(path.glob("b*.json")):
         d = json.loads(f.read_text(encoding="utf-8"))
+        if d["split"] == TEST2 and not include_test2:
+            continue
         out.append(Brief(d["id"], d["split"], d["style"], d.get("author", "team"), d["text"], d.get("form"),
                          d["gold"], d.get("note")))
     return out
+
+
+# SHA-256 манифеста брифов test2, записанный в VALIDATION_PLAN §8.5 до первого прогона на них
+TEST2_MANIFEST_SHA256 = "fa766490b26e3c4e6f38900f3081d6456a15e45dfd25bbcf47fb6efbcbddb1c4"
+TEST2_MANIFEST = Path(__file__).resolve().parent / "briefs_test2.sha256"
+
+
+def test2_freeze_check(path: Path = BRIEFS_DIR, manifest: Path = TEST2_MANIFEST) -> dict[str, Any]:
+    """Сверка заморозки test2: хэш манифеста с записанным в плане и каждый файл брифа с хэшем из манифеста."""
+    import hashlib
+
+    if not manifest.exists():
+        return {"ok": False, "manifest_sha256": None, "n_files": 0, "mismatched": [], "reason": "нет манифеста"}
+    raw = manifest.read_bytes()
+    sha = hashlib.sha256(raw).hexdigest()
+    bad: list[str] = []
+    n = 0
+    for line in raw.decode("utf-8").splitlines():
+        if not line.strip():
+            continue
+        digest, name = line.split(maxsplit=1)
+        name = name.strip().lstrip("*")
+        n += 1
+        f = path / name
+        if not f.exists() or hashlib.sha256(f.read_bytes()).hexdigest() != digest:
+            bad.append(name)
+    return {"ok": sha == TEST2_MANIFEST_SHA256 and not bad, "manifest_sha256": sha, "n_files": n, "mismatched": bad}
+
+
+def paired_t_test(a: Sequence[float], b: Sequence[float]) -> dict[str, float | None]:
+    """Парный t-критерий (двусторонний) — справочная проверка к бутстрепу (§8.3); решает бутстреп."""
+    n = len(a)
+    d = [x - y for x, y in zip(a, b, strict=True)]
+    if n < 2:
+        return {"t": None, "p": None, "n": float(n)}
+    m = sum(d) / n
+    sd = (sum((x - m) ** 2 for x in d) / (n - 1)) ** 0.5
+    if sd == 0:
+        return {"t": None, "p": 0.0 if m != 0 else 1.0, "n": float(n)}
+    t = m / (sd / n**0.5)
+    # scipy — из группы dev (uv run её ставит); импорт ленивый
+    from scipy import stats as _st
+
+    return {"t": t, "p": float(2 * _st.t.sf(abs(t), n - 1)), "n": float(n)}
 
 
 def gold_brief_spec(b: Brief) -> BriefSpec:
@@ -702,7 +750,7 @@ def evaluate(pop: Population, *, seed: int, n_boot: int = 2000, briefs: Sequence
     """Метрики подбора по test-брифам (dev — справочно) и материалы для набора пар."""
     log = progress or (lambda _m: None)
     world = World.build(pop)
-    briefs = list(briefs) if briefs is not None else load_briefs()
+    briefs = list(briefs) if briefs is not None else load_briefs(include_test2=True)
     base_w = world.cfg.weights()
     runs = {b.id: run_brief(b, world) for b in briefs}
     rels = {b.id: world.rels(b.gold) for b in briefs}
@@ -755,8 +803,13 @@ def evaluate(pop: Population, *, seed: int, n_boot: int = 2000, briefs: Sequence
     log("подбор: версии и бейзлайны готовы")
 
     def agg(split: str) -> dict[str, Any]:
-        # "all" = test + dev вместе: ни те ни другие не участвовали в настройке (она на matching_tune), мощность выше в два раза
-        ids = [b.id for b in briefs if split == "all" or b.split == split]
+        # "all" = test + dev вместе: ни те ни другие не участвовали в настройке (она на matching_tune), мощность выше в два раза;
+        # "test_all" = test + test2 (§8: объединённая отложенная выборка); test2 в "all" не входит — прежние числа не меняются
+        ids = [b.id for b in briefs if (split == "all" and b.split != TEST2) or (split == "test_all" and b.split in ("test", TEST2))
+               or b.split == split]
+        return agg_ids(ids, split)
+
+    def agg_ids(ids: Sequence[str], split: str) -> dict[str, Any]:
         out: dict[str, Any] = {"n_briefs": len(ids), "systems": {}}
         for s in (*SYSTEMS, *ABLATIONS):
             out["systems"][s] = {
@@ -774,9 +827,20 @@ def evaluate(pop: Population, *, seed: int, n_boot: int = 2000, briefs: Sequence
             for s in (*ABLATIONS, "b0", "b1", "b3")
         }
         out["p10_ceiling"] = M.mean([per_brief[i]["p10_ceiling"] for i in ids])
+        if ids:
+            # §8.3: вторичные метрики предрегистрации — nDCG@10 нашего сквозного режима против B2 и B0 (парный бутстреп)
+            nd = {s: [float(per_brief[i]["metrics"][s]["ndcg10"] or 0.0) for i in ids] for s in ("ours", "b0", "b2")}
+            out["paired_ndcg_vs"] = {
+                s: M.paired_bootstrap_diff(nd["ours"], nd[s], stream(f"paired_ndcg:{split}:{s}", seed), n_boot=n_boot)
+                for s in ("b2", "b0")
+            }
+            out["paired_p10_vs_b0"] = M.paired_bootstrap_diff(p10["ours"], p10["b0"], stream(f"paired_b0:{split}", seed), n_boot=n_boot)
+            out["t_test_p10_vs_b2"] = paired_t_test(p10["ours"], p10["b2"])
         return out
 
     test = [b for b in briefs if b.split == "test"]
+    core = [b for b in briefs if b.split != TEST2]
+    test2 = [b for b in briefs if b.split == TEST2]
     result: dict[str, Any] = {
         "n_population": len(pop.candidates),
         "n_pool_confirmed": len(world.pool),
@@ -785,20 +849,26 @@ def evaluate(pop: Population, *, seed: int, n_boot: int = 2000, briefs: Sequence
         "test": agg("test"),
         "dev": agg("dev"),
         "all": agg("all"),
+        **({"test2": agg(TEST2), "test_all": agg("test_all"),
+            "test2_by_spec": {sp: agg_ids([b.id for b in test2 if b.gold["spec"] == sp], f"{TEST2}:{sp}") for sp in
+                              sorted({b.gold["spec"] for b in test2})}} if test2 else {}),
         "parser": {"test": parser_metrics(test, runs),
-                   "dev": parser_metrics([b for b in briefs if b.split == "dev"], runs)},
+                   "dev": parser_metrics([b for b in briefs if b.split == "dev"], runs),
+                   **({"test2": parser_metrics(test2, runs)} if test2 else {})},
         "per_brief": per_brief,
         "build_ms": {"p50": M.median(build_ms), "p95": M.percentile(build_ms, 95), "max": max(build_ms) if build_ms else None,
                      "n": len(build_ms), "pool": len(world.pool)},
         "weights_balance": base_w,
     }
+    if test2:
+        result["test2_freeze"] = test2_freeze_check()
     log("подбор: метрики и бутстреп готовы")
     result["robustness"] = robustness(test, runs, rels, versions, rankings, world, pop, point_pool, seed)
     log("подбор: устойчивость готова")
     result["top10_errors"] = _top10_errors(test, rankings, world)
     result["exposure"] = _exposure(test, runs, rels, world)
     result["fidelity"] = _fidelity(test, versions, runs, world)
-    result["checkset"] = checkset_arm(briefs, runs, world, {b.id: rankings[b.id]["ours"] for b in briefs}, seed, n_boot=n_boot)
+    result["checkset"] = checkset_arm(core, runs, world, {b.id: rankings[b.id]["ours"] for b in core}, seed, n_boot=n_boot)
     log("подбор: проверочный набор по вакансии посчитан")
     result["_rankings"] = {b.id: {s: rankings[b.id][s][:50] for s in SYSTEMS} for b in test}
     result["_rels"] = {b.id: rels[b.id] for b in test}

@@ -1,0 +1,26 @@
+{
+  "id": "b80",
+  "split": "test2",
+  "style": "short",
+  "author": "team",
+  "text": "Frontend middle, react + material ui, тесты, офис Краснодар, 170–220 на руки",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "middle",
+    "must": [
+      "react",
+      "material_ui",
+      "jest"
+    ],
+    "nice": [],
+    "formats": [
+      "office"
+    ],
+    "city": "krasnodar",
+    "salary_from": 170000,
+    "salary_to": 220000,
+    "salary_net": true
+  },
+  "note": null
+}

@@ -1,0 +1,31 @@
+{
+  "id": "b94",
+  "split": "test2",
+  "style": "mixed_en",
+  "author": "team",
+  "text": "Middle Fullstack Developer (Node.js + React). Must have: TypeScript, Express, React, REST API. Nice to have: GraphQL, Docker, MongoDB. Hybrid в Нижнем Новгороде. Вилка 200–260 тыс. gross.",
+  "form": null,
+  "gold": {
+    "spec": "fullstack",
+    "grade": "middle",
+    "must": [
+      "typescript",
+      "express",
+      "react",
+      "rest"
+    ],
+    "nice": [
+      "graphql",
+      "docker",
+      "mongodb"
+    ],
+    "formats": [
+      "hybrid"
+    ],
+    "city": "nizhny_novgorod",
+    "salary_from": 200000,
+    "salary_to": 260000,
+    "salary_net": false
+  },
+  "note": null
+}

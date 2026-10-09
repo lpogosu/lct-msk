@@ -1,0 +1,29 @@
+{
+  "id": "b98",
+  "split": "test2",
+  "style": "chat",
+  "author": "team",
+  "text": "ищем сеньора-фулстека, python на бэке (fastapi, постгрес, redis), react на фронте. нужна архитектура и ревью. гибрид, Москва, 360-430 до налогов",
+  "form": null,
+  "gold": {
+    "spec": "fullstack",
+    "grade": "senior",
+    "must": [
+      "python",
+      "fastapi",
+      "postgresql",
+      "redis",
+      "react",
+      "code_review"
+    ],
+    "nice": [],
+    "formats": [
+      "hybrid"
+    ],
+    "city": "moscow",
+    "salary_from": 360000,
+    "salary_to": 430000,
+    "salary_net": false
+  },
+  "note": null
+}

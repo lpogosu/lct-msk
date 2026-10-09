@@ -1,0 +1,27 @@
+{
+  "id": "b83",
+  "split": "test2",
+  "style": "short",
+  "author": "team",
+  "text": "Senior frontend, React + TS + Next.js, SSR, удалённо, 380-470к на руки",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "senior",
+    "must": [
+      "react",
+      "typescript",
+      "nextjs",
+      "ssr"
+    ],
+    "nice": [],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 380000,
+    "salary_to": 470000,
+    "salary_net": true
+  },
+  "note": null
+}

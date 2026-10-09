@@ -1,0 +1,30 @@
+{
+  "id": "b88",
+  "split": "test2",
+  "style": "chat",
+  "author": "team",
+  "text": "нужен опытный фронт на реакте, лид-уровень почти. typescript, next, react-query, нормальная архитектура. удалёнка, 400-480 на руки. docker плюсом",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "senior",
+    "must": [
+      "react",
+      "typescript",
+      "nextjs",
+      "react_query",
+      "system_design"
+    ],
+    "nice": [
+      "docker"
+    ],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 400000,
+    "salary_to": 480000,
+    "salary_net": true
+  },
+  "note": null
+}

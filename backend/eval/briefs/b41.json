@@ -1,0 +1,29 @@
+{
+  "id": "b41",
+  "split": "test2",
+  "style": "formal",
+  "author": "team",
+  "text": "Стажировка для студентов старших курсов в команде бэкенда финтех-компании «Лазурный Берег». Нужны: Python на уровне основ, понимание SQL, умение пользоваться Git. Будет плюсом: FastAPI, Docker. Формат: гибрид, Санкт-Петербург, 20–30 часов в неделю. Стипендия 45 000–65 000 руб. на руки.",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "intern",
+    "must": [
+      "python",
+      "sql",
+      "git"
+    ],
+    "nice": [
+      "fastapi",
+      "docker"
+    ],
+    "formats": [
+      "hybrid"
+    ],
+    "city": "spb",
+    "salary_from": 45000,
+    "salary_to": 65000,
+    "salary_net": true
+  },
+  "note": null
+}

@@ -1,0 +1,29 @@
+{
+  "id": "b69",
+  "split": "test2",
+  "style": "chat",
+  "author": "team",
+  "text": "привет, ищем джуна на фронт (react), удалёнка. нужны js, react, git и желание учиться. из плюсов typescript и тесты на jest. 90-130 чистыми",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "junior",
+    "must": [
+      "javascript",
+      "react",
+      "git"
+    ],
+    "nice": [
+      "typescript",
+      "jest"
+    ],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 90000,
+    "salary_to": 130000,
+    "salary_net": true
+  },
+  "note": null
+}

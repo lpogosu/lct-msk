@@ -1,0 +1,32 @@
+{
+  "id": "b53",
+  "split": "test2",
+  "style": "long",
+  "author": "team",
+  "text": "О проекте: B2B-платформа для управления складами, 40 человек в разработке.\n\nКого ищем: Python-разработчика уровня Middle в команду интеграций.\n\nНужно уметь:\n1) Python, Flask или FastAPI;\n2) RabbitMQ, работа с очередями;\n3) PostgreSQL, оптимизация запросов;\n4) Docker.\n\nПлюсом будет: Prometheus, Grafana, Kubernetes.\n\nФормат: офис в Нижнем Новгороде. Вилка: 220–280 тыс. руб. на руки.",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "middle",
+    "must": [
+      "python",
+      "rabbitmq",
+      "postgresql",
+      "query_optimization",
+      "docker"
+    ],
+    "nice": [
+      "prometheus",
+      "grafana",
+      "kubernetes"
+    ],
+    "formats": [
+      "office"
+    ],
+    "city": "nizhny_novgorod",
+    "salary_from": 220000,
+    "salary_to": 280000,
+    "salary_net": true
+  },
+  "note": null
+}

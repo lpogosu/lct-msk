@@ -199,3 +199,52 @@ def test_evaluate_and_export_pairs(tmp_path, pop: Population):
         assert f is None or set(feat_req) <= set(f)
         assert "truth" not in json.dumps(row["candidate"])
     assert "_rankings" not in ME.strip_private(res)
+
+
+# --------------------------------------------------------------------------- test2: предрегистрированная выборка (PLAN §8)
+
+
+def test_test2_briefs_are_separate_valid_and_frozen():
+    base = ME.load_briefs()
+    assert all(b.split in ("dev", "test") for b in base) and len(base) == 40  # прежние срезы не затронуты
+    allb = ME.load_briefs(include_test2=True)
+    t2 = [b for b in allb if b.split == ME.TEST2]
+    assert len(t2) == 60 and len(allb) == 100
+    assert sorted(b.id for b in t2) == sorted(f"b{i}" for i in range(41, 101))
+    cat = get_catalog()
+    assert {b.gold["spec"] for b in t2} == {"backend_python", "frontend_js", "fullstack"}
+    assert {b.gold["grade"] for b in t2} == {"intern", "junior", "middle", "senior"}
+    for b in t2:
+        g = b.gold
+        assert 1 <= len(g["must"]) <= 8 and not set(g["must"]) & set(g["nice"])
+        assert all(s in cat.skills for s in g["must"] + g["nice"]), b.id
+        assert 0 < g["salary_from"] < g["salary_to"] <= 2 * g["salary_from"]
+        assert g["formats"] and (g["city"] is None or g["city"] in cat.cities)
+        assert len(b.text) > 20
+    # заморозка: хэши файлов совпадают с манифестом, а манифест — с записанным в плане до прогона
+    assert ME.test2_freeze_check()["ok"] is True
+
+
+def test_test2_freeze_check_detects_tampering(tmp_path):
+    import shutil
+
+    for f in ME.BRIEFS_DIR.glob("b4[1-3].json"):
+        shutil.copy(f, tmp_path / f.name)
+    man = tmp_path / "m.sha256"
+    man.write_text("\n".join(ln for ln in ME.TEST2_MANIFEST.read_text().splitlines() if ln.split()[1] in ("b41.json", "b42.json", "b43.json")))
+    res = ME.test2_freeze_check(tmp_path, man)
+    assert res["ok"] is False and res["mismatched"] == []  # файлы целы, но хэш манифеста не тот, что в плане
+    (tmp_path / "b42.json").write_text("{}", encoding="utf-8")
+    assert ME.test2_freeze_check(tmp_path, man)["mismatched"] == ["b42.json"]
+
+
+def test_paired_t_test_matches_scipy_reference():
+    from scipy import stats
+
+    a = [0.9, 0.5, 0.7, 0.8, 0.4, 0.6]
+    b = [0.5, 0.5, 0.3, 0.9, 0.2, 0.4]
+    r = ME.paired_t_test(a, b)
+    ref = stats.ttest_rel(a, b)
+    assert abs(r["t"] - ref.statistic) < 1e-9 and abs(r["p"] - ref.pvalue) < 1e-9
+    assert ME.paired_t_test([0.5, 0.5], [0.5, 0.5])["p"] == 1.0
+    assert ME.paired_t_test([1.0], [0.0])["p"] is None

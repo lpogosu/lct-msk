@@ -1,0 +1,30 @@
+{
+  "id": "b84",
+  "split": "test2",
+  "style": "chat",
+  "author": "team",
+  "text": "ищем сеньора на фронт. react, typescript, оптимизация, менторить джунов. из бонусов: d3 для графиков, webpack. офис в Питере или удалёнка, 360-450 до налогов",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "senior",
+    "must": [
+      "react",
+      "typescript",
+      "code_review"
+    ],
+    "nice": [
+      "d3",
+      "webpack"
+    ],
+    "formats": [
+      "office",
+      "remote"
+    ],
+    "city": "spb",
+    "salary_from": 360000,
+    "salary_to": 450000,
+    "salary_net": false
+  },
+  "note": null
+}

@@ -1,0 +1,33 @@
+{
+  "id": "b71",
+  "split": "test2",
+  "style": "long",
+  "author": "team",
+  "text": "Мы делаем сайты и лендинги для малого бизнеса, команда 9 человек.\n\nИщем: Junior Frontend-разработчика.\n\nЧто нужно:\n- уверенная вёрстка: HTML, CSS, Flexbox, адаптив;\n- JavaScript на базовом уровне;\n- Git.\n\nПлюсом будет: Tailwind, Vite.\n\nФормат: офис в Воронеже или удалённо. Вилка 70–100 тыс. руб.",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "junior",
+    "must": [
+      "html",
+      "css",
+      "flexbox",
+      "responsive",
+      "javascript",
+      "git"
+    ],
+    "nice": [
+      "tailwind",
+      "vite"
+    ],
+    "formats": [
+      "office",
+      "remote"
+    ],
+    "city": "voronezh",
+    "salary_from": 70000,
+    "salary_to": 100000,
+    "salary_net": null
+  },
+  "note": null
+}

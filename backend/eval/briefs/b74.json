@@ -1,0 +1,29 @@
+{
+  "id": "b74",
+  "split": "test2",
+  "style": "chat",
+  "author": "team",
+  "text": "Нужен мидл-фронтендер, vue 3 + typescript + pinia. Работа полностью удалённая, платим 210-270 на руки. Будет плюсом знание nuxt и ssr",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "middle",
+    "must": [
+      "vue",
+      "typescript",
+      "pinia"
+    ],
+    "nice": [
+      "nuxt",
+      "ssr"
+    ],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 210000,
+    "salary_to": 270000,
+    "salary_net": true
+  },
+  "note": null
+}

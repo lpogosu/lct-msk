@@ -1,0 +1,28 @@
+{
+  "id": "b66",
+  "split": "test2",
+  "style": "chat",
+  "author": "team",
+  "text": "ищем стажёра на фронт, можно удалённо. надо html css js на базовом уровне, реакт плюсом. платим 40-60 тыс",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "intern",
+    "must": [
+      "html",
+      "css",
+      "javascript"
+    ],
+    "nice": [
+      "react"
+    ],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 40000,
+    "salary_to": 60000,
+    "salary_net": null
+  },
+  "note": null
+}

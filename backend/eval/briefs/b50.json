@@ -1,0 +1,30 @@
+{
+  "id": "b50",
+  "split": "test2",
+  "style": "chat",
+  "author": "team",
+  "text": "Нужен мидл-питонист в команду, работаем на джанго + celery + redis, база постгрес. Желательно опыт с docker. Гибрид, Москва. 230-290 чистыми",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "middle",
+    "must": [
+      "python",
+      "django",
+      "celery",
+      "redis",
+      "postgresql"
+    ],
+    "nice": [
+      "docker"
+    ],
+    "formats": [
+      "hybrid"
+    ],
+    "city": "moscow",
+    "salary_from": 230000,
+    "salary_to": 290000,
+    "salary_net": true
+  },
+  "note": null
+}

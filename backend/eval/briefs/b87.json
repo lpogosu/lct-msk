@@ -1,0 +1,31 @@
+{
+  "id": "b87",
+  "split": "test2",
+  "style": "formal",
+  "author": "team",
+  "text": "Компания «Серебряный Луч» (корпоративные порталы) ищет Senior Frontend-разработчика. Обязательно: JavaScript, React, Redux, Webpack, Jest. Приветствуется: TypeScript, Docker. Формат: офис в Самаре. Зарплата 320 000 – 400 000 руб. до налогов.",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "senior",
+    "must": [
+      "javascript",
+      "react",
+      "redux",
+      "webpack",
+      "jest"
+    ],
+    "nice": [
+      "typescript",
+      "docker"
+    ],
+    "formats": [
+      "office"
+    ],
+    "city": "samara",
+    "salary_from": 320000,
+    "salary_to": 400000,
+    "salary_net": false
+  },
+  "note": null
+}

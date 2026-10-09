@@ -1,0 +1,30 @@
+{
+  "id": "b46",
+  "split": "test2",
+  "style": "mixed_en",
+  "author": "team",
+  "text": "Looking for a junior backend dev (Python): нужен Python, REST API, SQL и умение писать тесты на pytest. Nice to have: Docker, CI/CD. Remote OK, оклад 95–130 тыс. руб. на руки.",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "junior",
+    "must": [
+      "python",
+      "rest",
+      "sql",
+      "pytest"
+    ],
+    "nice": [
+      "docker",
+      "ci_cd"
+    ],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 95000,
+    "salary_to": 130000,
+    "salary_net": true
+  },
+  "note": null
+}

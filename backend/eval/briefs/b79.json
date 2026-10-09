@@ -1,0 +1,27 @@
+{
+  "id": "b79",
+  "split": "test2",
+  "style": "chat",
+  "author": "team",
+  "text": "ищем мидла на angular, rxjs обязательно, typescript само собой. гибрид Москва или удаленка. вилка 230-290 на руки. про ngrx знать не обязательно, у нас свой стейт",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "middle",
+    "must": [
+      "angular",
+      "rxjs",
+      "typescript"
+    ],
+    "nice": [],
+    "formats": [
+      "hybrid",
+      "remote"
+    ],
+    "city": "moscow",
+    "salary_from": 230000,
+    "salary_to": 290000,
+    "salary_net": true
+  },
+  "note": "явное отсутствие требования: ngrx не нужен"
+}

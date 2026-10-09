@@ -1,0 +1,31 @@
+{
+  "id": "b89",
+  "split": "test2",
+  "style": "formal",
+  "author": "team",
+  "text": "Веб-студия «Тёплый Код» ищет Junior Fullstack-разработчика. Требования: JavaScript, React, Node.js, SQL, Git. Желательно: TypeScript, Docker. Офис в Казани. Оклад 90 000 – 120 000 руб. на руки.",
+  "form": null,
+  "gold": {
+    "spec": "fullstack",
+    "grade": "junior",
+    "must": [
+      "javascript",
+      "react",
+      "nodejs",
+      "sql",
+      "git"
+    ],
+    "nice": [
+      "typescript",
+      "docker"
+    ],
+    "formats": [
+      "office"
+    ],
+    "city": "kazan",
+    "salary_from": 90000,
+    "salary_to": 120000,
+    "salary_net": true
+  },
+  "note": null
+}

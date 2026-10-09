@@ -1,0 +1,32 @@
+{
+  "id": "b85",
+  "split": "test2",
+  "style": "mixed_en",
+  "author": "team",
+  "text": "Senior Frontend Developer в e-commerce. Must: React, TypeScript, performance optimization, Jest/Cypress, CI/CD. Nice: Next.js, GraphQL, Figma-макеты. Hybrid в Екатеринбурге. 340–420 тыс. руб. на руки.",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "senior",
+    "must": [
+      "react",
+      "typescript",
+      "jest",
+      "cypress",
+      "ci_cd"
+    ],
+    "nice": [
+      "nextjs",
+      "graphql",
+      "figma"
+    ],
+    "formats": [
+      "hybrid"
+    ],
+    "city": "ekaterinburg",
+    "salary_from": 340000,
+    "salary_to": 420000,
+    "salary_net": true
+  },
+  "note": null
+}

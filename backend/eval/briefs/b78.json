@@ -1,0 +1,32 @@
+{
+  "id": "b78",
+  "split": "test2",
+  "style": "formal",
+  "author": "team",
+  "text": "Медиа-холдинг «Новый Берег» ищет Middle Frontend-разработчика. Требования: JavaScript, React, Next.js, SSR, HTML/CSS. Приветствуется: TypeScript, SEO. Формат: офис в Нижнем Новгороде. Оплата 180 000 – 240 000 руб. до налогов.",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "middle",
+    "must": [
+      "javascript",
+      "react",
+      "nextjs",
+      "ssr",
+      "html",
+      "css"
+    ],
+    "nice": [
+      "typescript",
+      "seo"
+    ],
+    "formats": [
+      "office"
+    ],
+    "city": "nizhny_novgorod",
+    "salary_from": 180000,
+    "salary_to": 240000,
+    "salary_net": false
+  },
+  "note": null
+}

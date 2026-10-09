@@ -1,0 +1,30 @@
+{
+  "id": "b82",
+  "split": "test2",
+  "style": "formal",
+  "author": "team",
+  "text": "Ищем Senior Frontend-разработчика в команду дизайн-системы компании «Алый Парус». Обязательно: React, TypeScript, Storybook, архитектура фронтенда, доступность. Будет плюсом: микрофронтенды, Webpack. Формат: гибрид, Москва. Вилка 350–440 тыс. руб. на руки.",
+  "form": null,
+  "gold": {
+    "spec": "frontend_js",
+    "grade": "senior",
+    "must": [
+      "react",
+      "typescript",
+      "storybook",
+      "accessibility"
+    ],
+    "nice": [
+      "microfrontends",
+      "webpack"
+    ],
+    "formats": [
+      "hybrid"
+    ],
+    "city": "moscow",
+    "salary_from": 350000,
+    "salary_to": 440000,
+    "salary_net": true
+  },
+  "note": null
+}

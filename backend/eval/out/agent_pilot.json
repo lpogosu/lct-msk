@@ -1,0 +1,116 @@
+{
+ "n_personas": 1,
+ "n_runs": 1,
+ "retest": {
+  "n": 0,
+  "exact": null,
+  "within1": null,
+  "kappa": null,
+  "kappa_w": null,
+  "decision_agree": null,
+  "score_mad": null,
+  "score_r": null,
+  "rows": []
+ },
+ "confusion": {
+  "junior": {
+   "none": 0,
+   "intern": 0,
+   "junior": 0,
+   "middle": 0,
+   "senior": 0
+  },
+  "middle": {
+   "none": 0,
+   "intern": 0,
+   "junior": 0,
+   "middle": 0,
+   "senior": 0
+  },
+  "senior": {
+   "none": 0,
+   "intern": 0,
+   "junior": 0,
+   "middle": 0,
+   "senior": 0
+  }
+ },
+ "bias": {
+  "junior": null,
+  "middle": null,
+  "senior": null
+ },
+ "pass_rate": {
+  "junior": [
+   null,
+   0
+  ],
+  "middle": [
+   null,
+   0
+  ],
+  "senior": [
+   null,
+   0
+  ]
+ },
+ "exact_level": {
+  "junior": null,
+  "middle": null,
+  "senior": null
+ },
+ "items": {
+  "by_level": {
+   "junior": {
+    "n_runs": 0,
+    "mean": null,
+    "min": null,
+    "max": null
+   },
+   "middle": {
+    "n_runs": 0,
+    "mean": null,
+    "min": null,
+    "max": null
+   },
+   "senior": {
+    "n_runs": 0,
+    "mean": null,
+    "min": null,
+    "max": null
+   }
+  },
+  "wall_median_s": null,
+  "timed_out": 0,
+  "skipped": 0,
+  "answered": 0,
+  "accuracy": {
+   "junior": null,
+   "middle": null,
+   "senior": null
+  }
+ },
+ "honest_false_alarms": {
+  "runs": 0,
+  "alarms": 0
+ },
+ "cheaters": [
+  {
+   "persona": "C01",
+   "attempt": 1,
+   "claimed": "middle",
+   "intended": "junior",
+   "n_items": 8,
+   "copied": 8,
+   "with_twin": 0,
+   "evidence": {},
+   "flags": [],
+   "trust": null,
+   "status": "EXTENSION_OFFERED",
+   "decision": "не подтверждён",
+   "band": null,
+   "detected": false
+  }
+ ],
+ "cheater_detect_rate": 0.0
+}

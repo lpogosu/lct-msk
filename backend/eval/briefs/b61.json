@@ -1,0 +1,33 @@
+{
+  "id": "b61",
+  "split": "test2",
+  "style": "mixed_en",
+  "author": "team",
+  "text": "Senior Backend Engineer (Python) в fintech-стартап. Must: Python, FastAPI, microservices, gRPC, PostgreSQL, Docker. Nice: Kubernetes, Terraform, AWS. Fully remote. Вилка 420–520 тыс. руб. на руки.",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "senior",
+    "must": [
+      "python",
+      "fastapi",
+      "microservices",
+      "grpc",
+      "postgresql",
+      "docker"
+    ],
+    "nice": [
+      "kubernetes",
+      "terraform",
+      "aws"
+    ],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 420000,
+    "salary_to": 520000,
+    "salary_net": true
+  },
+  "note": null
+}

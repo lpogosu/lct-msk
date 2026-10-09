@@ -1,0 +1,26 @@
+{
+  "id": "b45",
+  "split": "test2",
+  "style": "short",
+  "author": "team",
+  "text": "Junior Python dev, FastAPI + PostgreSQL, гибрид Москва, 110-150k net",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "junior",
+    "must": [
+      "python",
+      "fastapi",
+      "postgresql"
+    ],
+    "nice": [],
+    "formats": [
+      "hybrid"
+    ],
+    "city": "moscow",
+    "salary_from": 110000,
+    "salary_to": 150000,
+    "salary_net": true
+  },
+  "note": null
+}

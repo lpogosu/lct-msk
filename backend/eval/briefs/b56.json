@@ -1,0 +1,27 @@
+{
+  "id": "b56",
+  "split": "test2",
+  "style": "short",
+  "author": "team",
+  "text": "Python middle, django + postgres + docker, удалёнка, 200–250k до вычета",
+  "form": null,
+  "gold": {
+    "spec": "backend_python",
+    "grade": "middle",
+    "must": [
+      "python",
+      "django",
+      "postgresql",
+      "docker"
+    ],
+    "nice": [],
+    "formats": [
+      "remote"
+    ],
+    "city": null,
+    "salary_from": 200000,
+    "salary_to": 250000,
+    "salary_net": false
+  },
+  "note": null
+}
