@@ -238,6 +238,18 @@ def test_test2_freeze_check_detects_tampering(tmp_path):
     assert ME.test2_freeze_check(tmp_path, man)["mismatched"] == ["b42.json"]
 
 
+def test_test2_freeze_check_ignores_line_endings(tmp_path):
+    """Перевод строки рабочей копии (LF в git, CRLF на Windows) не ломает сверку, правка содержимого — ломает."""
+    man = tmp_path / "m.sha256"
+    man.write_text("\n".join(ln for ln in ME.TEST2_MANIFEST.read_text().splitlines() if ln.split()[1] == "b41.json"))
+    src = (ME.BRIEFS_DIR / "b41.json").read_bytes().replace(b"\r\n", b"\n")
+    for body in (src, src.replace(b"\n", b"\r\n")):
+        (tmp_path / "b41.json").write_bytes(body)
+        assert ME.test2_freeze_check(tmp_path, man)["mismatched"] == []
+    (tmp_path / "b41.json").write_bytes(src + b" ")
+    assert ME.test2_freeze_check(tmp_path, man)["mismatched"] == ["b41.json"]
+
+
 def test_paired_t_test_matches_scipy_reference():
     from scipy import stats
 

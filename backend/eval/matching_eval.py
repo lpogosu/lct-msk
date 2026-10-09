@@ -114,6 +114,16 @@ TEST2_MANIFEST_SHA256 = "fa766490b26e3c4e6f38900f3081d6456a15e45dfd25bbcf47fb6ef
 TEST2_MANIFEST = Path(__file__).resolve().parent / "briefs_test2.sha256"
 
 
+def _crlf(raw: bytes) -> bytes:
+    """Канонический перевод строки CRLF для сверки хэшей брифов test2.
+
+    Почему: хэши манифеста сняты в рабочей копии Windows (CRLF), а git хранит и выдаёт LF
+    (`.gitattributes: eol=lf`). Без канонизации на Linux все 60 файлов «не совпадали» бы при
+    неизменном содержимом (VALIDATION_PLAN §8.5, поправка о переводе строки).
+    """
+    return raw.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
+
+
 def test2_freeze_check(path: Path = BRIEFS_DIR, manifest: Path = TEST2_MANIFEST) -> dict[str, Any]:
     """Сверка заморозки test2: хэш манифеста с записанным в плане и каждый файл брифа с хэшем из манифеста."""
     import hashlib
@@ -131,7 +141,7 @@ def test2_freeze_check(path: Path = BRIEFS_DIR, manifest: Path = TEST2_MANIFEST)
         name = name.strip().lstrip("*")
         n += 1
         f = path / name
-        if not f.exists() or hashlib.sha256(f.read_bytes()).hexdigest() != digest:
+        if not f.exists() or hashlib.sha256(_crlf(f.read_bytes())).hexdigest() != digest:
             bad.append(name)
     return {"ok": sha == TEST2_MANIFEST_SHA256 and not bad, "manifest_sha256": sha, "n_files": n, "mismatched": bad}
 
