@@ -10,7 +10,7 @@ import { Drawer } from '@/ui/Drawer'
 import { Select } from '@/ui/Select'
 import { useCompany, useInvalidateInvitations, type InvitationCreate, type Need, type SendResult } from '../api'
 import { salaryState } from '../brief'
-import { FORMAT_LABEL, RESPONSE_DAYS } from '../dict'
+import { FORMAT_LABEL, PROCESS_PROMISES, RESPONSE_DAYS } from '../dict'
 import { useDebounced } from '../hooks'
 import { CompanyCardView } from './CompanyCardView'
 import { SalaryFields } from './SalaryRange'
@@ -67,6 +67,7 @@ function InviteForm({ need, candidates, onClose }: { need: Need | null; candidat
   const [startDate, setStartDate] = useState('')
   const [method, setMethod] = useState<string>('')
   const [days, setDays] = useState<number>(5)
+  const [promises, setPromises] = useState<string[]>([])
   const [included, setIncluded] = useState<Set<string>>(() => new Set(candidates.slice(0, BATCH_MAX).map((c) => c.ref)))
   const [why, setWhy] = useState<Record<string, string>>(() =>
     Object.fromEntries(candidates.map((c) => [c.ref, c.whyYou.join('\n')])),
@@ -114,8 +115,9 @@ function InviteForm({ need, candidates, onClose }: { need: Need | null; candidat
       contact_method: contactMethod || null,
       contact_value: contactValue || null,
       response_days: days,
+      promises,
     }),
-    [need?.id, title, description, from, to, net, format, startDate, contactMethod, contactValue, days],
+    [need?.id, title, description, from, to, net, format, startDate, contactMethod, contactValue, days, promises],
   )
   const previewBody = useDebounced(
     {
@@ -352,6 +354,20 @@ function InviteForm({ need, candidates, onClose }: { need: Need | null; candidat
             />
           </div>
         </div>
+        <fieldset className="m-0 flex min-w-0 flex-col gap-2 border-0 p-0">
+          <legend className="p-0 t-label text-ink">Что мы обещаем в процессе</legend>
+          <p className="t-small text-ink-3">
+            Необязательно. Кандидат увидит обещания до ответа. Если после «да» он отметит, что обещание не выполнено, надёжность компании снизится.
+          </p>
+          {PROCESS_PROMISES.map((p) => (
+            <Checkbox
+              key={p.code}
+              checked={promises.includes(p.code)}
+              onChange={(e) => setPromises((cur) => (e.target.checked ? [...cur, p.code] : cur.filter((c) => c !== p.code)))}
+              label={<span className="t-body text-ink">{p.label}</span>}
+            />
+          ))}
+        </fieldset>
       </section>
 
       <section className="flex flex-col gap-4" aria-labelledby="inv-preview">
@@ -375,6 +391,15 @@ function InviteForm({ need, candidates, onClose }: { need: Need | null; candidat
               <p className="t-num-l text-ink">{preview.data.salary.text}</p>
               <p className="t-name text-ink [overflow-wrap:anywhere]">{preview.data.title}</p>
               <p className="whitespace-pre-line t-body text-ink-2 [overflow-wrap:anywhere]">{preview.data.description}</p>
+              {promises.length > 0 && (
+                <div className="flex flex-wrap gap-2" aria-label="Обещания по процессу">
+                  {PROCESS_PROMISES.filter((p) => promises.includes(p.code)).map((p) => (
+                    <Tag key={p.code} tone="brand">
+                      {p.label}
+                    </Tag>
+                  ))}
+                </div>
+              )}
               <p className="t-small text-ink-3">
                 {[preview.data.format_label, preview.data.contact_method_label && `связь: ${preview.data.contact_method_label}`, `ответить в течение ${preview.data.respond_in_days} дн.`]
                   .filter(Boolean)

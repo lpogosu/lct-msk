@@ -116,6 +116,8 @@ function InvitationView({ d, id }: { d: InvitationDetail; id: string }) {
 
           <TeamBlock team={d.team} />
 
+          <Promises d={d} />
+
           {d.why_you.length > 0 && (
             <section aria-labelledby="why-h">
               <SectionTitle as="h3">
@@ -320,10 +322,31 @@ function Feedback({ d }: { d: InvitationDetail }) {
   )
 }
 
+/** «Обещание процесса»: что компания берёт на себя до ответа; нарушение отмечается в сверке «условия совпали?». */
+function Promises({ d }: { d: InvitationDetail }) {
+  if (d.promises.length === 0) return null
+  return (
+    <section aria-labelledby="promises-h">
+      <SectionTitle as="h3">
+        <span id="promises-h">Что обещает компания в процессе</span>
+      </SectionTitle>
+      <div className="flex flex-wrap gap-2">
+        {d.promises.map((p) => (
+          <Chip key={p.code}>
+            {p.label}
+          </Chip>
+        ))}
+      </div>
+      <p className="mt-2 t-small text-ink-3">Если обещание не выполнят и вы это отметите, надёжность компании снизится.</p>
+    </section>
+  )
+}
+
 function OutcomeCheck({ d, actions }: { d: InvitationDetail; actions: ReturnType<typeof useInvitationActions> }) {
   const [pick, setPick] = useState<string | null>(null)
   const [early, setEarly] = useState(false)
-  const opts = Object.entries(d.outcome_check_options ?? {})
+  // «Обещание не выполнено» спрашиваем только там, где компания что-то обещала
+  const opts = Object.entries(d.outcome_check_options ?? {}).filter(([code]) => code !== 'promise_broken' || d.promises.length > 0)
   if (opts.length === 0) return null
   // сервер спрашивает через 10 дней после «да»; раньше срока пускаем только по явной просьбе (он сам ответит, можно ли)
   const dueAt = d.timers.outcome_check_at ? new Date(d.timers.outcome_check_at).getTime() : null
@@ -342,6 +365,9 @@ function OutcomeCheck({ d, actions }: { d: InvitationDetail; actions: ReturnType
     <Panel variant="tint" radius="lg" padding="md" className="mt-6 flex flex-col gap-3">
       <p className="t-name text-ink">Условия совпали?</p>
       <p className="t-small text-ink-2">Один вопрос: ваш ответ уходит в надёжность компании.</p>
+      {d.promises.length > 0 && (
+        <p className="t-small text-ink-2">Компания обещала: {d.promises.map((p) => p.label.toLowerCase()).join('; ')}.</p>
+      )}
       <div role="radiogroup" aria-label="Совпали ли условия" className="flex flex-wrap gap-2">
         {opts.map(([code, label]) => (
           <button

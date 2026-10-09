@@ -88,6 +88,20 @@ export function InvitationDetailDrawer({ id, onClose }: { id: string; onClose: (
             </section>
           )}
 
+          {d.promises.length > 0 && (
+            <section className="flex flex-col gap-2" aria-label="Обещания по процессу">
+              <BlockTitle>Что мы пообещали в процессе</BlockTitle>
+              <div className="flex flex-wrap gap-2">
+                {d.promises.map((p) => (
+                  <Tag key={p.code} tone="brand">
+                    {p.label}
+                  </Tag>
+                ))}
+              </div>
+              <p className="t-small text-ink-3">Если кандидат отметит, что обещание не выполнено, надёжность компании снизится.</p>
+            </section>
+          )}
+
           <section className="flex flex-col gap-3" aria-label="Версии условий">
             <BlockTitle>Условия: неизменяемые версии</BlockTitle>
             <ul className="m-0 flex list-none flex-col gap-3 p-0">

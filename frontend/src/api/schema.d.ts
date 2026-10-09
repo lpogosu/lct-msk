@@ -6845,7 +6845,7 @@ export interface components {
         CheckIn: {
             /**
              * Answer
-             * @description match | lower_salary | no_vacancy | other
+             * @description match | lower_salary | no_vacancy | promise_broken | other
              */
             answer: string;
         };
@@ -9924,6 +9924,11 @@ export interface components {
              */
             response_days?: number | null;
             /**
+             * Promises
+             * @description «Обещание процесса»: коды из config/contact.yaml → invitation.promises
+             */
+            promises?: string[];
+            /**
              * Candidates
              * @description Псевдонимы или ссылки ref (не больше 10)
              */
@@ -9989,6 +9994,11 @@ export interface components {
             terms_history: components["schemas"]["TermsOut"][];
             /** Why You */
             why_you: string[];
+            /**
+             * Promises
+             * @description Обязательства работодателя по процессу найма
+             */
+            promises: components["schemas"]["PromiseOut"][];
             /**
              * Team
              * @description О команде из брифа (E-02); в Score не входит
@@ -10064,6 +10074,11 @@ export interface components {
              * @description 3, 5 или 7 дней (по умолчанию 5)
              */
             response_days?: number | null;
+            /**
+             * Promises
+             * @description «Обещание процесса»: коды из config/contact.yaml → invitation.promises
+             */
+            promises?: string[];
             /**
              * Candidate
              * @description Псевдоним «К-4821» или ссылка ref из подборки
@@ -10210,6 +10225,11 @@ export interface components {
             terms: components["schemas"]["TermsOut"][];
             /** Why You */
             why_you: string[];
+            /**
+             * Promises
+             * @description «Обещание процесса», взятое работодателем
+             */
+            promises: components["schemas"]["PromiseOut"][];
             /** Caution */
             caution: string[];
             score_snapshot: components["schemas"]["ScoreSnapshotOut"] | null;
@@ -12460,6 +12480,13 @@ export interface components {
              * @description «задание 7 · от 8 до 20»
              */
             text: string;
+        };
+        /** PromiseOut */
+        PromiseOut: {
+            /** Code */
+            code: string;
+            /** Label */
+            label: string;
         };
         /** QualificationOut */
         QualificationOut: {

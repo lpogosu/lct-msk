@@ -40034,7 +40034,7 @@
           "answer": {
             "type": "string",
             "title": "Answer",
-            "description": "match | lower_salary | no_vacancy | other"
+            "description": "match | lower_salary | no_vacancy | promise_broken | other"
           }
         },
         "additionalProperties": false,
@@ -47097,6 +47097,15 @@
             "title": "Response Days",
             "description": "3, 5 или 7 дней (по умолчанию 5)"
           },
+          "promises": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 3,
+            "title": "Promises",
+            "description": "«Обещание процесса»: коды из config/contact.yaml → invitation.promises"
+          },
           "candidates": {
             "items": {
               "type": "string"
@@ -47288,6 +47297,14 @@
             "type": "array",
             "title": "Why You"
           },
+          "promises": {
+            "items": {
+              "$ref": "#/components/schemas/PromiseOut"
+            },
+            "type": "array",
+            "title": "Promises",
+            "description": "Обязательства работодателя по процессу найма"
+          },
           "team": {
             "anyOf": [
               {
@@ -47451,6 +47468,7 @@
           "terms",
           "terms_history",
           "why_you",
+          "promises",
           "team",
           "salary_vs_min",
           "counter",
@@ -47620,6 +47638,15 @@
             ],
             "title": "Response Days",
             "description": "3, 5 или 7 дней (по умолчанию 5)"
+          },
+          "promises": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 3,
+            "title": "Promises",
+            "description": "«Обещание процесса»: коды из config/contact.yaml → invitation.promises"
           },
           "candidate": {
             "type": "string",
@@ -48098,6 +48125,14 @@
             "type": "array",
             "title": "Why You"
           },
+          "promises": {
+            "items": {
+              "$ref": "#/components/schemas/PromiseOut"
+            },
+            "type": "array",
+            "title": "Promises",
+            "description": "«Обещание процесса», взятое работодателем"
+          },
           "caution": {
             "items": {
               "type": "string"
@@ -48173,6 +48208,7 @@
           "actions",
           "terms",
           "why_you",
+          "promises",
           "caution",
           "score_snapshot",
           "events",
@@ -53173,6 +53209,24 @@
           "text"
         ],
         "title": "ProgressOut"
+      },
+      "PromiseOut": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "label"
+        ],
+        "title": "PromiseOut"
       },
       "QualificationOut": {
         "properties": {

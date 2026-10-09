@@ -61,7 +61,7 @@ def test_full_lifecycle_two_employers(client, make_account, db_session, frozen_c
     r = client.get(f"/api/invitations/inbox/{inv1['id']}", headers=cand.headers)
     assert r.status_code == 200, r.text
     detail = r.json()
-    assert detail["status"] == "viewed"
+    assert detail["status"] == "viewed" and detail["promises"] == []
     assert set(detail["actions"]) >= {"accept", "decline", "counter"}
     assert detail["company"]["reliability"]["display"] == "Надёжность: мало данных"
     assert detail["terms"]["verified"] is True and len(detail["terms"]["sha256"]) == 64
@@ -241,3 +241,46 @@ def test_counter_declined_with_reason(client, make_account, db_session, frozen_c
     again = invite(client, e1, a.ref)
     assert again.status_code == 409 and "несостоявшегося встречного" in again.json()["message"]
     assert "322 000 ₽" in again.json()["message"]  # ⌈1,15 · 280 000⌉
+
+
+def test_process_promises_flow_and_promise_broken_check(client, make_account, db_session, frozen_clock):
+    """«Обещание процесса»: видно обеим сторонам, неизвестный код — 400, нарушение в сверке — минус к надёжности."""
+    e1 = make_employer(client, make_account, db_session)
+    cand = make_candidate(make_account, db_session)
+    a = open_card(db_session, e1, cand)
+
+    bad = invite(client, e1, a.ref, promises=["no_tech_screen", "teleport"])
+    assert bad.status_code == 400 and bad.json()["code"] == "promise_unknown", bad.text
+    assert "teleport" in bad.json()["message"]
+
+    r = invite(client, e1, a.ref, promises=["no_tech_screen", "final_interview", "no_tech_screen"])
+    assert r.status_code == 201, r.text
+    inv = r.json()["sent"][0]
+
+    expected = [
+        {"code": "no_tech_screen", "label": "Без технического скрининга — результат теста засчитан"},
+        {"code": "final_interview", "label": "Сразу финальное интервью"},
+    ]
+    cand_view = client.get(f"/api/invitations/inbox/{inv['id']}", headers=cand.headers)
+    assert cand_view.status_code == 200, cand_view.text
+    assert cand_view.json()["promises"] == expected
+    emp_view = client.get(f"/api/invitations/{inv['id']}", headers=e1.headers)
+    assert emp_view.status_code == 200, emp_view.text
+    assert emp_view.json()["promises"] == expected
+    assert emp_view.json()["terms"][0]["verified"] is True  # условия и их хеш обещанием не затронуты
+
+    r = client.post(
+        f"/api/invitations/{inv['id']}/accept",
+        json={"consent": True, "fields": ["full_name", "telegram"]},
+        headers=cand.headers,
+    )
+    assert r.status_code == 200, r.text
+    assert client.post(f"/api/invitations/{inv['id']}/contacted", headers=e1.headers).status_code == 200
+    r = client.post(f"/api/invitations/{inv['id']}/outcome", json={"outcome": "hired"}, headers=e1.headers)
+    assert r.status_code == 200, r.text
+    advance(days=10, hours=1)
+    r = client.post(f"/api/invitations/{inv['id']}/check", json={"answer": "promise_broken"}, headers=cand.headers)
+    assert r.status_code == 200, r.text
+    assert r.json()["outcome_check"] == "promise_broken"
+    kinds = reliability_kinds(db_session, e1.company_id)
+    assert "terms_promise_broken" in kinds and "terms_matched" not in kinds

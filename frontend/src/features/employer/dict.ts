@@ -142,6 +142,16 @@ export const REJECT_REASONS = [
 
 export const RESPONSE_DAYS = [3, 5, 7] as const
 
+/**
+ * «Обещание процесса» в приглашении (config/contact.yaml → invitation.promises; тексты те же, что отдаёт бэкенд в `promises`).
+ * Кандидат видит обязательства до ответа; нарушение, отмеченное в сверке «условия совпали?», снижает надёжность компании.
+ */
+export const PROCESS_PROMISES = [
+  { code: 'no_tech_screen', label: 'Без технического скрининга — результат теста засчитан' },
+  { code: 'final_interview', label: 'Сразу финальное интервью' },
+  { code: 'no_take_home', label: 'Без тестового задания' },
+] as const
+
 export const NEED_STATUS_LABEL: Record<string, string> = {
   draft: 'Черновик',
   parsed: 'Черновик',
