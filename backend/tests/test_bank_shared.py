@@ -37,6 +37,9 @@ BACKEND = Path(__file__).resolve().parents[1]
 PKG = "app.testing.bank.families.shared"
 SHARED = {fid: fam for fid, fam in sorted(all_families().items()) if type(fam).__module__.startswith(PKG)}
 IDS = sorted(SHARED)
+# JS-версии общих семейств (id с суффиксом .js) — отдельные семейства для frontend_js; состав пакета считаем по Python-оригиналам.
+JS_TWINS = {fid: fam for fid, fam in SHARED.items() if fid.endswith(".js")}
+PY_SHARED = {fid: fam for fid, fam in SHARED.items() if fid not in JS_TWINS}
 SEEDS = (0, 1, 7, 42, 199)
 
 
@@ -51,11 +54,13 @@ def _answers_from_canonical(inst: Instance, wrong: str):
 
 
 def test_package_composition():
-    assert len(SHARED) == 16
-    by_module = {m: [f for f in SHARED.values() if f.module == m] for m in ("http_api", "algo")}
+    assert len(PY_SHARED) == 16 and len(SHARED) == len(PY_SHARED) + len(JS_TWINS)
+    for fid, fam in JS_TWINS.items():
+        assert fam.specs == ("frontend_js",) and fid.removesuffix(".js") in PY_SHARED, fid
+    by_module = {m: [f for f in PY_SHARED.values() if f.module == m] for m in ("http_api", "algo")}
     assert {m: len(v) for m, v in by_module.items()} == {"http_api": 8, "algo": 8}
-    for fid, fam in SHARED.items():
-        assert fam.specs[:2] == ("backend_python", "frontend_js") and set(fam.specs) <= {"backend_python", "frontend_js", "qa", "devops"}, fid
+    for fid, fam in PY_SHARED.items():
+        assert fam.specs[0] == "backend_python" and ("frontend_js" in fam.specs or f"{fid}.js" in JS_TWINS) and set(fam.specs) <= {"backend_python", "frontend_js", "qa", "devops"}, fid
         prefix = "http." if fam.module == "http_api" else "algo."
         assert fid.startswith(prefix), fid
         assert 60 <= fam.time_limit_s <= 180, fid
@@ -67,11 +72,11 @@ def test_package_composition():
         )
         anchors = {f.target_grade for f in fams if f.is_anchor}
         assert anchors == {"intern", "junior", "middle", "senior"}  # по якорю на каждый порог
-    mcq = [f for f in SHARED.values() if f.format == "mcq_concept"]
-    assert len(mcq) / len(SHARED) <= 0.30
-    for fid, fam in SHARED.items():
+    mcq = [f for f in PY_SHARED.values() if f.format == "mcq_concept"]
+    assert len(mcq) / len(PY_SHARED) <= 0.30
+    for fid, fam in PY_SHARED.items():
         for enemy in fam.enemies:
-            assert enemy in SHARED and fid in SHARED[enemy].enemies, (fid, enemy)
+            assert enemy in PY_SHARED and fid in PY_SHARED[enemy].enemies, (fid, enemy)
 
 
 def test_catalog_lists_every_family():

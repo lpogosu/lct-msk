@@ -62,3 +62,36 @@ export async function answerUntilResult(page: Page, resultUrl: RegExp, maxItems 
   }
   return answered
 }
+
+/**
+ * Проходит мини-тест песочницы «Попробуй списать» (/try) так, чтобы в ленте сверок появился акт. Ключа двойника клиент не
+ * знает, но слабый след (`twin_token`: значение, которого нет на экране) строится по тексту из буфера: копируем условие,
+ * берём слова и числа, которых нет в экранной версии, и отвечаем ими. Так акт появляется на чистой БД CI, где никто
+ * не отвечал ключом двойника. Нужны права clipboard-read/clipboard-write у контекста (test.use({ permissions })).
+ */
+export async function submitSandboxWithTwinTrace(page: Page): Promise<void> {
+  const tokens = (t: string) => new Set(t.match(/\d+(?:\.\d+)?|[A-Za-zА-Яа-яЁё_]+/g) ?? [])
+  await page.goto('/try')
+  await page.getByRole('button', { name: 'Начать' }).click()
+  await expect(page.getByRole('heading', { name: /Задание 1 из/ })).toBeVisible()
+  const total = Number((await page.getByRole('heading', { name: /Задание 1 из/ }).innerText()).match(/из (\d+)/)![1])
+  const block = page.locator('[data-task-block]')
+  for (let i = 0; i < total; i++) {
+    await block.evaluate((el) => {
+      const sel = window.getSelection()!
+      sel.removeAllRanges()
+      const range = document.createRange()
+      range.selectNodeContents(el)
+      sel.addRange(range)
+    })
+    await page.keyboard.press('Control+C')
+    await expect(page.getByText(new RegExp(`копировали: ${i + 1}`))).toBeVisible()
+    const shown = tokens(await block.innerText())
+    const copied = tokens(await page.evaluate(() => navigator.clipboard.readText()))
+    const extra = [...copied].filter((t) => !shown.has(t))
+    await page.getByLabel('Ваш ответ').fill(extra.join(' ').slice(0, 290) || '1')
+    if (i < total - 1) await page.getByRole('button', { name: 'Дальше' }).click()
+  }
+  await page.getByRole('button', { name: 'Отправить ответы' }).click()
+  await expect(page.getByRole('heading', { level: 1, name: /Двойник вас не поймал|Вас поймал двойник/ })).toBeVisible({ timeout: 30_000 })
+}

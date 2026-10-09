@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
-import { demoAccount, login } from './helpers'
+import { demoAccount, login, submitSandboxWithTwinTrace } from './helpers'
 
 // Автопроверка доступности (axe-core, WCAG 2.1 A/AA): на ключевых экранах не должно быть нарушений
 // уровня serious/critical. Отчёт и список остаточного — docs/ACCESSIBILITY.md.
@@ -9,6 +9,9 @@ async function expectNoSeriousViolations(page: Page, where: string) {
   const bad = r.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')
   expect(bad.map((v) => `${where}: ${v.id} (${v.nodes.length}) ${v.nodes[0]?.target.join(' ')}`)).toEqual([])
 }
+
+// Для песочницы (акт сверки): чтение буфера обмена
+test.use({ permissions: ['clipboard-read', 'clipboard-write'] })
 
 const settle = async (page: Page) => {
   await page.waitForLoadState('networkidle', { timeout: 8_000 }).catch(() => {})
@@ -67,12 +70,15 @@ test('a11y: работодатель и лаборатория', async ({ page }
 })
 
 test('a11y: лаборатория — акт сверки', async ({ page }) => {
+  // На чистой БД (CI) сверок нет: порождаем акт сами, а не рассчитываем на данные чужого прогона
+  await submitSandboxWithTwinTrace(page)
   const jury = demoAccount('jury@demo.example.com')
   await login(page, jury.email, jury.password)
   await page.goto('/lab/reconciliations')
   await settle(page)
-  const act = await page.locator('a[href^="/lab/reconciliations/"]').first().getAttribute('href')
-  expect(act).toBeTruthy()
+  const link = page.locator('a[href^="/lab/reconciliations/"]').first()
+  await expect(link).toBeVisible({ timeout: 15_000 })
+  const act = await link.getAttribute('href')
   await page.goto(act!)
   await settle(page)
   await expectNoSeriousViolations(page, 'lab act')
