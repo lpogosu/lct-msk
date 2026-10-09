@@ -85,7 +85,9 @@ jobs:
           node-version: "22"
       - run: uv sync
       - name: pytest
-        run: uv run pytest -q --durations=15 ${{ matrix.shard.args }}
+        # Жёсткий предел шага (timeout-minutes) + faulthandler_timeout из pyproject: зависший тест даёт стек, а не молчание.
+        timeout-minutes: 35
+        run: uv run pytest -q --durations=15 -o faulthandler_timeout=300 ${{ matrix.shard.args }}
 
   migrations:
     name: Бэкенд · миграции Alembic (up, down, up, без дрейфа)

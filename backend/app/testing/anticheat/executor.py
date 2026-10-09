@@ -16,9 +16,9 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+import threading
 from collections.abc import Callable, Iterable, Sequence
 from concurrent.futures import ThreadPoolExecutor
-from concurrent.futures import TimeoutError as FutureTimeout
 from dataclasses import dataclass
 from functools import lru_cache
 from typing import Any, TypeVar
@@ -46,14 +46,24 @@ class ExecOutcome:
 def _exec_py_fallback(code: str, timeout: float) -> ExecOutcome:
     from app.testing.bank.families.backend_python._common import exec_py  # noqa: PLC0415 — только для asyncio
 
-    with ThreadPoolExecutor(max_workers=1) as pool:
-        fut = pool.submit(exec_py, code)
+    # Поток-демон и join с таймаутом, а не `with ThreadPoolExecutor`: выход из `with` ждёт завершения потока
+    # (shutdown(wait=True)), и код с бесконечным циклом вешал весь прогон; пул ещё и join-ится при выходе интерпретатора.
+    box: dict[str, Any] = {}
+
+    def _work() -> None:
         try:
-            return ExecOutcome(True, fut.result(timeout=timeout), via="exec_py")
-        except FutureTimeout:
-            return ExecOutcome(False, error="timeout", via="exec_py")
+            box["out"] = exec_py(code)
         except Exception as e:  # noqa: BLE001 — любая ошибка эталонного кода = «не исполняется»
-            return ExecOutcome(False, error=f"{type(e).__name__}: {e}"[:300], via="exec_py")
+            box["err"] = f"{type(e).__name__}: {e}"[:300]
+
+    th = threading.Thread(target=_work, name="exec-py-fallback", daemon=True)
+    th.start()
+    th.join(timeout)
+    if th.is_alive():
+        return ExecOutcome(False, error="timeout", via="exec_py")
+    if "err" in box:
+        return ExecOutcome(False, error=box["err"], via="exec_py")
+    return ExecOutcome(True, box["out"], via="exec_py")
 
 
 @lru_cache(maxsize=20000)

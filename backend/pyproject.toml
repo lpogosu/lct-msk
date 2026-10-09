@@ -41,6 +41,8 @@ dev = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+# Зависание теста не молчит: через 5 минут faulthandler печатает стеки всех потоков (см. также timeout-minutes в CI).
+faulthandler_timeout = 300
 
 [tool.ruff]
 line-length = 110

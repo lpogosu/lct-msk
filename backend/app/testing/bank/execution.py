@@ -27,21 +27,59 @@ def _python_env() -> dict[str, str]:
     return env
 
 
+def _kill_tree(proc: subprocess.Popen[str]) -> None:
+    """Убить процесс вместе с потомками: иначе внук держит конец канала и communicate() после kill() виснет."""
+    if os.name == "nt":
+        subprocess.run(  # noqa: S603
+            ["taskkill", "/F", "/T", "/PID", str(proc.pid)], capture_output=True, timeout=15, check=False
+        )
+    else:
+        import signal
+
+        try:
+            os.killpg(proc.pid, signal.SIGKILL)
+        except (ProcessLookupError, PermissionError):
+            proc.kill()
+
+
+def _run_bounded(cmd: list[str], timeout: float, env: dict[str, str] | None = None) -> tuple[int, str, str]:
+    """subprocess.run с жёстким таймаутом, который действительно срабатывает (в т.ч. при внуках, держащих каналы).
+
+    Причина: subprocess.run при TimeoutExpired убивает только прямого потомка и затем без лимита ждёт EOF
+    на каналах; в Windows это давало вечное зависание полного прогона pytest.
+    """
+    popen_kw: dict[str, Any] = {"start_new_session": True} if os.name != "nt" else {}
+    proc = subprocess.Popen(  # noqa: S603
+        cmd,
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        encoding="utf-8",
+        env=env,
+        **popen_kw,
+    )
+    try:
+        out, err = proc.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        _kill_tree(proc)
+        try:
+            proc.communicate(timeout=5)
+        except subprocess.TimeoutExpired:
+            pass
+        # TimeoutExpired, как у subprocess.run: на него опирается app/testing/anticheat/executor.py.
+        raise subprocess.TimeoutExpired(cmd[:3], timeout) from None
+    return proc.returncode, out, err
+
+
 def run_python(code: str, timeout: float = 5.0) -> str:
     """Выполнить Python-код в изолированном подпроцессе (-I) и вернуть stdout без завершающего перевода строки."""
     # `-I` игнорирует PYTHON*-переменные (в т.ч. PYTHONIOENCODING), и в Windows дочерний Python пишет в канал в cp1251,
     # а читаем мы UTF-8 (кириллица в print → UnicodeDecodeError). Поэтому кодировку задаём флагом `-X utf8`: он работает и с `-I`.
-    proc = subprocess.run(
-        [sys.executable, "-I", "-X", "utf8", "-c", code],
-        capture_output=True,
-        text=True,
-        timeout=timeout,
-        encoding="utf-8",
-        env=_python_env(),
-    )
-    if proc.returncode != 0:
-        raise ExecutionError(f"python exit {proc.returncode}: {proc.stderr.strip()[-500:]}")
-    return proc.stdout.rstrip("\n")
+    rc, out, err = _run_bounded([sys.executable, "-I", "-X", "utf8", "-c", code], timeout, _python_env())
+    if rc != 0:
+        raise ExecutionError(f"python exit {rc}: {err.strip()[-500:]}")
+    return out.rstrip("\n")
 
 
 def run_js(code: str, timeout: float = 5.0) -> str:
@@ -49,16 +87,10 @@ def run_js(code: str, timeout: float = 5.0) -> str:
     node = shutil.which("node")
     if node is None:
         raise ExecutionError("node не найден в PATH")
-    proc = subprocess.run(
-        [node, "-e", code],
-        capture_output=True,
-        text=True,
-        timeout=timeout,
-        encoding="utf-8",
-    )
-    if proc.returncode != 0:
-        raise ExecutionError(f"node exit {proc.returncode}: {proc.stderr.strip()[-500:]}")
-    return proc.stdout.rstrip("\n")
+    rc, out, err = _run_bounded([node, "-e", code], timeout)
+    if rc != 0:
+        raise ExecutionError(f"node exit {rc}: {err.strip()[-500:]}")
+    return out.rstrip("\n")
 
 
 def run_sql(setup_sql: str, query: str) -> list[tuple[Any, ...]]:

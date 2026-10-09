@@ -443,7 +443,8 @@ def test_git_range_replayed_in_real_git(tmp_path):
         repo.mkdir()
 
         def git(*args: str, repo: Path = repo) -> str:
-            proc = subprocess.run([GIT, *args], cwd=repo, env=env, capture_output=True, text=True, encoding="utf-8")
+            proc = subprocess.run([GIT, *args], cwd=repo, env=env, capture_output=True, text=True, encoding="utf-8",
+                                  stdin=subprocess.DEVNULL, timeout=60)
             assert proc.returncode == 0, proc.stderr
             return proc.stdout
 
