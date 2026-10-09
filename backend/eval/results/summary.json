@@ -2,8 +2,8 @@
  "meta": {
   "mode": "full",
   "seed": 20261005,
-  "git_sha": "0b0647c9164ba71770a8f82647830f38d4402baf",
-  "bank_families": 102,
+  "git_sha": "8b083fe3059a0398c8a039e6c2459b3e50d89242",
+  "bank_families": 111,
   "scoring_config_version": "1-dc239901d9"
  },
  "command": "cd backend && uv run python -m eval.validate",
@@ -13,7 +13,7 @@
    "kind": "sim",
    "section": "Тестирование",
    "label": "Верное решение у заявленного порога",
-   "value": 0.858,
+   "value": 0.8569,
    "op": "ge",
    "target": 0.85,
    "format": "share",
@@ -52,7 +52,7 @@
    "kind": "sim",
    "section": "Тестирование",
    "label": "Средняя длина основной части, заданий",
-   "value": 12.842,
+   "value": 12.8365,
    "op": "le",
    "target": 15,
    "format": "num1",
@@ -65,7 +65,7 @@
    "kind": "sim",
    "section": "Тестирование",
    "label": "Средняя длина с доборами, заданий",
-   "value": 16.1254,
+   "value": 16.1331,
    "op": "le",
    "target": 17,
    "format": "num1",
@@ -104,7 +104,7 @@
    "kind": "sim",
    "section": "Тестирование",
    "label": "Пересдача: совпадение решения",
-   "value": 0.8088,
+   "value": 0.8077,
    "op": "ge",
    "target": 0.78,
    "format": "share",
@@ -117,11 +117,11 @@
    "kind": "sim",
    "section": "Тестирование",
    "label": "Пересдача: κ решения",
-   "value": 0.5532,
+   "value": 0.5506,
    "op": "ge",
    "target": 0.55,
    "format": "num",
-   "value_text": "0,553",
+   "value_text": "0,551",
    "target_text": "≥ 0,55",
    "pass": true
   },
@@ -130,7 +130,7 @@
    "kind": "sim",
    "section": "Тестирование",
    "label": "Пересдача: QWK грейда",
-   "value": 0.8605,
+   "value": 0.8601,
    "op": "ge",
    "target": 0.85,
    "format": "num",
@@ -143,7 +143,7 @@
    "kind": "sim",
    "section": "Тестирование",
    "label": "Пересдача: корреляция оценок уровня",
-   "value": 0.862,
+   "value": 0.8623,
    "op": "ge",
    "target": 0.88,
    "format": "num",
@@ -156,7 +156,7 @@
    "kind": "sim",
    "section": "Тестирование",
    "label": "Ложное повышение грейда (гистерезис)",
-   "value": 0.0325,
+   "value": 0.03,
    "op": "le",
    "target": 0.07,
    "format": "share",
@@ -208,7 +208,7 @@
    "kind": "sim",
    "section": "Тестирование",
    "label": "Теги ✓ модулей: точность против истинного уровня (ориентир концепции ≥ 0,90)",
-   "value": 0.9748,
+   "value": 0.9742,
    "op": "show",
    "target": null,
    "format": "share",
@@ -221,7 +221,7 @@
    "kind": "sim",
    "section": "Тестирование",
    "label": "Теги ✓ модулей: полнота (ориентир концепции ≥ 0,75)",
-   "value": 0.7581,
+   "value": 0.7572,
    "op": "show",
    "target": null,
    "format": "share",
@@ -325,7 +325,7 @@
    "kind": "matching",
    "section": "Подбор",
    "label": "P@10 по оракулу, test-брифы, сквозной режим",
-   "value": 0.61,
+   "value": 0.615,
    "op": "ge",
    "target": 0.6,
    "format": "num",
@@ -455,11 +455,11 @@
    "kind": "matching",
    "section": "Устойчивость",
    "label": "P@10 после пересдачи (постфактум): качество десятки не зависит от шума теста",
-   "value": 0.68,
+   "value": 0.665,
    "op": "ge",
    "target": 0.6,
    "format": "num",
-   "value_text": "0,68",
+   "value_text": "0,67",
    "target_text": "≥ 0,60",
    "pass": true
   },
@@ -468,7 +468,7 @@
    "kind": "matching",
    "section": "Устойчивость",
    "label": "Стабильность топ-10 / потолок ранжирования по одному измерению уровня при той же надёжности (постфактум)",
-   "value": 3.3149,
+   "value": 3.2938,
    "op": "ge",
    "target": 1.0,
    "format": "num1",
@@ -481,11 +481,11 @@
    "kind": "matching",
    "section": "Устойчивость",
    "label": "Жаккар топ-10 после «добавлен nice-навык»",
-   "value": 0.9636,
+   "value": 0.947,
    "op": "ge",
    "target": 0.6,
    "format": "num",
-   "value_text": "0,96",
+   "value_text": "0,95",
    "target_text": "≥ 0,60",
    "pass": true
   },
@@ -520,11 +520,11 @@
    "kind": "matching",
    "section": "Устойчивость",
    "label": "Накрутка навыков: сдвиг ранга вверх, BM25 (ожидание ≥ 10)",
-   "value": 522.463,
+   "value": 518.398,
    "op": "ge",
    "target": 10,
    "format": "num1",
-   "value_text": "522,5",
+   "value_text": "518,4",
    "target_text": "≥ 10,0",
    "pass": true
   },
@@ -533,14 +533,14 @@
    "kind": "matching",
    "section": "Экспозиция",
    "label": "Кандидаты без ФСП: условное отношение экспозиции, топ-10",
-   "value": 0.9213,
+   "value": 0.9105,
    "op": "between",
    "target": [
     0.8,
     1.25
    ],
    "format": "num",
-   "value_text": "0,92",
+   "value_text": "0,91",
    "target_text": "0,80–1,25",
    "pass": true
   },
@@ -549,7 +549,7 @@
    "kind": "matching",
    "section": "Экспозиция",
    "label": "Кандидаты без ФСП: условное отношение экспозиции, топ-50",
-   "value": 0.9449,
+   "value": 0.9361,
    "op": "between",
    "target": [
     0.8,
@@ -617,11 +617,11 @@
    "kind": "matching",
    "section": "Производительность",
    "label": "p95 сборки версии подборки, мс",
-   "value": 184.1929,
+   "value": 133.2679,
    "op": "le",
    "target": 300,
    "format": "num0",
-   "value_text": "184",
+   "value_text": "133",
    "target_text": "≤ 300",
    "pass": true
   }
@@ -827,41 +827,41 @@
     "n": 400,
     "retest_parallel": {
      "n": 400,
-     "grade_exact": 0.665,
+     "grade_exact": 0.6625,
      "grade_within1": 0.995,
-     "grade_qwk": 0.8617,
-     "grade_kappa": 0.5592,
+     "grade_qwk": 0.8599,
+     "grade_kappa": 0.5557,
      "flip_across_cut": {
-      "intern|junior": 0.0925,
+      "intern|junior": 0.095,
       "junior|middle": 0.0975,
       "middle|senior": 0.0975
      },
-     "flip_any_cut": 0.335,
-     "decision_agreement": 0.79,
-     "decision_kappa": 0.4724,
-     "theta_r": 0.8709,
-     "theta_sd_diff": 0.4217,
+     "flip_any_cut": 0.3375,
+     "decision_agreement": 0.7875,
+     "decision_kappa": 0.4612,
+     "theta_r": 0.8744,
+     "theta_sd_diff": 0.4158,
      "near_cut_n": 287,
-     "near_cut_exact": 0.669
+     "near_cut_exact": 0.6725
     },
     "retest_real_rules": {
      "n": 400,
-     "grade_exact": 0.7275,
+     "grade_exact": 0.7225,
      "grade_within1": 0.9925,
-     "grade_qwk": 0.8816,
-     "grade_kappa": 0.6402,
+     "grade_qwk": 0.8798,
+     "grade_kappa": 0.6337,
      "flip_across_cut": {
-      "intern|junior": 0.0625,
+      "intern|junior": 0.065,
       "junior|middle": 0.09,
       "middle|senior": 0.085
      },
-     "flip_any_cut": 0.2725,
-     "decision_agreement": 0.8225,
-     "decision_kappa": 0.5723,
-     "theta_r": 0.8672,
-     "theta_sd_diff": 0.4218,
+     "flip_any_cut": 0.2775,
+     "decision_agreement": 0.82,
+     "decision_kappa": 0.5651,
+     "theta_r": 0.8684,
+     "theta_sd_diff": 0.4201,
      "near_cut_n": 287,
-     "near_cut_exact": 0.7213
+     "near_cut_exact": 0.7143
     },
     "separation": {
      "n": 369,
@@ -869,13 +869,13 @@
      "confusion": {
       "intern": {
        "none": 13,
-       "intern": 72,
-       "junior": 15
+       "intern": 70,
+       "junior": 17
       },
       "junior": {
        "junior": 72,
-       "intern": 12,
-       "middle": 7
+       "middle": 7,
+       "intern": 12
       },
       "middle": {
        "middle": 63,
@@ -887,61 +887,61 @@
        "middle": 18
       }
      },
-     "grade_exact": 0.7534,
+     "grade_exact": 0.748,
      "grade_within1": 1.0,
-     "grade_qwk": 0.905,
+     "grade_qwk": 0.9025,
      "per_cut": {
       "intern|junior": {
        "cut_theta": -1.0,
-       "decision_accuracy": 0.9268,
-       "near_cut_accuracy": 0.7412,
+       "decision_accuracy": 0.9214,
+       "near_cut_accuracy": 0.7059,
        "near_cut_n": 85,
-       "auc_theta": 0.9538
+       "auc_theta": 0.9508
       },
       "junior|middle": {
        "cut_theta": 0.0,
        "decision_accuracy": 0.9268,
        "near_cut_accuracy": 0.7426,
        "near_cut_n": 101,
-       "auc_theta": 0.9591
+       "auc_theta": 0.9599
       },
       "middle|senior": {
        "cut_theta": 1.0,
        "decision_accuracy": 0.935,
        "near_cut_accuracy": 0.7895,
        "near_cut_n": 76,
-       "auc_theta": 0.9638
+       "auc_theta": 0.9635
       }
      },
      "information": {
       "intern|junior": {
-       "mean_information": 4.7342,
-       "sem_from_information": 0.4596
+       "mean_information": 4.7379,
+       "sem_from_information": 0.4594
       },
       "junior|middle": {
-       "mean_information": 4.8779,
+       "mean_information": 4.8784,
        "sem_from_information": 0.4528
       },
       "middle|senior": {
-       "mean_information": 3.2719,
-       "sem_from_information": 0.5528
+       "mean_information": 3.2716,
+       "sem_from_information": 0.5529
       }
      },
-     "sem_posterior_mean": 0.4691,
-     "sem_posterior_near_cut": 0.4528,
-     "length_mean": 16.4932,
+     "sem_posterior_mean": 0.4686,
+     "sem_posterior_near_cut": 0.4526,
+     "length_mean": 16.4986,
      "length_p95": 20.0,
-     "reliability": 0.8328
+     "reliability": 0.833
     },
     "mean_shared_families_real_rules": 0.0,
-    "mean_shared_families_parallel": 9.55,
+    "mean_shared_families_parallel": 9.53,
     "discrimination": {
      "families": 39,
-     "r_pb_median": 0.4516,
-     "r_pb_p10": 0.2826,
-     "share_r_pb_ge_020": 0.9744,
+     "r_pb_median": 0.455,
+     "r_pb_p10": 0.2697,
+     "share_r_pb_ge_020": 0.9487,
      "a_eff_median": 1.3466,
-     "dp_adjacent_median": 0.2097,
+     "dp_adjacent_median": 0.2163,
      "dp_families": 39,
      "weak_families": []
     },
@@ -951,20 +951,20 @@
       {
        "sigma_inst": 0.0,
        "n": 120,
-       "grade_exact_vs_truth": 0.8125,
-       "retest_grade_exact": 0.7167
+       "grade_exact_vs_truth": 0.7946,
+       "retest_grade_exact": 0.725
       },
       {
        "sigma_inst": 0.15,
        "n": 120,
-       "grade_exact_vs_truth": 0.7946,
-       "retest_grade_exact": 0.7167
+       "grade_exact_vs_truth": 0.7768,
+       "retest_grade_exact": 0.7083
       },
       {
        "sigma_inst": 0.3,
        "n": 120,
-       "grade_exact_vs_truth": 0.8214,
-       "retest_grade_exact": 0.725
+       "grade_exact_vs_truth": 0.8304,
+       "retest_grade_exact": 0.7417
       }
      ]
     },
@@ -972,12 +972,12 @@
      "n": 100,
      "coalition": 20,
      "leaked_share_of_spec_bank": 0.9756,
-     "theta_gain_mean": -1.7091,
+     "theta_gain_mean": -1.7249,
      "theta_gain_ci95": [
-      -1.8327,
-      -1.5836
+      -1.8468,
+      -1.6025
      ],
-     "false_pass_honest": 0.13,
+     "false_pass_honest": 0.12,
      "false_pass_with_leak": 0.0,
      "share_flagged_foreign_key": 1.0,
      "detector_active_families": 25,
@@ -1246,21 +1246,21 @@
        "decision_accuracy": 0.9328,
        "near_cut_accuracy": 0.7931,
        "near_cut_n": 87,
-       "auc_theta": 0.9681
+       "auc_theta": 0.9682
       },
       "junior|middle": {
        "cut_theta": 0.0,
        "decision_accuracy": 0.9328,
        "near_cut_accuracy": 0.7778,
        "near_cut_n": 81,
-       "auc_theta": 0.9783
+       "auc_theta": 0.9784
       },
       "middle|senior": {
        "cut_theta": 1.0,
        "decision_accuracy": 0.922,
        "near_cut_accuracy": 0.7788,
        "near_cut_n": 104,
-       "auc_theta": 0.9629
+       "auc_theta": 0.9628
       }
      },
      "information": {
@@ -1352,49 +1352,49 @@
    "n": 1600,
    "retest_parallel": {
     "n": 1600,
-    "grade_exact": 0.6869,
+    "grade_exact": 0.6863,
     "grade_within1": 0.995,
-    "grade_qwk": 0.8704,
-    "grade_kappa": 0.5879,
+    "grade_qwk": 0.87,
+    "grade_kappa": 0.587,
     "flip_across_cut": {
-     "intern|junior": 0.0875,
+     "intern|junior": 0.0881,
      "junior|middle": 0.0925,
      "middle|senior": 0.0956
     },
-    "flip_any_cut": 0.3131,
-    "decision_agreement": 0.7963,
-    "decision_kappa": 0.5082,
-    "theta_r": 0.8735,
-    "theta_sd_diff": 0.4131,
+    "flip_any_cut": 0.3137,
+    "decision_agreement": 0.7956,
+    "decision_kappa": 0.5057,
+    "theta_r": 0.8744,
+    "theta_sd_diff": 0.4116,
     "near_cut_n": 1169,
-    "near_cut_exact": 0.6792
+    "near_cut_exact": 0.6801
    },
    "retest_real_rules": {
     "n": 1600,
-    "grade_exact": 0.665,
+    "grade_exact": 0.6637,
     "grade_within1": 0.9856,
-    "grade_qwk": 0.8412,
-    "grade_kappa": 0.5557,
+    "grade_qwk": 0.8408,
+    "grade_kappa": 0.5541,
     "flip_across_cut": {
-     "intern|junior": 0.095,
+     "intern|junior": 0.0956,
      "junior|middle": 0.105,
      "middle|senior": 0.11
     },
-    "flip_any_cut": 0.335,
-    "decision_agreement": 0.7694,
-    "decision_kappa": 0.4618,
-    "theta_r": 0.8235,
-    "theta_sd_diff": 0.4716,
+    "flip_any_cut": 0.3362,
+    "decision_agreement": 0.7688,
+    "decision_kappa": 0.4601,
+    "theta_r": 0.8238,
+    "theta_sd_diff": 0.4712,
     "near_cut_n": 1169,
-    "near_cut_exact": 0.6536
+    "near_cut_exact": 0.6518
    },
    "separation": {
     "n": 1472,
     "n_excluded_under_claim": 128,
     "confusion": {
      "intern": {
-      "intern": 304,
-      "junior": 51,
+      "intern": 302,
+      "junior": 53,
       "none": 45
      },
      "middle": {
@@ -1413,54 +1413,54 @@
       "intern": 49
      }
     },
-    "grade_exact": 0.7541,
+    "grade_exact": 0.7527,
     "grade_within1": 0.9993,
-    "grade_qwk": 0.9041,
+    "grade_qwk": 0.9035,
     "per_cut": {
      "intern|junior": {
       "cut_theta": -1.0,
-      "decision_accuracy": 0.9314,
-      "near_cut_accuracy": 0.7827,
+      "decision_accuracy": 0.93,
+      "near_cut_accuracy": 0.7744,
       "near_cut_n": 359,
-      "auc_theta": 0.96
+      "auc_theta": 0.9593
      },
      "junior|middle": {
       "cut_theta": 0.0,
       "decision_accuracy": 0.9253,
       "near_cut_accuracy": 0.7432,
       "near_cut_n": 366,
-      "auc_theta": 0.9635
+      "auc_theta": 0.9636
      },
      "middle|senior": {
       "cut_theta": 1.0,
       "decision_accuracy": 0.9273,
       "near_cut_accuracy": 0.7692,
       "near_cut_n": 338,
-      "auc_theta": 0.9603
+      "auc_theta": 0.9602
      }
     },
     "information": {
      "intern|junior": {
-      "mean_information": 4.5799,
-      "sem_from_information": 0.4673
+      "mean_information": 4.5808,
+      "sem_from_information": 0.4672
      },
      "junior|middle": {
-      "mean_information": 4.7155,
+      "mean_information": 4.7156,
       "sem_from_information": 0.4605
      },
      "middle|senior": {
-      "mean_information": 3.3774,
+      "mean_information": 3.3773,
       "sem_from_information": 0.5441
      }
     },
-    "sem_posterior_mean": 0.4728,
-    "sem_posterior_near_cut": 0.4556,
-    "length_mean": 15.9266,
+    "sem_posterior_mean": 0.4727,
+    "sem_posterior_near_cut": 0.4555,
+    "length_mean": 15.928,
     "length_p95": 20.0,
     "reliability": 0.8301
    },
    "mean_shared_families_real_rules": 0.0,
-   "mean_shared_families_parallel": 10.6725
+   "mean_shared_families_parallel": 10.6675
   },
   "pilot_antiassist": {
    "source": "пилот анти-ассиста: прогон трёх чат-моделей одного вендора (слабая, средняя, сильная)",
