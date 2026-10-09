@@ -1,4 +1,4 @@
-import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useInfiniteQuery, useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api, unwrap } from '@/api/client'
 import type { Schemas } from '@/api/types'
 
@@ -173,6 +173,21 @@ export function useCandidateCard(needId: string | undefined, refId: string | nul
           params: { path: { need_id: needId as string, ref: refId as string } },
         }),
       ),
+  })
+}
+
+/**
+ * Слепые карточки нескольких кандидатов (экран «Сравнить»): тот же ключ кэша, что у панели кандидата, —
+ * открытая карточка не запрашивается второй раз. Открытие записывается как просмотр (DECISIONS п. 7).
+ */
+export function useCandidateCards(needId: string, refs: readonly string[], enabled = true) {
+  return useQueries({
+    queries: refs.map((ref) => ({
+      queryKey: qk.card(needId, ref),
+      enabled: enabled && !!needId,
+      queryFn: () =>
+        unwrap(api.GET('/api/needs/{need_id}/candidates/{ref}', { params: { path: { need_id: needId, ref } } })),
+    })),
   })
 }
 
