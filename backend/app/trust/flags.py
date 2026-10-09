@@ -20,7 +20,7 @@ from app.models.matching import Need
 from app.trust import verification
 from app.trust.verification import cfg as trust_cfg
 
-DISCREPANCY_KINDS = ("terms_lower_salary", "terms_no_vacancy")
+DISCREPANCY_KINDS = ("terms_lower_salary", "terms_no_vacancy", "terms_promise_broken")
 
 
 def _many_invites_no_outcomes(db: Session, company_id: uuid.UUID, at: datetime, c: dict[str, Any]) -> str | None:

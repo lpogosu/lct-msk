@@ -81,6 +81,7 @@ class SendSpec:
     contact_value: str | None = None
     response_days: int | None = None
     why_you: dict[str, list[str]] = field(default_factory=dict)  # ref/псевдоним → свой текст «почему вы»
+    promises: list[str] = field(default_factory=list)  # «обещание процесса» (config/contact.yaml: invitation.promises)
 
 
 @dataclass
@@ -391,7 +392,21 @@ def preview(ctx: Ctx, user: User, spec: SendSpec) -> dict[str, Any]:
     }
 
 
+PROMISE_PREFIX = "promise:"
+
+
+def promises_of(flags: list[Any] | None) -> list[dict[str, str]]:
+    """Обязательства «обещания процесса» из флагов приглашения: код и текст из конфига (неизвестный код не показываем)."""
+    labels = cfg().invitation.promises
+    codes = [str(f)[len(PROMISE_PREFIX):] for f in flags or [] if str(f).startswith(PROMISE_PREFIX)]
+    return [{"code": c, "label": labels[c]} for c in codes if c in labels]
+
+
 def send(ctx: Ctx, user: User, spec: SendSpec, *, batch: bool) -> SendResult:
+    unknown = sorted(set(spec.promises) - set(cfg().invitation.promises))
+    if unknown:
+        raise bad_request("promise_unknown", f"Неизвестное обещание процесса: {', '.join(unknown)}")
+    spec.promises = list(dict.fromkeys(spec.promises))
     c = cfg()
     p = _prepare(ctx, user, spec, batch=batch, strict=True)
     company, sender, items, meta, at = p.company, p.sender, p.items, p.meta, p.at
@@ -425,6 +440,8 @@ def send(ctx: Ctx, user: User, spec: SendSpec, *, batch: bool) -> SendResult:
     batch_id = uuid.uuid4() if batch else None
     for inv, out in sent:
         row = _save_new(ctx, company, user, inv, out, batch_id)
+        if spec.promises:  # хранится во флагах приглашения: условия (OfferTerms) и их sha256 не меняются
+            row.flags = [*row.flags, *(f"{PROMISE_PREFIX}{p}" for p in spec.promises)]
         result.sent.append(row)
         result.warnings.extend(w for w in out.warnings if w not in result.warnings)
         result.notes.extend(n for n in out.notes if n not in result.notes)
@@ -804,6 +821,7 @@ def employer_detail(ctx: Ctx, row: Invitation) -> dict[str, Any]:
     card = employer_card(ctx, row, inv, at)
     card["terms"] = [_terms_dict(t) for t in inv.terms]
     card["why_you"] = list(inv.why_you)
+    card["promises"] = promises_of(row.flags)
     card["caution"] = list(inv.caution)
     card["score_snapshot"] = row.score_snapshot or None
     card["events"] = employer_events(inv)
@@ -1007,6 +1025,7 @@ def candidate_detail(ctx: Ctx, row: Invitation) -> dict[str, Any]:
     card["terms"] = _terms_dict(t)
     card["terms_history"] = [_terms_dict(x) for x in inv.terms[:-1]]
     card["why_you"] = list(inv.why_you)
+    card["promises"] = promises_of(row.flags)
     card["team"] = team_of(ctx.db, row.need_id)
     card["salary_vs_min"] = _salary_vs_min(ctx.db, row.candidate_id, t)
     card["caution_reasons"] = list(inv.caution)

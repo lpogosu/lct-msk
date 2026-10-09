@@ -117,7 +117,7 @@ def compute_reliability(
         _ratio_part(
             "условия совпали",
             c("terms_matched"),
-            c("terms_matched", "terms_lower_salary", "terms_no_vacancy"),
+            c("terms_matched", "terms_lower_salary", "terms_no_vacancy", "terms_promise_broken"),
             as_percent=False,
         ),
     ]

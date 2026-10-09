@@ -25,6 +25,13 @@ invitation:
   description_min_len: 50
   description_max_len: 3000
   why_you_max_items: 3
+  # «Обещание процесса»: тест на платформе — пропуск, а не барьер. Работодатель может взять обязательства, кандидат видит их
+  # до ответа; после «да» в сверке «условия совпали?» кандидат может отметить, что обещание нарушено → минус к надёжности.
+  # В Score кандидата не входит. Ключ — код (хранится в invitations.flags как «promise:<код>»), значение — текст для обеих сторон.
+  promises:
+    no_tech_screen: Без технического скрининга — результат теста засчитан
+    final_interview: Сразу финальное интервью
+    no_take_home: Без тестового задания
   contact_methods:
     email: Email
     telegram: Telegram
@@ -115,6 +122,7 @@ reasons:
     match: Условия совпали
     lower_salary: Зарплата ниже
     no_vacancy: Вакансии нет
+    promise_broken: Обещание по процессу не выполнено
     other: Другое
   application_reject:            # отказ по отклику — причина обязательна
     skills_missing: Не хватило навыков из вакансии
@@ -259,7 +267,7 @@ reliability:
   discrepancy:
     window_days: 90
     min_distinct_candidates: 2
-    kinds: [terms_lower_salary, terms_no_vacancy]
+    kinds: [terms_lower_salary, terms_no_vacancy, terms_promise_broken]
     badge: есть расхождения условий
   good:
     application_answered: ответ на отклик в срок
@@ -273,6 +281,7 @@ reliability:
     withdrawn_after_accept: отзыв после принятия
     terms_lower_salary: зарплата ниже, чем в приглашении
     terms_no_vacancy: вакансии не оказалось
+    terms_promise_broken: обещание по процессу не выполнено
     counter_unanswered: встречное условие без ответа
 
 # --- Отклик на вакансию (доп.) ------------------------------------------------------------------

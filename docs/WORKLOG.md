@@ -81,3 +81,17 @@ Score с разложением вкладов, свежесть теста, «�
 4. Пересобрать презентацию (`presentation/build_deck.py`; скрипты скриншотов под Windows — путь к Chrome и порт 5184) и видео с новыми
    цифрами пилота.
 5. Перед открытием репозитория удалить ветки `context` и `…-wip-*`, влить ветку в `main`.
+
+## 9. «Обещание процесса» — где остановились
+
+Сделан бэкенд (тесты домена зелёные, 61 passed):
+- `config/contact.yaml`: `invitation.promises` (no_tech_screen, final_interview, no_take_home), ответ сверки `promise_broken`,
+  событие надёжности `terms_promise_broken` (и в расхождения условий);
+- `InvitationFormIn.promises` → `SendSpec.promises` → флаги приглашения `promise:<код>` (условия и их sha256 не меняются),
+  неизвестный код → 400 `promise_unknown`; в деталях приглашения у кандидата и работодателя поле `promises: [{code, label}]`;
+- тест `tests/test_contact_invitation.py::test_outcome_check_promise_broken_is_a_reliability_minus`.
+
+Не сделано: API-тест (по образцу `tests/test_api_contact_lifecycle.py`: `invite(client, e1, a1.ref, promises=[...])`, проверить
+`promises` в `/api/invitations/inbox/{id}` и `/api/invitations/{id}`), перегенерация `frontend/src/api/schema.d.ts`, фронтенд
+(галочки в `InviteDrawer`, чипы в карточке приглашения кандидата, вариант «Обещание не выполнено» в сверке), строка в docs/MATCHING.md.
+Затем — CI (раздел 8, п. 2).

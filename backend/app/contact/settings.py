@@ -43,6 +43,7 @@ class InvitationCfg(_Frozen):
     description_min_len: int
     description_max_len: int
     why_you_max_items: int
+    promises: dict[str, str] = {}  # «обещание процесса»: код → текст (config/contact.yaml)
     contact_methods: dict[str, str]
     formats: dict[str, str]
 

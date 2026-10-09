@@ -206,6 +206,7 @@ class InvitationFormIn(_In):
     contact_method: str | None = Field(default=None, max_length=16)
     contact_value: str | None = Field(default=None, max_length=254)
     response_days: int | None = Field(default=None, description="3, 5 или 7 дней (по умолчанию 5)")
+    promises: list[str] = Field(default_factory=list, max_length=3, description="«Обещание процесса»: коды из config/contact.yaml → invitation.promises")
 
 
 class InvitationCreateIn(InvitationFormIn):
@@ -337,9 +338,15 @@ EmployerCandidateOut = Annotated[
 ]
 
 
+class PromiseOut(BaseModel):
+    code: str
+    label: str
+
+
 class InvitationEmployerDetail(InvitationEmployerCard):
     terms: list[TermsOut]
     why_you: list[str]
+    promises: list[PromiseOut] = Field(default_factory=list, description="«Обещание процесса», взятое работодателем")
     caution: list[str]
     score_snapshot: ScoreSnapshotOut | None = None
     events: list[EventOut]
@@ -476,6 +483,7 @@ class InvitationCandidateDetail(BaseModel):
     terms: TermsOut
     terms_history: list[TermsOut]
     why_you: list[str]
+    promises: list[PromiseOut] = Field(default_factory=list, description="Обязательства работодателя по процессу найма")
     team: dict[str, Any] | None = Field(default=None, description="О команде из брифа (E-02); в Score не входит")
     salary_vs_min: str | None = None
     counter: CounterOut | None = None
@@ -543,7 +551,7 @@ class ReportIn(_In):
 
 
 class CheckIn(_In):
-    answer: str = Field(description="match | lower_salary | no_vacancy | other")
+    answer: str = Field(description="match | lower_salary | no_vacancy | promise_broken | other")
 
 
 class GrantConsentIn(_In):

@@ -690,6 +690,7 @@ _OUTCOME_CHECK_EVENTS = {
     "match": "terms_matched",
     "lower_salary": "terms_lower_salary",
     "no_vacancy": "terms_no_vacancy",
+    "promise_broken": "terms_promise_broken",  # «обещание процесса» не выполнено (config/contact.yaml: invitation.promises)
 }
 
 

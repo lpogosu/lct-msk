@@ -668,3 +668,14 @@ def test_offer_terms_hash_detects_tampering():
     assert again.sha256 == terms.sha256  # хеш детерминирован по содержимому
     with pytest.raises(dataclasses.FrozenInstanceError):
         terms.salary_from = 1  # type: ignore[misc]
+
+
+def test_outcome_check_promise_broken_is_a_reliability_minus():
+    """«Обещание процесса» нарушено → событие надёжности terms_promise_broken (config/contact.yaml: invitation.promises)."""
+    clock = FakeClock(T0)
+    inv = viewed_invitation(clock)
+    apply_action(inv, "accept", "candidate", clock, consent=True)
+    apply_action(inv, "mark_contacted", "employer", clock)
+    clock.advance(days=10)
+    out = apply_action(inv, "outcome_check", "candidate", clock, answer="promise_broken")
+    assert reliability_kinds(out) == ["terms_promise_broken"]

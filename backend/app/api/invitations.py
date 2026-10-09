@@ -73,6 +73,7 @@ def _spec(body: InvitationFormIn, refs: list[str], why: dict[str, list[str]]) ->
         contact_value=body.contact_value,
         response_days=body.response_days,
         why_you=why,
+        promises=list(body.promises),
     )
 
 
