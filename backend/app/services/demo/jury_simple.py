@@ -94,7 +94,7 @@ def read_table(table: str, value: Any) -> list[Record]:
     if value is None:
         return []
     if isinstance(value, str):
-        text = value.lstrip("﻿")
+        text = value.lstrip("\ufeff")
         if not text.strip():
             return []
         header = text.splitlines()[0]
@@ -171,7 +171,7 @@ def _number(table: str, rec: Record, field: str, *, lo: float | None = None, hi:
     if isinstance(v, int | float):
         x = float(v)
     else:
-        s = re.sub(r"[\s  ]", "", str(v)).replace(",", ".")
+        s = re.sub(r"[\s\u00a0\u202f]", "", str(v)).replace(",", ".")
         try:
             x = float(s)
         except ValueError:

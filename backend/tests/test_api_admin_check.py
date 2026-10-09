@@ -87,8 +87,8 @@ def test_simple_import_to_metrics_and_tops(client, jury):
     assert any(c["state"] == "declared" for c in top1["chips"])  # заявленные навыки — серые чипы, не Score
 
     csv_r = client.get(f"/api/admin/check/batches/{bid}/tops.csv", params={"top": 3}, headers=jury.headers)
-    assert csv_r.status_code == 200 and csv_r.headers["content-type"].startswith("text/csv") and csv_r.text.startswith("﻿")
-    table = list(csv.DictReader(io.StringIO(csv_r.text.lstrip("﻿"))))
+    assert csv_r.status_code == 200 and csv_r.headers["content-type"].startswith("text/csv") and csv_r.text.startswith("\ufeff")
+    table = list(csv.DictReader(io.StringIO(csv_r.text.lstrip("\ufeff"))))
     assert len(table) == 9 and {r["brief_id"] for r in table} == {"v1", "v2", "v3"}
     first_v1 = [r for r in table if r["brief_id"] == "v1"]
     assert [r["candidate_id"] for r in first_v1] == [i["candidate_id"] for i in v1["items"][:3]]
@@ -159,7 +159,7 @@ def test_repo_pairs_summary_and_manual_check(client, jury):
     assert gold["brief"]["parsed"]["source"] == "gold" and len(gold["items"]) == 5
     assert client.get("/api/admin/check/repo/briefs/b02", headers=jury.headers).status_code == 404  # b02 — не test-бриф
     r = client.get("/api/admin/check/repo/tops.csv", params={"top": 2}, headers=jury.headers)
-    assert r.status_code == 200 and len(r.text.lstrip("﻿").strip().splitlines()) == 1 + 2 * summ["n_briefs"]
+    assert r.status_code == 200 and len(r.text.lstrip("\ufeff").strip().splitlines()) == 1 + 2 * summ["n_briefs"]
 
 
 def test_platform_bank_is_blind(client, jury):

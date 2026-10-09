@@ -202,6 +202,7 @@ const labRoutes: RouteObject = {
     { path: 'reconciliations', lazy: labPage(() => import('@/pages/lab/Reconciliations')), handle: { title: 'Сверки' } },
     { path: 'reconciliations/:id', lazy: labPage(() => import('@/pages/lab/ReconciliationAct')), handle: { title: 'Акт сверки' } },
     { path: 'validation', lazy: labPage(() => import('@/pages/lab/Validation')), handle: { title: 'Валидация' } },
+    { path: 'check', lazy: labPage(() => import('@/pages/lab/Check')), handle: { title: 'Проверка подбора' } },
     { path: 'trust', lazy: labPage(() => import('@/pages/lab/Trust')), handle: { title: 'Жалобы и сигналы' } },
     { path: 'ai-stand', element: <Navigate to="/lab/sessions" replace /> },
   ],
