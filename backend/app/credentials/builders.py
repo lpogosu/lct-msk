@@ -2,7 +2,8 @@
 
 Минимизация ПДн: субъект — псевдонимный id (HMAC от секрета платформы, без ФИО, email, ФСП ID, id пользователя);
 имя добавляется только по явному выбору кандидата. В ФСП-паспорт попадают лишь поля из config/credentials.yaml
-(fsp.allowed_fields): без ЕКП, команды, точного места, ссылки на протокол.
+(fsp.allowed_fields): без ЕКП, команды, точного места, ссылки на протокол. Вид спорта — по ВРВС из
+config/fsp.yaml (sport): «спортивное программирование», код 1010001311Я.
 """
 
 from __future__ import annotations
@@ -17,6 +18,7 @@ from app.core.settings import Settings
 from app.credentials.config import CredentialsConfig
 from app.credentials.di import iso_z
 from app.credentials.keys import issuer_did
+from app.fsp.config import get_fsp_config
 
 VC_CONTEXT = [
     "https://www.w3.org/ns/credentials/v2",
@@ -179,7 +181,9 @@ def fsp_credential(
     allowed = {k: item.get(k) for k in cfg.fsp_allowed_fields if item.get(k) not in (None, "")}
     ach_key = hashlib.sha256("|".join(str(allowed.get(k)) for k in cfg.fsp_allowed_fields).encode()).hexdigest()[:16]
     title = " · ".join(str(allowed[k]) for k in ("outcome", "discipline_label", "year") if k in allowed) or "Достижение ФСП"
+    sport = get_fsp_config().sport
     narrative_bits = [f"{k}: {v}" for k, v in allowed.items()]
+    narrative_bits.append(f"вид спорта: {sport.name} (код ВРВС {sport.code})")
     achievement = {
         "id": f"urn:vzaimno:achievement:fsp:{ach_key}",
         "type": ["Achievement"],
@@ -187,6 +191,9 @@ def fsp_credential(
         "name": title,
         "description": "Достижение из реестра ФСП (демонстрационные данные), обобщённая запись без персональных данных.",
         "criteria": {"narrative": "; ".join(narrative_bits)},
+        # Open Badges 3.0: область достижения и код вида спорта по Всероссийскому реестру видов спорта
+        "fieldOfStudy": sport.name,
+        "tag": [f"ВРВС:{sport.code}"],
     }
     subj: dict[str, Any] = {"id": subject, "type": ["AchievementSubject"], "achievement": achievement}
     if name:

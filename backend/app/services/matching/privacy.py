@@ -3,7 +3,8 @@
 - Кандидат в API работодателя — псевдоним «К-4821» = HMAC(company‖candidate) и непрозрачная ссылка ``ref``
   (своя у каждой компании). Внутренний id кандидата, id попыток теста, задач и записей ФСП, номера ЕКП и
   ссылки на протоколы до раскрытия наружу не уходят: доказательства — непрозрачные ссылки в рамках компании.
-- Строка ФСП до раскрытия — только обобщённая («Призёр всероссийских · продуктовое · 2025 · топ-3»);
+- Строка ФСП до раскрытия — только обобщённая («Призёр всероссийских · продуктовое программирование (хакатон) · 2025 ·
+  топ-3»); роль в команде из заявки — отдельным полем fsp_declared_role, серым;
   без ФСП — нейтральная серая строка, в «против» отсутствие ФСП не попадает никогда (это гарантирует движок).
 - Раскрытая карточка (CandidateDisclosed) — только при действующем ContactDisclosure этой пары
   (app/contact/visibility.py решает по белому списку config/contact.yaml).
@@ -241,6 +242,7 @@ def item_extras(
         "test": blind_test(payload, pct),
         "freshness": freshness(payload, now),
         "fsp_line": payload.get("fsp_line"),
+        "fsp_declared_role": payload.get("fsp_declared_role"),
         "fsp_badges": list(payload.get("fsp_badges") or ()),
         "fsp_source": payload.get("fsp_source_label"),
         "region": payload.get("region_code"),
@@ -355,6 +357,7 @@ def employer_item(
         "hidden_reasons": list(stored.get("hidden_reasons") or ()),
         "has_fsp": bool(stored.get("has_fsp")),
         "fsp_line": x.get("fsp_line"),
+        "fsp_declared_role": x.get("fsp_declared_role"),
         "fsp_badges": list(x.get("fsp_badges") or ()),
         "test": x.get("test") or {},
         "freshness": x.get("freshness"),
@@ -596,6 +599,7 @@ def candidate_profile_view(
     if payload.get("internship_only"):
         view["minor_notice"] = load_config("contact")["minors"]["employer_notice"]
     view["fsp_line"] = payload.get("fsp_line")
+    view["fsp_declared_role"] = payload.get("fsp_declared_role")
     view["fsp_badges"] = list(payload.get("fsp_badges") or ())
     view["fsp_source"] = payload.get("fsp_source_label")
     if disclosure is not None:

@@ -10,11 +10,18 @@ from app.core.configs import load_config
 from app.fsp.models import Level, RankCode, ResultRole, Source, Stage, StatusType
 
 
+class SportCfg(BaseModel):
+    """Вид спорта по ВРВС: «спортивное программирование», код 1010001311Я (config/fsp.yaml: sport)."""
+
+    code: str = Field(pattern=r"^\d{10}[А-ЯA-Z]$")
+    name: str
+
+
 class DisciplineCfg(BaseModel):
     code: str  # код ВРВС
     short: str  # algo | product | bas | robotics | infosec
-    name: str
-    label: str  # короткая подпись для карточки: «продуктовое»
+    name: str  # наименование дисциплины в ВРВС — для выписки из протокола
+    label: str  # подпись в интерфейсе: «алгоритмическое», «продуктовое программирование (хакатон)»
     scoring_kind: str
 
 
@@ -70,7 +77,9 @@ class VSSCfg(BaseModel):
     days_per_month: float = Field(gt=0)
     source_weights: dict[Source, float]
     aggregation: AggregationCfg
+    # Разряды норм ЕВСК по спортивному программированию. Кода нет в словаре (MSMK) — разряд не учитывается.
     rank_weights: dict[RankCode, float]
+    rank_validity_years: dict[RankCode, int] = Field(default_factory=dict)  # нет кода — бессрочно (МС)
     rank_factor: float = Field(ge=0)
     scale: float = Field(gt=0)
     rank_only_cap: float = Field(gt=0, le=100)
@@ -80,11 +89,20 @@ class VSSCfg(BaseModel):
         for enum, mapping, name in (
             (ResultRole, self.role_weights, "role_weights"),
             (Source, self.source_weights, "source_weights"),
-            (RankCode, self.rank_weights, "rank_weights"),
         ):
             missing = [m.value for m in enum if m not in mapping]
             if missing:
                 raise ValueError(f"vss.{name}: нет весов для {missing}")
+        # rank_weights — не все коды контракта: МСМК в нормах ЕВСК по спортивному программированию нет.
+        if not self.rank_weights:
+            raise ValueError("vss.rank_weights: нужен хотя бы один разряд")
+        if any(not 0.0 < w <= 1.0 for w in self.rank_weights.values()):
+            raise ValueError("vss.rank_weights: веса в (0, 1]")
+        orphan = [c.value for c in self.rank_validity_years if c not in self.rank_weights]
+        if orphan:
+            raise ValueError(f"vss.rank_validity_years: срок для разрядов без веса {orphan}")
+        if any(y < 1 for y in self.rank_validity_years.values()):
+            raise ValueError("vss.rank_validity_years: срок — целое число лет ≥ 1")
         covered = {r.level for r in self.level_rules if r.status is None and r.stage is None}
         if covered != set(Level):
             raise ValueError("vss.level_rules: у каждого уровня должно быть правило по умолчанию")
@@ -99,6 +117,7 @@ class PlaceBand(BaseModel):
 
 class FSPConfig(BaseModel):
     version: int
+    sport: SportCfg
     disciplines: list[DisciplineCfg]
     vss: VSSCfg
     skill_evidence_factor: float = Field(gt=0, le=1)

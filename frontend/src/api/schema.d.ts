@@ -5496,6 +5496,11 @@ export interface components {
             has_fsp: boolean;
             /** Fsp Line */
             fsp_line: string | null;
+            /**
+             * Fsp Declared Role
+             * @description Роль в команде по заявке участника («роль backend — по заявке участника»); показывать серым
+             */
+            fsp_declared_role: string | null;
             /** Fsp Badges */
             fsp_badges: string[];
             /**
@@ -6086,6 +6091,11 @@ export interface components {
             fsp: components["schemas"]["FspPublicOut"][];
             /** Fsp Line */
             fsp_line: string | null;
+            /**
+             * Fsp Declared Role
+             * @description Роль в команде по заявке участника («роль backend — по заявке участника»); показывать серым
+             */
+            fsp_declared_role: string | null;
             /** Fsp Badges */
             fsp_badges: string[];
             /** Fsp Source */
@@ -8026,6 +8036,11 @@ export interface components {
             fsp: components["schemas"]["FspPublicOut"][];
             /** Fsp Line */
             fsp_line: string | null;
+            /**
+             * Fsp Declared Role
+             * @description Роль в команде по заявке участника («роль backend — по заявке участника»); показывать серым
+             */
+            fsp_declared_role: string | null;
             /** Fsp Badges */
             fsp_badges: string[];
             /** Fsp Source */
@@ -8113,6 +8128,11 @@ export interface components {
             fsp: components["schemas"]["FspPublicOut"][];
             /** Fsp Line */
             fsp_line: string | null;
+            /**
+             * Fsp Declared Role
+             * @description Роль в команде по заявке участника («роль backend — по заявке участника»); показывать серым
+             */
+            fsp_declared_role: string | null;
             /** Fsp Badges */
             fsp_badges: string[];
             /** Fsp Source */
@@ -8802,9 +8822,14 @@ export interface components {
             place: string;
             /**
              * Role
-             * @description Роль в команде / личный зачёт
+             * @description Роль по протоколу: личный зачёт, капитан, в команде
              */
             role: string | null;
+            /**
+             * Declared Role
+             * @description Функция в команде из заявки («роль backend — по заявке участника»): в протоколе её нет, в оценку не входит
+             */
+            declared_role: string | null;
             /**
              * Outcome
              * @description Призёр / финалист / участник
@@ -13821,6 +13846,11 @@ export interface components {
              * @description Обобщённая строка ФСП или нейтральная серая строка
              */
             fsp_line: string | null;
+            /**
+             * Fsp Declared Role
+             * @description Роль в команде по заявке участника («роль backend — по заявке участника»); показывать серым
+             */
+            fsp_declared_role: string | null;
             /** Fsp Badges */
             fsp_badges: string[];
             test: components["schemas"]["TestBandOut"];

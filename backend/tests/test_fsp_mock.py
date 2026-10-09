@@ -233,12 +233,31 @@ def test_team_compositions_consistent() -> None:
         assert all(roles[r.athlete_sub] == r.role.value for r in rows)
 
 
+def test_rank_validity_table_matches_config() -> None:
+    # Положение о ЕВСК, п. 76: КМС — 3 года, I–III и юношеские — 2 года, МС — бессрочно. Мок и config/fsp.yaml
+    # (по нему бэкенд досчитывает срок, если реестр его не прислал) не должны расходиться.
+    from app.fsp.config import get_fsp_config
+
+    cfg_years = {c.value: y for c, y in get_fsp_config().vss.rank_validity_years.items()}
+    mock_years = {c.value: y for c, y in generator.RANK_VALID_YEARS.items()}
+    assert mock_years == cfg_years
+    assert cfg_years == {"KMS": 3, "I": 2, "II": 2, "III": 2, "I_y": 2, "II_y": 2, "III_y": 2}
+    assert "MS" not in cfg_years
+
+
+def test_generator_never_issues_msmk() -> None:
+    # Нормы ЕВСК по спортивному программированию (Приложение № 24 к приказу № 450): МСМК в них нет.
+    assert all(r.code != contract.RankCode.MSMK for r in SNAP.ranks)
+    assert contract.RankCode.MSMK not in generator._RANK_ORDER
+    assert contract.RankCode.MSMK not in generator.RANK_VALID_YEARS
+
+
 def test_ranks_follow_evsk_validity() -> None:
     athletes = {a.sub: a for a in SNAP.athletes}
     for r in SNAP.ranks:
-        years = {"KMS": 3, "I": 2, "II": 2, "III": 2}.get(r.code.value)
+        years = generator.RANK_VALID_YEARS.get(r.code)
         if years is None:
-            assert r.valid_until is None  # МС, МСМК — пожизненно
+            assert r.valid_until is None  # МС — бессрочно
         else:
             assert r.valid_until == generator._add_years(r.assigned_at, years)
         active = r.valid_until is None or r.valid_until >= generator.DATA_AS_OF

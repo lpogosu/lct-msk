@@ -161,6 +161,11 @@ def test_fsp_credential_keeps_only_allowed_fields():
     for secret in ("ЕКП-123456", "Команда Альфа", "protocol/1"):
         assert secret not in dump
     assert "Призёр" in dump and "Программирование" in dump and "2026" in dump
+    # Вид спорта по ВРВС — в достижении (Open Badges 3.0: fieldOfStudy и tag)
+    ach = doc["credentialSubject"]["achievement"]
+    assert ach["fieldOfStudy"] == "спортивное программирование"
+    assert ach["tag"] == ["ВРВС:1010001311Я"]
+    assert "1010001311Я" in ach["criteria"]["narrative"]
 
 
 # --- список отзыва -----------------------------------------------------------------------------------

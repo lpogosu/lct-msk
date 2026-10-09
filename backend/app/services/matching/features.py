@@ -181,6 +181,8 @@ def _row_payload(
         # --- карточка (до раскрытия — только обобщённо)
         "fsp_state": str(ff.state),
         "fsp_line": fsp_vss.employer_line(ctx.fsp, now, spec),
+        # Роль в команде из заявки — отдельно и серым («по заявке участника»): в протоколе ФСП её нет, в Score не входит
+        "fsp_declared_role": fsp_vss.public_declared_role(ctx.fsp, now, spec) if ff.has_fsp else None,
         "fsp_public": [i.model_dump(mode="json") for i in ff.fsp_public],
         "fsp_badges": list(ff.badges),
         "fsp_source_label": ff.source_label,

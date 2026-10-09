@@ -60,7 +60,11 @@ class FspResultOut(BaseModel):
     level: str = Field(description="Уровень соревнования")
     year: int = Field(description="Год")
     place: str = Field(description="Место из N (видите только вы; работодатель — после раскрытия)")
-    role: str | None = Field(default=None, description="Роль в команде / личный зачёт")
+    role: str | None = Field(default=None, description="Роль по протоколу: личный зачёт, капитан, в команде")
+    declared_role: str | None = Field(
+        default=None,
+        description="Функция в команде из заявки («роль backend — по заявке участника»): в протоколе её нет, в оценку не входит",
+    )
     outcome: str = Field(description="Призёр / финалист / участник")
     confirmed: bool = Field(description="Протокол опубликован, результат подтверждён")
     hidden: bool = Field(description="Вы скрыли результат: он не участвует в оценке и не виден работодателям")

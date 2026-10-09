@@ -207,6 +207,7 @@ def bank_search(db: Session, user: User, q: BankQuery, *, secret: str) -> dict[s
                 "freshness": privacy.freshness(r.payload, now),
                 "has_fsp": f.has_fsp,
                 "fsp_line": r.payload.get("fsp_line"),
+                "fsp_declared_role": r.payload.get("fsp_declared_role"),
                 "fsp_badges": list(r.payload.get("fsp_badges") or ()),
                 "skills": chips_of.get((b.candidate_id, b.spec), []),
                 "modules": [

@@ -152,6 +152,11 @@ def test_demo_brief_end_to_end(client, employer, pool, db_session):
     assert no_fsp["fsp_line"] == "Достижения ФСП не привязаны — оценка по тесту и задачам"
     with_fsp = [i for i in items if i["has_fsp"]]
     assert len(with_fsp) == 2 and any("Призёр всероссийских" in i["fsp_line"] for i in with_fsp)
+    # Роль в команде из заявки — не в строке ФСП, а отдельным серым полем «по заявке участника» (в протоколе её нет)
+    for i in items:
+        assert "роль " not in (i["fsp_line"] or "")
+        assert i["fsp_declared_role"] is None or i["fsp_declared_role"].endswith("по заявке участника")
+    assert no_fsp["fsp_declared_role"] is None
     assert_no_pii(v1, pool.values(), ekp_numbers(FSP_STRONG) | ekp_numbers(FSP_MEDIUM))
     assert_no_pii(page2, pool.values(), ekp_numbers(FSP_STRONG) | ekp_numbers(FSP_MEDIUM))
 

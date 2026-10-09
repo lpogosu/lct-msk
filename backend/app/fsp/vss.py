@@ -13,6 +13,10 @@
     K: v_k   ⊇ 0,8 · m(d, k) · VSS_d / 100
 Все числа — из config/fsp.yaml. Время передаётся явно (`now` из Clock): модуль не читает системные часы.
 Судья и тренер — только бейджи, в VSS не входят. Скрытые и неподтверждённые результаты не учитываются.
+Разряд учитывается, только если у него есть вес в vss.rank_weights (нормы ЕВСК по спортивному программированию:
+МС, КМС, I–III, юношеские; МСМК в них нет). Роль в команде (team_function) — со слов участника из заявки:
+в протоколах ФСП её нет, поэтому она не входит ни в VSS, ни в обобщённую строку, а показывается отдельно,
+серым, с пометкой «по заявке участника».
 """
 
 from __future__ import annotations
@@ -83,8 +87,8 @@ _FUNCTION_LABEL = {
     "pm": "менеджер продукта",
     "analyst": "аналитик",
 }
+# МСМК нет: в нормах ЕВСК по спортивному программированию такого звания нет, и оно не показывается.
 _RANK_LABEL = {
-    RankCode.MSMK: "МСМК",
     RankCode.MS: "МС",
     RankCode.KMS: "КМС",
     RankCode.I: "I разряд",
@@ -94,6 +98,7 @@ _RANK_LABEL = {
     RankCode.II_y: "II юношеский разряд",
     RankCode.III_y: "III юношеский разряд",
 }
+DECLARED_ROLE_NOTE = "по заявке участника"
 _JUDGE_CATEGORY_LABEL = {
     JudgeCategory.VK: "ВК",
     JudgeCategory.K1: "1К",
@@ -159,6 +164,9 @@ class FSPPublicItem(BaseModel):
     place_band: str | None
     role: str | None
     text: str
+    # Функция в команде из заявки («роль backend — по заявке участника»): в протоколе ФСП её нет, в text и VSS
+    # не входит; интерфейс показывает её отдельно серым.
+    declared_role: str | None = None
 
 
 # --------------------------------------------------------------------------- множители points(r)
@@ -257,21 +265,46 @@ def result_points(r: NormalizedResult, now: date | datetime, cfg: FSPConfig | No
     )
 
 
-def rank_is_active(rank: Rank, now: date | datetime) -> bool:
+def rank_recognized(rank: Rank, cfg: FSPConfig | None = None) -> bool:
+    """Разряд из норм ЕВСК по спортивному программированию: у него есть вес (у MSMK нет, config/fsp.yaml)."""
+    return rank.code in _cfg(cfg).vss.rank_weights
+
+
+def _add_years(d: date, years: int) -> date:
+    try:
+        return d.replace(year=d.year + years)
+    except ValueError:  # 29 февраля → 28 февраля
+        return d.replace(year=d.year + years, day=28)
+
+
+def rank_valid_until(rank: Rank, cfg: FSPConfig | None = None) -> date | None:
+    """Окончание срока действия: из реестра, а если реестр его не прислал — по Положению о ЕВСК (п. 76):
+    КМС — 3 года, I–III и юношеские — 2 года от присвоения (vss.rank_validity_years); МС — бессрочно (None).
+    Дата считается так же, как в демо-реестре: та же дата через N лет."""
+    if rank.valid_until is not None:
+        return rank.valid_until
+    years = _cfg(cfg).vss.rank_validity_years.get(rank.code)
+    return _add_years(rank.assigned_at, years) if years else None
+
+
+def rank_is_active(rank: Rank, now: date | datetime, cfg: FSPConfig | None = None) -> bool:
     today = _as_date(now)
-    return rank.assigned_at <= today and (rank.valid_until is None or today <= rank.valid_until)
+    until = rank_valid_until(rank, cfg)
+    return rank.assigned_at <= today and (until is None or today <= until)
 
 
 def rank_weight(rank: Rank, now: date | datetime, cfg: FSPConfig | None = None) -> float:
-    """Rk: × 1, пока разряд действует; после окончания срока — × свежесть от valid_until."""
+    """Rk: × 1, пока разряд действует; после окончания срока — × свежесть от даты окончания.
+    Разряд вне норм ЕВСК по спортивному программированию (MSMK) веса не имеет: 0."""
     c = _cfg(cfg)
     today = _as_date(now)
-    if rank.assigned_at > today:
+    if rank.assigned_at > today or not rank_recognized(rank, c):
         return 0.0
     base = c.vss.rank_weights[rank.code]
-    if rank.valid_until is None or today <= rank.valid_until:
+    until = rank_valid_until(rank, c)
+    if until is None or today <= until:
         return base
-    return base * freshness(rank.valid_until, today, c)
+    return base * freshness(until, today, c)
 
 
 # --------------------------------------------------------------------------- агрегация
@@ -486,13 +519,25 @@ def place_band(r: NormalizedResult, cfg: FSPConfig | None = None) -> str | None:
 
 
 def role_text(r: NormalizedResult) -> str | None:
-    if r.team_function:
-        return f"роль {_FUNCTION_LABEL.get(r.team_function, r.team_function)}"
+    """Роль из протокола: личный зачёт, капитан, участник команды. Функцию в команде (backend, дизайн…) сюда
+    не подмешиваем: в протоколах ФСП её нет, вклад в командный хакатон по ним честно не выделить."""
     if r.role == ResultRole.personal:
         return "личный зачёт"
     if r.role == ResultRole.captain:
         return "капитан команды"
     return "в команде"
+
+
+def function_label(team_function: str | None) -> str | None:
+    if not team_function:
+        return None
+    return _FUNCTION_LABEL.get(team_function, team_function)
+
+
+def declared_role_text(r: NormalizedResult) -> str | None:
+    """«роль backend — по заявке участника»: заявленная функция в команде, отдельно от подтверждённого."""
+    label = function_label(r.team_function)
+    return f"роль {label} — {DECLARED_ROLE_NOTE}" if label else None
 
 
 def result_public_item(r: NormalizedResult, cfg: FSPConfig | None = None) -> FSPPublicItem:
@@ -511,6 +556,7 @@ def result_public_item(r: NormalizedResult, cfg: FSPConfig | None = None) -> FSP
         place_band=band,
         role=role,
         text=" · ".join(p for p in parts if p),
+        declared_role=declared_role_text(r),
     )
 
 
@@ -538,23 +584,34 @@ def public_items(
 def public_summary(
     profile: FSPProfile, now: date | datetime, spec: str | None = None, cfg: FSPConfig | None = None
 ) -> str | None:
-    """Обобщённая строка лучшего результата: «Призёр всероссийских · продуктовое · 2025 · топ-3 · роль backend»."""
+    """Обобщённая строка лучшего результата:
+    «Призёр всероссийских · продуктовое программирование (хакатон) · 2025 · топ-3 · в команде»."""
     items = public_items(profile, now, spec, cfg)
     return items[0].text if items else None
 
 
-def rank_badge(rank: Rank) -> str:
+def public_declared_role(
+    profile: FSPProfile, now: date | datetime, spec: str | None = None, cfg: FSPConfig | None = None
+) -> str | None:
+    """Заявленная роль в команде для того же результата, что в обобщённой строке (показывается серым рядом)."""
+    items = public_items(profile, now, spec, cfg)
+    return items[0].declared_role if items else None
+
+
+def rank_badge(rank: Rank, cfg: FSPConfig | None = None) -> str:
     label = _RANK_LABEL[rank.code]
-    return label if rank.valid_until is None else f"{label} до {rank.valid_until.year}"
+    until = rank_valid_until(rank, cfg)
+    return label if until is None else f"{label} до {until.year}"
 
 
 def badges(profile: FSPProfile, now: date | datetime, cfg: FSPConfig | None = None) -> list[str]:
-    """Бейджи: действующий разряд («КМС до 2027»), «судья-эксперт (1К)», «тренер». В Score не входят."""
+    """Бейджи: действующий разряд («КМС до 2027»), «судья-эксперт (1К)», «тренер». В Score не входят.
+    Разряды вне норм ЕВСК по спортивному программированию (МСМК) не показываются."""
     c = _cfg(cfg)
     out: list[str] = []
-    active = [r for r in profile.ranks if rank_is_active(r, now)]
+    active = [r for r in profile.ranks if rank_recognized(r, c) and rank_is_active(r, now, c)]
     for rank in sorted(active, key=lambda r: (-c.vss.rank_weights[r.code], r.id)):
-        out.append(rank_badge(rank))
+        out.append(rank_badge(rank, c))
     for role in sorted(profile.roles, key=lambda r: (r.kind != RoleKind.judge, r.id)):
         if role.kind == RoleKind.judge:
             text = role.position or "судья"
@@ -581,14 +638,14 @@ def employer_line(
         # Только разряд, результатов в реестре нет: VSS ограничен, показываем пометку.
         d, bd = max(breakdowns.items(), key=lambda kv: (kv[1].vss, kv[0]))
         # Разряд, давший Rk: действующий, иначе истёкший (вклад уже уменьшен свежестью, бейдж «КМС до 2024»).
-        candidates = [r for r in profile.ranks if r.code == bd.rank_code]
+        candidates = [r for r in profile.ranks if r.code == bd.rank_code and rank_recognized(r, c)]
         rank = max(
             candidates,
-            key=lambda r: (rank_is_active(r, now), r.valid_until or date.max, r.id),
+            key=lambda r: (rank_is_active(r, now, c), rank_valid_until(r, c) or date.max, r.id),
             default=None,
         )
         if rank is not None:
-            return f"{rank_badge(rank)} · {discipline_label(d, c)} · оценка по разряду"
+            return f"{rank_badge(rank, c)} · {discipline_label(d, c)} · оценка по разряду"
     return NO_RESULTS_LINE
 
 
@@ -615,6 +672,8 @@ class FSPFeatures(BaseModel):
     fsp_public: list[FSPPublicItem]
     badges: list[str]
     employer_line: str
+    # Заявленная роль в команде к результату из employer_line: серым, «по заявке участника» (в Score не входит)
+    employer_declared_role: str | None = None
     pending_count: int
     # Пометка источника рядом со строкой ФСП: «Демо-реестр ФСП» (концепция §6.5 — в UI везде), None без ФСП ID.
     source_label: str | None = None
@@ -633,6 +692,7 @@ def build_features(profile: FSPProfile, now: date | datetime, cfg: FSPConfig | N
         fsp_public=public_items(profile, now, None, c),
         badges=badges(profile, now, c),
         employer_line=employer_line(profile, now, None, c),
+        employer_declared_role=public_declared_role(profile, now, None, c),
         pending_count=profile.pending_count,
         source_label=source_label,
     )
@@ -654,6 +714,7 @@ def _protocol_block(r: NormalizedResult, cfg: FSPConfig) -> list[str]:
     rows = [
         ("ЕКП", r.ekp),
         ("Соревнование", r.title),
+        ("Вид спорта", f"{cfg.sport.name} ({cfg.sport.code})"),
         ("Дисциплина", f"{disc.name} ({r.discipline_code})" if disc else r.discipline_code),
         ("Уровень", " · ".join(p for p in level_parts if p)),
         ("Даты", dates),
@@ -664,10 +725,10 @@ def _protocol_block(r: NormalizedResult, cfg: FSPConfig) -> list[str]:
         if r.team_size:
             team += f", {r.team_size} чел."
         rows.append(("Команда", team))
-    role = _ROLE_LABEL[r.role]
+    rows.append(("Роль", _ROLE_LABEL[r.role]))
     if r.team_function:
-        role += f", {_FUNCTION_LABEL.get(r.team_function, r.team_function)}"
-    rows.append(("Роль", role))
+        # Функция в команде — из заявки, не из протокола: подписываем источник (см. docstring модуля)
+        rows.append(("Функция в команде", f"{function_label(r.team_function)} ({DECLARED_ROLE_NOTE})"))
     if r.score is not None:
         score = _fmt_num(r.score)
         if r.max_score:

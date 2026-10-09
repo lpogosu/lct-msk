@@ -207,7 +207,7 @@ def test_demo_champion_story(inproc: InProcessFSPProvider) -> None:
     assert champions, "в демо-пользователях должен быть чемпион России по продуктовому"
     line, vss = champions[0]
     # До раскрытия — «Призёр … топ-3», точного места нет (концепция §4.5).
-    assert line.startswith("Призёр всероссийских · продуктовое · 2025 · топ-3")
+    assert line.startswith("Призёр всероссийских · продуктовое программирование (хакатон) · 2025 · топ-3")
     assert vss["product"] > 80
     assert fsp_fit(vss, "fullstack").value > 0.7
 

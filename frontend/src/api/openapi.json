@@ -36069,6 +36069,18 @@
             ],
             "title": "Fsp Line"
           },
+          "fsp_declared_role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fsp Declared Role",
+            "description": "Роль в команде по заявке участника («роль backend — по заявке участника»); показывать серым"
+          },
           "fsp_badges": {
             "items": {
               "type": "string"
@@ -36209,6 +36221,7 @@
           "freshness",
           "has_fsp",
           "fsp_line",
+          "fsp_declared_role",
           "fsp_badges",
           "skills",
           "modules",
@@ -37386,6 +37399,18 @@
             ],
             "title": "Fsp Line"
           },
+          "fsp_declared_role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fsp Declared Role",
+            "description": "Роль в команде по заявке участника («роль backend — по заявке участника»); показывать серым"
+          },
           "fsp_badges": {
             "items": {
               "type": "string"
@@ -37484,6 +37509,7 @@
           "test",
           "fsp",
           "fsp_line",
+          "fsp_declared_role",
           "fsp_badges",
           "fsp_source",
           "salary",
@@ -41767,6 +41793,18 @@
             ],
             "title": "Fsp Line"
           },
+          "fsp_declared_role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fsp Declared Role",
+            "description": "Роль в команде по заявке участника («роль backend — по заявке участника»); показывать серым"
+          },
           "fsp_badges": {
             "items": {
               "type": "string"
@@ -41865,6 +41903,7 @@
           "test",
           "fsp",
           "fsp_line",
+          "fsp_declared_role",
           "fsp_badges",
           "fsp_source",
           "salary",
@@ -42047,6 +42086,18 @@
               }
             ],
             "title": "Fsp Line"
+          },
+          "fsp_declared_role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fsp Declared Role",
+            "description": "Роль в команде по заявке участника («роль backend — по заявке участника»); показывать серым"
           },
           "fsp_badges": {
             "items": {
@@ -42259,6 +42310,7 @@
           "test",
           "fsp",
           "fsp_line",
+          "fsp_declared_role",
           "fsp_badges",
           "fsp_source",
           "salary",
@@ -43590,7 +43642,19 @@
               }
             ],
             "title": "Role",
-            "description": "Роль в команде / личный зачёт"
+            "description": "Роль по протоколу: личный зачёт, капитан, в команде"
+          },
+          "declared_role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Declared Role",
+            "description": "Функция в команде из заявки («роль backend — по заявке участника»): в протоколе её нет, в оценку не входит"
           },
           "outcome": {
             "type": "string",
@@ -43639,6 +43703,7 @@
           "year",
           "place",
           "role",
+          "declared_role",
           "outcome",
           "confirmed",
           "hidden",
@@ -54894,6 +54959,18 @@
             "title": "Fsp Line",
             "description": "Обобщённая строка ФСП или нейтральная серая строка"
           },
+          "fsp_declared_role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fsp Declared Role",
+            "description": "Роль в команде по заявке участника («роль backend — по заявке участника»); показывать серым"
+          },
           "fsp_badges": {
             "items": {
               "type": "string"
@@ -55022,6 +55099,7 @@
           "hidden_reasons",
           "has_fsp",
           "fsp_line",
+          "fsp_declared_role",
           "fsp_badges",
           "test",
           "freshness",

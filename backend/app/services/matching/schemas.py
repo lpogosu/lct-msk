@@ -31,6 +31,9 @@ FilterCode = Literal[
     "exclude",
 ]
 
+# Роль в команде из заявки: в протоколах ФСП её нет — показывается серым рядом со строкой ФСП, в Score не входит.
+_DECLARED_ROLE = "Роль в команде по заявке участника («роль backend — по заявке участника»); показывать серым"
+
 
 class _In(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -521,6 +524,7 @@ class SelectionItemOut(BaseModel):
     hidden_reasons: list[str]
     has_fsp: bool
     fsp_line: str | None = Field(description="Обобщённая строка ФСП или нейтральная серая строка")
+    fsp_declared_role: str | None = Field(default=None, description=_DECLARED_ROLE)
     fsp_badges: list[str]
     test: TestBandOut
     freshness: FreshnessOut | None
@@ -709,6 +713,7 @@ class CandidateCardOut(BaseModel):
     test: TestBandOut | None = None
     fsp: list[FspPublicOut] = Field(default_factory=list, description="Обобщённые результаты ФСП")
     fsp_line: str | None = None
+    fsp_declared_role: str | None = Field(default=None, description=_DECLARED_ROLE)
     fsp_badges: list[str] = Field(default_factory=list)
     fsp_source: str | None = None
     salary: SalarySignalOut | None = Field(default=None, description="«в вилке ✓ / выше вилки» или число")
@@ -752,6 +757,7 @@ class BankItemOut(BaseModel):
     freshness: FreshnessOut | None
     has_fsp: bool
     fsp_line: str | None
+    fsp_declared_role: str | None = Field(default=None, description=_DECLARED_ROLE)
     fsp_badges: list[str]
     skills: list[BankChipOut] = Field(description="Запрошенные навыки стека и их подтверждение")
     modules: list[BankModuleOut] = Field(description="Подтверждённые модули теста")
