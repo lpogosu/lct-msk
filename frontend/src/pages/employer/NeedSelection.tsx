@@ -26,6 +26,9 @@ import { FilterBar } from '@/features/employer/components/selection/FilterBar'
 import { SelectionTable } from '@/features/employer/components/selection/SelectionTable'
 import { CheckSetDrawer } from '@/features/employer/components/selection/CheckSetDrawer'
 import { Shortlist } from '@/features/employer/components/selection/Shortlist'
+import { CompareBar } from '@/features/employer/components/selection/CompareBar'
+import { CompareDialog } from '@/features/employer/components/selection/CompareDialog'
+import { useCompareSet } from '@/features/employer/compare'
 import { VersionBar } from '@/features/employer/components/selection/VersionBar'
 import { FORMAT_LABEL_LOWER, type ToggleFilterCode } from '@/features/employer/dict'
 import { catKey } from '@/features/employer/reach'
@@ -103,6 +106,12 @@ function SelectionScreen({ need }: { need: Need }) {
   const [inviteRefs, setInviteRefs] = useState<string[] | null>(null)
   const [checkSetOpen, setCheckSetOpen] = useState(false)
   const [pinBusy, setPinBusy] = useState<string | null>(null)
+  // Сравнение до 3 кандидатов бок о бок (только слепая карточка); выбор живёт в localStorage и переживает фильтры
+  const compare = useCompareSet(need.id)
+  const [compareOpen, setCompareOpen] = useState(false)
+  function toggleCompare(it: SelectionItem) {
+    if (compare.toggle({ ref: it.ref, pseudonym: it.pseudonym }) === 'full') toast.error('Сравнить можно не больше трёх кандидатов')
+  }
 
   const view: VersionView | undefined = sel.data
   const notBuilt = sel.error instanceof ApiException && sel.error.code === 'selection_not_built'
@@ -364,6 +373,8 @@ function SelectionScreen({ need }: { need: Need }) {
                     selectedRef={refId}
                     onSelect={(r) => setParams({ ref: r })}
                     caption="Кандидаты подборки по убыванию Score"
+                    compareRefs={compare.refs}
+                    onCompareToggle={toggleCompare}
                   />
                 )}
                 {view.pages > 1 && (
@@ -399,6 +410,8 @@ function SelectionScreen({ need }: { need: Need }) {
                     selectedRef={refId}
                     onSelect={(r) => setParams({ ref: r })}
                     caption="Кандидаты, скрытые фильтрами, с причиной"
+                    compareRefs={compare.refs}
+                    onCompareToggle={toggleCompare}
                   />
                   {hiddenPages > 1 && (
                     <Pager page={view.hidden.page} pages={hiddenPages} onPage={(p) => setParams({ hp: p > 1 ? String(p) : null })} />
@@ -417,6 +430,31 @@ function SelectionScreen({ need }: { need: Need }) {
               />
 
               <NeedStatusControls need={need} />
+              <CompareBar
+                entries={compare.entries}
+                onRemove={compare.remove}
+                onClear={compare.clear}
+                onOpen={() => setCompareOpen(true)}
+              />
+              <CompareDialog
+                open={compareOpen}
+                onClose={() => setCompareOpen(false)}
+                needId={need.id}
+                entries={compare.entries}
+                known={known}
+                weights={view.weights}
+                versionNote={currentN != null && view.n !== currentN ? `Показана версия подборки ${view.n}, текущая — ${currentN}` : null}
+                closed={closed}
+                onRemove={compare.remove}
+                onInvite={(r) => {
+                  setCompareOpen(false)
+                  setInviteRefs([r])
+                }}
+                onOpenCard={(r) => {
+                  setCompareOpen(false)
+                  setParams({ ref: r })
+                }}
+              />
             </div>
 
             <div className="xl:sticky xl:top-6">

@@ -1,3 +1,4 @@
+import { CompareCheck } from '@/features/employer/components/selection/CompareBar'
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/cn'
 import { formatDecimal } from '@/lib/format'
@@ -41,8 +42,13 @@ export function SelectionTable({
   onSelect,
   hidden,
   caption,
+  compareRefs,
+  onCompareToggle,
 }: {
   items: SelectionItem[]
+  /** Отмеченные «к сравнению» (до 3); без этих пропсов флажка нет */
+  compareRefs?: ReadonlySet<string>
+  onCompareToggle?: (item: SelectionItem) => void
   selectedRef: string | null
   onSelect: (ref: string) => void
   /** Группа «Скрыто фильтрами»: без места, с причиной */
@@ -99,6 +105,9 @@ export function SelectionTable({
               </td>
               <td className="py-4 pr-4">
                 <div className="flex items-center gap-3">
+                  {onCompareToggle && (
+                    <CompareCheck checked={compareRefs?.has(it.ref) ?? false} pseudonym={it.pseudonym} onToggle={() => onCompareToggle(it)} />
+                  )}
                   <Identicon seed={it.pseudonym} size={28} />
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
