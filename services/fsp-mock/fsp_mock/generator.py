@@ -211,12 +211,19 @@ PLANS: list[_Plan] = [
 ]
 
 _LEVEL_ORDER = {_MU: 0, _RG: 1, _IR: 2, _AR: 3, _IN: 4}
+# Только разряды норм ЕВСК по спортивному программированию (Приложение № 24 к приказу Минспорта № 450
+# от 22.04.2024): МС, КМС, I–III и юношеские. МСМК в этих нормах нет — генератор его не выдаёт.
 _RANK_ORDER = {
     RankCode.III_y: 0, RankCode.II_y: 1, RankCode.I_y: 2, RankCode.III: 3, RankCode.II: 4,
-    RankCode.I: 5, RankCode.KMS: 6, RankCode.MS: 7, RankCode.MSMK: 8,
+    RankCode.I: 5, RankCode.KMS: 6, RankCode.MS: 7,
 }
 _RANK_MIN_AGE = {RankCode.MS: 16, RankCode.KMS: 15}  # остальные — с 14 (бриф §2.2)
-_RANK_VALID_YEARS = {RankCode.KMS: 3, RankCode.I: 2, RankCode.II: 2, RankCode.III: 2}
+# Сроки действия (Положение о ЕВСК, приказ Минспорта № 173 от 03.03.2025, п. 76): КМС — 3 года,
+# I–III и юношеские — 2 года, МС — бессрочно. Совпадение с config/fsp.yaml проверяет tests/test_fsp_mock.py.
+RANK_VALID_YEARS = {
+    RankCode.KMS: 3, RankCode.I: 2, RankCode.II: 2, RankCode.III: 2,
+    RankCode.I_y: 2, RankCode.II_y: 2, RankCode.III_y: 2,
+}
 _ASSIGNED_BY = {
     RankCode.MS: "Министерство спорта Российской Федерации",
     RankCode.KMS: "Орган исполнительной власти субъекта РФ в области физической культуры и спорта",
@@ -567,7 +574,7 @@ def _ranks(people: list[_Person], rng: random.Random) -> list[Rank]:
 
 
 def _rank(p: _Person, code: RankCode, assigned: date, disc: str, basis: str | None, rng: random.Random) -> Rank:
-    years = _RANK_VALID_YEARS.get(code)
+    years = RANK_VALID_YEARS.get(code)
     valid_until = _add_years(assigned, years) if years else None
     return Rank(
         id=_uid("rank", p.sub, code.value, assigned.isoformat()),

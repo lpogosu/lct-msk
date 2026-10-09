@@ -9,7 +9,8 @@
 они попадают в OpenAPI-документацию мока.
 
 Предметная область: research/brief.md §2 (дисциплины с кодами ВРВС, уровни и статусы по ЕВСК,
-разряды и сроки их действия, роли), концепция §6.1.
+разряды и сроки их действия, роли), концепция §6.1. Вид спорта «спортивное программирование» — код ВРВС
+1010001311Я, коды дисциплин — 10101…1811Я (config/fsp.yaml).
 """
 
 from __future__ import annotations
@@ -117,9 +118,14 @@ class ResultStatus(StrEnum):
 
 
 class RankCode(StrEnum):
-    """Спортивный разряд или звание по ЕВСК."""
+    """Спортивный разряд или звание по ЕВСК.
 
-    MSMK = "MSMK"  # мастер спорта международного класса
+    Нормы ЕВСК по спортивному программированию (Приложение № 24 к приказу Минспорта России № 450 от 22.04.2024):
+    МС, КМС, I–III и юношеские I–III. Код MSMK оставлен в контракте на будущее, в нормах его нет:
+    платформа его не учитывает и не показывает.
+    """
+
+    MSMK = "MSMK"  # мастер спорта международного класса — в нормах по спортивному программированию нет
     MS = "MS"  # мастер спорта России
     KMS = "KMS"  # кандидат в мастера спорта
     I = "I"  # noqa: E741 — так называется разряд
@@ -219,7 +225,11 @@ class TeamMember(_Model):
     athlete_sub: str = Field(description="sub участника")
     role: TeamMemberRole
     team_function: str | None = Field(
-        default=None, description="Функциональная роль в команде из заявки: backend, frontend, ml, design, pm…"
+        default=None,
+        description=(
+            "Функциональная роль в команде из заявки: backend, frontend, ml, design, pm… В протоколе её нет: "
+            "платформа показывает её как заявленную участником и в оценке не использует"
+        ),
     )
 
 
@@ -243,7 +253,9 @@ class Result(_Model):
     score: float | None = Field(default=None, ge=0, description="Итоговый балл, если есть")
     role: ResultRole
     team: TeamRef | None = Field(default=None, description="Команда — для командного зачёта")
-    team_function: str | None = Field(default=None, description="Функциональная роль спортсмена в команде")
+    team_function: str | None = Field(
+        default=None, description="Функциональная роль спортсмена в команде (по заявке участника, не из протокола)"
+    )
     status: ResultStatus = ResultStatus.confirmed
 
 
@@ -257,7 +269,13 @@ class Rank(_Model):
         default=None, description="Дисциплина результата, за который присвоен разряд"
     )
     assigned_at: date = Field(description="Дата присвоения")
-    valid_until: date | None = Field(default=None, description="Срок действия; пусто — пожизненно (МС, МСМК)")
+    valid_until: date | None = Field(
+        default=None,
+        description=(
+            "Срок действия: КМС — 3 года, I–III и юношеские — 2 года (Положение о ЕВСК, п. 76); "
+            "пусто — бессрочно (МС)"
+        ),
+    )
     order_no: str = Field(description="Номер приказа о присвоении")
     assigned_by: str = Field(description="Кем присвоен")
     basis_ekp: EKP | None = Field(default=None, description="ЕКП соревнования-основания")

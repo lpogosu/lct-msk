@@ -375,7 +375,7 @@ def test_skill_evidence_term() -> None:
 def test_fsp_contribution_capped_by_vss_scale() -> None:
     # Даже идеальный профиль даёт F ≤ 1 → вклад ≤ 15 баллов при весе 0,15 (концепция §4.2).
     results = [res(place=1, n=200, role=ResultRole.personal, level=Level.international) for _ in range(5)]
-    p = profile(*results, ranks=(rank(RankCode.MSMK),))
+    p = profile(*results, ranks=(rank(RankCode.MS),))
     f = fsp_fit(vss_by_discipline(p, NOW), "fullstack")
     assert 0.0 < f.value <= 1.0
 
@@ -384,8 +384,11 @@ def test_fsp_contribution_capped_by_vss_scale() -> None:
 
 
 def test_public_summary_matches_concept_example() -> None:
+    # Роль в команде (backend) — из заявки, не из протокола: в обобщённую строку не входит (показывается отдельно).
     r = res(place=2, n=100, end=date(2025, 10, 13), team_function="backend")
-    assert public_summary(profile(r), NOW) == "Призёр всероссийских · продуктовое · 2025 · топ-3 · роль backend"
+    assert public_summary(profile(r), NOW) == (
+        "Призёр всероссийских · продуктовое программирование (хакатон) · 2025 · топ-3 · в команде"
+    )
 
 
 def test_public_summary_variants() -> None:
@@ -395,7 +398,9 @@ def test_public_summary_variants() -> None:
                discipline="algo", end=date(2026, 3, 14))
     assert public_summary(profile(qual), NOW) == "Участник отбора всероссийских · алгоритмическое · 2026 · топ-25% · личный зачёт"
     finalist = res(place=40, n=100, role=ResultRole.captain)
-    assert public_summary(profile(finalist), NOW).startswith("Финалист всероссийских · продуктовое")
+    assert public_summary(profile(finalist), NOW).startswith(
+        "Финалист всероссийских · продуктовое программирование (хакатон)"
+    )
 
 
 def test_pre_disclosure_text_never_reveals_exact_place() -> None:
@@ -403,7 +408,7 @@ def test_pre_disclosure_text_never_reveals_exact_place() -> None:
     first = res(place=1, n=103, team_name="Ламповый стек", team_function="design", end=date(2025, 10, 13))
     second = res(place=2, n=103, team_function="backend", end=date(2025, 10, 13))
     p1, p2 = profile(first), profile(second)
-    assert public_summary(p1, NOW) == public_summary(p2, NOW).replace("роль backend", "роль дизайнер")
+    assert public_summary(p1, NOW) == public_summary(p2, NOW)
     for item in public_items(p1, NOW) + public_items(p2, NOW):
         assert "Победитель" not in item.text
         assert "из 103" not in item.text and first.ekp not in item.text and "Ламповый" not in item.text
@@ -442,7 +447,9 @@ def test_protocol_extract_after_disclosure() -> None:
     assert "ЕКП:" in text and r.ekp in text
     assert "2 из 120" in text
     assert "«Ламповый стек», 4 чел." in text
-    assert "участник команды, backend" in text
+    assert "Роль:" in text and "участник команды" in text
+    assert "backend (по заявке участника)" in text  # функция в команде — со слов участника, не из протокола
+    assert "спортивное программирование (1010001311Я)" in text  # код вида спорта ВРВС
     assert "87,5 из 100" in text
     assert "программирование продуктовое (1010021811Я)" in text
     assert "всероссийские · чемпионат · финал" in text
@@ -484,6 +491,8 @@ def test_build_features_for_candidate_features() -> None:
     f = build_features(p, NOW)
     assert f.has_fsp and set(f.vss_by_discipline) == {"product"}
     assert f.fsp_public[0].text == f.employer_line
+    assert "backend" not in f.employer_line
+    assert f.employer_declared_role == "роль backend — по заявке участника"
     assert f.badges == ["КМС до 2027"] and f.pending_count == 1
     assert f.source_label == "Демо-реестр ФСП"
     empty = build_features(FSPProfile.not_linked(), NOW)
@@ -565,3 +574,89 @@ def test_spec_relevance_still_applies_but_not_event_rank() -> None:
     """Релевантность дисциплины специализации разрешена (ИБ-соревнования для ИБ-специалиста)."""
     vss = {"infosec": 80.0}
     assert fsp_fit(vss, "infosec").value > fsp_fit(vss, "frontend_js").value
+
+
+# ---------------------------------------------------------------- точность модели ФСП (открытые документы ФСП)
+
+
+def test_msmk_has_no_weight_and_is_not_shown() -> None:
+    # Нормы ЕВСК по спортивному программированию (Приложение № 24 к приказу Минспорта № 450 от 22.04.2024):
+    # МС, КМС, I–III, юношеские. МСМК в них нет: код в контракте остаётся, но веса и бейджа нет.
+    cfg = get_fsp_config()
+    assert RankCode.MSMK not in cfg.vss.rank_weights
+    assert set(cfg.vss.rank_weights) == {
+        RankCode.MS, RankCode.KMS, RankCode.I, RankCode.II, RankCode.III, RankCode.I_y, RankCode.II_y, RankCode.III_y,
+    }
+    msmk = rank(RankCode.MSMK)
+    assert rank_weight(msmk, NOW) == 0.0
+    only_msmk = profile(ranks=(msmk,))
+    assert compute_vss(only_msmk, NOW) == {}
+    assert badges(only_msmk, NOW) == []
+    assert employer_line(only_msmk, NOW) == NO_RESULTS_LINE
+    r = res(place=10, n=100)
+    assert vss_of(profile(r, ranks=(msmk,))) == pytest.approx(vss_of(profile(r)))
+    assert all("МСМК" not in b for b in badges(profile(r, ranks=(msmk, rank(RankCode.MS))), NOW))
+
+
+def test_rank_validity_terms_from_config() -> None:
+    # Положение о ЕВСК (приказ № 173 от 03.03.2025), п. 76: КМС — 3 года, I–III и юношеские — 2 года, МС — бессрочно.
+    from app.fsp.vss import rank_is_active, rank_valid_until
+
+    years = get_fsp_config().vss.rank_validity_years
+    assert years == {RankCode.KMS: 3, RankCode.I: 2, RankCode.II: 2, RankCode.III: 2,
+                     RankCode.I_y: 2, RankCode.II_y: 2, RankCode.III_y: 2}
+    assigned = date(2024, 3, 14)
+    kms, first, youth, ms = (rank(c, assigned=assigned) for c in (RankCode.KMS, RankCode.I, RankCode.II_y, RankCode.MS))
+    # Реестр не прислал valid_until — срок досчитывается по конфигу, а не считается «пожизненным»
+    assert rank_valid_until(kms) == date(2027, 3, 14)
+    assert rank_valid_until(first) == date(2026, 3, 14)
+    assert rank_valid_until(youth) == date(2026, 3, 14)
+    assert rank_valid_until(ms) is None
+    assert rank_is_active(kms, NOW) and not rank_is_active(first, NOW) and rank_is_active(ms, NOW)
+    assert rank_weight(kms, NOW) == pytest.approx(0.7)
+    assert rank_weight(first, NOW) < 0.5  # истёк 14.03.2026 → вес со свежестью от даты окончания
+    assert badges(profile(ranks=(kms, first, ms)), NOW) == ["МС", "КМС до 2027"]
+    # Явный срок из реестра главнее конфига
+    explicit = rank(RankCode.KMS, assigned=assigned, valid_until=date(2026, 1, 1))
+    assert rank_valid_until(explicit) == date(2026, 1, 1) and not rank_is_active(explicit, NOW)
+
+
+def test_freshness_half_life_is_not_rank_validity() -> None:
+    # Полураспад свежести — отдельное допущение; сроки разрядов разные (2 и 3 года) и заданы отдельно.
+    cfg = get_fsp_config()
+    assert cfg.vss.freshness_half_life_months == 24
+    assert set(cfg.vss.rank_validity_years.values()) == {2, 3}
+
+
+def test_sport_code_in_config() -> None:
+    cfg = get_fsp_config()
+    assert cfg.sport.code == "1010001311Я"
+    assert cfg.sport.name == "спортивное программирование"
+    # коды дисциплин не менялись
+    assert {d.short: d.code for d in cfg.disciplines}["product"] == "1010021811Я"
+
+
+def test_product_discipline_label_as_fsp_names_it() -> None:
+    cfg = get_fsp_config()
+    product = cfg.discipline_by_short("product")
+    assert product is not None and product.code == "1010021811Я"
+    assert product.label == "продуктовое программирование (хакатон)"
+    assert product.name == "программирование продуктовое"  # наименование ВРВС в выписке не меняется
+
+
+def test_team_function_does_not_affect_score_and_is_marked_declared() -> None:
+    # В протоколах ФСП роли в команде нет: вклад в командный хакатон честно не выделить. Поэтому функция из
+    # заявки не влияет на VSS (а значит, на F и K) и не попадает в обобщённую строку — только серой пометкой.
+    base = dict(place=3, n=60, role=ResultRole.participant, end=date(2026, 4, 5), team_name="Тихий кэш")
+    plain = res(**base)
+    backend = res(**base, team_function="backend")
+    design = res(**base, team_function="design")
+    assert vss_of(profile(plain)) == pytest.approx(vss_of(profile(backend))) == pytest.approx(vss_of(profile(design)))
+    for spec in ("backend_python", "frontend_js", "uiux_design"):
+        assert fsp_fit(vss_by_discipline(profile(backend), NOW), spec).value == pytest.approx(
+            fsp_fit(vss_by_discipline(profile(design), NOW), spec).value
+        )
+    item = public_items(profile(backend), NOW)[0]
+    assert "backend" not in item.text and item.role == "в команде"
+    assert item.declared_role == "роль backend — по заявке участника"
+    assert public_items(profile(plain), NOW)[0].declared_role is None

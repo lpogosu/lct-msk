@@ -914,6 +914,7 @@ def _result_out(r: NormalizedResult, counted_ids: set[str]) -> FspResultOut:
         year=r.end_date.year,
         place=_place_text(r),
         role=vss.role_text(r),
+        declared_role=pub.declared_role,
         outcome=pub.outcome,
         confirmed=r.confirmed,
         hidden=r.hidden,

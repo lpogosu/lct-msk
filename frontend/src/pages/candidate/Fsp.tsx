@@ -304,6 +304,11 @@ function ResultCard({ r, onStatus }: { r: Result; onStatus: (d: FspStatus) => vo
         {r.role ? ` · ${r.role}` : ''}
         <span className="text-ink-3"> · место: {r.place} (видите только вы)</span>
       </p>
+      {r.declared_role && (
+        <p className="t-small text-ink-3">
+          {r.declared_role}: в протоколе ФСП роли в команде нет, поэтому на оценку она не влияет
+        </p>
+      )}
       {r.employer_text && !r.hidden && <p className="t-small text-ink-3">Работодатель увидит: {r.employer_text}</p>}
       <div className="flex items-center justify-between gap-3 border-t border-hairline pt-2">
         <span className="t-small text-ink-2">{r.hidden ? 'Скрыт: не учитывается' : 'Показывать работодателю'}</span>

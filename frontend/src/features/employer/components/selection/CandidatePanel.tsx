@@ -225,6 +225,8 @@ export function CandidatePanel({
   const rows = [...(item?.chips ?? [])].sort((a, b) => (a.kind === b.kind ? 0 : a.kind === 'must' ? -1 : 1)).map(chipRow)
   const hasFsp = item?.has_fsp ?? bankItem?.has_fsp ?? card?.has_fsp ?? false
   const fspLine = item?.fsp_line ?? bankItem?.fsp_line ?? card?.fsp_line ?? null
+  // Роль в команде — из заявки участника, в протоколе ФСП её нет: показываем отдельно серым, в Score не входит
+  const fspDeclaredRole = item?.fsp_declared_role ?? bankItem?.fsp_declared_role ?? card?.fsp_declared_role ?? null
   const fspBadges = item?.fsp_badges ?? bankItem?.fsp_badges ?? card?.fsp_badges ?? []
   const fresh = item?.freshness ?? bankItem?.freshness ?? card?.freshness
   const modules = card?.skills ?? []
@@ -378,6 +380,11 @@ export function CandidatePanel({
             <Illustration name="medal_fsp" className="w-14 shrink-0" />
             <div className="min-w-0">
               <p className="t-body-strong text-ink">{fspLine}</p>
+              {fspDeclaredRole && (
+                <p className="t-small text-ink-3" title="В протоколах ФСП роли в команде нет: на оценку не влияет">
+                  {fspDeclaredRole}
+                </p>
+              )}
               {fspBadges.length > 0 && (
                 <p className="mt-1 flex flex-wrap gap-1.5">
                   {fspBadges.map((b) => (
