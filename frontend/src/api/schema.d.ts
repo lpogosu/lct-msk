@@ -938,7 +938,7 @@ export interface paths {
         };
         /**
          * Состояние сессии
-         * @description Статус, прогресс «задание 7 · обычно 12–20», связь с добором. Только своя сессия (чужая — 404).
+         * @description Статус, прогресс «задание 7 · от 8 до 20», связь с добором. Только своя сессия (чужая — 404).
          */
         get: operations["get_session_api_tests_sessions__session_id__get"];
         put?: never;
@@ -11924,7 +11924,7 @@ export interface components {
             position: number;
             /**
              * Text
-             * @description «задание 7 · обычно 12–20»
+             * @description «задание 7 · от 8 до 20»
              */
             text: string;
         };

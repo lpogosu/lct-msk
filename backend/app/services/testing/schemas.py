@@ -225,7 +225,7 @@ class SessionCreateIn(_In):
 
 class ProgressOut(BaseModel):
     position: int = Field(description="Номер текущего задания (считаются все показанные)")
-    text: str = Field(description="«задание 7 · обычно 12–20»")
+    text: str = Field(description="«задание 7 · от 8 до 20»")
 
 
 class SessionOut(BaseModel):

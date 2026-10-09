@@ -150,7 +150,7 @@ def test_express_unavailable_without_demo_mode(client, make_account, bank):
 def test_full_mode_guest_runs_regular_test(demo_client, bank, db_session):
     g = start_guest(demo_client, mode="full")
     s = demo_client.get(f"/api/tests/sessions/{g.session_id}", headers=g.headers).json()
-    assert s["express"] is False and "обычно 12" in s["progress"]["text"]
+    assert s["express"] is False and "от 8 до 20" in s["progress"]["text"]
 
 
 def test_jury_paths_and_missing_personas(demo_client, bank):

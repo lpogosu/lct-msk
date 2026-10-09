@@ -30,6 +30,9 @@ LEVEL_RU = {"none": "ниже Стажёра", "intern": "Стажёр", "junior
 
 # Ориентиры предрегистрации (PROTOCOL.md §4): заданы ДО прогонов, это не критерии «прошёл / не прошёл».
 TARGETS = {"exact": 0.60, "within1": 0.90, "kappa_w": 0.60, "honest_false_alarms": 0, "cheater_detect": 0.50}
+# Попытки «списывающих» с этого номера — пост-хок повтор после исправления выдачи двойников (VALIDATION §10.4): в
+# предрегистрированные доли не входят и показываются отдельной таблицей.
+POSTHOC_FROM_ATTEMPT = 3
 
 
 # --------------------------------------------------------------------------- метрики
@@ -189,9 +192,15 @@ def analyze(runs: dict[str, dict[int, dict[str, Any]]]) -> dict[str, Any]:
                 "decision": (run.get("result") or {}).get("decision", {}).get("label") if (run.get("result") or {}).get("decision") else None,
                 "band": LEVELS[band(run)] if band(run) is not None else None,
                 "detected": bool(kinds.get("twin_trace") or run["audit"]["flags"] or run["audit"]["session"]["status"] == "UNDER_REVIEW"),
+                # протокол §5.4: «удалось ли списывающему получить завышенную категорию» — подтверждён грейд выше задуманного
+                "overrated": bool(passed(run)) and LEVELS.index(run["claimed_grade"]) > LEVELS.index(run["intended"]),
+                "posthoc": at >= POSTHOC_FROM_ATTEMPT,
             })
+    pre = [c for c in crows if not c["posthoc"]]
+    post = [c for c in crows if c["posthoc"]]
     res["cheaters"] = crows
-    res["cheater_detect_rate"] = (sum(c["detected"] for c in crows) / len(crows)) if crows else None
+    res["cheater_detect_rate"] = (sum(c["detected"] for c in pre) / len(pre)) if pre else None
+    res["cheater_overrated"] = {"pre": [sum(c["overrated"] for c in pre), len(pre)], "post": [sum(c["overrated"] for c in post), len(post)]}
     return res
 
 
@@ -272,17 +281,33 @@ def render(res: dict[str, Any] | None) -> str:
             f"{f2(it['wall_median_s'], 1)} с (у агента это не человеческое время, поэтому метрика справочная).", ""]
     fa = res["honest_false_alarms"]
     out += [f"**Ложные тревоги антиподсказчика:** {fa['alarms']} из {fa['runs']} честных прогонов (ориентир: {TARGETS['honest_false_alarms']}).", ""]
-    if res["cheaters"]:
-        out += ["**«Списывающие» персоны**", "",
-                "| Персона | Заявлено / задуман | Заданий | Скопировано (с двойником) | Улики | Флаги | Статус | Решение | Поймана |",
-                "|---|---|---|---|---|---|---|---|---|"]
-        for c in res["cheaters"]:
+    def cheat_table(rows: list[dict[str, Any]]) -> list[str]:
+        lines = ["| Персона | Заявлено / задуман | Заданий | Скопировано (с двойником) | Улики | Флаги | Статус | Решение | Поймана |",
+                 "|---|---|---|---|---|---|---|---|---|"]
+        for c in rows:
             ev = ", ".join(f"{k}: {v}" for k, v in sorted(c["evidence"].items())) or "—"
-            out.append(
+            lines.append(
                 f"| {c['persona']} (поп. {c['attempt']}) | {c['claimed']} / {c['intended']} | {c['n_items']} | {c['copied']} ({c['with_twin']}) "
                 f"| {ev} | {', '.join(c['flags']) or '—'} | {c['status']} | {c['decision'] or '—'} | {'да' if c['detected'] else 'нет'} |"
             )
-        out += ["", f"Доля пойманных прогонов: **{f2(res['cheater_detect_rate'])}** (ориентир ≥ {pct(TARGETS['cheater_detect'])}).", ""]
+        return lines
+
+    pre = [c for c in res["cheaters"] if not c.get("posthoc")]
+    post = [c for c in res["cheaters"] if c.get("posthoc")]
+    ov = res.get("cheater_overrated") or {"pre": [0, len(pre)], "post": [0, len(post)]}
+    if pre:
+        out += ["**«Списывающие» персоны**", "", *cheat_table(pre), "",
+                f"Доля пойманных прогонов: **{f2(res['cheater_detect_rate'])}** (ориентир ≥ {pct(TARGETS['cheater_detect'])}). "
+                "«Поймана» значит, что улика записана в акт сверки для методиста; на решение теста улика не влияет (вес 0 до калибровки ε). "
+                f"**Завышенную категорию (подтверждён заявленный Middle при задуманном Junior) получили {ov['pre'][0]} из {ov['pre'][1]} прогонов** — "
+                "двойник доставался только первым четырём заданиям сессии, а дальше копирование в ИИ проходило без последствий.", ""]
+    if post:
+        out += ["### 10.4. Повтор «списывающих» после исправления (пост-хок)", "",
+                "Не входит в предрегистрированные доли выше. По итогам 10.2 изменена выдача двойников: двойник ставится на каждое задание, "
+                "для которого он посчитан (`evidence.twin_rate_per_session: 20` вместо 4), а предрасчёт двойников встроен в конвейер пула. "
+                "Те же персоны и инструкции, свежие аккаунты и клоны; честных персон это изменение не касается (они отвечают по экрану).", "",
+                *cheat_table(post), "",
+                f"Завышенную категорию получили **{ov['post'][0]} из {ov['post'][1]}** прогонов (до исправления — {ov['pre'][0]} из {ov['pre'][1]}).", ""]
     out += ["### 10.3. Как читать", "",
             "Результаты — на малой выборке (12 честных персон, 2 списывающих) и на агентах, а не на людях: доверительные интервалы "
             "не строились, выводов о валидности на людях делать нельзя. Если ориентир не достигнут, это записано как есть. "

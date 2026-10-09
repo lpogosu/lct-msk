@@ -228,3 +228,22 @@ def test_parallel_sessions_never_get_the_same_instance(db_engine):
         with Session(db_engine) as cleanup:
             cleanup.execute(delete(ItemInstance).where(ItemInstance.family_id == fid))
             cleanup.commit()
+
+
+def test_issue_prefers_instance_with_ready_twin(db_session):
+    """Клон с готовым двойником выдаётся раньше остальных (VALIDATION §10.4); уже показанный двойник приоритета не даёт."""
+    from app.services.anticheat.models import AnticheatTwin
+
+    fid = _two_python_families()[0]
+    ensure_pool(db_session, family_ids=[fid], n=5, min_free=1, threads=1)
+    free = list(db_session.scalars(
+        select(ItemInstance).where(ItemInstance.family_id == fid, ItemInstance.issued_at.is_(None)).order_by(ItemInstance.seed)
+    ))
+    lowest, second = free[0], free[1]  # без двойников их бы выдали последними (порядок по убыванию seed)
+    db_session.add(AnticheatTwin(instance_id=lowest.id, family_id=fid, status="ok", data={}))
+    db_session.add(AnticheatTwin(instance_id=second.id, family_id=fid, status="none", data={}))  # двойника нет — не приоритет
+    db_session.flush()
+    first = issue_instance(db_session, fid, session_id=None, user_id=None, now=clock.now())
+    assert first is not None and first.id == lowest.id
+    nxt = issue_instance(db_session, fid, session_id=None, user_id=None, now=clock.now())
+    assert nxt is not None and nxt.id == max(free, key=lambda i: i.seed).id  # дальше — прежний порядок по seed

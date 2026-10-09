@@ -37,6 +37,7 @@ from sqlalchemy.orm import Session
 from app.core.settings import get_settings
 from app.models.enums import FamilyStatus
 from app.models.testing import ItemFamilyParams, ItemInstance
+from app.services.anticheat.models import AnticheatTwin
 from app.services.testing.keystore import encrypt_key
 from app.services.testing.limits import POOL_MIN_FREE, POOL_SIZE_DEFAULT
 from app.testing.bank.base import Family, Instance
@@ -362,12 +363,23 @@ def issue_instance(
     """Следующий невыданный экземпляр семейства. Параллельные сессии не получат один и тот же экземпляр:
     строку блокирует FOR UPDATE, занятые соседом строки пропускаются (SKIP LOCKED).
 
-    Порядок — по убыванию seed (обратный проход по индексу): секретные seed (≥ 2^50) выдаются раньше
-    старых предсказуемых, которые остаются только запасом до rotate_legacy()."""
+    Порядок — сначала экземпляры с готовым «двойником в буфере», затем по убыванию seed (обратный проход по индексу):
+    секретные seed (≥ 2^50) выдаются раньше старых предсказуемых, которые остаются только запасом до rotate_legacy().
+    Почему двойник первым: клоны семейства взаимозаменяемы по сложности (spec-testing §2), а предрасчёт двойников идёт
+    дольше генерации пула — так даже частично посчитанный пул защищает каждое задание сессии (VALIDATION §10.4)."""
+    twin_ready = (
+        select(AnticheatTwin.instance_id)
+        .where(
+            AnticheatTwin.instance_id == ItemInstance.id,
+            AnticheatTwin.status == "ok",
+            AnticheatTwin.shown_in_session_id.is_(None),
+        )
+        .exists()
+    )
     inst = db.scalars(
         select(ItemInstance)
         .where(ItemInstance.family_id == family_id, ItemInstance.issued_at.is_(None))
-        .order_by(ItemInstance.seed.desc())
+        .order_by(twin_ready.desc(), ItemInstance.seed.desc())
         .limit(1)
         .with_for_update(skip_locked=True)
     ).first()

@@ -93,3 +93,20 @@ def test_persona_registry_covers_protocol() -> None:
     protocol = (Path(an.__file__).parent / "PROTOCOL.md").read_text(encoding="utf-8")
     assert all(p.id in protocol for p in PERSONAS.values())
     json.dumps({k: v.actions for k, v in PERSONAS.items()})
+
+
+def test_cheater_overrated_and_posthoc_split() -> None:
+    """Завышенная категория (протокол §5.4) считается отдельно; попытки ≥ POSTHOC_FROM_ATTEMPT не входят в предрегистрированные доли."""
+    hit = [{"seq": 1, "kind": "twin_trace", "matched": "twin_key", "strength": "exact", "honest_p": 0.02}]
+    runs = {
+        "C01": {
+            1: _run("C01", 1, 560, True, hit, 10),  # Middle подтверждён при задуманном Junior — завышено
+            2: _run("C01", 2, 420, False, hit, 10),
+            an.POSTHOC_FROM_ATTEMPT: _run("C01", an.POSTHOC_FROM_ATTEMPT, 410, False, [], 10),  # без улики: в предрег. долю не идёт
+        },
+    }
+    res = an.analyze(runs)
+    assert res["cheater_overrated"] == {"pre": [1, 2], "post": [0, 1]}
+    assert res["cheater_detect_rate"] == 1.0  # пост-хок прогон без улики долю не портит и не улучшает
+    text = an.render(res)
+    assert "получили 1 из 2 прогонов" in text and "10.4. Повтор «списывающих» после исправления (пост-хок)" in text

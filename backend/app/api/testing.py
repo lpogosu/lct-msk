@@ -137,7 +137,7 @@ def create_session(
     "/sessions/{session_id}",
     response_model=SessionOut,
     summary="Состояние сессии",
-    description="Статус, прогресс «задание 7 · обычно 12–20», связь с добором. Только своя сессия (чужая — 404).",
+    description="Статус, прогресс «задание 7 · от 8 до 20», связь с добором. Только своя сессия (чужая — 404).",
 )
 def get_session(session_id: uuid.UUID, user: Candidate, db: DbSession) -> SessionOut:
     ld = svc.load(db, session_id, user)

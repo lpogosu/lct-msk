@@ -355,12 +355,15 @@ class TestSession:
         return self.status in (SessionStatus.CREATED, SessionStatus.IN_PROGRESS, SessionStatus.PAUSED)
 
     def progress(self, cfg: CatConfig | None = None) -> dict[str, Any]:
-        """Для плеера: «задание 7 · обычно 12–20» (pretest неотличимы — считаем все позиции)."""
+        """Для плеера: «задание 7 · от 8 до 20» (pretest неотличимы — считаем все позиции).
+
+        Диапазон, а не «обычно 12–20»: CAT останавливается, как только уверен, и уверенный кандидат заканчивает на 8-м
+        задании — обещание «обычно 12» в пилоте с ИИ-испытуемыми выглядело как сбой (VALIDATION §10)."""
         cfg = self.cat_cfg(cfg)
         shown = len(self.cat.responses) + (1 if self.pending else 0)
         if self.express:
             return {"position": shown, "text_ru": f"экспресс · задание {shown} из {cfg.n_max}"}
-        return {"position": shown, "text_ru": f"задание {shown} · обычно 12–{cfg.n_max}"}
+        return {"position": shown, "text_ru": f"задание {shown} · от {cfg.n_min} до {cfg.n_max}"}
 
     # --- ход теста ---
     def start(self, clock: Clock) -> None:

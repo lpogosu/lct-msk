@@ -86,7 +86,7 @@ def test_session_flow_idempotent_next_and_answer():
     s.start(clock)
     sel = s.next_item(BANK, rng, clock)
     assert s.next_item(BANK, rng, clock) is sel  # пока нет ответа — то же задание
-    assert s.progress()["text_ru"] == "задание 1 · обычно 12–20"
+    assert s.progress()["text_ru"] == "задание 1 · от 8 до 20"
     clock.advance(seconds=30)
     r1 = s.answer(sel.seq, True, clock)
     r2 = s.answer(sel.seq, False, clock)  # повтор с тем же seq — без двойного учёта

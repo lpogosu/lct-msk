@@ -3,7 +3,7 @@
 Запуск из каталога backend/ (агенты-персоны вызывают его через Bash):
 
     uv run python -m eval.agent_pilot.pilot persona --persona P01
-    uv run python -m eval.agent_pilot.pilot start   --persona P01 [--attempt 1|2]
+    uv run python -m eval.agent_pilot.pilot start   --persona P01 [--attempt 1|2]   # 3|4 — пост-хок повтор «списывающих» (analyze: §10.4)
     uv run python -m eval.agent_pilot.pilot answer  --persona P01 [--attempt N] --answer '...'
     uv run python -m eval.agent_pilot.pilot copy    --persona C01 [--attempt N]      # только «списывающие»
     uv run python -m eval.agent_pilot.pilot result  --persona P01 [--attempt N]
@@ -565,15 +565,15 @@ def main() -> None:
     sp = add("start", cmd_start)
     sp.add_argument("--spec")
     sp.add_argument("--grade")
-    sp.add_argument("--attempt", type=int, choices=(1, 2), default=1)
+    sp.add_argument("--attempt", type=int, choices=(1, 2, 3, 4), default=1)  # 3–4: пост-хок повтор (VALIDATION §10.4)
     sp = add("answer", cmd_answer)
-    sp.add_argument("--attempt", type=int, choices=(1, 2))
+    sp.add_argument("--attempt", type=int, choices=(1, 2, 3, 4))
     sp.add_argument("--answer")
     sp.add_argument("--skip", action="store_true")
     sp.add_argument("--conf", choices=("guess", "unsure", "sure"), help="насколько персона уверена в ответе (необязательно)")
     for name, fn in (("copy", cmd_copy), ("result", cmd_result)):
         sp = add(name, fn)
-        sp.add_argument("--attempt", type=int, choices=(1, 2))
+        sp.add_argument("--attempt", type=int, choices=(1, 2, 3, 4))
     add("status", cmd_status, persona=False)
     sp = add("reset", cmd_reset, persona=False)
     sp.add_argument("--persona")

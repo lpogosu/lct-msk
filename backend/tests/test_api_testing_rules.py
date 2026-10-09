@@ -55,7 +55,7 @@ def test_next_and_answer_are_idempotent(api, bank, make_account):
     assert a["item"]["seq"] == b["item"]["seq"] == 1
     assert a["item"]["variant_code"] == b["item"]["variant_code"]
     assert a["item"]["deadline_at"] == b["item"]["deadline_at"]
-    assert a["session"]["progress"]["text"] == "задание 1 · обычно 12–20"
+    assert a["session"]["progress"]["text"] == "задание 1 · от 8 до 20"
 
     inst = instance_for(bank, s["id"], 1)
     key = decrypt_key(inst.key_enc)

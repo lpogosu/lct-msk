@@ -136,7 +136,7 @@ export default function JuryEntry() {
             <Panel variant="outline" radius="lg" padding="md" className="flex flex-col gap-3" data-testid="card-full">
               <h3 className="t-name text-ink">Пройти полный тест</h3>
               <p className="t-body text-ink-2">
-                12–20 заданий, до 25 минут. Присваивает категорию «специализация × грейд», показывает подтверждение
+                8–20 заданий (тест останавливается, как только уверен), до 25 минут. Присваивает категорию «специализация × грейд», показывает подтверждение
                 навыков и предлагает добор вверх или вниз.
               </p>
               <Button size="lg" variant="outline" block loading={busy === 'full'} disabled={busy !== null} onClick={() => void begin('full')}>
