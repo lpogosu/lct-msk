@@ -25,6 +25,11 @@ x-backend-env: &backend-env
   VZ_WORKERS: ${VZ_WORKERS:-4}
   VZ_DB_POOL_SIZE: ${VZ_DB_POOL_SIZE:-8}
   VZ_DB_MAX_OVERFLOW: ${VZ_DB_MAX_OVERFLOW:-4}
+  # «Быстрый режим для проверки»: 40 одноразовых экземпляров на семейство (сессия берёт из семейства один) вместо боевых 200 —
+  # пул и двойники готовы за минуты, а не за десятки минут. Полный пул: VZ_POOL_PER_FAMILY=200 docker compose up -d
+  # (docs/DEPLOY.md п. 2.4). Процессов генерации — по числу ядер (VZ_POOL_WORKERS, 0 — авто).
+  VZ_POOL_PER_FAMILY: ${VZ_POOL_PER_FAMILY:-40}
+  VZ_POOL_WORKERS: ${VZ_POOL_WORKERS:-0}
 
 services:
   db:
@@ -112,7 +117,7 @@ services:
       start_period: 15s
     mem_limit: 2g
 
-  # Одноразовая задача: пул одноразовых экземпляров заданий (без него тест не стартует). ≈ 3–5 минут, идемпотентно.
+  # Одноразовая задача: пул одноразовых экземпляров заданий (без него тест не стартует). Быстрый режим (40 на семейство) — см. DEPLOY.md, идемпотентно.
   # Ход: docker compose logs -f pool. Повтор: docker compose run --rm pool
   pool:
     build: *backend-build
@@ -128,7 +133,7 @@ services:
     command: ["sh", "-c", "python scripts/generate_pool.py && python -m app.services.anticheat.precompute"]
     healthcheck:
       disable: true  # HEALTHCHECK образа проверяет HTTP бэкенда, а здесь одноразовый скрипт без сервера
-    mem_limit: 1g
+    mem_limit: 2g  # процессы генерации держат банк в памяти (по ~100–150 МБ)
 
   # Интерфейс: nginx со статикой Vite, SPA-fallback и прокси /api → backend
   web:

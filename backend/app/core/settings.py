@@ -85,6 +85,14 @@ class Settings(BaseSettings):
     db_pool_size: int = 10
     db_max_overflow: int = 10
 
+    # --- Пул одноразовых экземпляров заданий (docs/DEPLOY.md п. 2, docs/TESTING_MECHANISM.md) ---
+    # Экземпляров на семейство. None — боевой размер (limits.POOL_SIZE_DEFAULT = 200). Локальный compose для жюри
+    # ставит 40 («быстрый режим»): сессия берёт из семейства не больше одного экземпляра, значит 40 хватает на 40 сессий
+    # семейства без долива; уникальность клонов (один экземпляр — одному кандидату) от размера пула не зависит.
+    pool_per_family: int | None = Field(default=None, ge=1)
+    # Процессов генерации пула. None — по числу ядер (не больше limits.POOL_WORKERS_MAX); 1 — без процессов (потоки).
+    pool_workers: int | None = Field(default=None, ge=0)  # 0 = None = авто
+
     # --- Адреса ---
     public_base_url: str = "http://localhost:5173"  # фронтенд; используется в ссылках из писем
     cors_origins: Annotated[list[str], NoDecode] = Field(default_factory=lambda: ["http://localhost:5173"])

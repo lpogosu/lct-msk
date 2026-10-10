@@ -156,7 +156,7 @@ def test_generate_pool_script(db_session, monkeypatch, capsys):
         mod, "get_sessionmaker", lambda: lambda: Session(bind=conn, join_transaction_mode="create_savepoint")
     )
     fid = _two_python_families()[0]
-    assert mod.main(["--family", fid, "--n", "5", "--min-free", "2", "--threads", "2"]) == 0
+    assert mod.main(["--family", fid, "--n", "5", "--min-free", "2", "--processes", "1"]) == 0
     out = capsys.readouterr().out
     assert f"+ {fid}: 5" in out and "ошибок 0" in out
     assert _counts(db_session, fid) == (5, 5)
@@ -247,3 +247,61 @@ def test_issue_prefers_instance_with_ready_twin(db_session):
     assert first is not None and first.id == lowest.id
     nxt = issue_instance(db_session, fid, session_id=None, user_id=None, now=clock.now())
     assert nxt is not None and nxt.id == max(free, key=lambda i: i.seed).id  # дальше — прежний порядок по seed
+
+
+# --- Быстрый режим и параллельная генерация ---------------------------------------------------------------------------
+
+_STABLE = ("family_id", "seed", "rendered", "key_hash", "distractors", "explanation", "variant_code")
+
+
+def _stable(rows):
+    return [{k: r[k] for k in _STABLE} for r in rows]
+
+
+def test_parallel_generation_equals_sequential():
+    """Процессы дают те же экземпляры, что последовательный цикл: меняются только случайные id и nonce шифра ключа."""
+    from app.services.testing.pool import generate_rows, generate_rows_parallel, pool_seeds
+
+    fids = _two_python_families()
+    jobs = [(fid, pool_seeds(fid, range(23))) for fid in fids]  # 23 > POOL_CHUNK: несколько кусков на семейство
+    seq = [generate_rows(all_families()[fid], seeds) for fid, seeds in jobs]
+    par = list(generate_rows_parallel(jobs, processes=2))
+    assert [err for _, err in par] == [None, None]
+    for s_rows, (p_rows, _) in zip(seq, par, strict=True):
+        assert _stable(s_rows) == _stable(p_rows)
+        assert [decrypt_key(r["key_enc"]) for r in s_rows] == [decrypt_key(r["key_enc"]) for r in p_rows]
+
+
+def test_ensure_pool_with_processes_matches_threads(db_session):
+    fids = _two_python_families()
+    reps = ensure_pool(db_session, family_ids=fids, n=12, min_free=3, processes=2)
+    assert {r.family_id: r.generated for r in reps} == {fids[0]: 12, fids[1]: 12}
+    assert [r.generated for r in ensure_pool(db_session, family_ids=fids, n=12, min_free=3, processes=2)] == [0, 0]
+    fam = all_families()[fids[0]]
+    for inst in db_session.scalars(select(ItemInstance).where(ItemInstance.family_id == fids[0])):
+        assert fam.generate(inst.seed).key_hash == inst.key_hash
+
+
+def test_pool_target_fast_mode(monkeypatch):
+    from app.core.settings import get_settings
+    from app.services.testing import pool as pool_mod
+
+    s = get_settings()
+    monkeypatch.setattr(s, "pool_per_family", None)
+    assert pool_mod.pool_target() == (200, 50)
+    monkeypatch.setattr(s, "pool_per_family", 40)
+    assert pool_mod.pool_target() == (40, 10)  # четверть пула; долив не упирается в боевой порог 50
+    monkeypatch.setattr(s, "pool_per_family", 2)
+    assert pool_mod.pool_target() == (2, 1)
+
+
+def test_fast_mode_readiness_threshold_is_meaningful(db_session, monkeypatch):
+    """Готовность считается по свободным экземплярам семейств (порог POOL_READY_MIN_FREE), а не по размеру пула: в быстром
+    режиме семейство с 2 экземплярами не готово, с 40 — готово."""
+    from app.services.testing.limits import POOL_READY_MIN_FREE
+
+    fid = _two_python_families()[0]
+    ensure_pool(db_session, family_ids=[fid], n=POOL_READY_MIN_FREE - 1, min_free=1)
+    assert pool_stats(db_session, [fid])[fid].free < POOL_READY_MIN_FREE
+    ensure_pool(db_session, family_ids=[fid], n=40, min_free=10)
+    assert pool_stats(db_session, [fid])[fid].free == 40 >= POOL_READY_MIN_FREE

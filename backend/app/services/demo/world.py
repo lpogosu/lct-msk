@@ -19,7 +19,7 @@ from sqlalchemy import delete, func, select, text
 from sqlalchemy.orm import Session
 
 from app.core.clock import clock
-from app.core.settings import Settings
+from app.core.settings import Settings, get_settings
 from app.models.candidate import CandidateProfile
 from app.models.company import Company
 from app.models.contact import Application, ContactDisclosure, Cooldown, Invitation
@@ -72,10 +72,11 @@ def ensure_pool(db: Session, say: Say = _quiet) -> dict[str, int]:
             errors += 1
             say(f"  ! {rep.family_id}: {rep.error}")
 
+    # VZ_POOL_PER_FAMILY (локальный compose — быстрый режим) важнее demo.yaml: seed и сервис pool строят один и тот же пул
+    n, min_free = (int(cfg["n_per_family"]), int(cfg["min_free"])) if get_settings().pool_per_family is None else testing_pool.pool_target()
     for spec in cfg["specs"]:
         testing_pool.ensure_pool(
-            db, spec=spec, n=int(cfg["n_per_family"]), min_free=int(cfg["min_free"]), threads=int(cfg["threads"]),
-            progress=progress,
+            db, spec=spec, n=n, min_free=min_free, processes=testing_pool.default_processes(), progress=progress,
         )
     db.commit()
     return {"family_params": created, "rotated": removed, "generated": generated, "errors": errors}

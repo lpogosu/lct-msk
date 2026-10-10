@@ -22,10 +22,12 @@ from __future__ import annotations
 import hashlib
 import hmac
 import logging
+import multiprocessing
+import os
 import threading
 import uuid
-from collections.abc import Callable, Iterable, Sequence
-from concurrent.futures import ThreadPoolExecutor
+from collections.abc import Callable, Iterable, Iterator, Sequence
+from concurrent.futures import Future, ProcessPoolExecutor, ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
@@ -39,7 +41,7 @@ from app.models.enums import FamilyStatus
 from app.models.testing import ItemFamilyParams, ItemInstance
 from app.services.anticheat.models import AnticheatTwin
 from app.services.testing.keystore import encrypt_key
-from app.services.testing.limits import POOL_MIN_FREE, POOL_SIZE_DEFAULT
+from app.services.testing.limits import POOL_CHUNK, POOL_MIN_FREE, POOL_SIZE_DEFAULT, POOL_WORKERS_MAX
 from app.testing.bank.base import Family, Instance
 from app.testing.bank.registry import all_families
 from app.testing.irt import Scale, b_from_expert, load_scale
@@ -102,6 +104,45 @@ def instance_row(inst: Instance) -> dict[str, Any]:
 
 def generate_rows(fam: Family, seeds: Sequence[int]) -> list[dict[str, Any]]:
     return [instance_row(fam.generate(seed)) for seed in seeds]
+
+
+def pool_target() -> tuple[int, int]:
+    """(экземпляров на семейство, порог долива). Размер — VZ_POOL_PER_FAMILY (локальный compose: 40, «быстрый режим»),
+    без переменной — боевые 200. Порог долива — та же четверть, что 50 из 200, но не больше боевого: иначе при пуле
+    меньше порога каждый показ запускал бы долив до полного размера."""
+    n = get_settings().pool_per_family or POOL_SIZE_DEFAULT
+    return n, min(POOL_MIN_FREE, max(1, n // 4))
+
+
+def default_processes() -> int:
+    """Процессов генерации: VZ_POOL_WORKERS либо число ядер (не больше POOL_WORKERS_MAX). Генерация — чистый Python
+    под GIL, потоки её не ускоряют (проверено: 4 потока ≈ 1 ядро), поэтому процессы."""
+    w = get_settings().pool_workers
+    return w if w else max(1, min(os.cpu_count() or 1, POOL_WORKERS_MAX))
+
+
+def _gen_chunk(family_id: str, seeds: list[int]) -> list[dict[str, Any]]:
+    """Задача процесса-исполнителя: экземпляры семейства по seed. Результат зависит только от (семейство, seed) —
+    не от числа процессов и порядка кусков (seed секретные, но заданы заранее, генератор детерминирован)."""
+    return generate_rows(all_families()[family_id], seeds)
+
+
+def generate_rows_parallel(
+    jobs: Sequence[tuple[str, Sequence[int]]], processes: int
+) -> Iterator[tuple[list[dict[str, Any]], str | None]]:
+    """Строки для (семейство, seeds) в порядке заданий: процессы, куски по POOL_CHUNK seed, порядок строк
+    внутри семейства — как у seeds (идентично последовательной generate_rows, кроме случайных id и nonce шифра).
+    Генератор: семейство отдаётся, как только готово (в порядке заданий), — вызывающий пишет и коммитит по ходу."""
+    with ProcessPoolExecutor(max_workers=max(1, processes), mp_context=multiprocessing.get_context("spawn")) as ex:
+        futs: list[list[Future[list[dict[str, Any]]]]] = [
+            [ex.submit(_gen_chunk, fid, list(seeds[i : i + POOL_CHUNK])) for i in range(0, len(seeds), POOL_CHUNK)]
+            for fid, seeds in jobs
+        ]
+        for chunks in futs:
+            try:
+                yield [row for f in chunks for row in f.result()], None
+            except Exception as e:  # noqa: BLE001 — отчёт по семейству, остальные продолжают
+                yield [], f"{type(e).__name__}: {e}"
 
 
 @dataclass(frozen=True)
@@ -211,16 +252,22 @@ def ensure_pool(
     *,
     spec: str | None = None,
     family_ids: Iterable[str] | None = None,
-    n: int = POOL_SIZE_DEFAULT,
-    min_free: int = POOL_MIN_FREE,
+    n: int | None = None,
+    min_free: int | None = None,
     threads: int = 4,
+    processes: int = 1,
     progress: Callable[[PoolReport], None] | None = None,
 ) -> list[PoolReport]:
     """Довести пул каждого семейства до n экземпляров; долить, если свободных меньше min_free.
 
     Повторный запуск ничего не меняет (seed уникален в семействе: UNIQUE(family_id, seed)).
     Ошибка генерации одного семейства не роняет остальные — она попадает в отчёт.
+    n / min_free по умолчанию — pool_target() (VZ_POOL_PER_FAMILY). processes > 1 — генерация в процессах
+    (scripts/generate_pool.py, seed демо); 1 — потоки (фоновый долив в сервере).
     """
+    t_n, t_min = pool_target()
+    n = t_n if n is None else n
+    min_free = t_min if min_free is None else min_free
     fams = families_for(spec, family_ids)
     stats = pool_stats(db, [f.id for f in fams])
     jobs: list[tuple[Family, list[int], FamilyPoolStats]] = []
@@ -241,20 +288,30 @@ def ensure_pool(
             return fam.id, [], f"{type(e).__name__}: {e}"
 
     reports: list[PoolReport] = []
+
+    def store(st: FamilyPoolStats, fid: str, rows: list[dict[str, Any]], err: str | None) -> None:
+        if rows:
+            stmt = pg_insert(ItemInstance).values(rows).on_conflict_do_nothing(index_elements=["family_id", "seed"])
+            db.execute(stmt)
+            db.flush()
+        rep = PoolReport(fid, st.total, st.free, len(rows), err)
+        if err:
+            log.warning("Пул семейства %s не сгенерирован: %s", fid, err)
+        reports.append(rep)
+        if progress is not None:
+            progress(rep)
+
+    if processes > 1 and any(seeds for _, seeds, _ in jobs):
+        # Запись идёт по готовности семейств в порядке списка: коммиты прогресса сохраняют прерванный запуск
+        todo = [(f.id, seeds) for f, seeds, _ in jobs if seeds]
+        results = iter(generate_rows_parallel(todo, processes))
+        for f, seeds, st in jobs:
+            rows, err = next(results) if seeds else ([], None)
+            store(st, f.id, rows, err)
+        return reports
     with ThreadPoolExecutor(max_workers=max(1, threads)) as ex:
         for (_fam, _, st), (fid, rows, err) in zip(jobs, ex.map(run, jobs), strict=True):
-            if rows:
-                stmt = pg_insert(ItemInstance).values(rows).on_conflict_do_nothing(
-                    index_elements=["family_id", "seed"]
-                )
-                db.execute(stmt)
-                db.flush()
-            rep = PoolReport(fid, st.total, st.free, len(rows), err)
-            if err:
-                log.warning("Пул семейства %s не сгенерирован: %s", fid, err)
-            reports.append(rep)
-            if progress is not None:
-                progress(rep)
+            store(st, fid, rows, err)
     return reports
 
 
@@ -318,7 +375,8 @@ def rotate_legacy(db: Session, *, spec: str | None = None, family_ids: Iterable[
     return int(res.rowcount or 0)
 
 
-def needs_top_up(db: Session, family_id: str, min_free: int = POOL_MIN_FREE) -> bool:
+def needs_top_up(db: Session, family_id: str, min_free: int | None = None) -> bool:
+    min_free = pool_target()[1] if min_free is None else min_free
     free = db.scalar(
         select(func.count()).where(ItemInstance.family_id == family_id, ItemInstance.issued_at.is_(None))
     )
