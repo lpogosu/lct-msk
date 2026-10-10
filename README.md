@@ -75,7 +75,7 @@
 
 ```bash
 git clone <репозиторий> vzaimno && cd vzaimno
-docker compose up -d --build                                   # 1–3 мин; пул заданий догенерируется в фоне (≈ 3–15 мин)
+docker compose up -d --build                                   # 1–3 мин; пул заданий догенерируется в фоне (≈ 12 мин)
 # дождитесь "pool_ready":true (пока нет, на /jury виден индикатор «Готовим одноразовые задания»); в PowerShell — curl.exe; make demo ждёт сам
 curl -s http://localhost/api/health
 docker compose exec -T backend python scripts/seed_demo.py     # демо-мир (≈ 1–3 мин), или: make demo
@@ -157,12 +157,12 @@ docker compose exec -T backend python scripts/seed_demo.py     # демо-мир
 ```bash
 git clone <репозиторий> vzaimno && cd vzaimno
 docker compose up -d --build                                   # или: make up
-curl -s http://localhost/api/health                            # ждите "pool_ready":true (≈ 3–15 мин; PowerShell: curl.exe); make demo ждёт сам
+curl -s http://localhost/api/health                            # ждите "pool_ready":true (≈ 12 мин; PowerShell: curl.exe); make demo ждёт сам
 docker compose exec -T backend python scripts/seed_demo.py     # демо-мир, или: make demo
 ```
 
 1. `up --build` собирает образы (backend, web, fsp-mock) и поднимает `db`, `mailpit`, `fsp-mock`, `backend` (миграции Alembic при старте),
-   `web` (nginx: интерфейс и прокси `/api`) и одноразовую задачу `pool` (пул заданий теста, ≈ 3–15 минут в зависимости от машины: `docker compose logs -f pool`; затем в том же контейнере идёт предрасчёт двойников для «Антиподсказчика» — он длится дольше и тест не блокирует).
+   `web` (nginx: интерфейс и прокси `/api`) и одноразовую задачу `pool` (пул заданий теста, ≈ 12 минут на 20-ядерном ноутбуке, дольше на слабой машине: `docker compose logs -f pool`; затем в том же контейнере идёт предрасчёт двойников для «Антиподсказчика» — он длится дольше и тест не блокирует).
    Пока пул не готов, на `/jury` и в начале теста показан индикатор «Готовим одноразовые задания».
    Сборка с тёплым кэшем образов ≈ 1 минута.
 2. `seed_demo.py` наполняет демо-мир (≈ 1–3 минуты). Запускайте его, когда `/api/health` показывает `"pool_ready":true`: иначе seed и `pool` одновременно доливают пул и оба работают в разы дольше (`make demo` ждёт сам).
