@@ -136,7 +136,10 @@ def test_generation_is_fast(fid):
     t0 = time.perf_counter()
     for seed in range(30):
         fam.generate(1000 + seed)
-    assert (time.perf_counter() - t0) / 30 < 0.05
+    # JS-версии считают ключ запуском node на каждый экземпляр (офлайн, при генерации пула): старт процесса
+    # на Windows ~50 мс, поэтому бюджет у них свой; генерация пула всё равно идёт параллельно процессами.
+    budget = 0.5 if fid.endswith(".js") else 0.05
+    assert (time.perf_counter() - t0) / 30 < budget
 
 
 def test_deterministic_across_processes():
