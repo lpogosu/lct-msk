@@ -97,18 +97,27 @@ fi
 say "4/7 Сборка и запуск (5–10 минут при первом запуске)"
 "${COMPOSE[@]}" up -d --build
 
-say "5/7 Готовность бэкенда и пул заданий (≈ 3–5 минут)"
+say "5/7 Готовность бэкенда и пул заданий (≈ 3–15 минут)"
 for _ in $(seq 1 120); do
   st=$("${COMPOSE[@]}" ps --format '{{.Service}} {{.Health}}' | awk '$1=="backend"{print $2}')
   [[ "$st" == "healthy" ]] && break
   sleep 5
 done
 [[ "${st:-}" == "healthy" ]] || { "${COMPOSE[@]}" logs --tail=80 backend; die "backend не стал healthy"; }
+# Ждём готовности пула (/api/health: pool_ready), а не конца контейнера pool: после генерации он ещё долго считает
+# двойники для «Антиподсказчика» (десятки минут), и тест с демо-миром от этого не зависят.
 POOL_ID=$("${COMPOSE[@]}" ps -aq pool)
-if [[ -n "$POOL_ID" ]]; then
-  code=$(docker wait "$POOL_ID")
-  [[ "$code" == "0" ]] || { "${COMPOSE[@]}" logs --tail=80 pool; die "генерация пула завершилась с кодом $code"; }
-fi
+pool_ok=false
+for _ in $(seq 1 360); do
+  if "${COMPOSE[@]}" exec -T backend python -c "import json,sys,urllib.request as u; sys.exit(0 if json.load(u.urlopen('http://localhost:8000/api/health')).get('pool_ready') else 1)" >/dev/null 2>&1; then
+    pool_ok=true; break
+  fi
+  if [[ -n "$POOL_ID" ]] && [[ "$(docker inspect -f '{{.State.Status}} {{.State.ExitCode}}' "$POOL_ID" 2>/dev/null)" == exited\ [1-9]* ]]; then
+    "${COMPOSE[@]}" logs --tail=80 pool; die "генерация пула завершилась с ошибкой"
+  fi
+  sleep 10
+done
+$pool_ok || { "${COMPOSE[@]}" logs --tail=80 pool; die "пул заданий не готов за 60 минут"; }
 echo "бэкенд готов, пул заданий сгенерирован"
 
 if [[ "$DEMO" == "true" ]]; then
@@ -125,7 +134,9 @@ fi
 say "7/7 Проверка"
 ok=false
 for _ in $(seq 1 60); do
-  if curl -fsS --max-time 10 "https://${DOMAIN}/api/health" | grep -q '"db":"ok"'; then ok=true; break; fi
+  # без конвейера в grep -q: при pipefail ранний выход grep давал бы ложный отказ из-за SIGPIPE у curl
+  health=$(curl -fsS --max-time 10 "https://${DOMAIN}/api/health" 2>/dev/null || true)
+  if [[ "$health" == *'"db":"ok"'* ]]; then ok=true; break; fi
   sleep 5   # Caddy получает сертификат при первом обращении
 done
 $ok || echo "HTTPS пока не отвечает: проверьте, что порты 80/443 открыты у провайдера, и '${COMPOSE[*]} logs caddy'"
