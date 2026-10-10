@@ -3,7 +3,7 @@
 #
 # Стенд целиком в контейнерах (для жюри), из чистого клона:
 #   make up          собрать образы и поднять db, mailpit, fsp-mock, backend (миграции при старте), web, pool (пул заданий)
-#   make demo        демо-мир: ~300 кандидатов с настоящими тестами, персоны, компании, сценарий (≈ 1 минута)
+#   make demo        демо-мир: ~300 кандидатов с настоящими тестами, персоны, компании, сценарий (≈ 1 минута; сам ждёт готовности пула)
 #   make creds       логины и пароли демо-аккаунтов (печатает пароли в консоль)
 #   → http://localhost (интерфейс), http://localhost/api/docs, Mailpit http://localhost:8025
 #
@@ -25,7 +25,7 @@ COMPOSE ?= docker compose
 USERS   ?= 50
 RUNTIME ?= 3m
 
-.PHONY: help up up-infra down ps logs demo creds reset-demo-stack migrate gen-pool seed reset-demo demo-accounts test lint typecheck e2e validate jury-check dev loadtest-accounts loadtest docs-pdf
+.PHONY: help up up-infra down ps logs wait-pool demo creds reset-demo-stack migrate gen-pool seed reset-demo demo-accounts test lint typecheck e2e validate jury-check dev loadtest-accounts loadtest docs-pdf
 
 help:
 	@echo "make up | demo | creds | ps | logs | down | up-infra | migrate | gen-pool | seed | reset-demo | test | lint | validate | dev | loadtest-accounts | loadtest"
@@ -47,9 +47,13 @@ ps:
 logs:
 	$(COMPOSE) logs -f --tail=100
 
-# Демо-мир внутри контейнера backend (после make up). Ждёт окончания генерации пула, чтобы два процесса не доливали пул одновременно
-demo:
-	@docker wait $$($(COMPOSE) ps -aq pool) >/dev/null
+# Ждёт готовности пула заданий (/api/health: pool_ready), но не конца предрасчёта двойников: он идёт в том же контейнере pool
+# ещё долго (десятки минут), а seed нужен только готовый пул. Два процесса не доливают пул одновременно.
+wait-pool:
+	@until $(COMPOSE) exec -T backend python -c "import json,sys,urllib.request as u; sys.exit(0 if json.load(u.urlopen('http://localhost:8000/api/health')).get('pool_ready') else 1)" 2>/dev/null; do echo "пул заданий ещё генерируется (docker compose logs -f pool)..."; sleep 10; done
+
+# Демо-мир внутри контейнера backend (после make up)
+demo: wait-pool
 	$(COMPOSE) exec -T backend python scripts/seed_demo.py
 
 # Логины и пароли демо-аккаунтов (файл в томе контейнера; пароли выводятся из VZ_APP_SECRET)

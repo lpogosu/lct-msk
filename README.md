@@ -75,9 +75,13 @@
 
 ```bash
 git clone <репозиторий> vzaimno && cd vzaimno
-docker compose up -d --build                                   # 1–3 мин; пул заданий догенерируется в фоне (≈ 2,5 мин)
-docker compose exec -T backend python scripts/seed_demo.py     # демо-мир, или: make demo
+docker compose up -d --build                                   # 1–3 мин; пул заданий догенерируется в фоне (≈ 3–15 мин)
+# дождитесь "pool_ready":true (пока нет, на /jury виден индикатор «Готовим одноразовые задания»); в PowerShell — curl.exe; make demo ждёт сам
+curl -s http://localhost/api/health
+docker compose exec -T backend python scripts/seed_demo.py     # демо-мир (≈ 1–3 мин), или: make demo
 ```
+
+Порты 80/8000/5432/8025 заняты на вашей машине? Задайте другие до запуска: `VZ_WEB_PORT=8088 VZ_BACKEND_PORT=18000 VZ_DB_PORT=15432 VZ_MAILPIT_UI_PORT=18025 VZ_MAILPIT_SMTP_PORT=11025 VZ_FSP_MOCK_PORT=18001 docker compose up -d --build` (в PowerShell — `$env:VZ_WEB_PORT=8088` и т. д. отдельными строками, либо те же строки `VZ_…=…` в файле `.env`; для curl и адресов ниже подставьте свой порт).
 
 1. Откройте **http://localhost/jury** (регистрация не нужна): одна кнопка создаёт одноразового кандидата.
 2. **Экспресс-тест** (до 8 заданий, ≈ 4 минуты) на том же движке и банке; при недостатке точности система честно пишет «грейд не определён точно».
@@ -153,13 +157,15 @@ docker compose exec -T backend python scripts/seed_demo.py     # демо-мир
 ```bash
 git clone <репозиторий> vzaimno && cd vzaimno
 docker compose up -d --build                                   # или: make up
+curl -s http://localhost/api/health                            # ждите "pool_ready":true (≈ 3–15 мин; PowerShell: curl.exe); make demo ждёт сам
 docker compose exec -T backend python scripts/seed_demo.py     # демо-мир, или: make demo
 ```
 
 1. `up --build` собирает образы (backend, web, fsp-mock) и поднимает `db`, `mailpit`, `fsp-mock`, `backend` (миграции Alembic при старте),
-   `web` (nginx: интерфейс и прокси `/api`) и одноразовую задачу `pool` (пул заданий теста, ≈ 2,5 минуты: `docker compose logs -f pool`).
+   `web` (nginx: интерфейс и прокси `/api`) и одноразовую задачу `pool` (пул заданий теста, ≈ 3–15 минут в зависимости от машины: `docker compose logs -f pool`; затем в том же контейнере идёт предрасчёт двойников для «Антиподсказчика» — он длится дольше и тест не блокирует).
+   Пока пул не готов, на `/jury` и в начале теста показан индикатор «Готовим одноразовые задания».
    Сборка с тёплым кэшем образов ≈ 1 минута.
-2. `seed_demo.py` наполняет демо-мир (≈ 1 минута; ждите конца `pool`: `make demo` ждёт сам).
+2. `seed_demo.py` наполняет демо-мир (≈ 1–3 минуты). Запускайте его, когда `/api/health` показывает `"pool_ready":true`: иначе seed и `pool` одновременно доливают пул и оба работают в разы дольше (`make demo` ждёт сам).
 3. Откройте **http://localhost** (порт — `VZ_WEB_PORT`, по умолчанию 80). API: http://localhost/api/docs, письма с кодами: http://localhost:8025.
 4. Логины и пароли демо-аккаунтов: `docker compose exec -T backend cat var/demo_accounts.md` (или `make creds`; пароли выводятся из `VZ_APP_SECRET`).
 

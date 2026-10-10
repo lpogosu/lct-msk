@@ -75,7 +75,8 @@ uv run python -m eval.validate                                 # make validate
 ```bash
 git clone <репозиторий> vzaimno && cd vzaimno
 docker compose up -d --build                                   # make up
-docker compose exec -T backend python scripts/seed_demo.py     # make demo (сам ждёт конца pool)
+curl -s http://localhost/api/health                            # ждите "pool_ready":true (PowerShell: curl.exe); make demo ждёт сам
+docker compose exec -T backend python scripts/seed_demo.py     # make demo (сам ждёт готовности пула)
 docker compose exec -T backend cat var/demo_accounts.md        # make creds: логины и пароли демо-аккаунтов
 ```
 
@@ -94,7 +95,7 @@ docker compose exec -T backend cat var/demo_accounts.md        # make creds: л�
 - `pool` стартует, когда `backend` стал healthy; тест кандидата заработает после его окончания (`docker compose logs -f pool`; `docker compose ps -a pool` — Exited (0)).
 - Клиентский IP за nginx: nginx перезаписывает `X-Forwarded-For` адресом клиента (`VZ_REAL_IP_FROM` — кому nginx верит), бэкенд доверяет частным подсетям docker (`VZ_FORWARDED_ALLOW_IPS`).
 - `restart: unless-stopped` поднимет упавший контейнер сам; healthcheck есть у всех сервисов, кроме одноразового `pool`.
-- Другие порты (80 занят): `VZ_WEB_PORT=8088 VZ_PUBLIC_BASE_URL=http://localhost:8088 VZ_CORS_ORIGINS=http://localhost:8088 docker compose up -d --build`.
+- Другие порты (80 занят): `VZ_WEB_PORT=8088 VZ_PUBLIC_BASE_URL=http://localhost:8088 VZ_CORS_ORIGINS=http://localhost:8088 docker compose up -d --build`. Заняты ещё 8000/5432/8025/1025/8001 (другой стек, локальная БД) — перенесите и их: `VZ_BACKEND_PORT`, `VZ_DB_PORT`, `VZ_MAILPIT_UI_PORT`, `VZ_MAILPIT_SMTP_PORT`, `VZ_FSP_MOCK_PORT` (переменные окружения или строки в `.env`; в PowerShell — `$env:VZ_WEB_PORT=8088`).
 - Несколько процессов бэкенда и демо-режим: смещение демо-часов (`/api/demo/clock`) хранится в БД и подхватывается всеми процессами раз в секунду; счётчики лимитов запросов ведутся в памяти каждого процесса (эффективный лимит до `VZ_WORKERS` раз выше), буфер прямых POST на `/api/demo/webhook-sink` — тоже по процессу. Для строгих лимитов и показа вебхуков — `VZ_WORKERS=1`.
 - `docker compose down` сохраняет данные в томе, `docker compose down -v` стирает БД и демо-мир. Сброс демо к seed без пересборки: `make reset-demo-stack`.
 
