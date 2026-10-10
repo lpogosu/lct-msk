@@ -42,23 +42,18 @@ loadtest/out/
 .screens/
 
 # Презентация: собирается build_deck.py (крупный бинарник и производные картинки не храним)
-presentation/*.pptx
-presentation/assets/
 
 # сырой кэш открытых вакансий (не хранить и не распространять)
 data/market/_raw/
 
 # питч-дек: персональные данные команды и производные файлы (в них телефон и фото)
-presentation/team.local.json
-presentation/team_photos/
-presentation/Vzaimno_pitch.pptx
-presentation/Vzaimno_pitch.pdf
-presentation/assets/
-presentation/shots/
 
 # сборка PDF документации
 docs/pdf-tools/node_modules/
 
 # Учётные записи стенда, которые пишет deploy/bootstrap.sh
 demo_accounts.local.md
-presentation/shots5/
+
+# Материалы питча (презентация, видео) хранятся вне репозитория
+presentation/
+video/

@@ -165,7 +165,6 @@
 | `@axe-core/playwright` | 4.11.0 | MPL-2.0 | `frontend/e2e`: проверка доступности ([ACCESSIBILITY.md](ACCESSIBILITY.md)); только `devDependency`, в сборку не попадает |
 | `axe-core` | 4.11.4 | MPL-2.0 | то же (транзитивная); слабый копилефт на уровне файлов, не изменялся |
 | `typescript` | 5.9.3 | Apache-2.0 | `frontend/e2e` |
-| `playwright`, `playwright-core` | 1.64.0 | Apache-2.0 | `video/`: запись глав демо-ролика |
 | `mermaid` | 11.12.0 | MIT | `docs/pdf-tools`: отрисовка диаграмм для PDF документации |
 | `playwright-core` | 1.56.1 | Apache-2.0 | `docs/pdf-tools`: печать HTML в PDF через Chrome или Edge |
 
