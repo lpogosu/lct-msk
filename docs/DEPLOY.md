@@ -258,7 +258,7 @@ docker compose -f docker-compose.prod.yml ps                   # backend дол�
 curl -s https://vzaimno.example/api/health                     # {"status":"ok","db":"ok",...}
 ```
 
-**Пул клонов обязателен**: без него тест не стартует. Его создаёт одноразовый сервис `pool` (в образе есть `scripts/` и Node.js): он стартует сам после `backend` и занимает ≈ 2,5 минуты (`docker compose -f docker-compose.prod.yml logs -f pool`). Повтор или долив: `docker compose -f docker-compose.prod.yml run --rm pool`; состояние: `... run --rm pool python scripts/generate_pool.py --stats`. `VZ_APP_SECRET` у `pool` и `backend` один (ключи шифруются им). Туннель к БД для этого больше не нужен; `deploy/docker-compose.db-loopback.yml` оставлен для обслуживания.
+**Пул клонов обязателен**: без него тест не стартует. Его создаёт одноразовый сервис `pool` (в образе есть `scripts/` и Node.js): он стартует сам после `backend` и занимает ≈ 12 минут на 8 ядрах и больше на 2–4 vCPU (индикатор «Готовим одноразовые задания» на /jury; готовность — `"pool_ready":true` в `/api/health`) (`docker compose -f docker-compose.prod.yml logs -f pool`). Повтор или долив: `docker compose -f docker-compose.prod.yml run --rm pool`; состояние: `... run --rm pool python scripts/generate_pool.py --stats`. `VZ_APP_SECRET` у `pool` и `backend` один (ключи шифруются им). Туннель к БД для этого больше не нужен; `deploy/docker-compose.db-loopback.yml` оставлен для обслуживания.
 
 **Демо-мир для стенда жюри** (`VZ_DEMO_MODE=true` в `.env`): `seed_demo.py` отказывается работать при `VZ_ENV=prod`, поэтому его запускают с машины с туннелем с локальным `VZ_ENV=dev` и тем же `VZ_APP_SECRET` (пароли демо-аккаунтов выводятся из него); через туннель наполнение идёт медленнее, чем локально:
 
