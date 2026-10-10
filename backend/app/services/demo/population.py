@@ -34,6 +34,7 @@ from app.services.demo.models import DemoPersona
 from app.services.demo.profiles import apply_profile, ensure_consents, fill_survey, link_fsp
 from app.services.demo.sim import run_session
 from app.services.fsp_link import service as fsp
+from app.services.testing import pool as testing_pool
 from app.testing.irt import load_scale
 from app.testing.simulate import SimulatedExaminee
 from eval.population import Candidate, PopulationConfig, generate_candidate
@@ -266,6 +267,12 @@ def worker_chunk(args: tuple[list[int], int, dict[int, str]] | tuple[list[int], 
                 skipped += 1
             else:
                 done += 1
+            # Пул не должен иссякнуть посреди seed (быстрый режим — 40 экземпляров на семейство): доливаем, как сервер
+            try:
+                testing_pool.top_up_low_families(db)
+            except Exception:  # noqa: BLE001 — долив не должен ронять кандидата: его сессия уже сохранена
+                db.rollback()
+                log.exception("seed: долив пула не удался")
         except Exception as e:  # noqa: BLE001 — один кандидат не должен ронять весь seed
             db.rollback()
             failed += 1

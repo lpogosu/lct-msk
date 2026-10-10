@@ -13,7 +13,9 @@ from __future__ import annotations
 
 import hashlib
 import logging
+import os
 import threading
+import time
 import uuid
 from collections.abc import Callable, Iterable, Sequence
 from concurrent.futures import Future, ThreadPoolExecutor
@@ -348,21 +350,25 @@ def precompute_twins(
     Исполнение — в потоках (запуск подпроцесса — десятки миллисекунд, потоки не конфликтуют), запись в БД — в
     вызывающем потоке. commit() вызывается пачками (runtime.precompute.batch_commit): прерванный предрасчёт
     не теряет сделанное."""
-    import time  # noqa: PLC0415
-
     rc = runtime_config()
     per_family = rc.precompute_per_family if per_family is None else per_family
-    pool = ThreadPoolExecutor(max_workers=max(1, workers or rc.precompute_workers), thread_name_prefix="twin-pre")
+    # Потоков — не меньше конфига и не больше ядер (≤ cap): исполнение двойника ждёт подпроцесс, GIL почти не мешает
+    n_workers = workers or max(rc.precompute_workers, min(os.cpu_count() or 1, rc.precompute_workers_cap))
+    pool = ThreadPoolExecutor(max_workers=max(1, n_workers), thread_name_prefix="twin-pre")
     reg = all_families()
     wanted = [f for f in sorted(reg) if family_ids is None or f in set(family_ids)]
     reports: list[PrecomputeReport] = []
     try:
+        # Этап 1: задания ВСЕХ семейств уходят в пул сразу — тяжёлое семейство (algo.*) не держит остальные в очереди,
+        # загрузка ядер ровная. Этап 2: результаты забираются в порядке семейств, запись и коммиты — в этом потоке.
+        plan: list[tuple[str, PrecomputeReport, list[tuple[ItemInstance, Any]], float]] = []
         for fid in wanted:
             fam = reg[fid]
             t0 = time.monotonic()
             rep = PrecomputeReport(fid)
             rows = missing_instances(db, fid, per_family)
             rep.candidates = len(rows)
+            futures: list[tuple[ItemInstance, Any]] = []
             jobs: list[tuple[ItemInstance, Instance]] = []
             for r in rows:
                 inst = instance_from_row(r)
@@ -373,23 +379,27 @@ def precompute_twins(
             if jobs:
                 hashes = {r.id: pool_hashes(db, fid, r.id) for r, _ in jobs}
                 futures = [(r, pool.submit(family_twin_result, fam, inst, pool_key_hashes=hashes[r.id])) for r, inst in jobs]
-                pending = 0
-                for r, fut in futures:
-                    try:
-                        res = fut.result()
-                    except Exception as e:  # noqa: BLE001 — сбой одного экземпляра не останавливает предрасчёт
-                        res = TwinResult(None, "executor_failed", detail=f"{type(e).__name__}: {e}")
-                    save_row(db, row_from_result(r.id, fid, res))
-                    rep.built += 1 if res.twin is not None else 0
-                    rep.none += 0 if res.twin is not None else 1
-                    pending += 1
-                    if commit is not None and pending >= rc.precompute_batch_commit:
-                        db.flush()
-                        commit()
-                        pending = 0
+            plan.append((fid, rep, futures, t0))
+        pending = 0
+        for fid, rep, futures, t0 in plan:
+            for r, fut in futures:
+                try:
+                    res = fut.result()
+                except Exception as e:  # noqa: BLE001 — сбой одного экземпляра не останавливает предрасчёт
+                    res = TwinResult(None, "executor_failed", detail=f"{type(e).__name__}: {e}")
+                save_row(db, row_from_result(r.id, fid, res))
+                rep.built += 1 if res.twin is not None else 0
+                rep.none += 0 if res.twin is not None else 1
+                pending += 1
+                if commit is not None and pending >= rc.precompute_batch_commit:
+                    db.flush()
+                    commit()
+                    pending = 0
+            if futures:
                 db.flush()
                 if commit is not None:
                     commit()
+                    pending = 0
             rep.seconds = time.monotonic() - t0
             reports.append(rep)
             if progress is not None:

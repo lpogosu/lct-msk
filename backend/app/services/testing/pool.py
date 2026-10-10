@@ -410,6 +410,24 @@ def top_up_background(bind: Any, family_ids: Sequence[str]) -> None:
             _TOPPING_UP.difference_update(mine)
 
 
+def top_up_low_families(db: Session) -> int:
+    """Долить семейства, у которых свободных меньше порога, — синхронно, в этой сессии (seed демо: воркеры гонят сотни
+    сессий подряд, и пул быстрого режима, 40 на семейство, иначе иссяк бы на «горячих» семействах; в работающем
+    сервере то же делает top_up_background). Один долив на семейство: advisory-lock в транзакции, остальные воркеры
+    пропускают его, не генерируя те же seed повторно. Коммитит сама. Возвращает число созданных экземпляров."""
+    n, min_free = pool_target()
+    low = [fid for fid, st in pool_stats(db).items() if st.secret and st.free < min_free]
+    made = 0
+    for fid in sorted(low):
+        if not db.scalar(select(func.pg_try_advisory_xact_lock(func.hashtextextended(f"vz-pool-topup:{fid}", 0)))):
+            db.rollback()  # lock взят соседом — он и доливает
+            continue
+        reps = ensure_pool(db, family_ids=[fid], n=n, min_free=min_free)
+        db.commit()  # фиксирует вставку и снимает lock
+        made += sum(r.generated for r in reps)
+    return made
+
+
 def issue_instance(
     db: Session,
     family_id: str,

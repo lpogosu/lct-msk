@@ -63,7 +63,7 @@ def _parse(argv: Sequence[str] | None) -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Предрасчёт двойников в буфере для свободных экземпляров пула")
     p.add_argument("--family", action="append", default=None, help="Только эти семейства (можно несколько раз)")
     p.add_argument("--per-family", type=int, default=rc.precompute_per_family, help="Экземпляров на семейство за запуск")
-    p.add_argument("--workers", type=int, default=rc.precompute_workers, help="Потоков исполнения")
+    p.add_argument("--workers", type=int, default=None, help="Потоков исполнения (по умолчанию по ядрам: runtime.precompute.workers … workers_cap)")
     p.add_argument("--stats", action="store_true", help="Только показать покрытие")
     return p.parse_args(argv)
 

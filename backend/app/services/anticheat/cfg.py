@@ -17,6 +17,7 @@ class RuntimeConfig:
     clip_version: str
     render_id_prefix: str
     precompute_workers: int
+    precompute_workers_cap: int
     precompute_per_family: int
     precompute_batch_commit: int
     copy_types: tuple[str, ...]
@@ -61,6 +62,7 @@ def runtime_config() -> RuntimeConfig:
         clip_version=str(issue["clip_version"]),
         render_id_prefix=str(issue["render_id_prefix"]),
         precompute_workers=int(pre["workers"]),
+        precompute_workers_cap=int(pre["workers_cap"]),
         precompute_per_family=int(pre["per_family_default"]),
         precompute_batch_commit=int(pre["batch_commit"]),
         copy_types=tuple(ev["copy_types"]),
