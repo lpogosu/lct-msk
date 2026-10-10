@@ -65,7 +65,38 @@ def _parse(argv: Sequence[str] | None) -> argparse.Namespace:
     p.add_argument("--per-family", type=int, default=rc.precompute_per_family, help="Экземпляров на семейство за запуск")
     p.add_argument("--workers", type=int, default=None, help="Потоков исполнения (по умолчанию по ядрам: runtime.precompute.workers … workers_cap)")
     p.add_argument("--stats", action="store_true", help="Только показать покрытие")
+    p.add_argument(
+        "--after-seed",
+        type=int,
+        default=0,
+        metavar="СЕК",
+        help="Ждать до СЕК секунд, пока seed демо-мира не закончится (demo_state.seeded_at), и только потом считать "
+        "двойников: на локальном стенде предрасчёт иначе отнимает процессор у seed и тот идёт вдвое дольше",
+    )
     return p.parse_args(argv)
+
+
+def wait_for_seed(db: Session, max_wait_s: int, poll_s: float = 3.0) -> bool:
+    """Подождать конца seed демо-мира (до max_wait_s). True — seed закончился; False — вышло время или демо-таблиц нет."""
+    import time  # noqa: PLC0415
+
+    from sqlalchemy import select  # noqa: PLC0415
+    from sqlalchemy.exc import SQLAlchemyError  # noqa: PLC0415
+
+    from app.services.demo.models import DemoState  # noqa: PLC0415
+
+    deadline = time.monotonic() + max_wait_s
+    while True:
+        try:
+            seeded_at = db.scalar(select(DemoState.seeded_at).where(DemoState.id == 1))  # столбец, а не объект: без кэша сессии
+        except SQLAlchemyError:
+            db.rollback()
+            return False
+        if seeded_at is not None:
+            return True
+        if time.monotonic() >= deadline:
+            return False
+        time.sleep(poll_s)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -78,6 +109,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     logging.basicConfig(level=logging.WARNING, format="%(levelname)s %(message)s")
     db = get_sessionmaker()()
     try:
+        if not args.stats and args.after_seed > 0:
+            done = wait_for_seed(db, args.after_seed)
+            print("seed демо закончен — считаю двойников" if done else "seed не дождались — считаю двойников сейчас", flush=True)
         if not args.stats:
 
             def say(rep: store.PrecomputeReport) -> None:

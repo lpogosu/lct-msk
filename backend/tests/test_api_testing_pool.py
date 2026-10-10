@@ -16,6 +16,9 @@ from sqlalchemy.orm import Session
 
 from app.core.clock import clock
 from app.models.testing import ItemFamilyParams, ItemInstance
+from app.services.demo import (
+    models as _demo_models,  # noqa: F401 — таблица demo_state нужна тесту wait_for_seed
+)
 from app.services.testing.keystore import decrypt_key
 from app.services.testing.pool import (
     SEED_FLOOR,
@@ -305,3 +308,18 @@ def test_fast_mode_readiness_threshold_is_meaningful(db_session, monkeypatch):
     assert pool_stats(db_session, [fid])[fid].free < POOL_READY_MIN_FREE
     ensure_pool(db_session, family_ids=[fid], n=40, min_free=10)
     assert pool_stats(db_session, [fid])[fid].free == 40 >= POOL_READY_MIN_FREE
+
+
+def test_precompute_waits_for_seed(db_session):
+    """Локальный pool откладывает предрасчёт двойников до конца seed (иначе seed вдвое медленнее): ждёт seeded_at."""
+    from app.core.clock import clock as _clock
+    from app.services.anticheat.precompute import wait_for_seed
+    from app.services.demo.state import get_state
+
+    row = get_state(db_session)
+    row.seeded_at = None
+    db_session.flush()
+    assert wait_for_seed(db_session, 0) is False  # время вышло, seed не закончен
+    row.seeded_at = _clock.now()
+    db_session.flush()
+    assert wait_for_seed(db_session, 0) is True

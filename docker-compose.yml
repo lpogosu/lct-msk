@@ -130,7 +130,7 @@ services:
       - vzvar:/app/var
     environment: *backend-env
     # Пул, затем двойники в буфере для каждого экземпляра: без них «Антиподсказчик» в тесте не работает (VALIDATION §10)
-    command: ["sh", "-c", "python scripts/generate_pool.py && python -m app.services.anticheat.precompute"]
+    command: ["sh", "-c", "python scripts/generate_pool.py && python -m app.services.anticheat.precompute --after-seed ${VZ_TWINS_WAIT_SEED_S:-600}"]
     healthcheck:
       disable: true  # HEALTHCHECK образа проверяет HTTP бэкенда, а здесь одноразовый скрипт без сервера
     mem_limit: 2g  # процессы генерации держат банк в памяти (по ~100–150 МБ)
