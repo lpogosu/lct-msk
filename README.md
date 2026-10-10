@@ -75,10 +75,11 @@
 
 ```bash
 git clone <репозиторий> vzaimno && cd vzaimno
-docker compose up -d --build                                   # 1–3 мин; пул заданий догенерируется в фоне (≈ 12 мин)
+docker compose up -d --build                                   # быстрый режим: сборка ≈ 0,5–3 мин, пул заданий (40 на семейство) готов через ≈ 1,5 мин
 # дождитесь "pool_ready":true (пока нет, на /jury виден индикатор «Готовим одноразовые задания»); в PowerShell — curl.exe; make demo ждёт сам
 curl -s http://localhost/api/health
-docker compose exec -T backend python scripts/seed_demo.py     # демо-мир (≈ 1–3 мин), или: make demo
+docker compose exec -T backend python scripts/seed_demo.py     # демо-мир (≈ 2 мин), или: make demo
+# итого от клона до готового демо ≈ 4 минуты (замер, 20 ядер, образы в кэше); полный пул (200 на семейство): VZ_POOL_PER_FAMILY=200 docker compose up -d --build — ≈ 7 минут
 ```
 
 Порты 80/8000/5432/8025 заняты на вашей машине? Задайте другие до запуска: `VZ_WEB_PORT=8088 VZ_BACKEND_PORT=18000 VZ_DB_PORT=15432 VZ_MAILPIT_UI_PORT=18025 VZ_MAILPIT_SMTP_PORT=11025 VZ_FSP_MOCK_PORT=18001 docker compose up -d --build` (в PowerShell — `$env:VZ_WEB_PORT=8088` и т. д. отдельными строками, либо те же строки `VZ_…=…` в файле `.env`; для curl и адресов ниже подставьте свой порт).
@@ -157,15 +158,15 @@ docker compose exec -T backend python scripts/seed_demo.py     # демо-мир
 ```bash
 git clone <репозиторий> vzaimno && cd vzaimno
 docker compose up -d --build                                   # или: make up
-curl -s http://localhost/api/health                            # ждите "pool_ready":true (≈ 12 мин; PowerShell: curl.exe); make demo ждёт сам
+curl -s http://localhost/api/health                            # ждите "pool_ready":true (≈ 1,5 мин; PowerShell: curl.exe); make demo ждёт сам
 docker compose exec -T backend python scripts/seed_demo.py     # демо-мир, или: make demo
 ```
 
 1. `up --build` собирает образы (backend, web, fsp-mock) и поднимает `db`, `mailpit`, `fsp-mock`, `backend` (миграции Alembic при старте),
-   `web` (nginx: интерфейс и прокси `/api`) и одноразовую задачу `pool` (пул заданий теста, ≈ 12 минут на 20-ядерном ноутбуке, дольше на слабой машине: `docker compose logs -f pool`; затем в том же контейнере идёт предрасчёт двойников для «Антиподсказчика» — он длится дольше и тест не блокирует).
+   `web` (nginx: интерфейс и прокси `/api`) и одноразовую задачу `pool` (пул заданий теста; генерация идёт в нескольких процессах по числу ядер: `docker compose logs -f pool`). **Быстрый режим для проверки** — локальный compose по умолчанию делает 40 одноразовых клонов на семейство (111 семейств, 4 440 экземпляров, ≈ 70 с на 20 ядрах; на 4 ядрах — дольше, оценка 3–5 минут) вместо боевых 200: сессия берёт из семейства один клон, пул доливается по мере выдачи, поэтому хватает на сотни прохождений, а уникальность клонов не меняется. Полный боевой пул — `VZ_POOL_PER_FAMILY=200 docker compose up -d --build` (22 200 экземпляров, ≈ 5 минут генерации). Затем в том же контейнере идёт предрасчёт двойников для «Антиподсказчика»: он ждёт конца seed, чтобы не тормозить его, и занимает ещё ≈ 5 минут (тест от него не зависит: задание без готового двойника выдаётся без подмены).
    Пока пул не готов, на `/jury` и в начале теста показан индикатор «Готовим одноразовые задания».
    Сборка с тёплым кэшем образов ≈ 1 минута.
-2. `seed_demo.py` наполняет демо-мир (≈ 1–3 минуты). Запускайте его, когда `/api/health` показывает `"pool_ready":true`: иначе seed и `pool` одновременно доливают пул и оба работают в разы дольше (`make demo` ждёт сам).
+2. `seed_demo.py` наполняет демо-мир (≈ 2 минуты в быстром режиме: пул по ходу доливается, как это делает сервер; ≈ 70 с при готовом полном пуле). Запускайте его, когда `/api/health` показывает `"pool_ready":true`: иначе seed и `pool` одновременно доливают пул и оба работают в разы дольше (`make demo` ждёт сам).
 3. Откройте **http://localhost** (порт — `VZ_WEB_PORT`, по умолчанию 80). API: http://localhost/api/docs, письма с кодами: http://localhost:8025.
 4. Логины и пароли демо-аккаунтов: `docker compose exec -T backend cat var/demo_accounts.md` (или `make creds`; пароли выводятся из `VZ_APP_SECRET`).
 
