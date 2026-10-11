@@ -28,9 +28,9 @@ import subprocess
 import sys
 import tempfile
 import unicodedata
-from urllib.parse import unquote
 from dataclasses import dataclass, field
 from pathlib import Path
+from urllib.parse import unquote
 
 from markdown_it import MarkdownIt
 
@@ -230,6 +230,17 @@ def git_rev() -> str:
         return "n/a"
 
 
+MONTHS = ("января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря")
+
+
+def build_date() -> str:
+    """Дата сборки PDF по-русски (не зашитая строка: документация пересобирается)."""
+    import datetime as _dt
+
+    d = _dt.date.today()
+    return f"{d.day} {MONTHS[d.month - 1]} {d.year}"
+
+
 def page(title: str, body: str) -> str:
     return f'<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>{html.escape(title)}</title><style>{CSS}</style></head><body>{body}</body></html>'
 
@@ -270,7 +281,7 @@ def title_html(rs: list[Rendered]) -> str:
         '<section class="title-page"><div class="bar"></div><p class="brand">«Взаимно»</p>'
         '<p class="sub">Платформа обратного подбора ИТ-специалистов<br>Сопроводительная документация решения</p>'
         '<div class="meta">Хакатон ЛЦТ-2026, спецтрек ФСП<br>'
-        f"Состояние репозитория: коммит {git_rev()}, 9 октября 2026<br>"
+        f"Сборка документации: {build_date()} (по коммиту {git_rev()})<br>"
         "Все числа параметров берутся из <code>config/*.yaml</code>; результаты валидации получены на синтетической популяции<br><br>"
         f"<b>Состав:</b><ul>{items}<li>Дополнительно: ATS, доверие и безопасность, 152-ФЗ, LLM, нагрузка</li></ul></div></section>"
     )
