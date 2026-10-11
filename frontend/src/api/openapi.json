@@ -34847,6 +34847,17 @@
             "title": "Auto Ban",
             "description": "Всегда false: автоматического бана нет",
             "default": false
+          },
+          "behavior": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BehaviorOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Поведение во время теста (для песочницы нет)"
           }
         },
         "type": "object",
@@ -34892,7 +34903,8 @@
           "reviewed_at",
           "actions",
           "demo_assisted",
-          "auto_ban"
+          "auto_ban",
+          "behavior"
         ],
         "title": "ActOut"
       },
@@ -37739,6 +37751,80 @@
           "format"
         ],
         "title": "BatchOut"
+      },
+      "BehaviorItemOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "blur | paste_answer | paste_page | fast_correct | foreign_key | lz"
+          },
+          "label_ru": {
+            "type": "string",
+            "title": "Label Ru",
+            "description": "Название сигнала"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value",
+            "description": "Значение: число или «есть/нет»"
+          },
+          "note_ru": {
+            "type": "string",
+            "title": "Note Ru",
+            "description": "Нейтральное пояснение"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "label_ru",
+          "value",
+          "note_ru"
+        ],
+        "title": "BehaviorItemOut"
+      },
+      "BehaviorOut": {
+        "properties": {
+          "title_ru": {
+            "type": "string",
+            "title": "Title Ru",
+            "description": "Поведение во время теста"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/BehaviorItemOut"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "Сигналы"
+          },
+          "has_events": {
+            "type": "boolean",
+            "title": "Has Events",
+            "description": "Были ли события в журнале (нужно согласие на журналирование)"
+          },
+          "note_ru": {
+            "type": "string",
+            "title": "Note Ru",
+            "description": "Сам по себе не доказывает списывание"
+          },
+          "trust_weight": {
+            "type": "integer",
+            "title": "Trust Weight",
+            "description": "Всегда 0: вес в доверии не задан",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "title_ru",
+          "items",
+          "has_events",
+          "note_ru",
+          "trust_weight"
+        ],
+        "title": "BehaviorOut"
       },
       "BlindCardModuleOut": {
         "properties": {

@@ -286,3 +286,21 @@ def test_coverage_and_precompute_endpoint(api, bank, make_account, methodist):
     r = api.post("/api/lab/twins/precompute", methodist, {"family_id": "py.defaults.mutable", "per_family": 5})
     assert r["accepted"] is True  # в тестах сессия не привязана к Engine — фон не стартует, но запрос принят
     api.post("/api/lab/twins/precompute", methodist, {"family_id": "no.such"}, expect=404)
+
+
+def test_act_includes_behavior_summary(api, bank, make_account, methodist):
+    """Акт показывает поведение во время теста: переключения вкладки и вставки; вес 0, без обвинений."""
+    from app.core.clock import clock
+    from app.models.testing import SessionEvent as EventRow
+
+    acc, s, run = _session_with_copies(api, bank, make_account)
+    sid = uuid.UUID(s["id"])
+    for typ, payload in (("blur", {}), ("blur", {}), ("paste", {"field": "answer"}), ("paste", {"field": "page"})):
+        bank.add(EventRow(session_id=sid, ts=clock.now(), type=typ, payload=payload))
+    bank.flush()
+    row = api.get(f"/api/lab/reconciliations?session_id={sid}", methodist)["items"][0]
+    act = api.get(f"/api/lab/reconciliations/{row['id']}", methodist)
+    b = act["behavior"]
+    vals = {i["id"]: i["value"] for i in b["items"]}
+    assert vals["blur"] == "2" and vals["paste_answer"] == "1" and vals["paste_page"] == "1"
+    assert b["has_events"] and b["trust_weight"] == 0 and "не доказывает" in b["note_ru"]

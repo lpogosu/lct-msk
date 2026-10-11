@@ -95,6 +95,21 @@ class SessionTwinOut(BaseModel):
     decision: str = Field(description="Кто решает")
 
 
+class BehaviorItemOut(BaseModel):
+    id: str = Field(description="blur | paste_answer | paste_page | fast_correct | foreign_key | lz")
+    label_ru: str = Field(description="Название сигнала")
+    value: str = Field(description="Значение: число или «есть/нет»")
+    note_ru: str = Field(description="Нейтральное пояснение")
+
+
+class BehaviorOut(BaseModel):
+    title_ru: str = Field(description="Поведение во время теста")
+    items: list[BehaviorItemOut] = Field(description="Сигналы")
+    has_events: bool = Field(description="Были ли события в журнале (нужно согласие на журналирование)")
+    note_ru: str = Field(description="Сам по себе не доказывает списывание")
+    trust_weight: int = Field(default=0, description="Всегда 0: вес в доверии не задан")
+
+
 class ActOut(BaseModel):
     id: str = Field(description="Идентификатор сверки")
     source: Literal["session", "sandbox"] = Field(description="session | sandbox")
@@ -138,6 +153,7 @@ class ActOut(BaseModel):
     actions: list[dict[str, str]] = Field(description="Доступные решения: id и подпись")
     demo_assisted: bool = Field(description="Сессия жюри: исключена из метрик")
     auto_ban: bool = Field(default=False, description="Всегда false: автоматического бана нет")
+    behavior: BehaviorOut | None = Field(default=None, description="Поведение во время теста (для песочницы нет)")
 
 
 class ReconciliationReviewIn(_In):

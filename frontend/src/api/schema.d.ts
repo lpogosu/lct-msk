@@ -4731,6 +4731,8 @@ export interface components {
              * @default false
              */
             auto_ban: boolean;
+            /** @description Поведение во время теста (для песочницы нет) */
+            behavior: components["schemas"]["BehaviorOut"] | null;
         };
         /** ActStatOut */
         ActStatOut: {
@@ -5856,6 +5858,58 @@ export interface components {
              * @description pairs — строки набора пар, simple — три таблицы CSV/JSON
              */
             format: string | null;
+        };
+        /** BehaviorItemOut */
+        BehaviorItemOut: {
+            /**
+             * Id
+             * @description blur | paste_answer | paste_page | fast_correct | foreign_key | lz
+             */
+            id: string;
+            /**
+             * Label Ru
+             * @description Название сигнала
+             */
+            label_ru: string;
+            /**
+             * Value
+             * @description Значение: число или «есть/нет»
+             */
+            value: string;
+            /**
+             * Note Ru
+             * @description Нейтральное пояснение
+             */
+            note_ru: string;
+        };
+        /** BehaviorOut */
+        BehaviorOut: {
+            /**
+             * Title Ru
+             * @description Поведение во время теста
+             */
+            title_ru: string;
+            /**
+             * Items
+             * @description Сигналы
+             */
+            items: components["schemas"]["BehaviorItemOut"][];
+            /**
+             * Has Events
+             * @description Были ли события в журнале (нужно согласие на журналирование)
+             */
+            has_events: boolean;
+            /**
+             * Note Ru
+             * @description Сам по себе не доказывает списывание
+             */
+            note_ru: string;
+            /**
+             * Trust Weight
+             * @description Всегда 0: вес в доверии не задан
+             * @default 0
+             */
+            trust_weight: number;
         };
         /** BlindCardModuleOut */
         BlindCardModuleOut: {

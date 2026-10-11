@@ -65,6 +65,8 @@ export function ActView({
         ))}
       </dl>
 
+      <BehaviorBlock act={act} />
+
       <section className="flex flex-col justify-between gap-6 lg:flex-row lg:items-center" aria-labelledby="act-means">
         <div className="flex max-w-[919px] flex-col gap-1.5">
           <h2 id="act-means" className="t-name text-ink">
@@ -263,6 +265,38 @@ export function ActDetails({ act }: { act: Act }) {
           ))}
         </ul>
       </div>
+    </section>
+  )
+}
+
+/** «Поведение во время теста»: факты из журнала событий и флагов сессии; вес 0, автобана нет. */
+function BehaviorBlock({ act }: { act: Act }) {
+  const b = act.behavior
+  return (
+    <section className="flex flex-col gap-3" aria-labelledby="act-behavior" data-testid="act-behavior">
+      <h2 id="act-behavior" className="t-name text-ink">
+        {b?.title_ru ?? 'Поведение во время теста'}
+      </h2>
+      {b ? (
+        <>
+          <ul className="m-0 grid list-none gap-x-8 gap-y-3 p-0 sm:grid-cols-2">
+            {b.items.map((i) => (
+              <li key={i.id} className="flex flex-col gap-0.5">
+                <p className="t-label text-ink">
+                  {i.label_ru}: <span className="font-semibold">{i.value}</span>
+                </p>
+                <p className="t-small text-ink-3">{i.note_ru}</p>
+              </li>
+            ))}
+          </ul>
+          {!b.has_events && (
+            <p className="t-small text-ink-3">Событий в журнале нет: кандидат не давал согласия на журналирование или тест шёл без перерывов.</p>
+          )}
+          <p className="t-small text-ink-3">{b.note_ru}</p>
+        </>
+      ) : (
+        <p className="t-small text-ink-3">В песочнице поведенческих событий нет: они записываются только в настоящих сессиях теста.</p>
+      )}
     </section>
   )
 }

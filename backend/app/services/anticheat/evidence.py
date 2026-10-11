@@ -20,6 +20,7 @@ from sqlalchemy.orm import Session
 from app.core.clock import clock
 from app.core.errors import bad_request, not_found
 from app.models.candidate import CandidateProfile
+from app.models.testing import Flag as FlagRow
 from app.models.testing import SessionEvent as SessionEventRow
 from app.models.testing import TestResponse
 from app.models.testing import TestSession as SessionRow
@@ -497,7 +498,7 @@ def get_act(db: Session, ident: str) -> dict[str, Any]:
     resp = ctx.responses.get(ev.seq)
     copied_render = ctx.events.copy_render.get(ev.seq)
     hit = ctx.hit_index(ev.seq)
-    return act_payload(
+    out = act_payload(
         twin,
         ident=str(ev.id),
         source="session",
@@ -520,6 +521,8 @@ def get_act(db: Session, ident: str) -> dict[str, Any]:
         session_id=ev.session_id,
         demo_assisted=ev.demo_assisted,
     )
+    out["behavior"] = behavior_summary(db, ev.session_id)
+    return out
 
 
 def _evidence_by_ident(db: Session, ident: str, *, lock: bool = False) -> AnticheatEvidence:
@@ -534,6 +537,50 @@ def _evidence_by_ident(db: Session, ident: str, *, lock: bool = False) -> Antich
     if ev is None or ev.kind != "twin_trace":
         raise not_found("reconciliation_not_found", "Сверка не найдена")
     return ev
+
+
+# ----------------------------------------------------------------------------- поведение во время теста
+
+_NEUTRAL = "Сам по себе этот сигнал не доказывает списывание: учитывается только вместе с остальными, вес в доверии 0, автобана нет."
+
+
+def behavior_summary(db: Session, session_id: uuid.UUID | None) -> dict[str, Any] | None:
+    """Сводка поведенческих сигналов сессии из журнала событий и флагов (spec-testing §3.10). Только факты, без выводов."""
+    if session_id is None:
+        return None
+    ev = {"blur": 0, "paste_answer": 0, "paste_page": 0, "reconnect": 0}
+    for typ, payload in db.execute(
+        select(SessionEventRow.type, SessionEventRow.payload).where(
+            SessionEventRow.session_id == session_id, SessionEventRow.type.in_(("blur", "paste", "reconnect"))
+        )
+    ):
+        if typ == "paste":
+            ev["paste_answer" if (payload or {}).get("field", "answer") == "answer" else "paste_page"] += 1
+        else:
+            ev[typ] += 1
+    flags = {k: (v, sev) for k, v, sev in db.execute(
+        select(FlagRow.kind, FlagRow.value, FlagRow.severity).where(FlagRow.session_id == session_id)
+    )}
+
+    def fl(kind: str) -> str:
+        return "есть" if kind in flags else "нет"
+
+    fast = int(flags["fast_correct"][0] or 0) if "fast_correct" in flags else 0
+    items = [
+        ("blur", "Переключения вкладки", str(ev["blur"]), "Сколько раз окно теста теряло фокус. Кандидат мог открыть уведомление или другую вкладку."),
+        ("paste_answer", "Вставки в поле ответа", str(ev["paste_answer"]), "Вставка из буфера в поле ответа. Честный кандидат вправе вставить свой черновик."),
+        ("paste_page", "Вставки на страницу вне поля ответа", str(ev["paste_page"]), "Вставка вне поля ответа; на оценку не влияет."),
+        ("fast_correct", "Быстрые верные ответы на трудных заданиях", str(fast), "Ответ быстрее четверти медианного времени семейства при низкой вероятности верного ответа."),
+        ("foreign_key", "Совпадение с ключом чужого экземпляра", fl("foreign_key"), "Ответ совпал с ключом экземпляра, выданного другому аккаунту."),
+        ("lz", "Согласованность ответов (person-fit)", fl("lz"), "Необычный для уровня рисунок верных и неверных ответов."),
+    ]
+    return {
+        "title_ru": "Поведение во время теста",
+        "items": [{"id": i, "label_ru": a, "value": b, "note_ru": c} for i, a, b, c in items],
+        "has_events": any(ev.values()),
+        "note_ru": _NEUTRAL,
+        "trust_weight": 0,
+    }
 
 
 # ----------------------------------------------------------------------------- решение методиста
