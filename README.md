@@ -11,7 +11,7 @@
 
 ## Стенд
 
-**https://sirius-dev-day.ru** — развёрнутый стенд для жюри (демо-режим): вход без регистрации на [/jury](https://sirius-dev-day.ru/jury), API — [/api/docs](https://sirius-dev-day.ru/api/docs). Развёрнут одной командой `deploy/bootstrap.sh` (Docker, HTTPS Let's Encrypt, пул заданий, двойники, демо-мир).
+**https://sirius-dev-day.ru** — развёрнутый стенд для жюри (демо-режим): вход без регистрации на [/jury](https://sirius-dev-day.ru/jury), API — [/api/docs](https://sirius-dev-day.ru/api/docs). **Видео-демо (4:43):** [смотреть на Google Диске](https://drive.google.com/file/d/1cPFAu2nlYcGFdXGlDCs9NjI-B9T2AaG6/view). Развёрнут одной командой `deploy/bootstrap.sh` (Docker, HTTPS Let's Encrypt, пул заданий, двойники, демо-мир).
 
 - **Почта настоящая:** письма платформы (сброс пароля, уведомления о приглашениях и ответах, ссылка законному представителю для 15–17 лет) уходят с `no-reply@sirius-dev-day.ru` через SMTP хостинга с SSL; у домена настроены MX и SPF. Доставка проверена на внешний почтовый ящик. В демо-режиме код подтверждения при регистрации не требуется — чтобы жюри входило сразу; в боевом режиме он обязателен.
 - Сервер: 2 vCPU / 4 ГБ, Россия.
