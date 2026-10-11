@@ -38,3 +38,8 @@
 # 	respond @admin 404
 # 	reverse_proxy keycloak:8080
 # }
+
+# www → основной домен (сертификат выпускается и на www)
+www.{$VZ_PUBLIC_DOMAIN} {
+	redir https://{$VZ_PUBLIC_DOMAIN}{uri} permanent
+}
