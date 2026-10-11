@@ -22,7 +22,9 @@ from sqlalchemy.orm import Session
 from app.core.clock import clock
 from app.core.settings import Settings
 from app.models.company import Company
+from app.models.contact import Invitation
 from app.models.enums import UserRole
+from app.models.matching import Need
 from app.models.users import User
 from app.services.contact import sweep
 from app.services.demo import accounts, autoresponder, personas
@@ -52,10 +54,11 @@ class Counters:
     vacancies: int = 0
     applications: int = 0
     employer_tasks: int = 0
+    persona_invitations: int = 0
     skipped: list[str] = field(default_factory=list)
 
     def as_dict(self) -> dict[str, Any]:
-        return {k: getattr(self, k) for k in ("needs", "versions", "pins", "invitations", "vacancies", "applications", "employer_tasks", "skipped")}
+        return {k: getattr(self, k) for k in ("needs", "versions", "pins", "invitations", "vacancies", "applications", "employer_tasks", "persona_invitations", "skipped")}
 
 
 class Scenario:
@@ -278,6 +281,76 @@ class Scenario:
         with self.at(middle - 6 * step):
             self.api.post(f"/api/invitations/{rec['id']}/revoke-consent", cand)
 
+    # ------------------------------------------------------------------ приглашения живым персонам
+
+    def persona_invitations_up(self) -> int:
+        """Ожидающее приглашение ступенчатому кандидату с категорией (config → persona_invitations): жюри в роли
+        кандидата увидит вилку, «обещания процесса» и кнопки «Да / Да, если… / Нет». Идемпотентно: повторный вызов
+        (seed без --force, точечное применение на живом стенде) второе приглашение не создаёт. → создано приглашений."""
+        late = float(section("invitation_hours_ago")["late"])
+        staged = {x["key"]: x["email"] for x in section("staged")}
+        made = 0
+        for entry in section("persona_invitations"):
+            need_key, company_key = entry["need"], entry["company"]
+            nid = self.need_ids.get(need_key)
+            email = staged.get(entry["candidate"])
+            user = self.db.scalar(select(User).where(User.email == email)) if email else None
+            if nid is None or user is None:
+                self.counters.skipped.append(f"персона-приглашение {entry['candidate']}: нет брифа или аккаунта")
+                continue
+            company, hr = self.companies[company_key]
+            exists = self.db.scalar(
+                select(Invitation.id).where(Invitation.candidate_id == user.id, Invitation.company_id == company.id).limit(1)
+            )
+            if exists is not None:
+                continue
+            ref = self._find_ref(need_key, hr, user.id)
+            if ref is None:
+                self.counters.skipped.append(f"персона-приглашение {entry['candidate']}: нет в подборке брифа {need_key}")
+                continue
+            pick = Pick(user.id, ref, "")
+            with self.at(late):
+                self._pin(need_key, hr, pick)
+                try:
+                    self.api.post(
+                        "/api/invitations", hr,
+                        {"candidate": ref, "need_id": nid, "promises": list(entry.get("promises", []))},
+                    )
+                except ApiError as e:
+                    self.counters.skipped.append(f"персона-приглашение {entry['candidate']}: {e.code or e.status}")
+                    self.db.rollback()
+                    continue
+            made += 1
+            self.counters.persona_invitations += 1
+            self.db.commit()
+        return made
+
+    def _find_ref(self, need_key: str, hr: User, candidate_id: Any, pages: int = 10) -> str | None:
+        nid, company = self.need_ids[need_key], self.companies[self.need_company[need_key]][0]
+        for page in range(1, pages + 1):
+            try:
+                v = self.api.get(f"/api/needs/{nid}/selection", hr, params={"page": page})
+            except ApiError:
+                return None
+            for it in v.get("items") or []:
+                if resolve_ref(self.db, company.id, it["ref"]) == candidate_id:
+                    return str(it["ref"])
+            if not v.get("items") or page >= int(v.get("pages") or 1):
+                return None
+        return None
+
+    def attach_existing(self) -> None:
+        """Подключиться к уже собранному миру: компании и брифы сценария берём из БД (по названию)."""
+        self.companies_up()
+        for cfg in section("needs"):
+            company = self.companies[cfg["company"]][0]
+            need = self.db.scalar(
+                select(Need).where(Need.company_id == company.id, Need.title == cfg["title"]).order_by(Need.created_at).limit(1)
+            )
+            if need is not None:
+                self.need_ids[cfg["key"]] = str(need.id)
+                self.need_company[cfg["key"]] = cfg["company"]
+
     # ------------------------------------------------------------------ вакансии и отклики
 
     def vacancies_up(self) -> None:
@@ -376,6 +449,8 @@ class Scenario:
         self.needs_up()
         self.say("приглашения во всех статусах")
         self.invitations_up()
+        self.say("приглашение ступенчатому кандидату с категорией")
+        self.persona_invitations_up()
         self.say("вакансии и отклики")
         self.vacancies_up()
         self.applications_up()

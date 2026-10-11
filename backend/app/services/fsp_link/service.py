@@ -851,8 +851,11 @@ def demo_login(
 
 
 def demo_allowed(settings: Settings) -> bool:
-    """Демо-вход — только на демо-стенде: флаг VZ_FSP_DEMO_LOGIN_ENABLED и никогда в VZ_ENV=prod."""
-    return get_fsp_settings().demo_login_enabled and settings.env != "prod"
+    """Демо-вход — только на демо-стенде: флаг VZ_FSP_DEMO_LOGIN_ENABLED; в VZ_ENV=prod — лишь при VZ_DEMO_MODE=true
+    (публичный демо-стенд на prod-compose без Keycloak; боевой prod без DEMO_MODE демо-вход не открывает никогда)."""
+    if not get_fsp_settings().demo_login_enabled:
+        return False
+    return settings.env != "prod" or settings.demo_mode
 
 
 def demo_athletes(now: datetime) -> list[dict[str, Any]]:

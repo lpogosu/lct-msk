@@ -182,6 +182,10 @@ invitation_plan:
   - { company: kolokol,     need: web_player,       status: declined,  reason: salary }
   - { company: kolokol,     need: web_player,       status: consent_revoked }
   - { company: yantar,      need: billing_backend,  status: accepted,  note: "Контакты раскрыты, ждём «Связались»" }
+# Ожидающие приглашения живым персонам (ступенчатые аккаунты из staged): жюри в роли кандидата видит вилку, «обещания
+# процесса» и «Да / Да, если… / Нет». candidate — ключ из staged; promises — коды из config/contact.yaml → invitation.promises
+persona_invitations:
+  - { candidate: category, company: severny_kod, need: payments_backend, promises: [no_tech_screen, no_take_home] }
 invitation_hours_ago:
   early: 336       # приглашения, которые должны успеть истечь или закрыться (14 дней назад)
   middle: 96
@@ -435,11 +439,13 @@ jury_entry:
   industries: [other]
   months_by_grade: { intern: 3, junior: 14, middle: 40, senior: 72 }   # стаж только для подсказки грейда на брифинге
   employer_company: severny_kod      # «Посмотреть глазами работодателя»: HR этой компании (пароль не печатается)
+  invited_candidate: category        # «Кандидат с приглашением»: ступенчатый аккаунт staged.category (Вера Категориева)
   lab_account: jury                  # «Лаборатория методиста»: staff.jury (только просмотр)
   start_rate: { capacity: 60, period_s: 3600 }   # одноразовых кандидатов с одного адреса (жюри за одним NAT)
   paths:                             # куда вести после входа
     candidate_express: /candidate/test/{session_id}
     candidate_full: /candidate/test/{session_id}
     employer: /employer/needs
+    candidate_invited: /candidate/invitations
     lab: /lab/sessions
     fsp: /fsp/reserve

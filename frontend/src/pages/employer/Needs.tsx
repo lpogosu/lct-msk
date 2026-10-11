@@ -39,7 +39,7 @@ export default function Needs() {
       <PageHead
         title="Потребности"
         lead={
-          items.length > 0
+          needs.isPending || items.length > 0
             ? 'Опишите, кого ищете, — мы соберём подборку с объяснением по каждому кандидату.'
             : 'Опишите первую потребность — подборка соберётся за полминуты.'
         }

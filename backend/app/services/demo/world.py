@@ -384,6 +384,24 @@ def seed_world(
     return out
 
 
+def ensure_persona_invitations(settings: Settings, db: Session, *, say: Say = _quiet) -> int:
+    """Точечно добавить ожидающее приглашение ступенчатому кандидату в УЖЕ собранный мир (без сброса): для живого
+    стенда, собранного до появления config/demo.yaml → persona_invitations. Идемпотентно. → создано приглашений."""
+    api = Api(db, settings)
+    try:
+        sc = Scenario(db, settings, api, say)
+        sc.attach_existing()
+        matching_features.ensure_fresh(db)
+        db.commit()
+        made = sc.persona_invitations_up()
+        for m in sc.counters.skipped:
+            say(f"пропущено: {m}")
+        return made
+    finally:
+        api.close()
+        accounts.REUSE.clear()
+
+
 def reset_world(settings: Settings, db: Session, *, say: Say = _quiet) -> dict[str, Any]:
     """Быстрый сброс к состоянию seed: часы, данные контакта, персоны, сценарий. Популяцию и пул не трогает."""
     t0 = datetime.now(UTC)

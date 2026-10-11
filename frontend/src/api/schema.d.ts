@@ -10545,15 +10545,21 @@ export interface components {
              * @description Аккаунт жюри для лаборатории и панели ФСП собран
              */
             lab_available: boolean;
+            /**
+             * Invited Available
+             * @description Кандидат с ожидающим приглашением собран (seed выполнен)
+             * @default false
+             */
+            invited_available: boolean;
         };
         /** JuryPersonaIn */
         JuryPersonaIn: {
             /**
              * Persona
-             * @description employer — HR демо-компании; lab — лаборатория методиста (жюри); fsp — панель ФСП «Кадровый резерв» (тот же аккаунт жюри)
+             * @description employer — HR демо-компании; lab — лаборатория методиста (жюри); fsp — панель ФСП «Кадровый резерв» (тот же аккаунт жюри); candidate_invited — кандидат с ожидающим приглашением
              * @enum {string}
              */
-            persona: "employer" | "lab" | "fsp";
+            persona: "employer" | "lab" | "fsp" | "candidate_invited";
         };
         /** JuryPersonaOut */
         JuryPersonaOut: {
@@ -10580,7 +10586,7 @@ export interface components {
              * Persona
              * @enum {string}
              */
-            persona: "employer" | "lab" | "fsp";
+            persona: "employer" | "lab" | "fsp" | "candidate_invited";
             /**
              * Path
              * @description Куда вести фронтенд

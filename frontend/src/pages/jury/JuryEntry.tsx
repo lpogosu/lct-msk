@@ -6,7 +6,7 @@ import { enterJuryPersona, startJuryTest, useJuryPaths, type JuryMode } from '@/
 import { Alert, Button, EmptyState, Panel, Segmented, Skeleton } from '@/ui'
 import { Select } from '@/ui/Select'
 
-type Busy = JuryMode | 'employer' | 'lab' | 'fsp' | 'check' | null
+type Busy = JuryMode | 'employer' | 'lab' | 'fsp' | 'candidate_invited' | 'check' | null
 
 /**
  * Вход для жюри (публичный, только DEMO_MODE): без регистрации и писем. Одна кнопка — одноразовый кандидат с готовым
@@ -65,7 +65,7 @@ export default function JuryEntry() {
     }
   }
 
-  async function enter(persona: 'employer' | 'lab' | 'fsp') {
+  async function enter(persona: 'employer' | 'lab' | 'fsp' | 'candidate_invited') {
     setError(null)
     setBusy(persona)
     try {
@@ -168,7 +168,7 @@ export default function JuryEntry() {
         <h2 id="more" className="t-title text-brand">
           Что ещё посмотреть
         </h2>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           <PathCard
             title="Попробовать списать"
             text="Мини-тест из 4 заданий с двойниками в буфере: списывайте как угодно, затем смотрите, что заметила система."
@@ -191,6 +191,21 @@ export default function JuryEntry() {
               Войти как работодатель
             </Button>
             {!p.employer_available && <p className="t-small text-ink-3">Демо-мир не собран: выполните make seed.</p>}
+          </PathCard>
+          <PathCard
+            title="Кандидат с приглашением"
+            text="У кандидата Веры Категориевой («Backend · Middle» подтверждён) есть приглашение от «Северного кода»: вилка зарплаты, обещания процесса и ответы «Да / Да, если… / Нет». Ответьте на него — контакты раскроются только после взаимного «да»."
+          >
+            <Button
+              variant="outline"
+              block
+              loading={busy === 'candidate_invited'}
+              disabled={busy !== null || !p.invited_available}
+              onClick={() => void enter('candidate_invited')}
+            >
+              Войти как кандидат
+            </Button>
+            {!p.invited_available && <p className="t-small text-ink-3">Демо-мир не собран: выполните make seed.</p>}
           </PathCard>
           <PathCard
             title="Лаборатория методиста"

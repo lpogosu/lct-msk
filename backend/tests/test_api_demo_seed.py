@@ -178,6 +178,18 @@ def test_seed_builds_personas_staged_accounts_and_scenario(seeded, client, db_se
     assert db_session.scalar(select(func.count()).select_from(Vacancy)) == sc["vacancies"] > 0
     assert sc["employer_tasks"] >= 1
 
+    # --- ожидающее приглашение кандидату с категорией (stage4): вилка, «обещания процесса», повтор не дублирует
+    cat_user = stage["category"]
+    assert sc["persona_invitations"] == 1, sc["skipped"]
+    inv = db_session.scalars(select(Invitation).where(Invitation.candidate_id == cat_user.id)).all()
+    assert len(inv) == 1 and inv[0].status == "sent"
+    assert set(inv[0].flags) >= {"promise:no_tech_screen", "promise:no_take_home"}
+    cat_h = login(client, cat_user.email, accounts.password_for(test_settings, "staged:category"))
+    inbox = client.get("/api/invitations/inbox", headers=cat_h).json()
+    assert len(inbox["items"] if isinstance(inbox, dict) else inbox) == 1
+    from app.services.demo import world as _world
+    assert _world.ensure_persona_invitations(test_settings, db_session) == 0  # идемпотентно
+
     # --- файл с учётными данными: пароли выводятся из секрета, в stdout не печатаются
     text = (tmp_path / "var" / "demo_accounts.md").read_text(encoding="utf-8")
     assert accounts.password_for(test_settings, "persona:anna") in text and cfg["anna"]["email"] in text

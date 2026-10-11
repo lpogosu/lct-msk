@@ -48897,6 +48897,12 @@
             "type": "boolean",
             "title": "Lab Available",
             "description": "Аккаунт жюри для лаборатории и панели ФСП собран"
+          },
+          "invited_available": {
+            "type": "boolean",
+            "title": "Invited Available",
+            "description": "Кандидат с ожидающим приглашением собран (seed выполнен)",
+            "default": false
           }
         },
         "type": "object",
@@ -48908,7 +48914,8 @@
           "default_specialization",
           "default_grade",
           "employer_available",
-          "lab_available"
+          "lab_available",
+          "invited_available"
         ],
         "title": "JuryPathsOut"
       },
@@ -48919,10 +48926,11 @@
             "enum": [
               "employer",
               "lab",
-              "fsp"
+              "fsp",
+              "candidate_invited"
             ],
             "title": "Persona",
-            "description": "employer — HR демо-компании; lab — лаборатория методиста (жюри); fsp — панель ФСП «Кадровый резерв» (тот же аккаунт жюри)"
+            "description": "employer — HR демо-компании; lab — лаборатория методиста (жюри); fsp — панель ФСП «Кадровый резерв» (тот же аккаунт жюри); candidate_invited — кандидат с ожидающим приглашением"
           }
         },
         "type": "object",
@@ -48959,7 +48967,8 @@
             "enum": [
               "employer",
               "lab",
-              "fsp"
+              "fsp",
+              "candidate_invited"
             ],
             "title": "Persona"
           },

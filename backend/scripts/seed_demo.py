@@ -42,6 +42,9 @@ def _parse(argv: list[str] | None) -> argparse.Namespace:
                    help="Процессов-воркеров для создания кандидатов (по умолчанию — половина ядер, 2–8; 1 — в этом процессе)")
     p.add_argument("--force", action="store_true", help="Пересобрать сценарий, даже если он уже собран")
     p.add_argument("--reset", action="store_true", help="Только быстрый сброс (популяция и пул не трогаются)")
+    p.add_argument("--persona-invitations", action="store_true",
+                   help="Только добавить ожидающее приглашение ступенчатому кандидату (config/demo.yaml → persona_invitations) "
+                        "в уже собранный мир, без сброса; идемпотентно")
     p.add_argument("--skip-pool", action="store_true", help="Не проверять и не доливать пул экземпляров")
     p.add_argument("--credentials-only", action="store_true", help="Только пересоздать файл с логинами и паролями")
     return p.parse_args(argv)
@@ -68,6 +71,16 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     t0 = time.monotonic()
+
+    if args.persona_invitations:
+        sink.install()  # вебхук ATS «Северного кода» уходит на вымышленный хост — принимаем на месте
+        db = get_sessionmaker()()
+        try:
+            n = world.ensure_persona_invitations(settings, db, say=print)
+            print(f"Создано приглашений персонам: {n}")
+            return 0
+        finally:
+            db.close()
 
     def say(msg: str) -> None:
         print(f"[{time.monotonic() - t0:6.1f} с] {msg}", flush=True)

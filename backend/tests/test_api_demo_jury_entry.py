@@ -159,7 +159,10 @@ def test_jury_paths_and_missing_personas(demo_client, bank):
     assert any(x["code"] == "backend_python" for x in p["specializations"])
     # демо-мир в тесте не собран: роли недоступны, и это сказано честно (а не 500)
     assert p["employer_available"] is False
+    assert p["invited_available"] is False
     r = demo_client.post("/api/demo/jury/persona", json={"persona": "employer"})
+    assert r.status_code == 404 and r.json()["code"] == "persona_not_seeded"
+    r = demo_client.post("/api/demo/jury/persona", json={"persona": "candidate_invited"})
     assert r.status_code == 404 and r.json()["code"] == "persona_not_seeded"
 
 
@@ -173,6 +176,19 @@ def test_persona_login_without_password(demo_client, db_session, test_settings):
     assert r.status_code == 200, r.text
     body = r.json()
     assert body["user"]["email"] == em and body["path"] == "/employer/needs" and "password" not in str(body).lower()
+
+
+def test_candidate_with_invitation_persona_login(demo_client, db_session, test_settings):
+    from app.services.demo import accounts
+    from app.services.demo.cfg import section
+
+    key = section("jury_entry")["invited_candidate"]
+    em = next(x["email"] for x in section("staged") if x["key"] == key)
+    accounts.ensure_user(db_session, test_settings, email=em, role="candidate", password="Vz-whatever1")
+    assert demo_client.get("/api/demo/jury/paths").json()["invited_available"] is True
+    r = demo_client.post("/api/demo/jury/persona", json={"persona": "candidate_invited"})
+    assert r.status_code == 200, r.text
+    assert r.json()["user"]["email"] == em and r.json()["path"] == "/candidate/invitations"
 
 
 def test_register_without_email_code_in_demo_mode(demo_client):

@@ -31,7 +31,7 @@ export async function startJuryTest(mode: JuryMode, specialization: string, grad
 }
 
 /** Вход без пароля в демо-роль: работодатель, лаборатория жюри или панель ФСП (тот же аккаунт жюри). */
-export async function enterJuryPersona(persona: 'employer' | 'lab' | 'fsp') {
+export async function enterJuryPersona(persona: 'employer' | 'lab' | 'fsp' | 'candidate_invited') {
   const t = await unwrap(api.POST('/api/demo/jury/persona', { body: { persona } }))
   applyTokenResponse(t)
   return t

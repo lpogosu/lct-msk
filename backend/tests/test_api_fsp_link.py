@@ -542,6 +542,9 @@ def test_demo_login_never_in_prod():
         _env_file=None, env="prod", jwt_secret=secret, app_secret=secret + "a", pseudonym_secret=secret + "b", cookie_secure=True
     )
     assert fsp.demo_allowed(prod) is False
+    # публичный DEMO-стенд на prod-compose (VZ_ENV=prod + VZ_DEMO_MODE=true) без Keycloak — демо-вход доступен
+    demo_prod = prod.model_copy(update={"demo_mode": True})
+    assert fsp.demo_allowed(demo_prod) is True
     assert fsp.demo_allowed(Settings(_env_file=None, env="dev")) is True
 
 

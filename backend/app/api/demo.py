@@ -419,11 +419,11 @@ class JuryStartOut(TokenResponse):
 
 
 class JuryPersonaIn(BaseModel):
-    persona: Literal["employer", "lab", "fsp"] = Field(description="employer — HR демо-компании; lab — лаборатория методиста (жюри); fsp — панель ФСП «Кадровый резерв» (тот же аккаунт жюри)")
+    persona: Literal["employer", "lab", "fsp", "candidate_invited"] = Field(description="employer — HR демо-компании; lab — лаборатория методиста (жюри); fsp — панель ФСП «Кадровый резерв» (тот же аккаунт жюри); candidate_invited — кандидат с ожидающим приглашением")
 
 
 class JuryPersonaOut(TokenResponse):
-    persona: Literal["employer", "lab", "fsp"]
+    persona: Literal["employer", "lab", "fsp", "candidate_invited"]
     path: str = Field(description="Куда вести фронтенд")
 
 
@@ -441,6 +441,7 @@ class JuryPathsOut(BaseModel):
     default_grade: str
     employer_available: bool = Field(description="Демо-работодатель собран (seed выполнен)")
     lab_available: bool = Field(description="Аккаунт жюри для лаборатории и панели ФСП собран")
+    invited_available: bool = Field(default=False, description="Кандидат с ожидающим приглашением собран (seed выполнен)")
 
 
 @router.get(
@@ -474,6 +475,7 @@ def jury_paths(db: DbSession) -> dict[str, Any]:
         "default_grade": c["default_grade"],
         "employer_available": exists("employer"),
         "lab_available": exists("lab"),
+        "invited_available": exists("candidate_invited"),
     }
 
 

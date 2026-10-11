@@ -67,6 +67,8 @@ def persona_user(db: Session, persona: str) -> User:
     c = cfg()
     if persona == "employer":
         email = next(x["hr_email"] for x in section("companies") if x["key"] == c["employer_company"])
+    elif persona == "candidate_invited":  # ступенчатый кандидат с категорией и ожидающим приглашением (scenario.persona_invitations_up)
+        email = next(x["email"] for x in section("staged") if x["key"] == c["invited_candidate"])
     elif persona in ("lab", "fsp"):  # панель ФСП открывает тот же аккаунт жюри (роль методист), другая стартовая страница
         email = section("staff")[c["lab_account"]]["email"]
     else:  # pragma: no cover — схема запроса уже ограничила значения
